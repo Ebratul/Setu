@@ -1,3 +1,4 @@
+from datetime import date
 from functools import lru_cache
 from pathlib import Path
 
@@ -26,6 +27,11 @@ class Settings(BaseSettings):
     langsmith_api_key: SecretStr | None = None
     langsmith_tracing: bool = False
     langsmith_project: str = "setu"
+
+    audit_signing_key: SecretStr | None = None
+    audit_dev_key_path: Path = REPO_ROOT / "keys" / "audit_dev_ed25519.key"
+
+    demo_today: date = date(2026, 10, 20)
 
     @property
     def cors_origins(self) -> list[str]:

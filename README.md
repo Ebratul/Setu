@@ -27,11 +27,14 @@ If port 5432 is already in use, set `POSTGRES_PORT` (and the port in `DATABASE_U
 | `pnpm run dev:web` | Next.js web on http://localhost:3000 (proxies `/api/*` to the agent) |
 | `pnpm run dev` | both together |
 | `pnpm run db:down` | stop Postgres (data kept in the `setu-pgdata` volume) |
+| `pnpm run db:migrate` | create/upgrade all tables (`alembic upgrade head`) |
+| `pnpm run db:seed` / `db:reset-demo` | load the simulated demo data (idempotent) / wipe and reload it |
+| `./scripts/verify_seed` | assert the key demo numbers; see `data/demo/README.md` |
 | `pnpm run lint` / `format` / `test` | ESLint + tsc + Ruff / Prettier + Ruff format / pytest + Vitest |
 | `pnpm run types` | regenerate `apps/web/src/lib/api/schema.gen.ts` from the running agent |
 
 `npm run <script>` works too (pnpm must be installed). On macOS/Linux the `Makefile` wraps the same scripts:
-`make up down dev test lint format types migrate seed eval`.
+`make up down dev test lint format types migrate seed reset-demo verify-seed eval`.
 
 ## Layout
 - `apps/web` — Next.js (App Router) + TypeScript + Tailwind v4

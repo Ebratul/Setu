@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+# Assert the key demo numbers (landed cost, milestones, shortfall, KYB, approvals, hash registry) and
+# that running the seed twice leaves the data unchanged. Pass --no-reseed to skip the double seed.
+set -euo pipefail
+root="$(cd "$(dirname "$0")/.." && pwd)"
+exec uv run --directory "$root/services/agent" python -m seed.verify "$@"

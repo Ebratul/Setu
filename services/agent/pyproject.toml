@@ -41,7 +41,11 @@ quote-style = "double"
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 asyncio_mode = "auto"
-addopts = "-ra"
+addopts = "-ra -m 'not llm'"
+markers = [
+    "db: needs a local Postgres (uses a separate *_test database)",
+    "llm: calls a real model; excluded by default",
+]
 
 [dependency-groups]
 dev = [

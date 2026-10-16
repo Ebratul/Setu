@@ -4,7 +4,7 @@ Updated at the end of every phase by the `phase-handoff` skill. Newest entries a
 Times are Dhaka (UTC+6). Deadline: 20 Oct 2026 21:59 Dhaka. Must-have cut line: 19 Oct 23:59.
 
 ## Phase checklist
-- [x] 0.1 · [ ] 1.1 · [ ] 1.2 · [ ] 1.3
+- [x] 0.1 · [x] 1.1 · [x] 1.2 · [ ] 1.3
 - [ ] 2.1 · [ ] 2.2 · [ ] 2.3 · [ ] 2.4 · [ ] 2.5 · [ ] 2.6
 - [ ] 3.1 · [ ] 3.2 · [ ] 3.3 · [ ] 3.4
 - [ ] 4.1 · [ ] 4.2 · [ ] 4.3 · [ ] 4.4 · [ ] 4.5
@@ -20,6 +20,7 @@ Times are Dhaka (UTC+6). Deadline: 20 Oct 2026 21:59 Dhaka. Must-have cut line: 
 |---|---|---|---|---|---|
 | setup | 2026-10-17 | done | Planning session: CLAUDE.md, rules, agents, skills, hooks, PLAN/REQUIREMENTS/PROGRESS docs. No app code. | hook pipe-tests pass | Start Phase 0.1 in a fresh session. |
 | 0.1 | 2026-10-17 02:39 | done | Monorepo scaffold: pnpm workspace, Next.js 16 web + status card, FastAPI agent /health, pgvector compose, Makefile, env examples, README. | pytest 4 passed · vitest 2 passed · lint/tsc/ruff clean · build ok | Copy .env.example → .env; `pnpm run db:up`, `pnpm run dev`. Next: Phase 1.1 schema. |
+| 1.1+1.2 | 2026-10-17 03:35 | done | All 26 tables + initial Alembic migration; Money helpers; audit-chain primitives; deterministic P03 demo seed (Rahima/SETU-2026-0001), reset-demo, verify_seed. | pytest 45 passed (incl. 7 db) · vitest 2 · ruff clean · verify_seed 18/18 · security review: pass with fixes (highs fixed) | Read data/demo/README.md + docs/data-model.md. Read endpoints deferred to next phase. |
 
 ## Handoff notes
 
@@ -52,7 +53,57 @@ Times are Dhaka (UTC+6). Deadline: 20 Oct 2026 21:59 Dhaka. Must-have cut line: 
   phases exist. `e2e` script is a placeholder until Playwright lands (6.2). No `docs/SRS.md`, so step 7 skipped.
 - **Next phase reads:** `app/config.py` and `app/db/session.py` (extend, don't replace); Alembic is not initialised yet (1.1 does `alembic init`).
 
+### 1.1 + 1.2 (one session, from the user's "P03 seed" prompt)
+- **Scope:** Phase 1.1 (schema) had not been done, so this session built it too (user's choice). The P03 demo world
+  **replaces** PLAN's Rahman Textiles / ORD-1042 / ORD-1043. PLAN "Standard demo data" is rewritten, and later ORD-1042
+  references now read SETU-2026-0001. There is no ORD-1043; the USD 20,000 rule needs a test deal.
+- **Run:** `pnpm run db:up` → `pnpm run db:migrate` → `pnpm run db:seed` → `./scripts/verify_seed` (18 checks, re-seeds
+  twice). `pnpm run db:reset-demo` wipes everything except `kb_chunks`/`llm_cache` and reseeds. `make migrate|seed|reset-demo|verify-seed` wrap them.
+- **Schema:** `app/db/{base,enums,session}.py`, `app/db/models/{identity,deals,finance,trust,app_state}.py`, migration
+  `alembic/versions/20261017_60340801e54e_initial_schema.py` (hand-reviewed: removed duplicate enum CHECKs, added
+  `CREATE EXTENSION vector`; `alembic check` reports no drift). Enums are VARCHAR + CHECK. Table list: `docs/data-model.md`.
+- **Money:** `app/domain/money.py` (`Money`, `D`, `q2`, `split_by_ratios`, `money_sum`; floats rejected).
+- **Audit primitives:** `app/security/audit.py` (`canonical_json`, `params_hash`, `compute_entry_hash`, `build_chain`,
+  `verify_chain`, `load_signing_key`). `ts` is hashed in UTC. Key = `AUDIT_SIGNING_KEY` (hex or base64 32-byte seed),
+  else a dev key auto-created at seed time in git-ignored `keys/audit_dev_ed25519.key`. Phase 5.4 builds the append
+  service, /audit/verify and export on these.
+- **Seed:** `services/agent/seed/` has one pure `build(ctx)` per domain plus `cli.py` (the only DB writer: upsert on PK)
+  and `verify.py`. Ids are uuid5 of stable keys, and all dates are `DEMO_TODAY ± n` (setting `demo_today`, env `DEMO_TODAY`,
+  default 2026-10-20). After an anchor change, `db:seed` refuses and asks for `db:reset-demo`. It produces 610 rows.
+  `audit_log` and `approval_requests` are insert-only on re-seed; `reset-demo` refuses a non-local DB without `--allow-remote`.
+- **Key numbers:** landed cost 11,200.00; milestones 2,880/5,760/960; margin 18.01% (sale 13,660); Rahima balance on the
+  M2 date (2026-11-07) 4,200.00 → shortfall 1,560.00; good CNY day T+2 (CNY/BDT −1.84% vs the 30-day mean); 5 financing
+  options; FX 91 days of history + 7 forecast days per pair; 1 pending Tier 2 + 1 pending Tier 3; Lender A holds the
+  PI hash; audit chain of 35 entries is valid.
+- **Decisions:** (1) Tier 2 reason for the M1 release is `FX_RATE_LOCK` (USD→CNY to Huaxin's CNY account), not
+  "first deal": the spec also seeds 2 completed Rahima–Huaxin deals (user's choice). (2) Escrow is funded tranche by
+  tranche, so the main deal is FUNDED with M1 only and M2 is a future cash outflow. (3) The seeded Tier 3 beneficiary
+  change is PENDING while the deal stays FUNDED (per spec). 5.1 decides whether a pending Tier 3 freezes escrow.
+  (4) No passwords are stored; the demo "login as" switch arrives with auth. (5) Document sha256 hashes the real file in
+  `data/demo/SETU-2026-0001/` when present, otherwise a deterministic placeholder; the hash registry follows.
+- **Tests:** `tests/domain/test_money.py` (golden + Hypothesis), `tests/security/test_audit.py` (tamper, unlink,
+  wrong key, TZ invariance), `tests/seed/test_seed_build.py` (pure: numbers for 3 anchors, determinism, no floats,
+  unique ids), `tests/seed/test_seed_db.py` (`@pytest.mark.db`: migration, seed twice → identical, reset). DB tests use
+  `TEST_DATABASE_URL` or `<db>_test` on the same server, **only if DATABASE_URL is localhost**; otherwise they skip.
+- **Security review (security-reviewer): PASS WITH FIXES.** Fixed: both highs (the test-DB guard now requires a local
+  host, a `_test` name and a database other than DATABASE_URL; re-seeding no longer rewrites audit or approvals, and
+  there is no implicit wipe). Also fixed: `params_hash` = `app/security/approvals.py::approval_binding_hash` over action,
+  tier, deal, milestone, account and params; DB CHECKs `tier IN (2,3)` and `tier3 ⇒ otp_required AND
+  cooling_off_until`; `DOC_INSTRUCTION` reason on the email-originated change; audit rejects naive `ts`, catches seq
+  gaps, key dir 0700 and key file must be 0600. **Open, for 5.1/5.4:** (a) security.md says escrow is FROZEN while a
+  Tier 3 is pending, but the spec seeds the deal FUNDED. 5.1 must block releases while a Tier 3 is pending on the same
+  deal or supplier, or freeze it. (b) The seeded cooling-off uses DEMO_TODAY 09:45, so 5.1 restarts the window when the
+  OTP flow begins. (c) `canonical_json` does not reject floats. (d) No signed chain-head anchor (tail truncation of the
+  last entries is undetectable). (e) Seeding a hosted DB without AUDIT_SIGNING_KEY signs with a local dev key; set the
+  env var in prod.
+- **Not done (deferred):** read endpoints (`GET /suppliers`, `/deals`, `/fx/rates`, `/financing/options`), `make types`,
+  `hs_duty.json`, `POST /demo/reset`.
+- **Next phase reads:** `docs/data-model.md`, `data/demo/README.md`, `seed/financing.py` docstring (eligibility facts),
+  `seed/cashflow.py` docstring (balance rule).
+
 ## Known issues / risks
+- 1.2: the local `.env` / `.env.example` `DATABASE_URL` points at a hosted Postgres, so `db:migrate`/`db:seed` without
+  an override write there. Local verification used `DATABASE_URL=postgresql://setu:setu@localhost:5435/setu`.
 - Compose requires `POSTGRES_USER/PASSWORD/DB` from root `.env` (fails fast with a message if missing). On the dev
   machine host port 5432 is taken by a native Postgres — verification ran with `POSTGRES_PORT=5435`.
 - Production routing of `/api/*` → FastAPI (prefix stripping) is decided in Phase 8.1; locally the Next rewrite strips it.

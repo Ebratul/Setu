@@ -1,7 +1,7 @@
 # Thin wrappers around the root package.json scripts (cross-platform users can run `pnpm run <script>` directly).
 AGENT := uv run --directory services/agent
 
-.PHONY: install up down migrate seed dev test lint format types eval
+.PHONY: install up down migrate seed reset-demo verify-seed dev test lint format types eval
 
 install:
 	pnpm install
@@ -14,12 +14,16 @@ down:
 	pnpm run db:down
 
 migrate:
-	@if [ -f services/agent/alembic.ini ]; then $(AGENT) alembic upgrade head; \
-	else echo "migrate: Alembic is configured in Phase 1.1"; fi
+	pnpm run db:migrate
 
 seed:
-	@if [ -f services/agent/seed/load.py ]; then $(AGENT) python -m seed.load; \
-	else echo "seed: seed loaders are added in Phase 1.2"; fi
+	pnpm run db:seed
+
+reset-demo:
+	pnpm run db:reset-demo
+
+verify-seed:
+	pnpm run db:verify
 
 dev:
 	pnpm run dev
