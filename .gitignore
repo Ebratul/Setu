@@ -34,3 +34,7 @@ data/generated/**/*.pdf
 .vercel/
 .DS_Store
 *.log
+
+# Playwright output
+apps/web/test-results/
+apps/web/playwright-report/

@@ -41,3 +41,8 @@ If port 5432 is already in use, set `POSTGRES_PORT` (and the port in `DATABASE_U
 - `services/agent` — Python FastAPI service (uv)
 - `infra/db/init.sql` — enables the `vector` extension on first DB start
 - `docs/` — plan, requirements, progress log
+
+## Third-party licences
+- [Recharts](https://github.com/recharts/recharts) — MIT (charts in `apps/web`)
+- [Noto Sans Bengali](https://fonts.google.com/noto/specimen/Noto+Sans+Bengali) — SIL Open Font License 1.1 (via `next/font/google`)
+- [Inter](https://rsms.me/inter/) — SIL Open Font License 1.1 (via `next/font/google`)

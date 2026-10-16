@@ -1,0 +1,80 @@
+# Finance formulas (FR-3)
+
+Deterministic Python in `services/agent/app/domain/`. No LLM touches these numbers. Money is `Decimal`
+(`app/domain/money.py`), full precision inside a calculation, quantized only at the API boundary with
+`ROUND_HALF_UP`. Percent fields in the API are percent strings with 2 dp (`"18.01"`). Domain code keeps
+fractions (`0.1801`).
+
+## Landed cost: `landed_cost.py`
+```
+landed_cost   = goods_value + Σ extra lines (FREIGHT, INSURANCE, DUTY, BANK_CHARGES, OTHER)
+share(line)   = line / landed_cost
+cost_per_unit = landed_cost / quantity
+```
+- All lines must be in the goods currency. The service converts them first with `fx.FxTable`.
+- Seeded deals carry duty as one `DUTY` line. HS-code duty (CD/RD/SD/VAT/AIT/AT) from `seed/hs_duty.json`
+  is not built yet.
+
+## Margin: `margin.py`
+```
+gross_profit       = revenue − landed_cost
+gross_margin       = gross_profit / revenue        (None when revenue = 0)
+markup             = gross_profit / landed_cost    (None when cost = 0)
+break_even_price   = landed_cost / quantity
+price_for_margin(m)= break_even_price / (1 − m),   0 ≤ m < 1
+```
+- **Band:** decided on the margin rounded to 2 dp in percent, so the colour always matches the number shown.
+  healthy ≥ 15.00%, thin ≥ 8.00%, otherwise low.
+
+## FX: `fx.py`
+- A quote is `1 base = rate quote` (`fx_rates`, source `MOCK`). `rate(a, b)` tries, in order: identity,
+  the direct quote, the inverse quote (1/rate), then a cross through USD.
+- The service uses the latest `HISTORY` (not `FORECAST`) row per pair on or before DEMO_TODAY. Every response
+  lists the quotes it used (`fx[]` with `as_of`).
+- Each amount in a response is converted on its own from the full-precision value and then quantized.
+  So converted lines can differ from the converted total by 0.01.
+
+## Monthly summary: `summary.py`
+- A deal counts in the month it was **opened**. DRAFT and CANCELLED deals are excluded.
+- Report currency is the buyer's cash currency (USD for both demo buyers).
+```
+purchases          = Σ goods value
+landed             = Σ landed cost
+average_margin     = Σ gross profit / Σ expected revenue     (revenue-weighted)
+top_cost_driver    = extra-cost kind with the largest Σ; share = Σ kind / Σ all extras
+purchases_change   = purchases(m) − purchases(m−1); ratio = change / purchases(m−1) (None if 0)
+margin_change_pts  = average_margin(m) − average_margin(m−1)
+history            = the 6 months ending at m, oldest first
+```
+
+## Supplier scorecard: `scorecard.py`
+Window: the last 6 monthly `supplier_scores` rows, which are network-wide. The monthly score formula is in
+`seed/scores.py`.
+```
+on_time_rate = Σ(on_time_rate_m × deals_m) / Σ deals_m
+defect_rate  = Σ(defect_rate_m × deals_m) / Σ deals_m
+dispute_rate = Σ disputes_m / Σ deals_m
+score        = latest monthly score (0–100)
+price_index  = 100 × Σ landed cost / Σ goods value over committed deals (USD); 100 = no extra costs
+```
+- A supplier is **weak** when any flag is set: `KYB_NOT_VERIFIED` (KYB ≠ VERIFIED), `LOW_SCORE` (< 70),
+  `HIGH_DISPUTE_RATE` (> 10%) or `LOW_ON_TIME` (< 80%).
+
+## Explanations: `narrative.py`
+- Deterministic EN + BN templates with stable `code`s:
+  - Order: `LARGEST_EXTRA_COST`, `EXTRA_COSTS_TOTAL`, `GROSS_MARGIN` / `NO_SELLING_PRICE`, `BREAK_EVEN`, `FX_RATES_USED`.
+  - Monthly: `MONTH_VOLUME`, `MONTH_CHANGE`, `MONTH_MARGIN_DRIVER`.
+  - Supplier: `FLAG_*`, `SUPPLIER_OK`.
+- BN text uses Bengali digits. Shares are shown with 1 dp and margins with 2 dp. The agent (Phase 3.x) may
+  rephrase these sentences but never recompute the numbers.
+
+## Worked example: SETU-2026-0001 (DEMO_TODAY 2026-10-20)
+| Item | Value |
+|---|---|
+| Goods | 8,000 m × USD 1.20 = 9,600.00 (85.71%) |
+| Extras | freight 600.00 (5.36%) · insurance 50.00 (0.45%) · duty 800.00 (7.14%) · bank 150.00 (1.34%) = 1,600.00 |
+| Landed cost | **11,200.00** = BDT 1,373,008.00 at USD/BDT 122.59 = CNY 79,508.80 at USD/CNY 7.099 |
+| Cost per unit / break-even | **1.40** |
+| Expected revenue | 13,660.00 (1.7075 per m) |
+| Gross margin | 2,460.00 = **18.01%** (healthy) · markup 21.96% |
+| Price for a 20% margin | 1.40 / 0.80 = 1.75 per m |

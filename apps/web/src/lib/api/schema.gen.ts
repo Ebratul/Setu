@@ -21,10 +21,376 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/auth/demo-users": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Demo Users
+         * @description Seeded demo users for the "Login as" screen.
+         */
+        get: operations["demo_users_auth_demo_users_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/auth/demo-login": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Demo Login */
+        post: operations["demo_login_auth_demo_login_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/auth/me": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Me */
+        get: operations["me_auth_me_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/auth/logout": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Logout */
+        post: operations["logout_auth_logout_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/analysis/orders": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Orders
+         * @description Deals the caller may analyse (own deals for buyers; all for admin/judge).
+         */
+        get: operations["list_orders_analysis_orders_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/analysis/orders/{deal_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Order Analysis
+         * @description Landed cost breakdown, margin, break-even and explanations for one deal (reference or id).
+         */
+        get: operations["order_analysis_analysis_orders__deal_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/analysis/landed-cost": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Landed Cost What If
+         * @description What-if landed cost calculator. Uses today's mock FX rates; saves nothing.
+         */
+        post: operations["landed_cost_what_if_analysis_landed_cost_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/analysis/monthly": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Monthly Summary
+         * @description Monthly purchase summary for a buyer with plain-language insights (EN + BN).
+         */
+        get: operations["monthly_summary_analysis_monthly_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/analysis/suppliers": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Supplier Scorecard
+         * @description Supplier scorecard: on-time, disputes, price index, score 0-100 and KYB status.
+         */
+        get: operations["supplier_scorecard_analysis_suppliers_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        /** Amounts */
+        Amounts: {
+            /**
+             * Usd
+             * @example 11200.00
+             */
+            USD: string;
+            /**
+             * Bdt
+             * @example 11200.00
+             */
+            BDT: string;
+            /**
+             * Cny
+             * @example 11200.00
+             */
+            CNY: string;
+        };
+        /** CostDriverOut */
+        CostDriverOut: {
+            /**
+             * Kind
+             * @enum {string}
+             */
+            kind: "FREIGHT" | "INSURANCE" | "DUTY" | "BANK_CHARGES" | "OTHER";
+            amount: components["schemas"]["Amounts"];
+            /**
+             * Share Pct
+             * @example 11200.00
+             */
+            share_pct: string;
+        };
+        /** CostLineIn */
+        CostLineIn: {
+            /**
+             * Kind
+             * @enum {string}
+             */
+            kind: "FREIGHT" | "INSURANCE" | "DUTY" | "BANK_CHARGES" | "OTHER";
+            /**
+             * Amount
+             * @example 9600.00
+             */
+            amount: string;
+            /** Label */
+            label?: string | null;
+        };
+        /** CostLineOut */
+        CostLineOut: {
+            /**
+             * Kind
+             * @enum {string}
+             */
+            kind: "GOODS" | "FREIGHT" | "INSURANCE" | "DUTY" | "BANK_CHARGES" | "OTHER";
+            /** Label */
+            label: string | null;
+            amount: components["schemas"]["Amounts"];
+            /**
+             * Share Pct
+             * @example 11200.00
+             */
+            share_pct: string;
+        };
+        /** DealSummary */
+        DealSummary: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Reference */
+            reference: string;
+            /** Title */
+            title: string;
+            /** Status */
+            status: string;
+            /** Buyer Name */
+            buyer_name: string;
+            /** Supplier Name */
+            supplier_name: string;
+            /** Supplier Kyb Status */
+            supplier_kyb_status: string;
+            /** Hs Code */
+            hs_code: string;
+            /** Incoterm */
+            incoterm: string;
+            /**
+             * Quantity
+             * @example 11200.00
+             */
+            quantity: string;
+            /** Unit */
+            unit: string;
+            /**
+             * Unit Price
+             * @example 11200.00
+             */
+            unit_price: string;
+            /**
+             * Currency
+             * @enum {string}
+             */
+            currency: "USD" | "BDT" | "CNY";
+            /**
+             * Goods Value
+             * @example 11200.00
+             */
+            goods_value: string;
+            /**
+             * Opened On
+             * Format: date
+             */
+            opened_on: string;
+        };
+        /** DemoLoginIn */
+        DemoLoginIn: {
+            /** Email */
+            email: string;
+        };
+        /** DemoUserOut */
+        DemoUserOut: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Email */
+            email: string;
+            /** Display Name */
+            display_name: string;
+            /**
+             * Role
+             * @enum {string}
+             */
+            role: "BUYER" | "SUPPLIER" | "ADMIN" | "JUDGE";
+            /**
+             * Language
+             * @enum {string}
+             */
+            language: "en" | "bn" | "zh";
+            /** Party Id */
+            party_id: string | null;
+            /** Party Name */
+            party_name: string | null;
+        };
+        /** DemoUsers */
+        DemoUsers: {
+            /**
+             * Demo
+             * @default true
+             * @constant
+             */
+            demo: true;
+            /** Users */
+            users: components["schemas"]["DemoUserOut"][];
+        };
+        /** Explanation */
+        Explanation: {
+            /** Code */
+            code: string;
+            /** En */
+            en: string;
+            /** Bn */
+            bn: string;
+        };
+        /** FxRateOut */
+        FxRateOut: {
+            /**
+             * Base
+             * @enum {string}
+             */
+            base: "USD" | "BDT" | "CNY";
+            /**
+             * Quote
+             * @enum {string}
+             */
+            quote: "USD" | "BDT" | "CNY";
+            /**
+             * Rate
+             * @example 11200.00
+             */
+            rate: string;
+            /**
+             * As Of
+             * Format: date
+             */
+            as_of: string;
+            /** Source */
+            source: string;
+        };
+        /** HTTPValidationError */
+        HTTPValidationError: {
+            /** Detail */
+            detail?: components["schemas"]["ValidationError"][];
+        };
         /** HealthResponse */
         HealthResponse: {
             /**
@@ -44,6 +410,280 @@ export interface components {
             db: "ok" | "unavailable";
             /** Version */
             version: string;
+        };
+        /**
+         * LandedCostRequest
+         * @description What-if calculator input. Nothing is saved.
+         */
+        LandedCostRequest: {
+            /**
+             * Currency
+             * @default USD
+             * @enum {string}
+             */
+            currency: "USD" | "BDT" | "CNY";
+            /**
+             * Goods Value
+             * @example 9600.00
+             */
+            goods_value: string;
+            /**
+             * Quantity
+             * @example 9600.00
+             */
+            quantity: string;
+            /**
+             * Unit
+             * @default pcs
+             */
+            unit: string;
+            /**
+             * Cost Lines
+             * @default []
+             */
+            cost_lines: components["schemas"]["CostLineIn"][];
+            /** Selling Price Per Unit */
+            selling_price_per_unit?: string | null;
+            /** Target Margin Pct */
+            target_margin_pct?: string | null;
+        };
+        /** MonthTotalsOut */
+        MonthTotalsOut: {
+            /**
+             * Month
+             * @example 2026-10
+             */
+            month: string;
+            /** Deals Count */
+            deals_count: number;
+            total_purchases: components["schemas"]["Amounts"];
+            total_landed_cost: components["schemas"]["Amounts"];
+            expected_revenue: components["schemas"]["Amounts"];
+            /** Average Margin Pct */
+            average_margin_pct: string | null;
+        };
+        /** MonthlyChange */
+        MonthlyChange: {
+            purchases_delta: components["schemas"]["Amounts"];
+            /** Purchases Pct */
+            purchases_pct: string | null;
+            /** Deals Delta */
+            deals_delta: number;
+            /** Margin Delta Pts */
+            margin_delta_pts: string | null;
+        };
+        /** MonthlyDeal */
+        MonthlyDeal: {
+            /** Reference */
+            reference: string;
+            /** Title */
+            title: string;
+            /** Supplier Name */
+            supplier_name: string;
+            /** Status */
+            status: string;
+            landed_cost: components["schemas"]["Amounts"];
+            /** Gross Margin Pct */
+            gross_margin_pct: string | null;
+        };
+        /** MonthlySummaryOut */
+        MonthlySummaryOut: {
+            /**
+             * Simulated
+             * @default true
+             * @constant
+             */
+            simulated: true;
+            /**
+             * Party Id
+             * Format: uuid
+             */
+            party_id: string;
+            /** Party Name */
+            party_name: string;
+            /**
+             * Month
+             * @example 2026-10
+             */
+            month: string;
+            /**
+             * Currency
+             * @enum {string}
+             */
+            currency: "USD" | "BDT" | "CNY";
+            /** Deals Count */
+            deals_count: number;
+            total_purchases: components["schemas"]["Amounts"];
+            total_landed_cost: components["schemas"]["Amounts"];
+            expected_revenue: components["schemas"]["Amounts"];
+            /** Average Margin Pct */
+            average_margin_pct: string | null;
+            top_cost_driver: components["schemas"]["CostDriverOut"] | null;
+            previous: components["schemas"]["MonthTotalsOut"];
+            change: components["schemas"]["MonthlyChange"];
+            /** History */
+            history: components["schemas"]["MonthTotalsOut"][];
+            /** Deals */
+            deals: components["schemas"]["MonthlyDeal"][];
+            /** Insights */
+            insights: components["schemas"]["Explanation"][];
+            /** Fx */
+            fx: components["schemas"]["FxRateOut"][];
+            /** Facts */
+            facts: string[];
+        };
+        /** OrderAnalysis */
+        OrderAnalysis: {
+            /**
+             * Simulated
+             * @default true
+             * @constant
+             */
+            simulated: true;
+            deal: components["schemas"]["DealSummary"] | null;
+            /**
+             * Currency
+             * @enum {string}
+             */
+            currency: "USD" | "BDT" | "CNY";
+            /**
+             * Quantity
+             * @example 11200.00
+             */
+            quantity: string;
+            /** Unit */
+            unit: string;
+            /** Breakdown */
+            breakdown: components["schemas"]["CostLineOut"][];
+            goods_value: components["schemas"]["Amounts"];
+            extra_costs: components["schemas"]["Amounts"];
+            landed_cost: components["schemas"]["Amounts"];
+            cost_per_unit: components["schemas"]["Amounts"];
+            expected_revenue: components["schemas"]["Amounts"] | null;
+            selling_price_per_unit: components["schemas"]["Amounts"] | null;
+            gross_margin: components["schemas"]["Amounts"] | null;
+            /** Gross Margin Pct */
+            gross_margin_pct: string | null;
+            /** Markup Pct */
+            markup_pct: string | null;
+            /** Margin Band */
+            margin_band: ("healthy" | "thin" | "low") | null;
+            break_even_price_per_unit: components["schemas"]["Amounts"];
+            target: components["schemas"]["TargetPrice"] | null;
+            /** Fx */
+            fx: components["schemas"]["FxRateOut"][];
+            /** Explanations */
+            explanations: components["schemas"]["Explanation"][];
+            /** Facts */
+            facts: string[];
+        };
+        /** OrderList */
+        OrderList: {
+            /**
+             * Simulated
+             * @default true
+             * @constant
+             */
+            simulated: true;
+            /** Orders */
+            orders: components["schemas"]["DealSummary"][];
+        };
+        /** ScorePoint */
+        ScorePoint: {
+            /**
+             * Month
+             * @example 2026-10
+             */
+            month: string;
+            /**
+             * Score
+             * @example 11200.00
+             */
+            score: string;
+        };
+        /** SupplierScoreOut */
+        SupplierScoreOut: {
+            /**
+             * Supplier Id
+             * Format: uuid
+             */
+            supplier_id: string;
+            /** Code */
+            code: string;
+            /** Name */
+            name: string;
+            /** City */
+            city: string;
+            /** Country */
+            country: string;
+            /** Kyb Status */
+            kyb_status: string;
+            /** Score */
+            score: string | null;
+            /** Score Trend */
+            score_trend: components["schemas"]["ScorePoint"][];
+            /** On Time Rate Pct */
+            on_time_rate_pct: string | null;
+            /** Dispute Rate Pct */
+            dispute_rate_pct: string | null;
+            /** Defect Rate Pct */
+            defect_rate_pct: string | null;
+            /** Doc Mismatch Count */
+            doc_mismatch_count: number;
+            /** Deals Count */
+            deals_count: number;
+            /** Completed Deals Count */
+            completed_deals_count: number;
+            /** Your Deals Count */
+            your_deals_count: number;
+            /** Price Index */
+            price_index: string | null;
+            /** Flags */
+            flags: string[];
+            /** Weak */
+            weak: boolean;
+            /** Notes */
+            notes: components["schemas"]["Explanation"][];
+        };
+        /** SupplierScorecardOut */
+        SupplierScorecardOut: {
+            /**
+             * Simulated
+             * @default true
+             * @constant
+             */
+            simulated: true;
+            /** Party Id */
+            party_id: string | null;
+            /** Window Months */
+            window_months: number;
+            /** Suppliers */
+            suppliers: components["schemas"]["SupplierScoreOut"][];
+            /** Facts */
+            facts: string[];
+        };
+        /** TargetPrice */
+        TargetPrice: {
+            /**
+             * Margin Pct
+             * @example 11200.00
+             */
+            margin_pct: string;
+            price_per_unit: components["schemas"]["Amounts"];
+            revenue: components["schemas"]["Amounts"];
+        };
+        /** ValidationError */
+        ValidationError: {
+            /** Location */
+            loc: (string | number)[];
+            /** Message */
+            msg: string;
+            /** Error Type */
+            type: string;
+            /** Input */
+            input?: unknown;
+            /** Context */
+            ctx?: Record<string, never>;
         };
     };
     responses: never;
@@ -70,6 +710,247 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["HealthResponse"];
+                };
+            };
+        };
+    };
+    demo_users_auth_demo_users_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DemoUsers"];
+                };
+            };
+        };
+    };
+    demo_login_auth_demo_login_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DemoLoginIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DemoUserOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    me_auth_me_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DemoUserOut"];
+                };
+            };
+        };
+    };
+    logout_auth_logout_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    list_orders_analysis_orders_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OrderList"];
+                };
+            };
+        };
+    };
+    order_analysis_analysis_orders__deal_id__get: {
+        parameters: {
+            query?: {
+                /** @description Target gross margin in percent */
+                target_margin_pct?: number | string | null;
+            };
+            header?: never;
+            path: {
+                deal_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OrderAnalysis"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    landed_cost_what_if_analysis_landed_cost_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["LandedCostRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OrderAnalysis"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    monthly_summary_analysis_monthly_get: {
+        parameters: {
+            query?: {
+                party_id?: string | null;
+                month?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonthlySummaryOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    supplier_scorecard_analysis_suppliers_get: {
+        parameters: {
+            query?: {
+                party_id?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SupplierScorecardOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
         };

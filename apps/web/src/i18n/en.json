@@ -1,0 +1,195 @@
+{
+  "common": {
+    "simulated": "Simulated",
+    "simulatedHint": "All money in Setu is simulated sandbox data",
+    "simulatedData": "Simulated data",
+    "retry": "Try again",
+    "loading": "Loading…",
+    "updating": "Updating…",
+    "redirectingLogin": "Redirecting to sign in…",
+    "footer": "FinTechathon 2026 · Simulated sandbox — no real payments"
+  },
+  "error": {
+    "title": "Something went wrong",
+    "body": "We could not load this data. Please try again.",
+    "noAccessTitle": "You do not have access to this page",
+    "noAccessBody": "This record belongs to another business, or your role cannot view it. Switch user or go back to your orders.",
+    "notFoundTitle": "We could not find that record"
+  },
+  "lang": {
+    "label": "Language",
+    "en": "EN",
+    "bn": "বাংলা"
+  },
+  "shell": {
+    "skip": "Skip to main content",
+    "switchUser": "Switch user",
+    "logout": "Log out"
+  },
+  "nav": {
+    "label": "Main navigation",
+    "analysis": "Analysis",
+    "orders": "Orders"
+  },
+  "role": {
+    "BUYER": "Buyer",
+    "SUPPLIER": "Supplier",
+    "ADMIN": "Admin",
+    "JUDGE": "Judge"
+  },
+  "login": {
+    "title": "Log in as a demo user",
+    "demoOnly": "Demo only: this screen lets you pick a pre-made sandbox account without a password. It does not exist in a real deployment.",
+    "button": "Log in",
+    "loginAs": "Log in as {name}",
+    "failed": "Could not log in. Please try again."
+  },
+  "kind": {
+    "GOODS": "Goods",
+    "FREIGHT": "Freight",
+    "INSURANCE": "Insurance",
+    "DUTY": "Duty & taxes",
+    "BANK_CHARGES": "Bank charges",
+    "OTHER": "Other"
+  },
+  "band": {
+    "healthy": "Healthy",
+    "thin": "Thin",
+    "low": "Low"
+  },
+  "status": {
+    "DRAFT": "Draft",
+    "FUNDED": "Funded",
+    "COMPLETED": "Completed"
+  },
+  "kyb": {
+    "VERIFIED": "Verified",
+    "WARNING": "Warning",
+    "PENDING": "Pending",
+    "REJECTED": "Rejected",
+    "UNVERIFIED": "Unverified"
+  },
+  "orders": {
+    "title": "Orders",
+    "caption": "Your import orders",
+    "empty": "No orders yet.",
+    "ref": "Reference",
+    "titleCol": "Title",
+    "supplier": "Supplier",
+    "status": "Status",
+    "goodsValue": "Goods value",
+    "actions": "Analysis",
+    "viewAnalysis": "View analysis",
+    "hs": "HS code",
+    "incoterm": "Incoterm",
+    "quantity": "Quantity",
+    "opened": "Opened"
+  },
+  "analysis": {
+    "title": "Business financial analysis",
+    "tabs": "Analysis sections",
+    "tab": {
+      "calculator": "Landed Cost Calculator",
+      "monthly": "Monthly Summary",
+      "suppliers": "Supplier Scorecard"
+    },
+    "order": {
+      "title": "Order Analysis"
+    },
+    "currency": "Display currency",
+    "kpi": {
+      "landedCost": "Landed cost",
+      "costPerUnit": "Cost per unit",
+      "revenue": "Expected revenue",
+      "margin": "Gross margin",
+      "noPrice": "Enter a selling price to see this"
+    },
+    "breakdown": {
+      "title": "Cost breakdown",
+      "chartLabel": "Stacked bar of each cost line; the table below has the exact values",
+      "caption": "Cost lines in {currency} with their share of landed cost",
+      "item": "Cost line",
+      "amount": "Amount",
+      "share": "Share"
+    },
+    "why": {
+      "title": "Why these numbers?",
+      "facts": "Facts used"
+    },
+    "target": {
+      "title": "Break-even and target price",
+      "breakEven": "Break-even selling price per unit",
+      "input": "Target margin (%)",
+      "hint": "For example 20 — below 100",
+      "invalid": "Enter a number below 100, up to 4 decimals",
+      "result": "To earn a {pct}% margin sell at"
+    },
+    "fx": {
+      "note": "Exchange rates as of {date}."
+    }
+  },
+  "calc": {
+    "title": "What-if landed cost",
+    "intro": "Change any value and the result updates. Nothing is saved.",
+    "currency": "Input currency",
+    "goodsValue": "Goods value",
+    "quantity": "Quantity",
+    "unit": "Unit",
+    "sellingPrice": "Selling price per unit",
+    "optional": "Optional",
+    "costLines": "Extra cost lines",
+    "lineKind": "Cost type",
+    "lineAmount": "Amount",
+    "lineLabel": "Label (optional)",
+    "addLine": "Add cost line",
+    "remove": "Remove",
+    "removeLine": "Remove {kind} line",
+    "fixErrors": "Fix the highlighted fields to see results.",
+    "err": {
+      "decimal": "Use digits with up to 4 decimals, e.g. 1250.50",
+      "qtyPositive": "Quantity must be greater than 0",
+      "unit": "Enter a unit of up to 8 characters"
+    }
+  },
+  "monthly": {
+    "pickMonth": "Month",
+    "pickBuyer": "Business",
+    "chooseBuyer": "Select a business",
+    "chooseBuyerFirst": "Select a business to see its monthly summary.",
+    "empty": "No orders in this month",
+    "emptyHint": "Pick another month to see activity.",
+    "kpi": {
+      "deals": "Orders",
+      "purchases": "Total purchases",
+      "landed": "Total landed cost",
+      "margin": "Average margin"
+    },
+    "vsPrev": "{pct}% vs last month",
+    "topDriver": "Top cost driver: {kind} ({share})",
+    "insights": "Key insights",
+    "history": "Last 6 months",
+    "purchases": "Purchases",
+    "avgMargin": "Average margin %",
+    "chartLabel": "Chart of monthly purchases and average margin for six months",
+    "showTable": "Show data table",
+    "tableCaption": "Monthly purchases and average margin",
+    "month": "Month",
+    "deals": "Orders this month",
+    "dealsCaption": "Orders in the selected month"
+  },
+  "suppliers": {
+    "intro": "Scores use the last {months} months of activity. Weak suppliers are flagged.",
+    "caption": "Supplier scorecard",
+    "empty": "No suppliers to show yet.",
+    "weak": "Weak supplier",
+    "col": {
+      "name": "Supplier",
+      "kyb": "KYB",
+      "score": "Score",
+      "onTime": "On-time",
+      "dispute": "Disputes",
+      "priceIndex": "Price index",
+      "deals": "Your orders"
+    }
+  }
+}
