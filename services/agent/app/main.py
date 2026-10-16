@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.api import analysis, auth, cashflow, health
+from app.api import analysis, auth, cashflow, chat, health
 from app.config import Settings, get_settings
 from app.errors import install_handlers
 
@@ -39,6 +39,7 @@ def create_app() -> FastAPI:
     app.include_router(auth.router)
     app.include_router(analysis.router)
     app.include_router(cashflow.router)
+    app.include_router(chat.router)
     return app
 
 

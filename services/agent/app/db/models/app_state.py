@@ -32,6 +32,11 @@ class ChatThread(Base):
     title: Mapped[str] = mapped_column(String(200))
     language: Mapped[Language] = mapped_column(str_enum(Language, "chat_language"))
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    deal_id: Mapped[uuid.UUID | None] = mapped_column(
+        Uuid, ForeignKey("deals.id", ondelete="SET NULL")
+    )
+    tokens_used: Mapped[int] = mapped_column(Integer, default=0, server_default="0")
+    updated_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
 
 
 class ChatMessage(Base):
@@ -46,6 +51,8 @@ class ChatMessage(Base):
     role: Mapped[ChatRole] = mapped_column(str_enum(ChatRole, "chat_role"))
     content: Mapped[str] = mapped_column(Text)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    # intent, model, tool name/ok/args summary, token usage. No raw PII.
+    meta: Mapped[dict[str, Any] | None] = mapped_column(JSONB)
 
 
 class DemoState(Base):

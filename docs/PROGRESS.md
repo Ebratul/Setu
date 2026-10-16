@@ -6,7 +6,7 @@ Times are Dhaka (UTC+6). Deadline: 20 Oct 2026 21:59 Dhaka. Must-have cut line: 
 ## Phase checklist
 - [x] 0.1 · [x] 1.1 · [x] 1.2 · [ ] 1.3
 - [x] 2.1 · [ ] 2.2 · [x] 2.3 (FR-2; FR-7 route compare open) · [~] 2.4 (i18n, fonts, shell, client only) · [x] 2.5 · [~] 2.6 (analysis half done; financing open)
-- [ ] 3.1 · [ ] 3.2 · [ ] 3.3 · [ ] 3.4
+- [~] 3.1 (LLM client, tracing, tier-gated registry; no cache, no FR tools) · [ ] 3.2 · [~] 3.3 (P08 skeleton; FR tools + citations in P09/P10) · [ ] 3.4
 - [ ] 4.1 · [ ] 4.2 · [ ] 4.3 · [ ] 4.4 · [ ] 4.5
 - [ ] 5.1 · [ ] 5.2 · [ ] 5.3 · [ ] 5.4 · [ ] 5.5
 - [ ] 6.1 · [ ] 6.2
@@ -23,6 +23,7 @@ Times are Dhaka (UTC+6). Deadline: 20 Oct 2026 21:59 Dhaka. Must-have cut line: 
 | 1.1+1.2 | 2026-10-17 03:35 | done | All 26 tables + initial Alembic migration; Money helpers; audit-chain primitives; deterministic P03 demo seed (Rahima/SETU-2026-0001), reset-demo, verify_seed. | pytest 45 passed (incl. 7 db) · vitest 2 · ruff clean · verify_seed 18/18 · security review: pass with fixes (highs fixed) | Read data/demo/README.md + docs/data-model.md. Read endpoints deferred to next phase. |
 | 2.1+2.6a (P05) | 2026-10-17 04:07 | done | FR-3 domain lib + 5 analysis endpoints, demo-login stub, /app shell, EN/BN i18n, order analysis, calculator, monthly summary, supplier scorecard pages. | pytest 105 passed · vitest 13 passed · Playwright smoke 1 passed · lint/tsc/ruff clean · next build ok · security review: pass with fixes (fixed) | Financing UI (2.6) + FR-1 engine (2.2) next. Margin is 18.01, not 18.00. |
 | 2.3+2.5 (P06) | 2026-10-17 04:44 | done | FR-2 90-day forecaster, what-if scenarios, idempotent alert engine (shortfall/deadline/FX), alert + dashboard endpoints; Dashboard, Cash Flow, financing/approvals placeholders. | pytest 159 passed · vitest 25 passed · Playwright 2 passed · lint/tsc/ruff clean · build ok · verify_seed 17/17 · security review: pass with fixes (fixed) | Next P07 financing (FR-1) replaces /app/financing placeholder. |
+| 3.3 (P08) | 2026-10-17 05:40 | done (real-model check open) | LangGraph agent: router → agent ⇄ tier-guarded tools → respond; 3 Tier 0 tools; Postgres checkpointer; chat threads; /chat + SSE; LangSmith; offline mock model. | pytest 233 passed (incl. db) · ruff clean · web tsc ok · security review: pass with fixes (1 medium + 6 low fixed; 1 medium privacy gap open → P18) | Real Claude run blocked: ANTHROPIC_API_KEY in .env is empty. P09 adds finance tools + chat UI. |
 
 ## Handoff notes
 
@@ -253,6 +254,138 @@ Times are Dhaka (UTC+6). Deadline: 20 Oct 2026 21:59 Dhaka. Must-have cut line: 
   such endpoints yet).
 - **Next phase reads:** this block, `docs/finance-formulas.md` (FR-2 section),
   `app/services/cashflow.py::load_book`, `components/cashflow/AlertPanel.tsx`.
+
+### 3.3 (from the user's "P08 LangGraph agent skeleton" prompt)
+- **Branch / worktree:** `phase/3.3-agent-skeleton`, built in the worktree `/data/setu-3.3`, because another
+  session was editing phase 2.2 (financing) in `/data/Setu` at the same time. **Merge order:** both branches add
+  an Alembic revision on top of `60340801e54e` (mine: `b7c1a9e4d2f0`; 2.2's financing migration: `70bf00166094`).
+  Whichever merges second must set its `down_revision` to the other one (or add a merge revision).
+- **Layout (from the prompt; it overrides PLAN's `app/graph`/`app/tools` names):** `app/agent/{state,intents,
+  prompts,registry,mock_llm,models,nodes,graph,persistence,runner}.py`, `app/agent/tools/readonly.py`. The router
+  is `app/api/chat.py` (the existing `app/api` convention, not `app/routers`). Models: `app/llm/client.py` is
+  still the **only** module that imports `langchain_anthropic` (a test enforces it). `models.py` picks the real or
+  the mock model. Tracing: `app/llm/tracing.py`.
+  Security seams: `app/security/tiers.py` (`Tier`, `MAX_LLM_TOOL_TIER = T0`), `injection.py`
+  (`detect_instructions`, EN/BN/ZH patterns), `privacy_gateway.py` (identity stub, `TODO(P18)`),
+  `audit.py::record_event` (structlog + in-memory `RECENT_EVENTS`, `TODO(5.4)`: signed chain append).
+- **Graph:**
+  ```mermaid
+  flowchart LR
+    S((start)) --> L[load_context] --> P[privacy_gateway<br/>stub, TODO P18] --> R[router<br/>fast model, json_schema<br/>keyword fallback]
+    R -- greeting / out_of_scope / budget --> X[respond]
+    R -- other intents --> A[agent<br/>fast or smart model + allow-listed tools]
+    A -- tool_calls --> T[tools<br/>registry.guard]
+    T -- more steps --> A
+    T -- injection flag / 6-step cap --> X
+    A -- READY / budget / model error --> X
+    X --> E((END))
+  ```
+  - The agent node only gathers facts. It replies `READY`, and its text is never shown. `respond` writes the
+    answer from the `<tool_result untrusted="true">` blocks, in the turn language. `<` inside a payload is
+    escaped, so data cannot close the tag.
+  - Code then appends to the answer: the simulated-data note (when tools returned data), the injection warning,
+    the tool-cap note, and a "no money moved" line if the model claims a release or payment.
+  - `documents` intent (or `needs_smart_model`) uses MODEL_SMART for agent and respond.
+- **Tier guard (`registry.guard`):**
+  - Refuses any tool with `max_tier > 0` with `{"code":"requires_approval_flow","tier":N}` before validation or
+    execution. Also refuses unknown or non-allow-listed tools (`INTENT_TOOLS`).
+  - Validates args and output with pydantic `extra=forbid`. Runs each tool as a LangSmith tool run
+    (tags `setu, tool, <tier>`). Scans string values for instructions. Writes `record_event` for every call or
+    refusal.
+  - An injection finding sets `stop_reason="injection"`, so no further tool calls happen in that turn (enforced
+    in code, not by the prompt). It also records an `INJECTION_DETECTED` Tier 3 event.
+- **Tools (Tier 0):**
+  - `get_dashboard_snapshot(party_id?)` wraps `services.dashboard` and returns home-currency strings.
+  - `get_deal_summary(deal_id)` takes a ref or UUID matching `^[A-Za-z0-9-]+$`. Another buyer's deal gives
+    `not_found` (no oracle).
+  - `explain_how_setu_works()` returns static text.
+- **Persistence:**
+  - Migration `b7c1a9e4d2f0` adds: `chat_messages.role` `tool`, `chat_messages.meta` JSONB (intent, model,
+    tool, ok, args summary, usage, run id), `chat_threads.deal_id`, `tokens_used` and `updated_at`.
+  - It also creates the LangGraph checkpoint tables with the exact langgraph-checkpoint-postgres 3.2.0 DDL and
+    fills `checkpoint_migrations` (0–9), so `PostgresSaver.setup()` is never needed. Alembic stays the schema
+    owner (`alembic/env.py` ignores those 4 tables; `alembic check` clean).
+  - A test fails if the library's `MIGRATIONS` count changes. **Bumping langgraph-checkpoint-postgres needs a
+    new migration.**
+  - Checkpointer: `PostgresSaver` on a psycopg pool (`prepare_threshold=0` for pgbouncer/Neon), keyed by
+    `thread_id` = `chat_threads.id`. Without DATABASE_URL it falls back to `InMemorySaver`.
+  - Tool results are stored through `mask_for_storage` (identity until P18).
+- **API** (FastAPI paths; the web app uses `/api/...`; `make types` regenerated `schema.gen.ts`):
+  - `POST /chat` `{thread_id?, message (≤4000), language? en|bn|zh, deal_id?}` →
+    `{thread_id, answer, intent, model_used, language, tool_calls[{name,args_summary,ok}],
+    usage{input,output,total,thread_total,thread_budget}, stopped, trace_url, simulated}`.
+  - `POST /chat/stream` (SSE): `meta {thread_id,intent,model,language}` → `tool_start {name,id}` /
+    `tool_end {name,id,ok,args_summary,error_code}` → `token {text}`… → `final <ChatResponse>`, or `error
+    {code,message}`. The tokens joined equal `final.answer`. A static answer comes as a single token. Headers
+    are `Cache-Control: no-cache, no-transform` and `X-Accel-Buffering: no`. It uses FastAPI's built-in
+    `fastapi.sse.format_sse_event` with `StreamingResponse`, so there is no sse-starlette dependency.
+  - `GET /chat/threads?user_id=` (only your own id; anything else gives 403) and
+    `GET /chat/threads/{id}/messages`. Another user's thread gives 403 on read, post and stream.
+  - All endpoints need the demo session (401 otherwise).
+  - `trace_url` is returned to ADMIN and JUDGE only, when tracing is on.
+- **Language:** the request `language`, else the message script (Bangla → bn, Chinese → zh, Latin → en),
+  else the thread's language. (Rahima's profile is `bn`, but an English message gets an English answer.)
+- **Env vars** (in `.env.example`): `AGENT_MOCK_MODE`, `MODEL_FAST`, `MODEL_SMART` (`SETU_MODEL_FAST` and
+  `SETU_MODEL_REASONING` are still accepted as aliases), `LLM_MAX_TOKENS` 2048, `LLM_TIMEOUT_SECONDS` 30,
+  `LLM_MAX_RETRIES` 2 (SDK exponential backoff), `THREAD_TOKEN_BUDGET` 60000, `AGENT_MAX_TOOL_STEPS` 6,
+  `LANGSMITH_*`. I also added `APP_ENV`, `DEMO_SESSION_SECRET` and `DEMO_COOKIE_SECURE`, which P05 left out.
+  - **Mock mode** is on when `AGENT_MOCK_MODE=true` **or the key is missing or blank**. `MockChatModel` is
+    deterministic: keyword router, keyword tool choice, answers composed from tool JSON in EN/BN/ZH, word
+    streaming, estimated token usage.
+- **Models:** `claude-haiku-5-5` (fast: router, agent, respond) and `claude-sonnet-5-5` (smart: documents).
+  The router uses `with_structured_output(method="json_schema")` because Sonnet 5.5 rejects forced
+  `tool_choice`.
+- **Pinned versions (uv.lock):** langgraph 1.2.15, langgraph-checkpoint 4.3.0, langgraph-checkpoint-postgres
+  3.2.0, langchain-core 1.6.12, langchain-anthropic 1.7.6, anthropic 1.15.0, langsmith 0.14.11, psycopg 3.3.6,
+  psycopg-pool 3.3.3, FastAPI 0.143.3. `langchain-core`, `langgraph-checkpoint` and `psycopg-pool` are now
+  direct dependencies.
+- **Verified:**
+  - Mock mode: curl `POST /chat "hello"` works offline. Rahima's "What's on my dashboard?" gives USD 6,000.00
+    cash, 2,880.00 in escrow and a **1,560.00 shortfall on 2026-11-07**, in English and Bangla. `curl -N` on
+    `/chat/stream` shows tokens arriving one by one.
+  - LangSmith (real key, mock model): the root run `setu-chat` is in project `setu` with tags `[setu, phase-P08,
+    intent:…, model:…]` and metadata `{user_role, thread_id}`. Tool child runs are tagged. The judge got the run
+    URL.
+  - **Not verified with a real Claude model:** `ANTHROPIC_API_KEY` in the local `.env` is empty, so the service
+    fell back to mock mode. Set the key and rerun the two dashboard questions as Rahima (EN + BN).
+- **Security review (security-reviewer): PASS WITH FIXES, no critical or high findings.** Fixed:
+  - (M1) Token budget bypass by disconnecting mid-stream. `abort_turn` now charges the checkpointed usage
+    plus the streamed text, on error, `GeneratorExit` or GC, and writes an `aborted` assistant marker.
+    `add_tokens` is an atomic `UPDATE … RETURNING`, and `append_message` locks the thread row for `seq`.
+  - (L3) Tool names from the model are checked against `^[A-Za-z0-9_]{1,64}$` (else `invalid_tool_name`).
+  - (L4) Conversation and user text in the respond prompt are escaped, so `<tool_result>` cannot be forged.
+  - (L5) The detector applies NFKC and strips zero-width characters, and adds the `MONEY_TO_ACCOUNT` and
+    `APPROVAL_COMMAND` rules (no hits on the seeded alert texts).
+  - (L6) The model is only offered tools at or below the tier ceiling, and the tier check runs before the
+    allow-list.
+  - (L7) The dashboard tool returns the same `not_found` for any foreign, unknown or invalid `party_id`.
+  - (L8) Each tool call runs in a DB savepoint, so a DB error becomes `tool_failed` and the turn still saves.
+  - **Open (M2, for P18):** the Privacy Gateway node masks only the latest user message. The system prompt
+    (names, deal refs), tool results and history reach the model, and LangSmith, unmasked. P18 must mask
+    every model input inside `app/llm/client.py` (security.md §3) and extend the "no raw PII reaches the
+    model" test to system and tool content.
+  - Accepted: two turns in parallel on one thread can each start under the budget (overshoot ≤ 1 turn).
+- **Tests:** `tests/agent/` has 58 tests (no DB, no network). They cover node order, the privacy gateway
+  running before the first model call, the tool loop, Tier 1/2/3 refusal, injection, Bangla, out of scope,
+  documents → smart, router fallback, the budget (at start and mid-turn), model failure, the 6-step cap,
+  checkpoint resume, the detector, and the import boundary. They also cover hostile tool names, forged
+  results in user text, and tier-filtered tool offers. `tests/api/test_chat_api.py` has 16 db tests: offline,
+  dashboard numbers, BN, deal isolation, SSE order, persistence + resume, 403s, budget, 401/422, SSE
+  disconnect still charging tokens, the atomic token counter, `trace_url` by role with tracing on, the party
+  oracle, and a tool DB error.
+  DB tests ran on `TEST_DATABASE_URL=…/setu_p08_test`, not `setu_test`, to stay clear of the parallel session.
+- **Known gaps:**
+  - No LLM cache (PLAN 3.1).
+  - Privacy masking is a stub covering only the user message (see M2 above), and LangSmith traces contain
+    raw prompts and tool outputs until P18. Don't enable tracing with real PII.
+  - The audit seam does not append to the signed chain yet (5.4).
+  - No RAG/citations (`citations` stays empty; P10).
+  - The mock router equals the keyword fallback.
+  - `GET /chat/threads` has no pagination.
+  - Thread titles are the raw first message (≤ 80 chars).
+  - Chat history is not shown to ADMIN/JUDGE (by design: own threads only).
+- **Next phase reads:** this block, `app/agent/registry.py` (how to add a tool: `@REGISTRY.tool(...)` + an
+  `INTENT_TOOLS` entry), `app/agent/nodes.py` (respond input format), `app/schemas/chat.py` (SSE payloads).
 
 ## Known issues / risks
 - 1.2: the local `.env` / `.env.example` `DATABASE_URL` points at a hosted Postgres, so `db:migrate`/`db:seed` without

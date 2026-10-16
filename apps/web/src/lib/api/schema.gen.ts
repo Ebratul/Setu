@@ -326,6 +326,86 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/chat": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Chat
+         * @description One chat turn with the Setu agent (read-only tools; nothing moves money). Simulated data.
+         */
+        post: operations["chat_chat_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/chat/stream": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Chat Stream
+         * @description Server-Sent Events: `meta`, `tool_start`, `tool_end`, `token`, `final`, `error`.
+         */
+        post: operations["chat_stream_chat_stream_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/chat/threads": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Threads
+         * @description The caller's own chat threads, newest first.
+         */
+        get: operations["threads_chat_threads_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/chat/threads/{thread_id}/messages": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Messages
+         * @description Messages of one of the caller's threads (tool results are stored masked).
+         */
+        get: operations["messages_chat_threads__thread_id__messages_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -469,6 +549,52 @@ export interface components {
              * @example 11200.00
              */
             CNY: string;
+        };
+        /** ChatRequest */
+        ChatRequest: {
+            /** Thread Id */
+            thread_id?: string | null;
+            /** Message */
+            message: string;
+            /** Language */
+            language?: ("en" | "bn" | "zh") | null;
+            /** Deal Id */
+            deal_id?: string | null;
+        };
+        /** ChatResponse */
+        ChatResponse: {
+            /**
+             * Simulated
+             * @default true
+             * @constant
+             */
+            simulated: true;
+            /**
+             * Thread Id
+             * Format: uuid
+             */
+            thread_id: string;
+            /** Answer */
+            answer: string;
+            /** Intent */
+            intent: string | null;
+            /** Model Used */
+            model_used: string | null;
+            /**
+             * Language
+             * @enum {string}
+             */
+            language: "en" | "bn" | "zh";
+            /** Tool Calls */
+            tool_calls: components["schemas"]["ToolCallOut"][];
+            usage: components["schemas"]["UsageOut"];
+            /** Stopped */
+            stopped?: ("budget" | "tool_cap" | "injection" | "model_error") | null;
+            /**
+             * Trace Url
+             * @description LangSmith run URL; admin and judge only.
+             */
+            trace_url?: string | null;
         };
         /** CostDriverOut */
         CostDriverOut: {
@@ -940,6 +1066,37 @@ export interface components {
             /** Repay Amount */
             repay_amount?: string | null;
         };
+        /** MessageList */
+        MessageList: {
+            /**
+             * Thread Id
+             * Format: uuid
+             */
+            thread_id: string;
+            /** Messages */
+            messages: components["schemas"]["MessageOut"][];
+        };
+        /** MessageOut */
+        MessageOut: {
+            /** Seq */
+            seq: number;
+            /**
+             * Role
+             * @enum {string}
+             */
+            role: "user" | "assistant" | "tool";
+            /** Content */
+            content: string;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /** Meta */
+            meta: {
+                [key: string]: unknown;
+            } | null;
+        };
         /** MonthTotalsOut */
         MonthTotalsOut: {
             /**
@@ -1268,6 +1425,59 @@ export interface components {
             margin_pct: string;
             price_per_unit: components["schemas"]["Amounts"];
             revenue: components["schemas"]["Amounts"];
+        };
+        /** ThreadList */
+        ThreadList: {
+            /** Threads */
+            threads: components["schemas"]["ThreadOut"][];
+        };
+        /** ThreadOut */
+        ThreadOut: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Title */
+            title: string;
+            /**
+             * Language
+             * @enum {string}
+             */
+            language: "en" | "bn" | "zh";
+            /** Deal Id */
+            deal_id: string | null;
+            /** Tokens Used */
+            tokens_used: number;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /** Updated At */
+            updated_at: string | null;
+        };
+        /** ToolCallOut */
+        ToolCallOut: {
+            /** Name */
+            name: string;
+            /** Args Summary */
+            args_summary: string;
+            /** Ok */
+            ok: boolean;
+        };
+        /** UsageOut */
+        UsageOut: {
+            /** Input Tokens */
+            input_tokens: number;
+            /** Output Tokens */
+            output_tokens: number;
+            /** Total Tokens */
+            total_tokens: number;
+            /** Thread Total */
+            thread_total: number;
+            /** Thread Budget */
+            thread_budget: number;
         };
         /** ValidationError */
         ValidationError: {
@@ -1794,6 +2004,134 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["DashboardOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    chat_chat_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ChatRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ChatResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    chat_stream_chat_stream_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ChatRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "text/event-stream": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    threads_chat_threads_get: {
+        parameters: {
+            query?: {
+                user_id?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ThreadList"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    messages_chat_threads__thread_id__messages_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                thread_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MessageList"];
                 };
             };
             /** @description Validation Error */
