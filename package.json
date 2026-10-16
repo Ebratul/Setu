@@ -1,0 +1,24 @@
+{
+  "name": "setu",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Setu (সেতু) — AI SME Finance Copilot (simulated sandbox)",
+  "packageManager": "pnpm@11.24.0",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "db:up": "docker compose up -d --wait db",
+    "db:down": "docker compose down",
+    "dev": "concurrently -k -n agent,web -c blue,green \"pnpm:dev:agent\" \"pnpm:dev:web\"",
+    "dev:web": "pnpm --dir apps/web dev",
+    "dev:agent": "uv run --directory services/agent fastapi dev app/main.py --port 8000",
+    "lint": "pnpm --dir apps/web lint && pnpm --dir apps/web typecheck && uv run --directory services/agent ruff check . && uv run --directory services/agent ruff format --check .",
+    "format": "pnpm --dir apps/web format && uv run --directory services/agent ruff format . && uv run --directory services/agent ruff check --fix .",
+    "test": "uv run --directory services/agent pytest -q && pnpm --dir apps/web test",
+    "types": "pnpm --dir apps/web types"
+  },
+  "devDependencies": {
+    "concurrently": "^10.0.6"
+  }
+}
