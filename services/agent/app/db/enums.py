@@ -1,0 +1,197 @@
+from enum import StrEnum
+
+
+class Role(StrEnum):
+    BUYER = "BUYER"
+    SUPPLIER = "SUPPLIER"
+    ADMIN = "ADMIN"
+    JUDGE = "JUDGE"
+
+
+class Language(StrEnum):
+    EN = "en"
+    BN = "bn"
+    ZH = "zh"
+
+
+class PartyKind(StrEnum):
+    BUYER = "BUYER"
+    SUPPLIER = "SUPPLIER"
+    LENDER = "LENDER"
+
+
+class KybStatus(StrEnum):
+    PENDING = "PENDING"
+    VERIFIED = "VERIFIED"
+    WARNING = "WARNING"
+    FAILED = "FAILED"
+
+
+class AccountType(StrEnum):
+    CORPORATE = "CORPORATE"
+    PERSONAL = "PERSONAL"
+
+
+class AccountStatus(StrEnum):
+    ACTIVE = "ACTIVE"
+    PENDING_CHANGE = "PENDING_CHANGE"
+    RETIRED = "RETIRED"
+
+
+class DealStatus(StrEnum):
+    DRAFT = "DRAFT"
+    FUNDED = "FUNDED"
+    IN_PRODUCTION = "IN_PRODUCTION"
+    SHIPPED = "SHIPPED"
+    COMPLETED = "COMPLETED"
+    DISPUTED = "DISPUTED"
+    CANCELLED = "CANCELLED"
+
+
+class CostKind(StrEnum):
+    FREIGHT = "FREIGHT"
+    INSURANCE = "INSURANCE"
+    DUTY = "DUTY"
+    BANK_CHARGES = "BANK_CHARGES"
+    OTHER = "OTHER"
+
+
+class MilestoneTrigger(StrEnum):
+    PRODUCTION_START = "PRODUCTION_START"
+    SHIPMENT = "SHIPMENT"
+    ARRIVAL = "ARRIVAL"
+
+
+class MilestoneStatus(StrEnum):
+    PENDING = "PENDING"
+    READY = "READY"
+    RELEASED = "RELEASED"
+    FROZEN = "FROZEN"
+    REFUNDED = "REFUNDED"
+    CANCELLED = "CANCELLED"
+
+
+class EscrowStatus(StrEnum):
+    DRAFT = "DRAFT"
+    FUNDED = "FUNDED"
+    TRANCHE_RELEASED = "TRANCHE_RELEASED"
+    COMPLETED = "COMPLETED"
+    FROZEN = "FROZEN"
+    REFUNDED = "REFUNDED"
+    CANCELLED = "CANCELLED"
+
+
+class LedgerDirection(StrEnum):
+    DEBIT = "DEBIT"
+    CREDIT = "CREDIT"
+
+
+class CashflowKind(StrEnum):
+    SALES = "SALES"
+    SALARY = "SALARY"
+    RENT = "RENT"
+    UTILITIES = "UTILITIES"
+    LOAN_REPAYMENT = "LOAN_REPAYMENT"
+    LOCAL_PURCHASE = "LOCAL_PURCHASE"
+    MILESTONE_PAYMENT = "MILESTONE_PAYMENT"
+    DEAL_COST = "DEAL_COST"
+    OTHER = "OTHER"
+
+
+class FlowDirection(StrEnum):
+    IN = "IN"
+    OUT = "OUT"
+
+
+class FxKind(StrEnum):
+    HISTORY = "HISTORY"
+    FORECAST = "FORECAST"
+
+
+class FinancingKind(StrEnum):
+    SUPPLIER_CREDIT = "SUPPLIER_CREDIT"
+    BANK_IMPORT_LOAN = "BANK_IMPORT_LOAN"
+    ESCROW_BACKED_LOAN = "ESCROW_BACKED_LOAN"
+    INSURED_SUPPLIER_TERMS = "INSURED_SUPPLIER_TERMS"
+    WORKING_CAPITAL_LINE = "WORKING_CAPITAL_LINE"
+
+
+class AlertType(StrEnum):
+    SHORTFALL = "SHORTFALL"
+    DEADLINE = "DEADLINE"
+    FX_OPPORTUNITY = "FX_OPPORTUNITY"
+    KYB_WARNING = "KYB_WARNING"
+    FRAUD = "FRAUD"
+    INFO = "INFO"
+
+
+class Severity(StrEnum):
+    INFO = "INFO"
+    WARNING = "WARNING"
+    CRITICAL = "CRITICAL"
+
+
+class AlertStatus(StrEnum):
+    OPEN = "OPEN"
+    ACKNOWLEDGED = "ACKNOWLEDGED"
+    RESOLVED = "RESOLVED"
+
+
+class ApprovalAction(StrEnum):
+    RELEASE_MILESTONE = "RELEASE_MILESTONE"
+    CHANGE_BENEFICIARY = "CHANGE_BENEFICIARY"
+    LOCK_FX_RATE = "LOCK_FX_RATE"
+    CHANGE_MILESTONE_SCHEDULE = "CHANGE_MILESTONE_SCHEDULE"
+    ACCEPT_FINANCING = "ACCEPT_FINANCING"
+
+
+class ApprovalStatus(StrEnum):
+    PENDING = "PENDING"
+    APPROVED = "APPROVED"
+    REJECTED = "REJECTED"
+    EXECUTED = "EXECUTED"
+    CANCELLED = "CANCELLED"
+    EXPIRED = "EXPIRED"
+
+
+class Actor(StrEnum):
+    USER = "user"
+    LLM = "llm"
+    SYSTEM = "system"
+
+
+class DocType(StrEnum):
+    PROFORMA_INVOICE = "PROFORMA_INVOICE"
+    COMMERCIAL_INVOICE = "COMMERCIAL_INVOICE"
+    PACKING_LIST = "PACKING_LIST"
+    BILL_OF_LADING = "BILL_OF_LADING"
+    CERTIFICATE_OF_ORIGIN = "CERTIFICATE_OF_ORIGIN"
+    BILL_OF_ENTRY = "BILL_OF_ENTRY"
+    PRODUCTION_PHOTO = "PRODUCTION_PHOTO"
+    OTHER = "OTHER"
+
+
+class DocStatus(StrEnum):
+    UPLOADED = "UPLOADED"
+    PLACEHOLDER = "PLACEHOLDER"
+    REJECTED = "REJECTED"
+
+
+class CheckStatus(StrEnum):
+    NOT_RUN = "NOT_RUN"
+    PENDING = "PENDING"
+    PASSED = "PASSED"
+    WARNING = "WARNING"
+    FAILED = "FAILED"
+
+
+class ChatRole(StrEnum):
+    USER = "user"
+    ASSISTANT = "assistant"
+
+
+class FxLockStatus(StrEnum):
+    ACTIVE = "ACTIVE"
+    USED = "USED"
+    EXPIRED = "EXPIRED"
+    CANCELLED = "CANCELLED"

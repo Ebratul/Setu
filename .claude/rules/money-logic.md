@@ -19,7 +19,7 @@ paths:
 - Rounding: keep full precision through a calculation; quantize only at boundaries (display, ledger posting) with
   `ROUND_HALF_UP` — BDT/USD/CNY to 2 dp. Ledger postings must balance exactly (sum of debits == sum of credits).
 - Rates: `FxRate(base, quote, rate, source, as_of)`; always record which rate (and timestamp) a result used. Mock data
-  in `seed/fx_rates.json`. Spread/fees are explicit line items, never baked into the rate.
+  in `seed/fx.py` (rows in `fx_rates`, source `MOCK`). Spread/fees are explicit line items, never baked into the rate.
 - Interest/financing: total cost = interest + fees + FX cost + opportunity cost if specified; effective annual rate via
   `(1 + period_cost/principal) ** (365/days) - 1` computed with Decimal (`Decimal.__pow__` with integer-ish exponents, or
   `ln/exp` from Decimal). Tenor in days. Document every formula in the function docstring.
