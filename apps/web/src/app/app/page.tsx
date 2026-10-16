@@ -1,5 +1,5 @@
-import { redirect } from "next/navigation";
+import { DashboardPage } from "@/components/cashflow/DashboardPage";
 
 export default function AppIndex() {
-  redirect("/app/analysis");
+  return <DashboardPage />;
 }

@@ -12,7 +12,7 @@ import { demoLogin, getDemoUsers } from "@/lib/api/auth";
 import { useApi } from "@/lib/useApi";
 
 function safeNext(next: string | null) {
-  return next && next.startsWith("/app") ? next : "/app/analysis";
+  return next && next.startsWith("/app") ? next : "/app";
 }
 
 export function LoginPanel() {

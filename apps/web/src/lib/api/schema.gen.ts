@@ -192,10 +192,266 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/cashflow/forecast": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Forecast
+         * @description Day-by-day 90-day forecast (opening, flows, closing) with weekly buckets.
+         */
+        get: operations["forecast_cashflow_forecast_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/cashflow/scenario": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * What If
+         * @description What-if: move/remove items, add a loan; returns forecast + alerts. Saves nothing.
+         */
+        post: operations["what_if_cashflow_scenario_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/alerts": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Alerts
+         * @description Alerts for a buyer, critical first, then by due date.
+         */
+        get: operations["list_alerts_alerts_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/alerts/recompute": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Recompute
+         * @description Run the alert engine for a buyer (idempotent upsert + auto-resolve).
+         */
+        post: operations["recompute_alerts_recompute_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/alerts/{alert_id}/acknowledge": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Acknowledge */
+        post: operations["acknowledge_alerts__alert_id__acknowledge_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/alerts/{alert_id}/resolve": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Resolve */
+        post: operations["resolve_alerts__alert_id__resolve_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/dashboard": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Dashboard
+         * @description Buyer home: cash, escrow, next-30-day outflows, top alerts, approvals, deals, month.
+         */
+        get: operations["get_dashboard_dashboard_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        /** AlertAction */
+        AlertAction: {
+            /** Code */
+            code: string;
+            /** Label En */
+            label_en: string;
+            /** Label Bn */
+            label_bn: string;
+            /** Route */
+            route: string;
+            /** Query */
+            query: {
+                [key: string]: string;
+            };
+        };
+        /** AlertList */
+        AlertList: {
+            /**
+             * Simulated
+             * @default true
+             * @constant
+             */
+            simulated: true;
+            /**
+             * Party Id
+             * Format: uuid
+             */
+            party_id: string;
+            /** Alerts */
+            alerts: components["schemas"]["AlertOut"][];
+        };
+        /** AlertOut */
+        AlertOut: {
+            /** Key */
+            key: string;
+            /**
+             * Type
+             * @enum {string}
+             */
+            type: "SHORTFALL" | "DEADLINE" | "FX_OPPORTUNITY" | "KYB_WARNING" | "FRAUD" | "INFO";
+            /**
+             * Severity
+             * @enum {string}
+             */
+            severity: "INFO" | "WARNING" | "CRITICAL";
+            /** Title En */
+            title_en: string;
+            /** Title Bn */
+            title_bn: string;
+            /** Message En */
+            message_en: string;
+            /** Message Bn */
+            message_bn: string;
+            /** Amount */
+            amount: string | null;
+            /** Currency */
+            currency: string | null;
+            /** Due On */
+            due_on: string | null;
+            /** Deal Ref */
+            deal_ref: string | null;
+            /** Milestone Seq */
+            milestone_seq: number | null;
+            action: components["schemas"]["AlertAction"] | null;
+            /** Facts */
+            facts: {
+                [key: string]: unknown;
+            };
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "OPEN" | "ACKNOWLEDGED" | "RESOLVED";
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+        };
+        /** AlertPreview */
+        AlertPreview: {
+            /** Key */
+            key: string;
+            /**
+             * Type
+             * @enum {string}
+             */
+            type: "SHORTFALL" | "DEADLINE" | "FX_OPPORTUNITY" | "KYB_WARNING" | "FRAUD" | "INFO";
+            /**
+             * Severity
+             * @enum {string}
+             */
+            severity: "INFO" | "WARNING" | "CRITICAL";
+            /** Title En */
+            title_en: string;
+            /** Title Bn */
+            title_bn: string;
+            /** Message En */
+            message_en: string;
+            /** Message Bn */
+            message_bn: string;
+            /** Amount */
+            amount: string | null;
+            /** Currency */
+            currency: string | null;
+            /** Due On */
+            due_on: string | null;
+            /** Deal Ref */
+            deal_ref: string | null;
+            /** Milestone Seq */
+            milestone_seq: number | null;
+            action: components["schemas"]["AlertAction"] | null;
+            /** Facts */
+            facts: {
+                [key: string]: unknown;
+            };
+        };
         /** Amounts */
         Amounts: {
             /**
@@ -258,6 +514,123 @@ export interface components {
              * @example 11200.00
              */
             share_pct: string;
+        };
+        /** DashboardDeal */
+        DashboardDeal: {
+            /** Reference */
+            reference: string;
+            /** Title */
+            title: string;
+            /** Status */
+            status: string;
+            /** Supplier Name */
+            supplier_name: string;
+            goods_value: components["schemas"]["Amounts"];
+            next_milestone: components["schemas"]["NextMilestone"] | null;
+        };
+        /** DashboardMonth */
+        DashboardMonth: {
+            /**
+             * Month
+             * @example 2026-10
+             */
+            month: string;
+            /** Deals Count */
+            deals_count: number;
+            total_purchases: components["schemas"]["Amounts"];
+            total_landed_cost: components["schemas"]["Amounts"];
+            /** Average Margin Pct */
+            average_margin_pct: string | null;
+        };
+        /** DashboardOut */
+        DashboardOut: {
+            /**
+             * Simulated
+             * @default true
+             * @constant
+             */
+            simulated: true;
+            /**
+             * Party Id
+             * Format: uuid
+             */
+            party_id: string;
+            /** Party Name */
+            party_name: string;
+            /**
+             * Currency
+             * @enum {string}
+             */
+            currency: "USD" | "BDT" | "CNY";
+            /**
+             * Today
+             * Format: date
+             */
+            today: string;
+            cash_balance: components["schemas"]["Amounts"];
+            in_escrow: components["schemas"]["Amounts"];
+            due_next_30_days: components["schemas"]["Amounts"];
+            /** Open Alerts Count */
+            open_alerts_count: number;
+            /** Alerts */
+            alerts: components["schemas"]["AlertOut"][];
+            /** Pending Approvals */
+            pending_approvals: number;
+            /** Deals By Status */
+            deals_by_status: {
+                [key: string]: number;
+            };
+            /** Active Deals */
+            active_deals: components["schemas"]["DashboardDeal"][];
+            /**
+             * Lowest Balance
+             * @example 11200.00
+             */
+            lowest_balance: string;
+            /**
+             * Lowest On
+             * Format: date
+             */
+            lowest_on: string;
+            first_shortfall: components["schemas"]["ShortfallOut"] | null;
+            month: components["schemas"]["DashboardMonth"];
+        };
+        /** DayOut */
+        DayOut: {
+            /**
+             * On
+             * Format: date
+             */
+            on: string;
+            /**
+             * Opening
+             * @example 11200.00
+             */
+            opening: string;
+            /**
+             * Inflow
+             * @example 11200.00
+             */
+            inflow: string;
+            /**
+             * Outflow
+             * @example 11200.00
+             */
+            outflow: string;
+            /**
+             * Net
+             * @example 11200.00
+             */
+            net: string;
+            /**
+             * Closing
+             * @example 11200.00
+             */
+            closing: string;
+            /** Below Buffer */
+            below_buffer: boolean;
+            /** Items */
+            items: components["schemas"]["FlowOut"][];
         };
         /** DealSummary */
         DealSummary: {
@@ -361,6 +734,109 @@ export interface components {
             /** Bn */
             bn: string;
         };
+        /** FlowOut */
+        FlowOut: {
+            /** Ref */
+            ref: string;
+            /**
+             * On
+             * Format: date
+             */
+            on: string;
+            /**
+             * Direction
+             * @enum {string}
+             */
+            direction: "IN" | "OUT";
+            /**
+             * Amount
+             * @example 11200.00
+             */
+            amount: string;
+            /** Kind */
+            kind: string;
+            /** Label */
+            label: string;
+            /** Deal Ref */
+            deal_ref: string | null;
+            /** Milestone Seq */
+            milestone_seq: number | null;
+        };
+        /** ForecastOut */
+        ForecastOut: {
+            /**
+             * Simulated
+             * @default true
+             * @constant
+             */
+            simulated: true;
+            /** Scenario */
+            scenario: boolean;
+            /**
+             * Party Id
+             * Format: uuid
+             */
+            party_id: string;
+            /** Party Name */
+            party_name: string;
+            /**
+             * Currency
+             * @enum {string}
+             */
+            currency: "USD" | "BDT" | "CNY";
+            /**
+             * Start
+             * Format: date
+             */
+            start: string;
+            /**
+             * End
+             * Format: date
+             */
+            end: string;
+            /**
+             * Opening Balance
+             * @example 11200.00
+             */
+            opening_balance: string;
+            /**
+             * Min Buffer
+             * @example 11200.00
+             */
+            min_buffer: string;
+            /**
+             * Lowest Balance
+             * @example 11200.00
+             */
+            lowest_balance: string;
+            /**
+             * Lowest On
+             * Format: date
+             */
+            lowest_on: string;
+            /**
+             * Cover Amount
+             * @example 11200.00
+             */
+            cover_amount: string;
+            first_shortfall: components["schemas"]["ShortfallOut"] | null;
+            /**
+             * Total Inflow
+             * @example 11200.00
+             */
+            total_inflow: string;
+            /**
+             * Total Outflow
+             * @example 11200.00
+             */
+            total_outflow: string;
+            /** Daily */
+            daily: components["schemas"]["DayOut"][];
+            /** Weekly */
+            weekly: components["schemas"]["WeekOut"][];
+            /** Facts */
+            facts: string[];
+        };
         /** FxRateOut */
         FxRateOut: {
             /**
@@ -447,6 +923,23 @@ export interface components {
             /** Target Margin Pct */
             target_margin_pct?: string | null;
         };
+        /** LoanIn */
+        LoanIn: {
+            /**
+             * Amount
+             * @example 9600.00
+             */
+            amount: string;
+            /**
+             * On
+             * Format: date
+             */
+            on: string;
+            /** Repay On */
+            repay_on?: string | null;
+            /** Repay Amount */
+            repay_amount?: string | null;
+        };
         /** MonthTotalsOut */
         MonthTotalsOut: {
             /**
@@ -532,6 +1025,31 @@ export interface components {
             /** Facts */
             facts: string[];
         };
+        /** MoveIn */
+        MoveIn: {
+            /** Ref */
+            ref: string;
+            /**
+             * On
+             * Format: date
+             */
+            on: string;
+        };
+        /** NextMilestone */
+        NextMilestone: {
+            /** Seq */
+            seq: number;
+            /** Trigger */
+            trigger: string;
+            amount: components["schemas"]["Amounts"];
+            /**
+             * Due On
+             * Format: date
+             */
+            due_on: string;
+            /** Status */
+            status: string;
+        };
         /** OrderAnalysis */
         OrderAnalysis: {
             /**
@@ -588,6 +1106,72 @@ export interface components {
             /** Orders */
             orders: components["schemas"]["DealSummary"][];
         };
+        /** RecomputeOut */
+        RecomputeOut: {
+            /**
+             * Simulated
+             * @default true
+             * @constant
+             */
+            simulated: true;
+            /**
+             * Party Id
+             * Format: uuid
+             */
+            party_id: string;
+            /** Created */
+            created: number;
+            /** Updated */
+            updated: number;
+            /** Reopened */
+            reopened: number;
+            /** Resolved */
+            resolved: number;
+            /** Open */
+            open: number;
+        };
+        /** ScenarioOut */
+        ScenarioOut: {
+            /**
+             * Simulated
+             * @default true
+             * @constant
+             */
+            simulated: true;
+            forecast: components["schemas"]["ForecastOut"];
+            /** Alerts */
+            alerts: components["schemas"]["AlertPreview"][];
+        };
+        /**
+         * ScenarioRequest
+         * @description What-if overrides. Nothing is saved.
+         */
+        ScenarioRequest: {
+            /** Party Id */
+            party_id?: string | null;
+            /**
+             * Days
+             * @default 90
+             */
+            days: number;
+            /** Min Buffer */
+            min_buffer?: string | null;
+            /**
+             * Moves
+             * @default []
+             */
+            moves: components["schemas"]["MoveIn"][];
+            /**
+             * Removes
+             * @default []
+             */
+            removes: string[];
+            /**
+             * Loans
+             * @default []
+             */
+            loans: components["schemas"]["LoanIn"][];
+        };
         /** ScorePoint */
         ScorePoint: {
             /**
@@ -600,6 +1184,19 @@ export interface components {
              * @example 11200.00
              */
             score: string;
+        };
+        /** ShortfallOut */
+        ShortfallOut: {
+            /**
+             * On
+             * Format: date
+             */
+            on: string;
+            /**
+             * Amount
+             * @example 11200.00
+             */
+            amount: string;
         };
         /** SupplierScoreOut */
         SupplierScoreOut: {
@@ -684,6 +1281,39 @@ export interface components {
             input?: unknown;
             /** Context */
             ctx?: Record<string, never>;
+        };
+        /** WeekOut */
+        WeekOut: {
+            /**
+             * Start
+             * Format: date
+             */
+            start: string;
+            /**
+             * End
+             * Format: date
+             */
+            end: string;
+            /**
+             * Inflow
+             * @example 11200.00
+             */
+            inflow: string;
+            /**
+             * Outflow
+             * @example 11200.00
+             */
+            outflow: string;
+            /**
+             * Closing
+             * @example 11200.00
+             */
+            closing: string;
+            /**
+             * Lowest
+             * @example 11200.00
+             */
+            lowest: string;
         };
     };
     responses: never;
@@ -942,6 +1572,228 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["SupplierScorecardOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    forecast_cashflow_forecast_get: {
+        parameters: {
+            query?: {
+                party_id?: string | null;
+                days?: number;
+                min_buffer?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ForecastOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    what_if_cashflow_scenario_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ScenarioRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ScenarioOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_alerts_alerts_get: {
+        parameters: {
+            query?: {
+                party_id?: string | null;
+                status?: ("OPEN" | "ACKNOWLEDGED" | "RESOLVED") | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AlertList"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    recompute_alerts_recompute_post: {
+        parameters: {
+            query?: {
+                party_id?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RecomputeOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    acknowledge_alerts__alert_id__acknowledge_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                alert_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AlertOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    resolve_alerts__alert_id__resolve_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                alert_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AlertOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_dashboard_dashboard_get: {
+        parameters: {
+            query?: {
+                party_id?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DashboardOut"];
                 };
             };
             /** @description Validation Error */

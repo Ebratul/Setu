@@ -12,9 +12,8 @@ from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
 from app.auth.deps import CurrentUser, can_read_party
-from app.config import get_settings
 from app.db.enums import DealStatus, FxKind, PartyKind
-from app.db.models import Deal, DealCost, DemoState, FxRate, Party, SupplierScore
+from app.db.models import Deal, DealCost, FxRate, Party, SupplierScore
 from app.domain import narrative
 from app.domain.fx import FxQuote, FxRateMissing, FxTable
 from app.domain.landed_cost import CostLine, LandedCostResult, landed_cost
@@ -55,6 +54,7 @@ from app.schemas.analysis import (
     SupplierScoreOut,
     TargetPrice,
 )
+from app.services.scope import demo_today, party, require_buyer, scope_party
 
 FX_PAIRS: tuple[tuple[Currency, Currency], ...] = (("USD", "BDT"), ("USD", "CNY"), ("CNY", "BDT"))
 COMMITTED = (
@@ -108,11 +108,6 @@ def explanations(sentences: Sequence[narrative.Sentence]) -> list[Explanation]:
 # ---------- loading ----------
 
 
-def demo_today(db: Session) -> date:
-    anchor = db.scalar(select(DemoState.anchor_date).where(DemoState.id == 1))
-    return anchor or get_settings().demo_today
-
-
 def fx_table(db: Session, on: date) -> FxTable:
     """Latest HISTORY (not forecast) rate per pair on or before `on`."""
     quotes = []
@@ -154,13 +149,6 @@ def find_deal(db: Session, ref_or_id: str) -> Deal:
     if deal is None:
         raise NotFound(f"deal {ref_or_id} not found")
     return deal
-
-
-def party(db: Session, party_id: uuid.UUID) -> Party:
-    p = db.get(Party, party_id)
-    if p is None:
-        raise NotFound("party not found")
-    return p
 
 
 def deal_summary(db: Session, deal: Deal) -> DealSummary:
@@ -302,25 +290,10 @@ def list_orders(db: Session, user: CurrentUser) -> OrderList:
 # ---------- monthly summary ----------
 
 
-def scope_party(db: Session, user: CurrentUser, party_id: uuid.UUID | None) -> Party | None:
-    """Buyers default to (and may only read) their own party; admin/judge may pass any buyer."""
-    pid = party_id or (None if user.reads_all else user.party_id)
-    if pid is None:
-        return None
-    if not can_read_party(user, pid):
-        raise Forbidden("you can only read your own business")
-    p = party(db, pid)
-    if p.kind != PartyKind.BUYER:
-        raise DomainError("party_id must be a buyer")
-    return p
-
-
 def monthly(
     db: Session, user: CurrentUser, party_id: uuid.UUID | None, month: str | None
 ) -> MonthlySummaryOut:
-    buyer = scope_party(db, user, party_id)
-    if buyer is None:
-        raise DomainError("party_id is required for admin and judge users")
+    buyer = require_buyer(db, user, party_id)
     today = demo_today(db)
     target = date(int(month[:4]), int(month[5:7]), 1) if month else month_start(today)
     fx = fx_table(db, today)

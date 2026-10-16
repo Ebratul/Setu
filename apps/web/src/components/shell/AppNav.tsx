@@ -6,8 +6,11 @@ import { usePathname } from "next/navigation";
 import { useT } from "@/i18n";
 
 const ITEMS = [
-  { href: "/app/analysis", key: "nav.analysis" },
-  { href: "/app/orders", key: "nav.orders" },
+  { href: "/app", key: "nav.dashboard", exact: true },
+  { href: "/app/orders", key: "nav.orders", exact: false },
+  { href: "/app/cashflow", key: "nav.cashflow", exact: false },
+  { href: "/app/financing", key: "nav.financing", exact: false },
+  { href: "/app/analysis", key: "nav.analysis", exact: false },
 ] as const;
 
 export function AppNav() {
@@ -15,9 +18,11 @@ export function AppNav() {
   const pathname = usePathname();
   return (
     <nav aria-label={t("nav.label")}>
-      <ul className="flex gap-1 md:flex-col">
+      <ul className="flex flex-wrap gap-1 md:flex-col">
         {ITEMS.map((item) => {
-          const current = pathname.startsWith(item.href);
+          const current = item.exact
+            ? pathname === item.href
+            : pathname.startsWith(item.href);
           return (
             <li key={item.href}>
               <Link
