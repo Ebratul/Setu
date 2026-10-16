@@ -1,0 +1,36 @@
+# Node / Next.js
+node_modules/
+.next/
+out/
+.pnpm-store/
+*.tsbuildinfo
+next-env.d.ts
+coverage/
+
+# Python
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.hypothesis/
+
+# Secrets (keep placeholders only)
+.env
+.env.*
+!.env.example
+keys/
+*.pem
+
+# Generated data
+synth/out/
+eval/data/
+services/agent/synth/out/
+services/agent/eval/data/
+data/generated/**/*.pdf
+
+# Tooling / OS
+.deepeval/
+.vercel/
+.DS_Store
+*.log
