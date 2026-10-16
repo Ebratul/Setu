@@ -76,3 +76,14 @@ def batch_session() -> Iterator[Session]:
         except Exception:
             session.rollback()
             raise
+
+
+def get_db() -> Iterator[Session]:
+    """FastAPI dependency: a request-scoped session on the API engine (read paths)."""
+    engine = get_engine()
+    if engine is None:
+        from app.errors import ServiceUnavailable
+
+        raise ServiceUnavailable("database is not configured")
+    with sessionmaker(engine, expire_on_commit=False)() as session:
+        yield session

@@ -5,7 +5,7 @@ Times are Dhaka (UTC+6). Deadline: 20 Oct 2026 21:59 Dhaka. Must-have cut line: 
 
 ## Phase checklist
 - [x] 0.1 · [x] 1.1 · [x] 1.2 · [ ] 1.3
-- [ ] 2.1 · [ ] 2.2 · [ ] 2.3 · [ ] 2.4 · [ ] 2.5 · [ ] 2.6
+- [x] 2.1 · [ ] 2.2 · [ ] 2.3 · [~] 2.4 (i18n, fonts, shell, client only) · [ ] 2.5 · [~] 2.6 (analysis half done; financing open)
 - [ ] 3.1 · [ ] 3.2 · [ ] 3.3 · [ ] 3.4
 - [ ] 4.1 · [ ] 4.2 · [ ] 4.3 · [ ] 4.4 · [ ] 4.5
 - [ ] 5.1 · [ ] 5.2 · [ ] 5.3 · [ ] 5.4 · [ ] 5.5
@@ -21,6 +21,7 @@ Times are Dhaka (UTC+6). Deadline: 20 Oct 2026 21:59 Dhaka. Must-have cut line: 
 | setup | 2026-10-17 | done | Planning session: CLAUDE.md, rules, agents, skills, hooks, PLAN/REQUIREMENTS/PROGRESS docs. No app code. | hook pipe-tests pass | Start Phase 0.1 in a fresh session. |
 | 0.1 | 2026-10-17 02:39 | done | Monorepo scaffold: pnpm workspace, Next.js 16 web + status card, FastAPI agent /health, pgvector compose, Makefile, env examples, README. | pytest 4 passed · vitest 2 passed · lint/tsc/ruff clean · build ok | Copy .env.example → .env; `pnpm run db:up`, `pnpm run dev`. Next: Phase 1.1 schema. |
 | 1.1+1.2 | 2026-10-17 03:35 | done | All 26 tables + initial Alembic migration; Money helpers; audit-chain primitives; deterministic P03 demo seed (Rahima/SETU-2026-0001), reset-demo, verify_seed. | pytest 45 passed (incl. 7 db) · vitest 2 · ruff clean · verify_seed 18/18 · security review: pass with fixes (highs fixed) | Read data/demo/README.md + docs/data-model.md. Read endpoints deferred to next phase. |
+| 2.1+2.6a (P05) | 2026-10-17 04:07 | done | FR-3 domain lib + 5 analysis endpoints, demo-login stub, /app shell, EN/BN i18n, order analysis, calculator, monthly summary, supplier scorecard pages. | pytest 105 passed · vitest 13 passed · Playwright smoke 1 passed · lint/tsc/ruff clean · next build ok · security review: pass with fixes (fixed) | Financing UI (2.6) + FR-1 engine (2.2) next. Margin is 18.01, not 18.00. |
 
 ## Handoff notes
 
@@ -100,6 +101,83 @@ Times are Dhaka (UTC+6). Deadline: 20 Oct 2026 21:59 Dhaka. Must-have cut line: 
   `hs_duty.json`, `POST /demo/reset`.
 - **Next phase reads:** `docs/data-model.md`, `data/demo/README.md`, `seed/financing.py` docstring (eligibility facts),
   `seed/cashflow.py` docstring (balance rule).
+
+### 2.1 + 2.6 analysis half (from the user's "P05 FR-3 analysis" prompt)
+- **Scope:** "P04" (the finance library) had not been built, so this session built the FR-3 subset as well.
+  It lives in `app/domain/` (per CLAUDE.md), not `app/finance/`; prompts that say `app/finance` mean this.
+  Files: `fx.py` (`FxQuote`, `FxTable.rate/convert/path`), `landed_cost.py`, `margin.py`
+  (`gross_margin`, `break_even_price`, `price_for_margin`, `margin_band`), `summary.py`, `scorecard.py`,
+  `narrative.py` (deterministic EN/BN sentences with stable codes). Formulas: `docs/finance-formulas.md`.
+  There is no HS-code duty table yet (`seed/hs_duty.json` is still open).
+- **Endpoints** (FastAPI paths; the web app calls `/api/...`). Models are in `app/schemas/analysis.py`, the
+  service in `app/services/analysis.py` (read-only), and errors are RFC 7807 via `app/errors.py`:
+  - `GET /analysis/orders`: the caller's deals.
+  - `GET /analysis/orders/{ref|uuid}?target_margin_pct=`: breakdown + shares, KPIs, break-even, target
+    price, `fx[]` with `as_of`, `explanations[{code,en,bn}]`, `facts`.
+  - `POST /analysis/landed-cost`: what-if. Money must be strings; floats get 422. Saves nothing.
+  - `GET /analysis/monthly?party_id=&month=YYYY-MM`.
+  - `GET /analysis/suppliers?party_id=`.
+  - Every amount is `Amounts{USD,BDT,CNY}`, converted server-side, so the UI never computes. Percents
+    are 2-dp strings. Per-unit values have 2–4 dp.
+- **Numbers for UI checks** (SETU-2026-0001):
+  - landed `11200.00` (BDT `1373008.00`, CNY `79508.80`), per unit `1.40`.
+  - **margin `18.01`** (the P05 prompt said 18.00; 2,460/13,660 = 18.009%), markup `21.96`, 20% target
+    price `1.75`, duty share `7.14`.
+  - Rahima Oct 2026: 1 deal, 9,600 / 11,200, top driver DUTY 50%.
+  - Karim Sep 2026: 2 deals, 11,700 / 14,595, avg margin 12.60.
+  - Scorecard: Huaxin 96.25, Brightline 89.14, Huameng 57.79 (weak: KYB_NOT_VERIFIED, LOW_SCORE,
+    HIGH_DISPUTE_RATE, LOW_ON_TIME).
+- **Auth stub:**
+  - `app/auth/demo.py` maps the HMAC-signed cookie `setu_demo_session` (12 h) to a user id.
+  - `app/auth/deps.py` (`CurrentUser`, `current_user`, `require_analysis_reader`, `can_read_party`) is
+    the swap point for real auth. Endpoints are `/auth/demo-users|demo-login|me|logout`.
+  - Access: BUYER reads own data only (another buyer's deal gives 403); ADMIN/JUDGE read all (monthly
+    needs `party_id`); SUPPLIER gets 403.
+  - New settings: `APP_ENV` (dev|test|prod), `DEMO_SESSION_SECRET`, `DEMO_COOKIE_SECURE`. In prod,
+    `create_app` refuses to start without a 32+ char secret and a secure cookie, or with `*` in
+    `ALLOWED_ORIGINS`. **Not added to `.env.example`**, because that file has uncommitted local edits
+    with real-looking values. Add the placeholders after cleaning it.
+- **Web:**
+  - Routes: `/login` ("Login as"); `/app` shell (header with Simulated badge, EN/বাংলা toggle, user
+    menu; nav Analysis + Orders); `/app/orders`; `/app/orders/[id]` (minimal deal detail that links to
+    the analysis; 4.5 replaces it); `/app/orders/[id]/analysis`; `/app/analysis?tab=calculator|monthly|suppliers`.
+  - The routes use the `/app` URL prefix the prompt asked for (folder `src/app/app/`), not the
+    `(app)` route group from frontend.md.
+  - i18n: `src/i18n/{index.tsx,en.json,bn.json}`. `useT()` gives `t("a.b", vars)`. Also `useLang()`,
+    `pickLang()` for API `{en,bn}` text, and the cookie `setu_lang`. A test asserts en/bn key parity.
+  - Fonts: Inter + Noto Sans Bengali (next/font).
+  - Charts: Recharts (MIT; README "Third-party licences").
+  - Helpers: `src/lib/format.ts` (`formatMoney(str, ccy, lang)` gives ৳/$/¥, string-fed Intl),
+    `src/lib/useApi.ts` (`useApi`, `useDebounced`).
+  - Shared: `QueryError` (401 → `/login?next=`), `AnalysisResults`, `KpiCard band`.
+  - e2e: `apps/web/playwright.config.ts` + `e2e/analysis.spec.ts` (`pnpm --dir apps/web e2e`, base
+    `E2E_BASE_URL`). Chromium is installed in `~/.cache/ms-playwright`.
+- **Verified in a browser** (prod build on :3100 → agent on :8001 against the local DB):
+  - Order page numbers match; currency toggle USD/BDT/CNY works; target 20% gives $1.75.
+  - The Bangla toggle switches labels, sentences and `<html lang>`.
+  - The calculator updates live; monthly shows 18.01%; the scorecard shows 3 suppliers with Huameng
+    highlighted.
+  - No horizontal scroll at 360 px (en and bn).
+- **Security review: PASS WITH FIXES, all fixed.**
+  - Fixed: non-ASCII cookies 500'd (now 401); the calculator was open to SUPPLIER (now reader-only);
+    `current_user` now requires `is_demo`; prod startup guard; catch-all problem-JSON 500;
+    authorization helpers moved out of the demo module.
+  - Accepted, by design:
+    - Another buyer's deal gives 403 (the prompt asked for 403), not 404, so deal references are
+      enumerable.
+    - Scorecard `price_index`/`completed_deals_count` aggregate network-wide deals. Revisit with a
+      minimum-count floor if real data arrives.
+    - Logout is client-side only (cookie stays valid ≤ 12 h).
+- **Known gaps:**
+  - FR-1/FR-2 engines (2.2/2.3), the financing UI, and the dashboard/cash-flow pages are not built.
+  - No zh dictionary.
+  - The Why panel's `facts` stay English.
+  - The admin/judge buyer picker on the monthly tab is not covered by tests.
+  - Rahima's 6-month chart has one non-zero month (seed data).
+  - `.env` still points at the hosted DB, so `pnpm dev` shows db unavailable. Use
+    `DATABASE_URL=postgresql://setu:setu@localhost:5435/setu` locally.
+- **Next phase reads:** this block, `docs/finance-formulas.md`, `app/schemas/analysis.py` (the `Amounts`
+  pattern), `app/auth/deps.py`.
 
 ## Known issues / risks
 - 1.2: the local `.env` / `.env.example` `DATABASE_URL` points at a hosted Postgres, so `db:migrate`/`db:seed` without

@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 import { AgentStatusCard } from "@/components/status/AgentStatusCard";
 
 export default function Home() {
@@ -23,6 +25,12 @@ export default function Home() {
             China. All money movement in this app is simulated.
           </p>
         </div>
+        <Link
+          href="/login"
+          className="rounded-xl bg-brand-700 px-5 py-3 font-semibold text-white hover:bg-brand-800 focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2 focus-visible:outline-none"
+        >
+          Open the demo → /login
+        </Link>
         <AgentStatusCard />
       </main>
       <footer className="px-6 py-6 text-center text-sm text-muted">

@@ -11,15 +11,17 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "test": "vitest run --passWithNoTests",
-    "e2e": "echo \"e2e: Playwright is added in Phase 6.2\"",
+    "e2e": "playwright test",
     "types": "openapi-typescript http://localhost:8000/openapi.json -o src/lib/api/schema.gen.ts"
   },
   "dependencies": {
     "next": "16.4.1",
     "react": "19.3.0",
-    "react-dom": "19.3.0"
+    "react-dom": "19.3.0",
+    "recharts": "^3.10.1"
   },
   "devDependencies": {
+    "@playwright/test": "^1.64.1",
     "@tailwindcss/turbopack": "^4",
     "@testing-library/dom": "^10.4.2",
     "@testing-library/jest-dom": "^7.0.1",

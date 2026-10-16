@@ -31,10 +31,32 @@
   --shadow-card: 0 1px 3px rgb(15 23 42 / 0.08), 0 1px 2px rgb(15 23 42 / 0.04);
   --shadow-card-hover: 0 10px 25px rgb(15 23 42 / 0.12);
 
-  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --color-success-soft: #f0fdf4;
+  --color-warning-soft: #fffbeb;
+  --color-danger-soft: #fef2f2;
+  --color-info-soft: #eff6ff;
+  --color-line: #e2e8f0;
+  --color-chart-1: #0f766e;
+  --color-chart-2: #d97706;
+  --color-chart-3: #1d4ed8;
+  --color-chart-4: #7c3aed;
+  --color-chart-5: #475569;
+  --color-chart-6: #be185d;
+
+  --font-sans:
+    var(--font-inter), var(--font-bengali), ui-sans-serif, system-ui, sans-serif;
 }
 
 body {
   background: var(--color-surface-alt);
   color: var(--color-ink);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
 }

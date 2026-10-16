@@ -1,6 +1,7 @@
 from datetime import date
 from functools import lru_cache
 from pathlib import Path
+from typing import Literal
 
 from pydantic import SecretStr
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -19,6 +20,7 @@ class Settings(BaseSettings):
     )
 
     app_version: str = "0.1.0"
+    app_env: Literal["dev", "test", "prod"] = "dev"
     database_url: SecretStr | None = None
     db_check_timeout_seconds: float = 2.0
     allowed_origins: str = "http://localhost:3000"
@@ -32,6 +34,10 @@ class Settings(BaseSettings):
     audit_dev_key_path: Path = REPO_ROOT / "keys" / "audit_dev_ed25519.key"
 
     demo_today: date = date(2026, 10, 20)
+
+    # Demo "login as" stub (app/auth/demo.py). Replace with real auth before any non-demo use.
+    demo_session_secret: SecretStr | None = None
+    demo_cookie_secure: bool = False
 
     @property
     def cors_origins(self) -> list[str]:
