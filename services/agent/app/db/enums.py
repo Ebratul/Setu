@@ -195,3 +195,15 @@ class FxLockStatus(StrEnum):
     USED = "USED"
     EXPIRED = "EXPIRED"
     CANCELLED = "CANCELLED"
+
+
+class FinancingMode(StrEnum):
+    SHORTFALL = "shortfall"
+    ORDER = "order"
+
+
+class FinancingApplicationStatus(StrEnum):
+    SUBMITTED = "SUBMITTED"
+    APPROVED = "APPROVED"
+    REJECTED = "REJECTED"
+    CANCELLED = "CANCELLED"

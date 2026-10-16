@@ -114,3 +114,54 @@ opening(d+1) = closing(d);   opening(today) = buyer cash_balance
 - **Golden (Rahima):** SHORTFALL on 2026-11-07 for **1,560.00**. The balance is 4,200.00 against milestone 2
   of 5,760.00, so it is WARNING (18 days away). FX: CNY/BDT 16.9682 on 2026-10-22 against a mean of
   17.2865 (−1.8%) gives a saving of ≈ BDT 13,014.68 on milestone 2.
+
+## Financing: `financing.py` (FR-1)
+**Gap**
+- **Shortfall mode:** amount = `min_buffer − closing` on the first day below the buffer, i.e. the P06
+  forecast shortfall. `needed_by` is that day. `recover_on` is the next day the closing balance is at or
+  above the buffer, and `needed_for_days` = recover_on − needed_by. `peak` is the deepest deficit before
+  recovery. Demo: 1,560.00 on 2026-11-07, recovering 2026-11-19 (12 days), peak 2,160.00 on 2026-11-08
+  (freight).
+- **Order mode:** amount = `max(0, landed cost − available cash)`, needed from today until milestone 3 is
+  released. Release = arrival milestone + `CLEARANCE_DAYS` (5), matching duty due 5 days after arrival.
+  Demo: 11,200 − 6,000 = **5,200.00** for 45 days.
+
+**Tenor**
+- A fixed tenor uses that tenor.
+- `UNTIL_MILESTONE_3` runs from the start to the milestone-3 release, capped at `tenor_days_max`.
+- A ranged line (min < max) is **priced at its maximum tenor** (product rule chosen for TC-09).
+
+**Cost on principal P over d days**
+- interest = P × annual_rate × d/365
+- fees = P × fee_rate + fee_fixed
+- uplift = P × price_uplift_rate
+- flat = P × flat_cost_rate
+- total = interest + fees + uplift + flat
+- per 30 days = total × 30/d
+- effective annual rate = (1 + total/P)^(365/d) − 1, capped at 999,900%
+
+**Eligibility**
+- The option's JSON rule tree (`eq`, `gte`, `lte`, `in` over the facts listed in `seed/financing.py`).
+- Plus code rules: `MIN_AMOUNT`, `MAX_AMOUNT`, `TENOR_FITS` (tenor ≥ needed days), and
+  `NOT_WITH_FUNDED_ESCROW`. That last rule means insured open-account terms replace escrow, so they are
+  not offered once the deal's escrow is funded (product rule chosen for TC-09).
+
+**Ranking:** eligible first, then lowest total cost, then shorter tenor, then fewer conditions (rules + 1
+if there is collateral), then code.
+
+**Top pick:** `why_codes` from `LOWEST_COST`, `NO_COLLATERAL`, `USES_ESCROW`, `NO_INTEREST` and
+`MATCHES_DEAL_TIMELINE`; `saving_vs_next` = total of the next eligible option − total of the pick.
+
+**Schedule:** one bullet repayment of P + total at start + d.
+
+**Impact:** the P06 forecast with the loan inflow on the start day and the repayment at maturity. It
+reports whether the original shortfall is covered, any shortfall that remains, and new shortfalls on days
+that were ≥ 0 before.
+
+| Option | Order mode: 5,200 | Shortfall mode: 1,560 |
+|---|---|---|
+| Escrow-backed loan (9%, USD 40, until milestone 3) | **97.70** (45 d), rank 1 | 50.39 (27 d), rank 2 |
+| Supplier credit (2% uplift, 60 d) | **104.00**, rank 2 | **31.20**, rank 1 |
+| Bank import loan (11.5%, 0.5% fee, 90 d, min 2,000) | **173.45**, rank 3 | ineligible (min amount) |
+| NBFI line (14%, 30–120 d, priced at 120) | 239.34, rank 4 | 71.80, rank 3 |
+| Insured terms (1.2% flat, 90 d, min 3,000) | ineligible (escrow funded) | ineligible (min amount, escrow funded) |

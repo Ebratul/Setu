@@ -59,3 +59,12 @@ mismatch PL vs PI · 4. Amount tampering (PI total ≠ sum of lines / ≠ order)
 ## Deliverables
 1. Technical documentation · 2. Presentation deck (≤10 min) · 3. Demo video (≤5 min) · 4. Source code (README,
 deployment instructions, test cases) · 5. Security self-assessment report · 6. Execution evidence (audit-log export + demo video).
+
+## Test cases (stand-in until docs/SRS.md §10.2 exists)
+- **TC-08**: with seed data, the FR-2 engine raises a SHORTFALL for Rahima on the milestone-2 date
+  (2026-11-07) for exactly USD 1,560.00.
+- **TC-09** (updated in P07; it previously said 3,600): financing matching for SETU-2026-0001.
+  - **Order mode:** 11,200.00 − 6,000.00 = 5,200.00. Expected ranking: escrow-backed order loan 97.70
+    (45 days), supplier credit 104.00, bank import loan 173.45. Eligibility reasons are shown for every
+    option; insured terms are ineligible because the escrow is funded.
+  - **Shortfall mode:** 1,560.00 needed by 2026-11-07.
