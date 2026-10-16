@@ -54,6 +54,7 @@ DEMO_TABLES = (
     "chat_threads",
     "audit_log",
     "alerts",
+    "financing_applications",
     "approval_requests",
     "hash_registry",
     "forensic_findings",

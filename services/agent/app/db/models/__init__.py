@@ -8,7 +8,14 @@ from app.db.models.deals import (
     Milestone,
     SupplierScore,
 )
-from app.db.models.finance import Alert, CashflowItem, FinancingOption, FxLock, FxRate
+from app.db.models.finance import (
+    Alert,
+    CashflowItem,
+    FinancingApplication,
+    FinancingOption,
+    FxLock,
+    FxRate,
+)
 from app.db.models.identity import BankAccount, KybCheck, Party, User
 from app.db.models.trust import (
     ApprovalRequest,
@@ -32,6 +39,7 @@ __all__ = [
     "DemoState",
     "Document",
     "EscrowAccount",
+    "FinancingApplication",
     "FinancingOption",
     "ForensicFinding",
     "FxLock",

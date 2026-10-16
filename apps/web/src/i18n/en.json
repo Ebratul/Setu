@@ -7,7 +7,9 @@
     "loading": "Loading…",
     "updating": "Updating…",
     "redirectingLogin": "Redirecting to sign in…",
-    "footer": "FinTechathon 2026 · Simulated sandbox — no real payments"
+    "footer": "FinTechathon 2026 · Simulated sandbox — no real payments",
+    "close": "Close",
+    "cancel": "Cancel"
   },
   "error": {
     "title": "Something went wrong",
@@ -90,7 +92,8 @@
     "hs": "HS code",
     "incoterm": "Incoterm",
     "quantity": "Quantity",
-    "opened": "Opened"
+    "opened": "Opened",
+    "financing": "Financing"
   },
   "analysis": {
     "title": "Business financial analysis",
@@ -361,10 +364,123 @@
   },
   "fin": {
     "title": "Financing",
-    "need": "You need {amount} by {date} for {deal}.",
-    "needNoDeal": "You need {amount} by {date}.",
-    "noPrefill": "Open this page from a shortfall alert to prefill the amount and date.",
-    "soon": "Financing comparison arrives in P07."
+    "intro": "Compare financing options for your cash gap, see what each costs, and apply in the simulated sandbox.",
+    "mode": {
+      "label": "What to finance",
+      "shortfall": "Cover shortfall",
+      "order": "Fund whole order"
+    },
+    "deal": {
+      "label": "Deal",
+      "choose": "Choose a deal",
+      "pick": "Choose a deal to fund the whole order."
+    },
+    "days": "{n} days",
+    "noneNeeded": "No financing needed",
+    "noneNeededBody": "Your forecast cash covers the coming weeks. Enter an amount to compare options anyway.",
+    "noneNeededOrder": "Your available cash already covers this order.",
+    "gap": {
+      "title": "Your funding gap",
+      "amount": "Amount needed",
+      "neededBy": "Needed by",
+      "forDays": "For",
+      "landed": "Landed cost of the order",
+      "cash": "Available cash",
+      "release": "Milestone 3 release (est.)",
+      "recovers": "Cash recovers on",
+      "why": "Why this amount",
+      "facts": "Facts used"
+    },
+    "amount": {
+      "label": "Amount to finance",
+      "hint": "Up to 4 decimals. Options are re-compared as you type.",
+      "invalid": "Enter a positive amount like 1560.00",
+      "useSuggested": "Use suggested amount",
+      "coverPeak": "Cover the whole dip (peak {amount})"
+    },
+    "options": {
+      "title": "Compare options"
+    },
+    "recommended": "Recommended",
+    "eligible": "Eligible",
+    "ineligible": "Not eligible",
+    "saves": "Saves {amount} vs the next best option",
+    "whyNot": "Why not",
+    "kind": {
+      "ESCROW_BACKED_LOAN": "Escrow-backed loan",
+      "SUPPLIER_CREDIT": "Supplier credit",
+      "BANK_IMPORT_LOAN": "Bank import loan",
+      "WORKING_CAPITAL_LINE": "Working-capital line (NBFI)",
+      "INSURED_SUPPLIER_TERMS": "Insured supplier terms"
+    },
+    "opt": {
+      "name": "Option",
+      "total": "Total cost",
+      "interest": "Interest",
+      "fees": "Fees",
+      "uplift": "Price uplift",
+      "flat": "Flat cost",
+      "tenor": "Tenor",
+      "maturity": "Maturity",
+      "ear": "Effective annual rate",
+      "per30": "Cost per 30 days",
+      "collateral": "Collateral",
+      "conditions": "Conditions ({n})",
+      "risks": "Risk notes"
+    },
+    "apply": {
+      "title": "Apply for financing (simulated)",
+      "amount": "Amount",
+      "simulatedNote": "Simulated — no real money moves.",
+      "confirm": "Confirm application",
+      "submitting": "Submitting your application…",
+      "waiting": "Submitted. Waiting for the simulated lender decision…",
+      "approved": "Approved (simulated) — your cash flow and alerts were updated",
+      "toDashboard": "Back to the Dashboard",
+      "tracker": "Application progress",
+      "button": "Apply (simulated)"
+    },
+    "schedule": {
+      "button": "Show repayment schedule",
+      "title": "Repayment schedule: {name}",
+      "summary": "{days} days, final payment on {date}.",
+      "caption": "Repayment instalments",
+      "due": "Due",
+      "principal": "Principal",
+      "cost": "Cost",
+      "total": "Instalment"
+    },
+    "impact": {
+      "button": "See impact on my cash flow"
+    },
+    "readOnly": "This account is read-only, so it cannot submit applications.",
+    "status": {
+      "SUBMITTED": "Submitted",
+      "APPROVED": "Approved",
+      "REJECTED": "Rejected",
+      "CANCELLED": "Cancelled"
+    },
+    "apps": {
+      "title": "My applications",
+      "empty": "No applications yet.",
+      "caption": "Financing applications",
+      "ref": "Reference",
+      "option": "Option",
+      "amount": "Amount",
+      "total": "Total cost",
+      "maturity": "Maturity",
+      "status": "Status"
+    },
+    "imp": {
+      "title": "Cash-flow impact: {name}",
+      "before": "Without financing",
+      "after": "With financing",
+      "zone": "Below zero",
+      "inflow": "Loan received",
+      "repay": "Repayment",
+      "lowestBefore": "Lowest balance without",
+      "lowestAfter": "Lowest balance with"
+    }
   },
   "approvals": {
     "title": "Approvals",
