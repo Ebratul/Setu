@@ -78,3 +78,39 @@ price_index  = 100 × Σ landed cost / Σ goods value over committed deals (USD)
 | Expected revenue | 13,660.00 (1.7075 per m) |
 | Gross margin | 2,460.00 = **18.01%** (healthy) · markup 21.96% |
 | Price for a 20% margin | 1.40 / 0.80 = 1.75 per m |
+
+## Cash-flow forecast: `cashflow.py` (FR-2)
+```
+closing(d)   = opening(d) + inflows(d) − outflows(d)
+opening(d+1) = closing(d);   opening(today) = buyer cash_balance
+```
+- The window is today … today + 90, inclusive (91 days). Weekly buckets are 7-day blocks starting today.
+- The balance *available* for a payment on day D is `opening(D)`, as in the seed rule (`seed/cashflow.py`).
+- `running_balance(opening, deltas)` is the reference implementation, and tests compare the API against it.
+- **Sources** (`app/services/cashflow.py`), all converted to the buyer's cash currency:
+  - Unlinked `cashflow_items` dated today or later.
+  - Tranches of FUNDED, IN_PRODUCTION and SHIPPED deals that are beyond `escrow.funded_total` and not
+    RELEASED, REFUNDED or CANCELLED, on their due date.
+  - `deal_costs` on their due date.
+  - The seed's linked `cashflow_items` copies of the last two are skipped.
+- **What-if:** `apply_scenario` moves or removes flows by `ref` and adds loan inflows, each with an
+  optional repayment. It never saves. `cover_amount = max(0, min_buffer − lowest closing)`.
+
+## Alert rules: `alerts.py` (FR-2)
+| Type | Trigger | Severity | Amount |
+|---|---|---|---|
+| SHORTFALL | first day `closing(d) < min_buffer` (default 0) | CRITICAL if ≤ 7 days away, else WARNING | `min_buffer − closing(d)` |
+| DEADLINE: milestone | unfunded tranche; action window 14 days, notice window 30 days | CRITICAL ≤ 1 day · WARNING ≤ action window · INFO ≤ notice window | tranche |
+| DEADLINE: customs duty | DUTY cost; windows 7 / 60 | as above | duty |
+| DEADLINE: bill of entry | arrival milestone + 1 day; windows 7 / 60 | as above | — |
+| DEADLINE: loan instalment | LOAN_REPAYMENT item; windows 7 / 7 | as above | instalment |
+| FX_OPPORTUNITY | next tranche of each deal paid into a non-BDT, non-cash-currency account: the cheapest `<ccy>/BDT` day before it (history today plus mock forecast) is more than 1% below the 30-day mean | INFO | saving ≈ payment × (mean − rate), in BDT |
+
+- **Keys:** `alert:<party>:<type>:<reference>:<date>`, with id = uuid5 of the key.
+- **Upsert:** a re-run inserts new keys and updates changed rows only. A milestone DEADLINE alert is
+  dropped when the SHORTFALL alert is about that same payment.
+- **Auto-resolve:** an engine alert whose key is no longer produced becomes RESOLVED (`resolved_by=engine`).
+  It reopens if the condition returns. A user-resolved alert stays closed.
+- **Golden (Rahima):** SHORTFALL on 2026-11-07 for **1,560.00**. The balance is 4,200.00 against milestone 2
+  of 5,760.00, so it is WARNING (18 days away). FX: CNY/BDT 16.9682 on 2026-10-22 against a mean of
+  17.2865 (−1.8%) gives a saving of ≈ BDT 13,014.68 on milestone 2.

@@ -60,3 +60,11 @@ export function formatMonth(ym: string, lang: FormatLang = "en"): string {
 
 /** Client-side input-format check only (mirrors the API pattern); never used for arithmetic. */
 export const INPUT_DECIMAL = /^\d{1,14}(\.\d{1,4})?$/;
+
+export function formatDay(iso: string, lang: FormatLang = "en"): string {
+  return new Intl.DateTimeFormat(locale(lang), {
+    month: "short",
+    day: "numeric",
+    timeZone: "UTC",
+  }).format(new Date(`${iso}T00:00:00Z`));
+}

@@ -124,7 +124,9 @@ def run_checks(session: Session) -> list[Check]:
     shortfall = q2(m2.amount - balance)
     add("Rahima shortfall at M2", "1560.00", shortfall)
     alert_amt = session.scalar(
-        select(Alert.amount).where(Alert.type == "SHORTFALL", Alert.party_id == rahima.id)
+        select(Alert.amount).where(
+            Alert.type == "SHORTFALL", Alert.party_id == rahima.id, Alert.status == "OPEN"
+        )
     )
     add("SHORTFALL alert amount", "1560.00", q2(alert_amt) if alert_amt is not None else None)
 

@@ -15,7 +15,8 @@ from sqlalchemy import select, text
 from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.orm import Session
 
-from app.db.models import DemoState
+from app.db.enums import PartyKind
+from app.db.models import DemoState, Party
 from app.db.session import batch_session, database_url, is_local_url
 from seed import (
     alerts_approvals,
@@ -132,7 +133,21 @@ def seed(
             )
         if reset:
             wipe(session)
-        return upsert(session, rows)
+        counts = upsert(session, rows)
+        counts["alerts (engine)"] = recompute_alerts(session)
+        return counts
+
+
+def recompute_alerts(session: Session) -> int:
+    """Run the FR-2 alert engine for every buyer so the demo opens with live alerts."""
+    from app.services.alerts import recompute_book
+    from app.services.cashflow import load_book
+
+    total = 0
+    for buyer in session.scalars(select(Party).where(Party.kind == PartyKind.BUYER)).all():
+        out = recompute_book(session, load_book(session, buyer))
+        total += out.created + out.updated + out.reopened
+    return total
 
 
 def main(argv: list[str] | None = None) -> int:

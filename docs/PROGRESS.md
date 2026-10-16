@@ -5,7 +5,7 @@ Times are Dhaka (UTC+6). Deadline: 20 Oct 2026 21:59 Dhaka. Must-have cut line: 
 
 ## Phase checklist
 - [x] 0.1 · [x] 1.1 · [x] 1.2 · [ ] 1.3
-- [x] 2.1 · [ ] 2.2 · [ ] 2.3 · [~] 2.4 (i18n, fonts, shell, client only) · [ ] 2.5 · [~] 2.6 (analysis half done; financing open)
+- [x] 2.1 · [ ] 2.2 · [x] 2.3 (FR-2; FR-7 route compare open) · [~] 2.4 (i18n, fonts, shell, client only) · [x] 2.5 · [~] 2.6 (analysis half done; financing open)
 - [ ] 3.1 · [ ] 3.2 · [ ] 3.3 · [ ] 3.4
 - [ ] 4.1 · [ ] 4.2 · [ ] 4.3 · [ ] 4.4 · [ ] 4.5
 - [ ] 5.1 · [ ] 5.2 · [ ] 5.3 · [ ] 5.4 · [ ] 5.5
@@ -22,6 +22,7 @@ Times are Dhaka (UTC+6). Deadline: 20 Oct 2026 21:59 Dhaka. Must-have cut line: 
 | 0.1 | 2026-10-17 02:39 | done | Monorepo scaffold: pnpm workspace, Next.js 16 web + status card, FastAPI agent /health, pgvector compose, Makefile, env examples, README. | pytest 4 passed · vitest 2 passed · lint/tsc/ruff clean · build ok | Copy .env.example → .env; `pnpm run db:up`, `pnpm run dev`. Next: Phase 1.1 schema. |
 | 1.1+1.2 | 2026-10-17 03:35 | done | All 26 tables + initial Alembic migration; Money helpers; audit-chain primitives; deterministic P03 demo seed (Rahima/SETU-2026-0001), reset-demo, verify_seed. | pytest 45 passed (incl. 7 db) · vitest 2 · ruff clean · verify_seed 18/18 · security review: pass with fixes (highs fixed) | Read data/demo/README.md + docs/data-model.md. Read endpoints deferred to next phase. |
 | 2.1+2.6a (P05) | 2026-10-17 04:07 | done | FR-3 domain lib + 5 analysis endpoints, demo-login stub, /app shell, EN/BN i18n, order analysis, calculator, monthly summary, supplier scorecard pages. | pytest 105 passed · vitest 13 passed · Playwright smoke 1 passed · lint/tsc/ruff clean · next build ok · security review: pass with fixes (fixed) | Financing UI (2.6) + FR-1 engine (2.2) next. Margin is 18.01, not 18.00. |
+| 2.3+2.5 (P06) | 2026-10-17 04:44 | done | FR-2 90-day forecaster, what-if scenarios, idempotent alert engine (shortfall/deadline/FX), alert + dashboard endpoints; Dashboard, Cash Flow, financing/approvals placeholders. | pytest 159 passed · vitest 25 passed · Playwright 2 passed · lint/tsc/ruff clean · build ok · verify_seed 17/17 · security review: pass with fixes (fixed) | Next P07 financing (FR-1) replaces /app/financing placeholder. |
 
 ## Handoff notes
 
@@ -178,6 +179,80 @@ Times are Dhaka (UTC+6). Deadline: 20 Oct 2026 21:59 Dhaka. Must-have cut line: 
     `DATABASE_URL=postgresql://setu:setu@localhost:5435/setu` locally.
 - **Next phase reads:** this block, `docs/finance-formulas.md`, `app/schemas/analysis.py` (the `Amounts`
   pattern), `app/auth/deps.py`.
+
+### 2.3 + 2.5 (from the user's "P06 FR-2 cash flow + dashboard" prompt)
+- **Forecaster:**
+  - Domain: `app/domain/cashflow.py` (`Flow`, `forecast`, `running_balance`, `apply_scenario`) and
+    `app/domain/alerts.py` (rules + policy constants).
+  - Services: `app/services/{cashflow,alerts,scenario,dashboard,scope}.py`; models in `app/schemas/cashflow.py`.
+  - Sources: unlinked `cashflow_items` plus tranches and deal costs derived live from deals, milestones,
+    escrow and `deal_costs`. The seed's linked copies are skipped, so nothing counts twice.
+  - Financing-application repayments are **not modelled** (no table yet). P07 must add them to
+    `load_book`.
+- **Endpoints** (FastAPI paths; the web app uses `/api/...`):
+  - `GET /cashflow/forecast?party_id=&days=&min_buffer=`
+  - `POST /cashflow/scenario` (moves, removes, loans; validated to the window; saves nothing)
+  - `GET /alerts?party_id=&status=`
+  - `POST /alerts/recompute?party_id=`
+  - `POST /alerts/{id}/acknowledge` and `POST /alerts/{id}/resolve`
+  - `GET /dashboard?party_id=`
+- **Alert rules + thresholds:** see `docs/finance-formulas.md`.
+  - SHORTFALL: first day closing < `min_buffer` (default 0); CRITICAL if ≤ 7 days away, else WARNING.
+  - DEADLINE: milestone 14/30 days, duty 7/60, bill of entry (arrival + 1 day) 7/60, loan instalment
+    7/7. Each pair is action window / notice window: INFO inside the notice window, WARNING inside the
+    action window, CRITICAL at T-1. The notice windows were added so the duty (T+45) and bill-of-entry
+    (T+41) alerts your tests require exist at all. A milestone deadline is dropped when the shortfall
+    alert covers that payment.
+  - FX_OPPORTUNITY: next tranche per deal paid into a foreign-currency account; best day more than 1%
+    below the 30-day mean.
+  - Keys `alert:<party>:<type>:<ref>:<date>` (hashed if > 80 chars), id = uuid5(key).
+  - Auto-resolve, reopen and resolve: an engine alert whose condition goes away is auto-resolved and
+    reopens if it returns. A user-resolved or acknowledged alert reopens only if its severity rises or
+    its amount grows.
+  - Buyers may resolve engine types only. KYB/FRAUD alerts close via admin or when their check clears.
+- **Seed change:** the seed writes only the KYB alert. `db:seed` and `db:reset-demo` run the engine for
+  every buyer (`seed.cli.recompute_alerts`).
+  - Run `pnpm run db:reset-demo` on older local DBs to drop the old hand-seeded alerts.
+  - Rahima now has 6 open alerts: loan instalment WARNING; SHORTFALL **1,560.00** on 2026-11-07,
+    WARNING (18 days away, per your ≤ 7-days-critical rule; P03 called it critical); FX on 2026-10-22
+    (≈ BDT 13,014.68); bill of entry 2026-11-30; duty 800.00 on 2026-12-04.
+  - Karim has no shortfall: deadlines, FX and KYB only.
+- **Demo numbers:** Rahima's lowest balance is −3,835.00 on 2027-01-02, so `cover_amount` is 3,835.00.
+  A 1,560.00 loan on 2026-11-05 clears the 2026-11-07 shortfall; the next one is freight on 11-08.
+- **Auth:** `require_writer` (BUYER own + ADMIN); JUDGE is read-only. Another buyer's alert id returns
+  404 (no existence oracle). All reads are buyer-scoped through `app/services/scope.py`.
+- **Web:**
+  - `/app` is now the Dashboard: KPIs, AlertPanel, pending approvals, mini chart, active deals, month.
+    Login lands here.
+  - `/app/cashflow`: chart, week calendar, day details, alert filters with acknowledge/resolve,
+    what-if panel with Reset.
+  - `/app/financing` is a placeholder that reads `amount`, `currency`, `date` and `deal` from the query.
+  - `/app/approvals` is a placeholder.
+  - Nav: Dashboard / Deals / Cash Flow / Financing / Analysis.
+  - Reusable pieces: `components/cashflow/{AlertPanel,CashflowChart,CashflowCalendar,WhatIfPanel,BuyerScopeGate}`,
+    `lib/api/cashflow.ts`, `whatIf.ts::buildScenarioRequest`.
+- **Verified in a browser** (prod build → agent on the local DB):
+  - Dashboard: $6,000 cash, $2,880 in escrow, the shortfall alert with $1,560, and the duty +
+    bill-of-entry alerts. The shortfall action opens `/app/financing` with the prefill.
+  - Cash Flow: the chart dips below 0 on 7 Nov; a what-if loan removes the red days and Reset restores
+    them; acknowledge works.
+  - Bangla toggle works; no horizontal scroll at 360 px; no console errors.
+  - Next 16 keeps the previous route mounted but hidden (Cache Components), so a second hidden `<main>`
+    can be in the DOM after client navigation.
+- **Security review: PASS WITH FIXES, fixed.**
+  - Fixed: KYB/FRAUD resolve permission; reopen on escalation; 404 instead of 403 for others' alerts;
+    loan/move window validation; error text no longer echoes refs; long keys hashed.
+  - **Open:**
+    - (a) No audit-log entries for recompute, acknowledge and resolve; Phase 5.4 must append
+      ALERT_* entries.
+    - (b) Concurrent recomputes can collide on insert (500); use ON CONFLICT if it matters.
+    - (c) `cashflow_items.description` and `deal_costs.note` flow into alert text and labels. Treat
+      them as untrusted before free-text sources (uploads, email) exist.
+- **Not done:** FR-7 USD-vs-CNY route comparison and rate lock (PLAN 2.3 task 3), financing repayments
+  in the forecast, the approvals inbox (P17), alert recompute triggers on deal/milestone changes (no
+  such endpoints yet).
+- **Next phase reads:** this block, `docs/finance-formulas.md` (FR-2 section),
+  `app/services/cashflow.py::load_book`, `components/cashflow/AlertPanel.tsx`.
 
 ## Known issues / risks
 - 1.2: the local `.env` / `.env.example` `DATABASE_URL` points at a hosted Postgres, so `db:migrate`/`db:seed` without

@@ -13,7 +13,6 @@ from app.db.enums import (
     AlertType,
     ApprovalAction,
     ApprovalStatus,
-    CostKind,
     Severity,
 )
 from app.db.models import Alert, ApprovalRequest
@@ -22,7 +21,6 @@ from app.security.approvals import approval_binding_hash
 from seed.cashflow import OPENING, balance_available, build_rows, main_m2
 from seed.common import Ctx, Row, Rows, sid
 from seed.deals import DEALS_BY_REF, MAIN_DEAL, deal_id, milestone_id
-from seed.fx import good_cny_day
 from seed.parties import HUAXIN, HUAXIN_CNY, HUAXIN_HK_PENDING, KARIM, RAHIMA
 
 HUAMENG_DEAL = "SETU-2026-0005"
@@ -84,101 +82,9 @@ def alert(
 
 
 def alerts(ctx: Ctx) -> list[Row]:
-    sf = shortfall_facts(ctx)
-    main = DEALS_BY_REF[MAIN_DEAL]
-    duty_amount, duty_due, _ = main.costs[CostKind.DUTY]
-    arrival = ctx.day(main.milestones[2].due)
-    boe_due = ctx.day(main.milestones[2].due + 1)
-    fx = good_cny_day(ctx)
-    pct = q2(-fx.change * 100)
-    d = sf["date"].isoformat()
+    """Seeded alerts the FR-2 engine does not own. SHORTFALL, DEADLINE and FX_OPPORTUNITY alerts
+    are produced by app/services/alerts.py, which seed.cli runs after every seed."""
     return [
-        alert(
-            f"alert:{RAHIMA}:shortfall-m2",
-            RAHIMA,
-            AlertType.SHORTFALL,
-            Severity.CRITICAL,
-            (
-                f"Cash shortfall of {usd(sf['shortfall'])} on {d}",
-                f"{d} তারিখে {usd(sf['shortfall'])} নগদ ঘাটতি",
-            ),
-            (
-                f"On {d} milestone 2 of {MAIN_DEAL} needs {usd(sf['due'])}, but your projected "
-                f"balance is {usd(sf['balance'])}. Shortfall: {usd(sf['shortfall'])}.",
-                f"{d} তারিখে {MAIN_DEAL}-এর মাইলস্টোন ২-এর জন্য {usd(sf['due'])} লাগবে, কিন্তু "
-                f"আপনার আনুমানিক ব্যালেন্স {usd(sf['balance'])}। ঘাটতি: {usd(sf['shortfall'])}।",
-            ),
-            deal=MAIN_DEAL,
-            milestone=2,
-            amount=sf["shortfall"],
-            due_on=sf["date"],
-            facts={k: (str(v) if not isinstance(v, str) else v) for k, v in sf.items()},
-            created=ctx.at(0, 8, 0),
-        ),
-        alert(
-            f"alert:{RAHIMA}:deadline-duty",
-            RAHIMA,
-            AlertType.DEADLINE,
-            Severity.WARNING,
-            (
-                f"Customs duty {usd(duty_amount)} due {ctx.day(duty_due).isoformat()}",
-                f"শুল্ক {usd(duty_amount)} পরিশোধের শেষ তারিখ {ctx.day(duty_due).isoformat()}",
-            ),
-            (
-                f"Import duty for {MAIN_DEAL} is due 5 days after arrival ({arrival.isoformat()}).",
-                f"{MAIN_DEAL}-এর আমদানি শুল্ক পণ্য পৌঁছানোর ({arrival.isoformat()}) ৫ দিনের মধ্যে "
-                f"পরিশোধ করতে হবে।",
-            ),
-            deal=MAIN_DEAL,
-            amount=duty_amount,
-            due_on=ctx.day(duty_due),
-            facts={"arrival": arrival.isoformat(), "duty": str(duty_amount)},
-            created=ctx.at(0, 8, 0),
-        ),
-        alert(
-            f"alert:{RAHIMA}:deadline-bill-of-entry",
-            RAHIMA,
-            AlertType.DEADLINE,
-            Severity.INFO,
-            (
-                f"File the bill of entry by {boe_due.isoformat()}",
-                f"{boe_due.isoformat()}-এর মধ্যে বিল অব এন্ট্রি জমা দিন",
-            ),
-            (
-                f"The bill of entry for {MAIN_DEAL} is the evidence for milestone 3 "
-                f"({usd(main.milestone_amounts()[2].amount)}). Lodge it the day after arrival.",
-                f"{MAIN_DEAL}-এর বিল অব এন্ট্রি মাইলস্টোন ৩ "
-                f"({usd(main.milestone_amounts()[2].amount)})-এর প্রমাণপত্র। পণ্য পৌঁছানোর পরের দিন "
-                f"জমা দিন।",
-            ),
-            deal=MAIN_DEAL,
-            milestone=3,
-            due_on=boe_due,
-            created=ctx.at(0, 8, 0),
-        ),
-        alert(
-            f"alert:{RAHIMA}:fx-good-cny-day",
-            RAHIMA,
-            AlertType.FX_OPPORTUNITY,
-            Severity.INFO,
-            (f"Good day to buy CNY: {fx.on.isoformat()}", f"CNY কেনার ভালো দিন: {fx.on.isoformat()}"),
-            (
-                f"Mock forecast: CNY/BDT {fx.rate} on {fx.on.isoformat()}, {pct}% below the 30-day "
-                f"average of {q2(fx.mean_30d)}. Consider locking a rate for milestone 2.",
-                f"মক পূর্বাভাস: {fx.on.isoformat()} তারিখে CNY/BDT {fx.rate}, যা ৩০ দিনের গড় "
-                f"{q2(fx.mean_30d)}-এর চেয়ে {pct}% কম। মাইলস্টোন ২-এর জন্য রেট লক করার কথা ভাবুন।",
-            ),
-            deal=MAIN_DEAL,
-            due_on=fx.on,
-            facts={
-                "pair": "CNY/BDT",
-                "rate": str(fx.rate),
-                "mean_30d": str(q2(fx.mean_30d)),
-                "change_pct": str(-pct),
-                "source": "MOCK",
-            },
-            created=ctx.at(0, 8, 5),
-        ),
         alert(
             f"alert:{KARIM}:kyb-huameng",
             KARIM,

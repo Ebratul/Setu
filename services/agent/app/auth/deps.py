@@ -59,3 +59,12 @@ def require_analysis_reader(user: Annotated[CurrentUser, Depends(current_user)])
 
 def can_read_party(user: CurrentUser, party_id: uuid.UUID) -> bool:
     return user.reads_all or user.party_id == party_id
+
+
+def require_writer(user: Annotated[CurrentUser, Depends(current_user)]) -> CurrentUser:
+    """Buyers (own data) and admins may change alert state; judges are read-only."""
+    if user.role == Role.BUYER and user.party_id is not None:
+        return user
+    if user.role == Role.ADMIN:
+        return user
+    raise Forbidden("this demo user is read-only")

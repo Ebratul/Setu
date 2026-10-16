@@ -20,6 +20,12 @@ The seed lives in `services/agent/seed/` (Python owns the schema and the seed). 
 
 `npm run db:seed` etc. work too: they are plain `package.json` scripts.
 
+## Alerts
+
+The seed writes only the KYB alert for Karim. The SHORTFALL, DEADLINE and FX_OPPORTUNITY alerts
+come from the FR-2 alert engine (`app/services/alerts.py`), which `db:seed` and `db:reset-demo` run for
+every buyer after upserting. Rules: `docs/finance-formulas.md`.
+
 ## Anchor date rule
 
 - One anchor: `DEMO_TODAY` from env, default **2026-10-20**. Every date is `DEMO_TODAY ± n days`; seed keys
@@ -44,7 +50,7 @@ The seed lives in `services/agent/seed/` (Python owns the schema and the seed). 
 | Escrow | Funded tranche by tranche. M1 (2,880.00) deposited at T−2 → escrow FUNDED, balance 2,880.00 |
 | Rahima opening cash | USD 6,000.00 at the start of DEMO_TODAY |
 | Balance on M2 date | 6,000 + receipts 3,665.00 − payments 5,465.00 = **USD 4,200.00** |
-| Shortfall | 5,760.00 − 4,200.00 = **USD 1,560.00** (critical SHORTFALL alert) |
+| Shortfall | 5,760.00 − 4,200.00 = **USD 1,560.00** (SHORTFALL alert from the FR-2 engine, WARNING: 18 days away) |
 | Karim opening cash | USD 18,500.00 (no shortfall) |
 | FX today (mock) | USD/BDT 122.5900 · USD/CNY 7.0990 · CNY/BDT 17.2686 |
 | Good CNY day | T+2 (2026-10-22): CNY/BDT 16.9682 vs 30-day mean 17.2865 (−1.84%, mock forecast) |

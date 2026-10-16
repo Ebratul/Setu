@@ -29,7 +29,10 @@
   "nav": {
     "label": "Main navigation",
     "analysis": "Analysis",
-    "orders": "Orders"
+    "orders": "Deals",
+    "dashboard": "Dashboard",
+    "cashflow": "Cash Flow",
+    "financing": "Financing"
   },
   "role": {
     "BUYER": "Buyer",
@@ -60,7 +63,11 @@
   "status": {
     "DRAFT": "Draft",
     "FUNDED": "Funded",
-    "COMPLETED": "Completed"
+    "COMPLETED": "Completed",
+    "IN_PRODUCTION": "In production",
+    "SHIPPED": "Shipped",
+    "DISPUTED": "Disputed",
+    "CANCELLED": "Cancelled"
   },
   "kyb": {
     "VERIFIED": "Verified",
@@ -191,5 +198,176 @@
       "priceIndex": "Price index",
       "deals": "Your orders"
     }
+  },
+  "trigger": {
+    "PRODUCTION_START": "Production start",
+    "SHIPMENT": "Shipment",
+    "ARRIVAL": "Arrival"
+  },
+  "severity": {
+    "CRITICAL": "Critical",
+    "WARNING": "Warning",
+    "INFO": "Info"
+  },
+  "alertType": {
+    "SHORTFALL": "Cash shortfall",
+    "DEADLINE": "Deadline",
+    "FX_OPPORTUNITY": "FX opportunity",
+    "KYB_WARNING": "Business check",
+    "FRAUD": "Fraud risk",
+    "INFO": "Notice"
+  },
+  "alertStatus": {
+    "OPEN": "Open",
+    "ACKNOWLEDGED": "Acknowledged",
+    "RESOLVED": "Resolved"
+  },
+  "flow": {
+    "kind": {
+      "SALES": "Sales receipts",
+      "MILESTONE_PAYMENT": "Escrow milestone",
+      "DUTY": "Customs duty",
+      "FREIGHT": "Freight",
+      "INSURANCE": "Insurance",
+      "BANK_CHARGES": "Bank charges",
+      "LOAN_REPAYMENT": "Loan repayment",
+      "LOCAL_PURCHASE": "Local purchase",
+      "RENT": "Rent",
+      "SALARY": "Salaries",
+      "UTILITIES": "Utilities"
+    }
+  },
+  "alerts": {
+    "title": "Alerts",
+    "due": "Due {date}",
+    "filter": {
+      "type": "Type",
+      "severity": "Severity",
+      "status": "Status",
+      "all": "All"
+    },
+    "readOnly": "This is a read-only demo user, so alerts cannot be changed.",
+    "actionFailed": "Could not update the alert. Please try again.",
+    "empty": "No alerts match these filters.",
+    "acknowledge": "Acknowledge",
+    "resolve": "Resolve"
+  },
+  "dash": {
+    "title": "Dashboard",
+    "kpi": {
+      "cash": "Cash balance",
+      "escrow": "In escrow",
+      "due30": "Due in next 30 days",
+      "alerts": "Open alerts"
+    },
+    "alerts": "Alerts",
+    "allAlerts": "Manage alerts",
+    "noAlerts": "No open alerts. You are all caught up.",
+    "approvals": "Pending approvals",
+    "approvalsLink": "Open approvals inbox",
+    "month": "This month · {month}",
+    "monthLink": "Open monthly summary",
+    "cashflow": "Cash flow, next 90 days",
+    "cashflowLink": "Open cash flow",
+    "deals": "Active deals",
+    "noDeals": "No active deals.",
+    "dealsCaption": "Active deals with their next milestone",
+    "nextMilestone": "Next milestone",
+    "milestone": "Milestone {seq}"
+  },
+  "cf": {
+    "title": "Cash flow",
+    "chooseBuyerFirst": "Select a business to see its cash flow.",
+    "closing": "Closing balance",
+    "chartTitle": "Running balance, next 90 days",
+    "chartSummaryShortfall": "Projected balance from {start} to {end}, starting at {opening}. It first falls below the buffer on {date} by {amount}. Lowest balance {lowest} on {lowestOn}.",
+    "chartSummaryOk": "Projected balance from {start} to {end}, starting at {opening}. It never falls below the buffer. Lowest balance {lowest} on {lowestOn}.",
+    "legend": {
+      "balance": "Closing balance",
+      "buffer": "Minimum buffer {amount}",
+      "shortfall": "Days below the buffer",
+      "dealCost": "Deal cost payment day",
+      "firstShortfall": "First shortfall {date}"
+    },
+    "weekOf": "Week {start} to {end}",
+    "dayLabel": "{date}: closing {closing}, net {net}",
+    "belowBuffer": "Below the minimum buffer",
+    "low": "Low",
+    "dealCostShort": "Deal cost",
+    "dayDetails": "Details for {date}",
+    "dayDetailsNone": "Day details",
+    "dayDetailsHint": "Select a day in the calendar to see its payments and receipts.",
+    "openingClosing": "Opening {opening}, closing {closing}",
+    "noItems": "No payments or receipts on this day.",
+    "itemsCaption": "Payments and receipts on the selected day",
+    "item": "Item",
+    "kind": "Type",
+    "direction": "Direction",
+    "amount": "Amount",
+    "dir": {
+      "IN": "In",
+      "OUT": "Out"
+    },
+    "showWeekly": "Show weekly table",
+    "weeklyCaption": "Weekly inflow, outflow and balance",
+    "week": "Week",
+    "inflow": "Inflow",
+    "outflow": "Outflow",
+    "lowest": "Lowest",
+    "firstShortfall": "First shortfall: {amount} on {date}",
+    "noShortfall": "No shortfall in the next {days} days",
+    "kpi": {
+      "opening": "Opening balance",
+      "lowest": "Lowest balance",
+      "lowestOn": "On {date}",
+      "inflow": "Total inflow",
+      "outflow": "Total outflow"
+    },
+    "calendarTitle": "Calendar",
+    "calendarHint": "Each row is a week. Select a day to see what happens on it."
+  },
+  "whatif": {
+    "title": "What-if planner",
+    "badge": "What-if — not saved",
+    "activeHint": "The chart, calendar and alerts show a scenario. Nothing is saved.",
+    "reset": "Reset to saved forecast",
+    "intro": "Try changes and see the effect. Nothing you try here is saved.",
+    "move": {
+      "title": "Move a payment",
+      "item": "Payment",
+      "none": "Choose a payment",
+      "date": "New date"
+    },
+    "loan": {
+      "title": "Add a loan",
+      "enable": "Add a loan inflow",
+      "amount": "Loan amount ({currency})",
+      "amountHint": "Prefilled with the amount that keeps the balance above the buffer: {amount}",
+      "date": "Loan arrives on",
+      "repayDate": "Repay on (optional)",
+      "repayAmount": "Repayment amount ({currency}, optional)"
+    },
+    "remove": {
+      "title": "Switch items off",
+      "hint": "Tick an item to leave it out of the forecast."
+    },
+    "err": {
+      "invalidDecimal": "Enter a positive number with up to 4 decimals",
+      "invalidDate": "Enter a valid date",
+      "required": "This field is required"
+    },
+    "alerts": "Scenario alerts",
+    "noAlerts": "This scenario raises no alerts."
+  },
+  "fin": {
+    "title": "Financing",
+    "need": "You need {amount} by {date} for {deal}.",
+    "needNoDeal": "You need {amount} by {date}.",
+    "noPrefill": "Open this page from a shortfall alert to prefill the amount and date.",
+    "soon": "Financing comparison arrives in P07."
+  },
+  "approvals": {
+    "title": "Approvals",
+    "soon": "Approvals inbox arrives in P17."
   }
 }
