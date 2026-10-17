@@ -250,6 +250,16 @@ def _scorecard_sentences(d: dict[str, Any], lang: Lang) -> list[str]:
     ) + ([f"Be careful with {', '.join(weak)}."] if weak else [])
 
 
+def _kyb_sentences(d: dict[str, Any], lang: Lang) -> list[str]:
+    name, status, score = d["supplier_name"], d["status"], d["score"]
+    why = [r[f"detail_{'bn' if lang == 'bn' else 'en'}"] for r in d["reasons"][:2]]
+    if lang == "bn":
+        head = f"{name}-এর KYB অবস্থা {status} (স্কোর {score}/100)।"
+        return [head, *why]
+    head = f"{name} is {status} on KYB (score {score}/100)."
+    return [head, *why]
+
+
 _FORMATTERS = {
     "get_dashboard_snapshot": _dashboard_sentences,
     "get_deal_summary": _deal_sentences,
@@ -288,6 +298,7 @@ _CARD_FORMATTERS = {
     "fx_compare": _fx_sentences,
     "monthly_summary": _monthly_sentences,
     "scorecard": _scorecard_sentences,
+    "kyb": _kyb_sentences,
 }
 _GREETING = {
     "en": "Hello! I'm Setu, your import-finance copilot. Ask me about your cash flow, a deal, "
@@ -349,6 +360,24 @@ _FINANCING = (
     "সস্তা",
 )
 _SUPPLIERS = ("scorecard", "supplier", "সাপ্লায়ার")
+_KYB = (
+    "kyb",
+    "verify supplier",
+    "verify the supplier",
+    "verify this supplier",
+    "supplier safe",
+    "is this supplier",
+    "trust this supplier",
+    "safe to pay",
+    "যাচাই",
+    "বিশ্বস্ত",
+    "核实",
+)
+_SUPPLIER_CODES = {
+    "huaxin": "shaoxing-huaxin",
+    "huameng": "guangzhou-huameng",
+    "brightline": "ningbo-brightline",
+}
 _CASH = ("cash", "shortfall", "short", "balance", "forecast", "কম পড়বে", "ক্যাশ", "নগদ", "现金")
 _MONTHLY = ("monthly", "summary", "month summary", "মাসিক", "সারাংশ", "সারসংক্ষেপ")
 _DASH_ONLY = ("dashboard", "ড্যাশবোর্ড")
@@ -378,6 +407,10 @@ _DEFINITION = ("what is", "what are", "what does", "define", "meaning", "explain
 _PERSONAL = (" my ", "my ", " i ", "i'm", "আমার", "আমি")
 
 
+def _supplier_arg(q: str) -> dict[str, str]:
+    return next(({"supplier_id": c} for k, c in _SUPPLIER_CODES.items() if k in q), {})
+
+
 def _query_lang(q: str) -> str:
     return "bn" if re.search(r"[\u0980-\u09ff]", q) else "en"
 
@@ -401,6 +434,7 @@ def _pick_tool(
     rules: list[tuple[bool, str, dict[str, Any]]] = [
         (has(_DASH_ONLY), "get_dashboard_snapshot", {}),
         (knowledge, "search_knowledge", kb_args),
+        (has(_KYB), "verify_party", {**deal, **_supplier_arg(q)}),
         (has(_ALERTS), "get_alerts", {}),
         (has(_LANDED), "analyze_order", deal),
         (has(_FX), "compare_fx_route", deal),

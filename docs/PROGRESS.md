@@ -7,7 +7,7 @@ Times are Dhaka (UTC+6). Deadline: 20 Oct 2026 21:59 Dhaka. Must-have cut line: 
 - [x] 0.1 · [x] 1.1 · [x] 1.2 · [x] 1.3
 - [x] 2.1 · [x] 2.2 · [x] 2.3 (FR-2; FR-7 route compare open) · [~] 2.4 (i18n, fonts, shell, client only) · [x] 2.5 · [x] 2.6
 - [~] 3.1 (LLM client, tracing, tier-gated registry, FR tools; no LLM cache) · [x] 3.2 (P10 RAG + citations) · [x] 3.3 (agent, FR tools, citations) · [x] 3.4 (P09 chat UI)
-- [ ] 4.1 · [ ] 4.2 · [ ] 4.3 · [ ] 4.4 · [ ] 4.5
+- [ ] 4.1 · [x] 4.2 · [ ] 4.3 · [ ] 4.4 · [ ] 4.5
 - [ ] 5.1 · [ ] 5.2 · [ ] 5.3 · [ ] 5.4 · [ ] 5.5
 - [ ] 6.1 · [ ] 6.2
 - [ ] 7.1 · [ ] 7.2
@@ -29,6 +29,7 @@ Times are Dhaka (UTC+6). Deadline: 20 Oct 2026 21:59 Dhaka. Must-have cut line: 
 | 3.2 (P10) | 2026-10-17 10:25 | done (real-model check open) | Cited knowledge base: 7 KB sources (own summaries + generated financing catalogue), heading chunker, local multilingual embeddings, hybrid pgvector + FTS retrieval (RRF), search_knowledge tool, [S1] citations in answers/API/UI. | pytest 355 passed (incl. db, real-model retrieval table) · vitest 90 passed · Playwright 5 passed · lint/tsc/ruff clean · build ok · security review: pass with fixes (2 medium + 6 low fixed) | Merged P08–P10 to main. ANTHROPIC_API_KEY still empty. |
 | 3.1b (OpenRouter) | 2026-10-17 10:39 | done | Real-model path via OpenRouter (Anthropic-compatible endpoint); provider auto-selection; first real Claude run of the P08–P10 chat. | pytest 362 passed · ruff clean · 12 live EN/BN questions OK | LangSmith traces verified. |
 | 1.3 (P11) | 2026-10-17 11:03 | done | Synthetic trade-document generator: 100 clean + 100 tampered packs (10 fraud types, obvious/subtle), 25-item injection attack set, committed demo files matching the seed. | pytest tests/synthetic 29 passed · full suite 275 passed · ruff clean · verify_seed 18/18 | Hash registry now matches prefinanced_invoice.pdf. P14 tunes on dev only, P24 reports on test. |
+| 4.2 (P12) | 2026-10-17 11:33 | done | Deterministic supplier KYB engine (8 checks, EN/BN reasons, per-account + per-deal results), signed audit append, KYB alerts, verify_party tool, Suppliers pages, deal KYB panel, chat card. | pytest 465 passed (incl. db) · vitest 99 passed · Playwright suppliers 2 passed · lint/tsc/ruff clean · next build ok · verify_seed 19/19 · security review: pass with fixes (1 high + 4 medium + 4 low fixed) | Next P13 escrow + Deals UI; reuse KybBadge, write_audit, KybResult. |
 
 ## Handoff notes
 
@@ -722,6 +723,49 @@ Times are Dhaka (UTC+6). Deadline: 20 Oct 2026 21:59 Dhaka. Must-have cut line: 
   - (f) `tests/api/test_chat_api.py::test_tool_db_error…` fails without a reachable Postgres (it passes with the local DB): unrelated to this phase.
 - **Next phase reads:** this block, `docs/synthetic-data.md`, `data/demo/README.md`, `synthetic/models.py` (field names the
   extractor must recover), `synthetic/validator.py` (check semantics), `seed/documents.py` (checks the seed expects).
+
+### 4.2 (from the user's "P12 Supplier KYB" prompt)
+- **Branch:** `phase/4.2-kyb` (from `main` after P11 merged). `docs/SRS.md` still missing: FR-4 is in `docs/REQUIREMENTS.md`; TC-01 is
+  covered by tests. Full reference: **`docs/kyb.md`** (checks, thresholds, score, endpoints, design decisions).
+- **Engine:** `app/domain/kyb.py` (pure: name normalisation incl. suffix canon, 有限公司, Cyrillic/Greek/zero-width folding;
+  rapidfuzz score = floor2((token_set + token_sort)/2); checks; aggregation), `app/services/kyb.py`, `app/services/suppliers.py`,
+  `app/schemas/kyb.py`, `app/api/{kyb,suppliers}.py`, tool `app/agent/tools/kyb.py`. Thresholds in settings:
+  `kyb_match_threshold` 92 (PASS), `kyb_partial_threshold` 80 (WARN), below FAIL; account age <7 d FAIL, <30 d WARN.
+- **Checks:** LICENSE_VS_INVOICE_NAME, LICENSE_VS_ACCOUNT_HOLDER, ACCOUNT_TYPE, ACCOUNT_AGE, ACCOUNT_COUNTRY,
+  PENDING_BENEFICIARY_CHANGE, REGISTRY_HISTORY, SANCTIONS_SCREEN (+ DOC_INSTRUCTION FAIL when an invoice name looks like an
+  instruction). Score = 100 − Σ weight × severity (FAIL 1, WARN 0.5); weights holder 25, type 20, invoice name 15, age 15,
+  country 10, history 10, pending change 5. Sanctions hit forces 0 + BLOCKED. Status: BLOCKED / WARNING (any FAIL or WARN) / VERIFIED.
+- **Design decision:** evaluated per bank account. Supplier status comes from the ACTIVE account plus party checks; a
+  PENDING_CHANGE account is returned in `pending_accounts[]` (its own status) and does not downgrade the supplier.
+  Results: Huaxin VERIFIED 100 (pending HK account WARNING), Brightline VERIFIED 100, Huameng WARNING 40
+  (holder, type, age FAIL). Invoice-name results are per deal (`KybRun.deal`); party/account state never depends on them.
+- **Endpoints:** `POST /kyb/verify/{id}?deal_id=` (buyer/admin; judge and supplier 403), `GET /kyb/{id}`,
+  `GET /suppliers?buyer_id=`, `GET /suppliers/{id}`. Foreign supplier/deal gives 404 (no oracle). `DealSummary` gained `supplier_id`.
+- **Persistence:** migration `26ef10614ad3` adds `kyb_runs` (history, full result JSON); `kyb_checks` updated in place. There is no
+  `Party.kyb_reasons` column: reasons live in `kyb_checks.reasons` and `kyb_runs`. BLOCKED on a legal/licence/holder sanctions hit
+  sets accounts RETIRED (no automatic way back; needs an admin path); an invoice-name-only hit is a hold, nothing retired.
+- **Audit:** real signed append `app/security/audit.py::write_audit(db, ...)` (advisory lock, seq/prev_hash, Ed25519, raises 503 and
+  writes nothing without a key). One `KYB_CHECKED` row per run (params list retired ids and verified changes) and a tier 3
+  `DOC_INSTRUCTION_DETECTED` row. Phase 5.4 builds on it. The tool-call `record_event` is still structlog only (5.4).
+- **Alerts:** engine owns KYB alerts: supplier-level `alert:<buyer>:kyb:<supplier code>` and deal-level
+  `...:<deal ref>`; idempotent, auto-resolve, reopen. The seed no longer writes the Huameng alert (`seed.cli` syncs it; the old key is adopted).
+  Alert text uses reason-code labels and the legal name only.
+- **Tool:** `verify_party(supplier_id?, deal_id?)` Tier 0, compute-only, `kyb` card (status, score, top 3 reasons, link). The card sent
+  to the model has role labels instead of holder/sanctions names. Registry now has 15 tools; agent prompt `agent@4`, router `router@2`.
+  Generated text avoids injection-detector trigger phrases (a test scans it).
+- **Sanctions mock:** `data/demo/sanctions_mock.json` (fictional; needs `version` + non-empty `entries`, fail closed 503).
+- **Web:** `/app/suppliers` (card grid, status filter, search, pending marker), `/app/suppliers/[id]` (checks with evidence, pending
+  section, accounts, deals, score trend, past checks, Re-run KYB for buyer/admin), KYB panel on `/app/orders/[id]` (red banner when
+  BLOCKED), chat `KybCard`, `KybBadge` (icon + text), nav item, EN/BN keys. The deal route stays `/app/orders/[id]` (P13 may move it).
+- **Verified:** Playwright `e2e/suppliers.spec.ts` (Karim sees Huameng Warning with ≥2 failing checks; Rahima does not see it).
+- **Security review: PASS WITH FIXES, all fixed:** (H) invoice-name state shared across buyers; (M) retire on document text, cross-buyer
+  invoice-name leak, document text in alerts, holder PII in the model card; (L) alert key collision, homoglyph sanctions evasion, empty
+  sanctions file. 19 tests added.
+- **Known gaps:** supplier-level alerts for buyers outside a buyer's run scope are raised but only resolved on an admin run or reseed;
+  `GET /analysis/suppliers` and the scorecard tool still list every supplier network-wide (since P05); privacy masking is still P18;
+  the 360 px layout and the Huaxin pending section were not checked by eye; `docs/SRS.md` TC-06 is for later phases.
+- **Next phase reads:** this block, `docs/kyb.md`, `app/services/kyb.py` (`evaluate`, `verify`), `app/security/audit.py::write_audit`,
+  `components/kyb/KybBadge.tsx`.
 
 ## Known issues / risks
 - 1.2: the local `.env` / `.env.example` `DATABASE_URL` points at a hosted Postgres, so `db:migrate`/`db:seed` without

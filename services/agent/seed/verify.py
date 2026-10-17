@@ -135,6 +135,14 @@ def run_checks(session: Session) -> list[Check]:
     personal = any(r["code"] == "PERSONAL_ACCOUNT" and not r["ok"] for rs in reasons for r in rs)
     add("Huameng KYB status", KybStatus.WARNING.value, huameng.kyb_status.value)
     add("Huameng personal-account reason", True, personal)
+    kyb_alerts = session.scalars(
+        select(Alert.key).where(Alert.type == "KYB_WARNING", Alert.status == "OPEN")
+    ).all()
+    add(
+        "Open KYB alerts (Karim / Huameng only)",
+        ["alert:dhaka-stitch-works:kyb:guangzhou-huameng"],
+        sorted(kyb_alerts),
+    )
 
     active = session.scalar(
         select(func.count()).select_from(FinancingOption).where(FinancingOption.active.is_(True))

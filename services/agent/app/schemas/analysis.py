@@ -47,6 +47,7 @@ class DealSummary(Out):
     title: str
     status: str
     buyer_name: str
+    supplier_id: uuid.UUID
     supplier_name: str
     supplier_kyb_status: str
     hs_code: str

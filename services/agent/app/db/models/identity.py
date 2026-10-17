@@ -2,7 +2,18 @@ import uuid
 from datetime import date, datetime
 from typing import Any
 
-from sqlalchemy import CHAR, Boolean, Date, DateTime, ForeignKey, String, Text, Uuid
+from sqlalchemy import (
+    CHAR,
+    BigInteger,
+    Boolean,
+    Date,
+    DateTime,
+    ForeignKey,
+    Integer,
+    String,
+    Text,
+    Uuid,
+)
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import Mapped, mapped_column
 
@@ -92,4 +103,21 @@ class KybCheck(Base):
     checked_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
 
 
-__all__ = ["BankAccount", "KybCheck", "Party", "User"]
+class KybRun(Base):
+    """One row per KYB verification run (history). `result` is the full KybResult JSON."""
+
+    __tablename__ = "kyb_runs"
+
+    id: Mapped[UUIDPk]
+    party_id: Mapped[uuid.UUID] = mapped_column(Uuid, ForeignKey("parties.id"), index=True)
+    deal_id: Mapped[uuid.UUID | None] = mapped_column(Uuid, ForeignKey("deals.id"))
+    requested_by: Mapped[uuid.UUID | None] = mapped_column(Uuid, ForeignKey("users.id"))
+    status: Mapped[str] = mapped_column(String(16))
+    score: Mapped[int] = mapped_column(Integer)
+    reason_codes: Mapped[list[str]] = mapped_column(JSONB, default=list)
+    result: Mapped[dict[str, Any]] = mapped_column(JSONB)
+    audit_seq: Mapped[int | None] = mapped_column(BigInteger)
+    checked_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), index=True)
+
+
+__all__ = ["BankAccount", "KybCheck", "KybRun", "Party", "User"]

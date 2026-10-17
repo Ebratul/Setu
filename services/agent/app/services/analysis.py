@@ -159,6 +159,7 @@ def deal_summary(db: Session, deal: Deal) -> DealSummary:
         title=deal.title,
         status=deal.status,
         buyer_name=buyer.legal_name,
+        supplier_id=supplier.id,
         supplier_name=supplier.legal_name,
         supplier_kyb_status=supplier.kyb_status,
         hs_code=deal.hs_code,

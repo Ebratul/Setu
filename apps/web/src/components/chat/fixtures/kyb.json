@@ -1,0 +1,25 @@
+{
+  "explanation_codes": ["KYB_WARNING"],
+  "explanation_en": "Guangzhou Huameng Trading Co., Ltd. needs review: 3 checks did not pass.",
+  "explanation_bn": "Guangzhou Huameng Trading Co., Ltd.-এর পর্যালোচনা দরকার: ৩টি যাচাই উত্তীর্ণ হয়নি।",
+  "simulated": true,
+  "card_type": "kyb",
+  "data": {
+    "supplier_id": "11111111-1111-4111-8111-111111111111",
+    "supplier_code": "guangzhou-huameng",
+    "supplier_name": "Guangzhou Huameng Trading Co., Ltd.",
+    "status": "WARNING",
+    "score": 40,
+    "deal_ref": null,
+    "reasons": [
+      { "code": "LICENSE_VS_ACCOUNT_HOLDER", "status": "FAIL", "detail_en": "Account holder does not match the licence name.", "detail_bn": "অ্যাকাউন্টধারীর নাম লাইসেন্সের নামের সাথে মেলে না।" },
+      { "code": "ACCOUNT_TYPE", "status": "FAIL", "detail_en": "Personal account for a company.", "detail_bn": "কোম্পানির জন্য ব্যক্তিগত অ্যাকাউন্ট।" },
+      { "code": "ACCOUNT_AGE", "status": "WARN", "detail_en": "Account is only 12 days old.", "detail_bn": "অ্যাকাউন্টটি মাত্র ১২ দিনের পুরনো।" }
+    ],
+    "checks_passed": 4,
+    "checks_total": 7,
+    "has_pending_change": false,
+    "pending_status": null,
+    "supplier_route": "/app/suppliers/11111111-1111-4111-8111-111111111111"
+  }
+}

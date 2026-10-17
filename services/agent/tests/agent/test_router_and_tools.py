@@ -284,3 +284,23 @@ def test_card_routes_are_internal_only(
     from app.agent.tools.finance import _safe_route
 
     assert _safe_route(route, query) == expected
+
+
+@pytest.mark.parametrize(
+    ("text", "args"),
+    [
+        ("Is this supplier safe to pay?", {}),
+        ("Please run KYB on Huameng", {"supplier_id": "guangzhou-huameng"}),
+        ("verify supplier Huaxin for SETU-2026-0001", {"supplier_id": "shaoxing-huaxin"}),
+        ("Huameng সাপ্লায়ারকে যাচাই করো", {"supplier_id": "guangzhou-huameng"}),
+    ],
+)
+def test_mock_model_routes_supplier_safety_to_verify_party(text: str, args: dict) -> None:
+    from app.agent.mock_llm import _pick_tool
+    from app.agent.registry import INTENT_TOOLS, default_registry
+
+    assert keyword_intent(text) in ("analysis", "deal_status")
+    tools = sorted(INTENT_TOOLS[keyword_intent(text)] & set(default_registry().names))
+    name, got = _pick_tool([HumanMessage(text)], tools)  # type: ignore[misc]
+    assert name == "verify_party"
+    assert {k: v for k, v in got.items() if k != "deal_id"} == args

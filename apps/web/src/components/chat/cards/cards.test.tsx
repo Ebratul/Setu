@@ -8,6 +8,7 @@ import alerts from "../fixtures/alerts.json";
 import cashflow from "../fixtures/cashflow.json";
 import financing from "../fixtures/financing.json";
 import fxCompare from "../fixtures/fxCompare.json";
+import kyb from "../fixtures/kyb.json";
 import landedCost from "../fixtures/landedCost.json";
 import monthly from "../fixtures/monthlySummary.json";
 import scorecard from "../fixtures/scorecard.json";
@@ -168,5 +169,22 @@ describe("no approval controls", () => {
       }
       unmount();
     }
+  });
+});
+
+describe("KybCard", () => {
+  it("shows the status badge, top reasons and a safe supplier link", () => {
+    show(kyb);
+    expect(screen.getByTestId("kyb-badge")).toHaveAttribute("data-status", "WARNING");
+    expect(screen.getByText("Personal account for a company.")).toBeInTheDocument();
+    expect(screen.getByText("4 of 7 checks passed")).toBeInTheDocument();
+    expect(
+      screen.getByRole("link", { name: /Open supplier profile/ }),
+    ).toHaveAttribute("href", kyb.data.supplier_route);
+  });
+
+  it("drops a link that is not an internal /app route", () => {
+    show({ ...kyb, data: { ...kyb.data, supplier_route: "https://evil.example/x" } });
+    expect(screen.queryByRole("link")).toBeNull();
   });
 });

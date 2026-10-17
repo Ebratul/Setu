@@ -4,7 +4,11 @@ upserts the results by stable key.
 - New key → insert OPEN. Existing key → update content only when it changed (re-runs are no-ops).
 - An OPEN/ACKNOWLEDGED engine alert whose key is no longer produced → RESOLVED
   (`resolved_by=engine`). If its condition comes back it reopens; a user-resolved one stays closed.
-Only SHORTFALL, DEADLINE and FX_OPPORTUNITY are engine-owned; KYB/FRAUD/INFO alerts are untouched.
+Only SHORTFALL, DEADLINE and FX_OPPORTUNITY are recomputed here; FRAUD/INFO alerts are untouched.
+KYB_WARNING alerts are owned by `sync_kyb_alerts` (called by the KYB service and the seed) with the
+same lifecycle: one alert per (buyer, supplier) with open deals, key `alert:<buyer>:kyb-<supplier>`,
+resolved by the engine when the supplier is VERIFIED or the buyer has no open deal left, reopened
+when the problem returns (or got worse after a user resolved it).
 """
 
 import uuid
@@ -16,7 +20,7 @@ from sqlalchemy import case, select
 from sqlalchemy.orm import Session
 
 from app.auth.deps import CurrentUser, can_read_party
-from app.db.enums import AlertStatus, Role
+from app.db.enums import AlertStatus, AlertType, DealStatus, Role, Severity
 from app.db.models import Alert, Deal, Milestone, Party
 from app.domain.alerts import (
     ENGINE_TYPES,
@@ -26,7 +30,9 @@ from app.domain.alerts import (
     shortfall_alerts,
 )
 from app.domain.cashflow import Flow, Forecast
+from app.domain.kyb import CODE_LABELS
 from app.domain.money import ZERO, Money
+from app.domain.narrative import bn
 from app.errors import Forbidden, NotFound
 from app.schemas.cashflow import AlertAction, AlertList, AlertOut, AlertPreview, RecomputeOut
 from app.services.analysis import fmt
@@ -47,6 +53,7 @@ ACTION_LABELS: dict[str, tuple[str, str]] = {
     "UPLOAD_BILL_OF_ENTRY": ("Upload bill of entry", "বিল অব এন্ট্রি আপলোড করুন"),
     "REVIEW_CASHFLOW": ("Open cash flow", "নগদ প্রবাহ দেখুন"),
     "REVIEW_FX_TIMING": ("Review payment timing", "পরিশোধের সময় দেখুন"),
+    "REVIEW_SUPPLIER": ("Review the supplier", "সরবরাহকারীকে দেখুন"),
 }
 SEVERITY_ORDER = {"CRITICAL": 0, "WARNING": 1, "INFO": 2}
 
@@ -296,3 +303,214 @@ def set_status(
         a.facts = {**(a.facts or {}), "resolved_by": "user"}
     db.commit()
     return alert_out(db, a)
+
+
+# ---------- KYB alerts (FR-4) ----------
+
+OPEN_DEAL_STATUSES = (
+    DealStatus.DRAFT,
+    DealStatus.FUNDED,
+    DealStatus.IN_PRODUCTION,
+    DealStatus.SHIPPED,
+)
+KYB_SEVERITY = {"WARNING": Severity.WARNING, "BLOCKED": Severity.CRITICAL}
+
+
+def kyb_alert_key(buyer: Party, supplier: Party, deal: Deal | None = None) -> str:
+    """alert:<buyer code>:kyb:<supplier code>[:<deal reference>]; hashed when it is too long."""
+    raw = f"alert:{buyer.code}:kyb:{supplier.code}" + (f":{deal.reference}" if deal else "")
+    return raw if len(raw) <= 80 else f"alert:kyb:{uuid.uuid5(uuid.NAMESPACE_URL, raw).hex}"
+
+
+def _kyb_row(
+    db: Session, buyer: Party, supplier: Party, deal: Deal | None
+) -> tuple[str, Alert | None]:
+    """(key to use, existing row). A row on the readable key that is not this supplier's KYB alert
+    (key collision) pushes us to a hashed key; the pre-P12 seed alert is adopted by re-keying."""
+    key = kyb_alert_key(buyer, supplier, deal)
+    ref = deal.reference if deal else None
+
+    def mine(row: Alert) -> bool:
+        f = row.facts or {}
+        return (
+            row.type == AlertType.KYB_WARNING
+            and row.party_id == buyer.id
+            and f.get("supplier_id") == str(supplier.id)
+            and f.get("deal_ref") == ref
+        )
+
+    row = db.scalar(select(Alert).where(Alert.key == key))
+    if row is None and deal is None:
+        legacy = db.scalar(
+            select(Alert).where(
+                Alert.key == f"alert:{buyer.code}:kyb-{supplier.code.rsplit('-', 1)[-1]}",
+                Alert.type == AlertType.KYB_WARNING,
+                Alert.party_id == buyer.id,
+            )
+        )
+        if legacy is not None and (legacy.facts or {}).get("supplier_id") in (
+            None,
+            str(supplier.id),
+        ):
+            legacy.key = key
+            return key, legacy
+    if row is None or mine(row):
+        return key, row
+    hashed = f"alert:kyb:{uuid.uuid5(uuid.NAMESPACE_URL, f'{buyer.id}:{supplier.id}:{ref}').hex}"
+    return hashed, db.scalar(select(Alert).where(Alert.key == hashed))
+
+
+def _kyb_text(
+    supplier: Party, status: str, score: int | None, codes: Sequence[str]
+) -> tuple[str, str]:
+    """Alert text from codes and the supplier's own legal name only; no document text."""
+    en = "; ".join(CODE_LABELS.get(c, (c, c))[0] for c in codes)
+    bn_ = "; ".join(CODE_LABELS.get(c, (c, c))[1] for c in codes)
+    tail = f" (score {score}/100)" if score is not None else ""
+    word = "blocked" if status == "BLOCKED" else "warning"
+    return (
+        f"{supplier.legal_name}: KYB {word}{tail}. {en}. Review the supplier before any payment.",
+        bn(
+            f"{supplier.legal_name}: KYB "
+            f"{'অবরুদ্ধ' if status == 'BLOCKED' else 'সতর্কতা'}"
+            f"{f' (স্কোর {score}/100)' if score is not None else ''}। {bn_}। "
+            "কোনো অর্থ প্রদানের আগে সরবরাহকারীকে পর্যালোচনা করুন।"
+        ),
+    )
+
+
+def _kyb_resolve(row: Alert | None, counts: dict[str, int]) -> None:
+    if row is not None and row.status != AlertStatus.RESOLVED:
+        row.status = AlertStatus.RESOLVED
+        row.facts = {**(row.facts or {}), "resolved_by": "engine"}
+        counts["resolved"] += 1
+
+
+def _kyb_upsert(
+    db: Session, key: str, row: Alert | None, values: dict[str, Any], counts: dict[str, int]
+) -> None:
+    if row is None:
+        db.add(
+            Alert(
+                id=uuid.uuid5(uuid.NAMESPACE_URL, f"setu:{key}"),
+                key=key,
+                status=AlertStatus.OPEN,
+                **values,
+            )
+        )
+        counts["created"] += 1
+        return
+    worse = SEVERITY_ORDER[values["severity"].value] < SEVERITY_ORDER.get(row.severity.value, 9)
+    engine_closed = (row.facts or {}).get("resolved_by") == "engine"
+    reopen = (row.status == AlertStatus.RESOLVED and (engine_closed or worse)) or (
+        row.status == AlertStatus.ACKNOWLEDGED and worse
+    )
+    if reopen:
+        row.status = AlertStatus.OPEN
+        counts["reopened"] += 1
+    else:
+        values["facts"] = {**values["facts"], **_keep(row.facts or {})}
+    changed = {k: v for k, v in values.items() if getattr(row, k) != v}
+    if changed:
+        for k, v in changed.items():
+            setattr(row, k, v)
+        counts["updated"] += 1
+
+
+def _kyb_values(
+    buyer: Party,
+    supplier: Party,
+    deal: Deal,
+    *,
+    status: str,
+    score: int | None,
+    codes: Sequence[str],
+    deal_level: bool,
+) -> dict[str, Any]:
+    en, bn_ = _kyb_text(supplier, status, score, codes)
+    label = "blocked" if status == "BLOCKED" else "warning"
+    prefix = "Invoice check" if deal_level else "Supplier KYB"
+    return {
+        "party_id": buyer.id,
+        "deal_id": deal.id,
+        "milestone_id": None,
+        "type": AlertType.KYB_WARNING,
+        "severity": KYB_SEVERITY[status],
+        "title_en": f"{prefix} {label}: {supplier.legal_name}"[:200],
+        "title_bn": f"{'ইনভয়েস যাচাই' if deal_level else 'সরবরাহকারী KYB'} "
+        f"{'অবরুদ্ধ' if status == 'BLOCKED' else 'সতর্কতা'}: {supplier.legal_name}"[:200],
+        "message_en": en,
+        "message_bn": bn_,
+        "amount": None,
+        "currency": None,
+        "due_on": None,
+        "facts": {
+            "kyb_status": status,
+            "score": score,
+            "reasons": list(codes),
+            "supplier_id": str(supplier.id),
+            "deal_ref": deal.reference if deal_level else None,
+            "action": {
+                "code": "REVIEW_SUPPLIER",
+                "route": f"/app/suppliers/{supplier.id}",
+                "query": {},
+            },
+            "engine": "kyb-v2",
+        },
+    }
+
+
+def sync_kyb_alerts(
+    db: Session,
+    supplier: Party,
+    *,
+    base_status: str,
+    base_score: int,
+    base_reasons: Sequence[str],
+    deal: Deal | None = None,
+    deal_codes: Sequence[str] = (),
+    scope: set[uuid.UUID] | None = None,
+) -> dict[str, int]:
+    """Two kinds of KYB_WARNING alert, both idempotent:
+
+    - supplier-level, per buyer with open deals, from party/account facts only (`base_*`);
+    - deal-level, only for `deal` (a run with a deal), from the invoice-specific `deal_codes`.
+    Alerts are created / updated for every buyer, but only buyers in `scope` (None = all) have
+    supplier-level alerts resolved, and a run without a deal never touches a deal-level alert.
+    Flushes; the caller commits."""
+    counts = {"created": 0, "updated": 0, "reopened": 0, "resolved": 0}
+    deals = db.scalars(
+        select(Deal)
+        .where(Deal.supplier_id == supplier.id)
+        .order_by(Deal.opened_on.desc(), Deal.reference)
+    ).all()
+    for buyer_id in sorted({d.buyer_id for d in deals}, key=str):
+        buyer = db.get(Party, buyer_id)
+        if buyer is None:
+            continue
+        key, row = _kyb_row(db, buyer, supplier, None)
+        open_deal = next(
+            (d for d in deals if d.buyer_id == buyer_id and d.status in OPEN_DEAL_STATUSES), None
+        )
+        if base_status in KYB_SEVERITY and open_deal is not None:
+            values = _kyb_values(
+                buyer, supplier, open_deal, status=base_status, score=base_score,
+                codes=base_reasons, deal_level=False,
+            )  # fmt: skip
+            _kyb_upsert(db, key, row, values, counts)
+        elif scope is None or buyer_id in scope:
+            _kyb_resolve(row, counts)
+    if deal is not None:
+        buyer = db.get(Party, deal.buyer_id)
+        if buyer is not None:
+            key, row = _kyb_row(db, buyer, supplier, deal)
+            if deal_codes and deal.status in OPEN_DEAL_STATUSES:
+                values = _kyb_values(
+                    buyer, supplier, deal, status="WARNING", score=None,
+                    codes=deal_codes, deal_level=True,
+                )  # fmt: skip
+                _kyb_upsert(db, key, row, values, counts)
+            else:
+                _kyb_resolve(row, counts)
+    db.flush()
+    return counts

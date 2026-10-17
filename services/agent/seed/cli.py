@@ -70,6 +70,7 @@ DEMO_TABLES = (
     "milestones",
     "deal_costs",
     "deals",
+    "kyb_runs",
     "kyb_checks",
     "users",
     "bank_accounts",
@@ -140,15 +141,16 @@ def seed(
 
 
 def recompute_alerts(session: Session) -> int:
-    """Run the FR-2 alert engine for every buyer so the demo opens with live alerts."""
+    """Run the FR-2 alert engine for every buyer, then sync KYB alerts, so the demo has alerts."""
     from app.services.alerts import recompute_book
     from app.services.cashflow import load_book
+    from app.services.kyb import sync_all_alerts
 
     total = 0
     for buyer in session.scalars(select(Party).where(Party.kind == PartyKind.BUYER)).all():
         out = recompute_book(session, load_book(session, buyer))
         total += out.created + out.updated + out.reopened
-    return total
+    return total + sync_all_alerts(session)
 
 
 def main(argv: list[str] | None = None) -> int:

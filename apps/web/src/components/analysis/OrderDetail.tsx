@@ -10,6 +10,8 @@ import { getOrderAnalysis } from "@/lib/api/analysis";
 import { formatDate } from "@/lib/format";
 import { useApi } from "@/lib/useApi";
 
+import { DealKybPanel } from "@/components/kyb/DealKybPanel";
+
 import { DealMoney } from "./DealMoney";
 import { StatusBadge } from "./StatusBadge";
 
@@ -52,6 +54,7 @@ export function OrderDetail({ reference }: { reference: string }) {
           ))}
         </dl>
       </Card>
+      <DealKybPanel supplierId={deal.supplier_id} />
       <div className="flex flex-wrap gap-3">
         <Link
           href={`/app/orders/${deal.reference}/analysis`}
