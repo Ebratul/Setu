@@ -1,0 +1,72 @@
+{
+ "explanation_codes": [
+  "MONTH_VOLUME",
+  "MONTH_CHANGE",
+  "MONTH_MARGIN_DRIVER"
+ ],
+ "explanation_en": "In October 2026 you placed 1 deal worth USD 9,600.00 in goods; landed cost was USD 11,200.00.",
+ "explanation_bn": "অক্টোবর ২০২৬-এ আপনি ১টি চুক্তি করেছেন, পণ্যের মূল্য USD ৯,৬০০.০০; ল্যান্ডেড খরচ USD ১১,২০০.০০।",
+ "simulated": true,
+ "card_type": "monthly_summary",
+ "data": {
+  "month": "2026-10",
+  "currency": "USD",
+  "deals_count": 1,
+  "total_purchases": "9600.00",
+  "total_landed_cost": "11200.00",
+  "expected_revenue": "13660.00",
+  "average_margin_pct": "18.01",
+  "top_cost_driver": {
+   "kind": "DUTY",
+   "label": null,
+   "amount": "800.00",
+   "share_pct": "50.00"
+  },
+  "purchases_delta": "9600.00",
+  "purchases_pct": null,
+  "margin_delta_pts": null,
+  "history": [
+   {
+    "month": "2026-05",
+    "total_landed_cost": "0.00"
+   },
+   {
+    "month": "2026-06",
+    "total_landed_cost": "0.00"
+   },
+   {
+    "month": "2026-07",
+    "total_landed_cost": "0.00"
+   },
+   {
+    "month": "2026-08",
+    "total_landed_cost": "0.00"
+   },
+   {
+    "month": "2026-09",
+    "total_landed_cost": "0.00"
+   },
+   {
+    "month": "2026-10",
+    "total_landed_cost": "11200.00"
+   }
+  ],
+  "insights": [
+   {
+    "code": "MONTH_VOLUME",
+    "en": "In October 2026 you placed 1 deal worth USD 9,600.00 in goods; landed cost was USD 11,200.00.",
+    "bn": "অক্টোবর ২০২৬-এ আপনি ১টি চুক্তি করেছেন, পণ্যের মূল্য USD ৯,৬০০.০০; ল্যান্ডেড খরচ USD ১১,২০০.০০।"
+   },
+   {
+    "code": "MONTH_CHANGE",
+    "en": "Purchases rose from zero in September 2026 to USD 9,600.00.",
+    "bn": "সেপ্টেম্বর ২০২৬-এ কোনো কেনাকাটা ছিল না; এ মাসে USD ৯,৬০০.০০।"
+   },
+   {
+    "code": "MONTH_MARGIN_DRIVER",
+    "en": "Average gross margin is 18.01%; duty is the biggest extra cost at 50.0% of all extra costs.",
+    "bn": "গড় গ্রস মার্জিন ১৮.০১%; শুল্ক সবচেয়ে বড় অতিরিক্ত খরচ, মোট অতিরিক্ত খরচের ৫০.০%।"
+   }
+  ]
+ }
+}

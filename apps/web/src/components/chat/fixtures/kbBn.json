@@ -1,0 +1,109 @@
+{
+ "simulated": true,
+ "thread_id": "1456a884-3ad9-4a21-83ad-649be54566e8",
+ "answer": "এই ডেমো সারসংক্ষেপ অনুযায়ী, সরবরাহকারীর ফেরত-গ্যারান্টি ছাড়া প্রতি আমদানিতে সাধারণত সর্বোচ্চ USD 20,000 পর্যন্ত অগ্রিম পেমেন্ট করা যায়। ২০২৫ সালের সেপ্টেম্বরে এটি USD 10,000 থেকে বাড়ানো হয়েছে বলে ধরা হয়েছে। [S1] এটি সহজ করা সারসংক্ষেপ; সরকারি উৎসে যাচাই করুন।\n\nকারণ: Setu-র knowledge base-এর 4টি অংশ থেকে (সহজ করা সারসংক্ষেপ; তালিকার সরকারি উৎসে যাচাই করুন)।",
+ "intent": "analysis",
+ "model_used": "mock-fast",
+ "language": "bn",
+ "tool_calls": [
+  {
+   "name": "search_knowledge",
+   "args_summary": "language=bn, query=অগ্রিম পেমেন্টের সীমা কত?",
+   "ok": true
+  }
+ ],
+ "usage": {
+  "input_tokens": 3341,
+  "output_tokens": 113,
+  "total_tokens": 3454,
+  "thread_total": 3454,
+  "thread_budget": 60000
+ },
+ "stopped": null,
+ "trace_url": null,
+ "message_id": "f2f55eb8-edb6-4e5e-afa8-400b5253526b",
+ "why": "কারণ: Setu-র knowledge base-এর 4টি অংশ থেকে (সহজ করা সারসংক্ষেপ; তালিকার সরকারি উৎসে যাচাই করুন)।",
+ "notes": [],
+ "cards": [
+  {
+   "explanation_codes": [
+    "KB_PASSAGES"
+   ],
+   "explanation_en": "Based on 4 passages from Setu's knowledge base (simplified summaries; verify with the official sources listed).",
+   "explanation_bn": "Setu-র knowledge base-এর 4টি অংশ থেকে (সহজ করা সারসংক্ষেপ; তালিকার সরকারি উৎসে যাচাই করুন)।",
+   "simulated": true,
+   "card_type": "citations",
+   "data": {
+    "query": "অগ্রিম পেমেন্টের সীমা কত?",
+    "snippets": [
+     {
+      "cite_id": "S1",
+      "source_id": "faq-bn",
+      "title": "আমদানিকারকদের সাধারণ প্রশ্ন ও উত্তর",
+      "heading_path": "আমদানিকারকদের সাধারণ প্রশ্ন ও উত্তর > অগ্রিম পেমেন্টের সীমা কত?",
+      "content": "অগ্রিম পেমেন্টের সীমা কত?\nএই ডেমো সারসংক্ষেপ অনুযায়ী, সরবরাহকারীর ফেরত-গ্যারান্টি ছাড়া প্রতি আমদানিতে সাধারণত সর্বোচ্চ USD 20,000 পর্যন্ত অগ্রিম পেমেন্ট করা যায়। ২০২৫ সালের সেপ্টেম্বরে এটি USD 10,000 থেকে বাড়ানো হয়েছে বলে ধরা হয়েছে। সীমার বেশি হলে সাধারণত গ্যারান্টি বা LC-র মতো অন্য পদ্ধতি লাগে। এটি সহজ করা সারসংক্ষেপ, তাই official circular এবং আপনার AD bank থেকে যাচাই করে নিন।",
+      "language": "bn",
+      "source_type": "product_doc",
+      "original_reference": "Setu নিজস্ব সারসংক্ষেপ; অগ্রিম পেমেন্টের জন্য official circular দেখুন (Bangladesh Bank FEPD, ১৩ আগস্ট ২০২৬)",
+      "last_reviewed": "2026-10-17",
+      "disclaimer": "ডেমোর জন্য সহজ করা সারসংক্ষেপ — সরকারি উৎস থেকে যাচাই করে নিন। এটি আইনি বা আর্থিক পরামর্শ নয়।",
+      "score": 0.040984
+     },
+     {
+      "cite_id": "S2",
+      "source_id": "faq-bn",
+      "title": "আমদানিকারকদের সাধারণ প্রশ্ন ও উত্তর",
+      "heading_path": "আমদানিকারকদের সাধারণ প্রশ্ন ও উত্তর > OTP ও cooling-off কেন লাগে?",
+      "content": "OTP ও cooling-off কেন লাগে?\nবড় বা ঝুঁকিপূর্ণ কাজে ভুল বা প্রতারণা ঠেকাতে Setu OTP ও ১০ মিনিটের cooling-off চায়। যেমন USD 20,000-এর বেশি পেমেন্ট, প্রাপকের অ্যাকাউন্ট বদল, বা কোনো ডকুমেন্ট বা ইমেইলের ভেতরের নির্দেশ। এই সময়ে আপনি কাজটি বাতিল করতে পারেন। সময় শেষ না হলে সার্ভার কাজটি চালায় না। এটি Setu-র নিজস্ব নিরাপত্তা সীমা।",
+      "language": "bn",
+      "source_type": "product_doc",
+      "original_reference": "Setu নিজস্ব সারসংক্ষেপ; অগ্রিম পেমেন্টের জন্য official circular দেখুন (Bangladesh Bank FEPD, ১৩ আগস্ট ২০২৬)",
+      "last_reviewed": "2026-10-17",
+      "disclaimer": "ডেমোর জন্য সহজ করা সারসংক্ষেপ — সরকারি উৎস থেকে যাচাই করে নিন। এটি আইনি বা আর্থিক পরামর্শ নয়।",
+      "score": 0.038544
+     },
+     {
+      "cite_id": "S3",
+      "source_id": "faq-bn",
+      "title": "আমদানিকারকদের সাধারণ প্রশ্ন ও উত্তর",
+      "heading_path": "আমদানিকারকদের সাধারণ প্রশ্ন ও উত্তর > কোন ডকুমেন্টে কী মিলতে হবে?",
+      "content": "কোন ডকুমেন্টে কী মিলতে হবে?\nInvoice, packing list, bill of lading এবং bill of entry-তে মূল তথ্য একই থাকতে হবে। যেমন ক্রেতা ও consignee-র নাম, পরিমাণ, ওজন, মূল্য ও মুদ্রা, HS code, পণ্যের বিবরণ, জাহাজ ও ভয়েজ নম্বর এবং বন্দর। তারিখও যুক্তিসঙ্গত ক্রমে থাকতে হবে। বড় অমিল পেলে Setu সতর্ক করে এবং মানুষের অনুমোদন চায়।",
+      "language": "bn",
+      "source_type": "product_doc",
+      "original_reference": "Setu নিজস্ব সারসংক্ষেপ; অগ্রিম পেমেন্টের জন্য official circular দেখুন (Bangladesh Bank FEPD, ১৩ আগস্ট ২০২৬)",
+      "last_reviewed": "2026-10-17",
+      "disclaimer": "ডেমোর জন্য সহজ করা সারসংক্ষেপ — সরকারি উৎস থেকে যাচাই করে নিন। এটি আইনি বা আর্থিক পরামর্শ নয়।",
+      "score": 0.020161
+     },
+     {
+      "cite_id": "S4",
+      "source_id": "faq-bn",
+      "title": "আমদানিকারকদের সাধারণ প্রশ্ন ও উত্তর",
+      "heading_path": "আমদানিকারকদের সাধারণ প্রশ্ন ও উত্তর > Escrow কীভাবে কাজ করে?",
+      "content": "Escrow কীভাবে কাজ করে?\nEscrow মানে টাকা একটি নিরপেক্ষ জায়গায় রাখা হয় এবং শর্ত পূরণ হলে ছাড় হয়। Setu-তে পেমেন্ট কয়েকটি ধাপে ভাগ হয়, যেমন ৩০% ডিপোজিট, ৬০% শিপমেন্টের আগে এবং ১০% মাল পৌঁছানোর পর। প্রতিটি ধাপের টাকা supplier-এর কাছে যায় শুধু প্রমাণ মিললে, যেমন bill of lading। ডেমোতে সবকিছু সিমুলেটেড।",
+      "language": "bn",
+      "source_type": "product_doc",
+      "original_reference": "Setu নিজস্ব সারসংক্ষেপ; অগ্রিম পেমেন্টের জন্য official circular দেখুন (Bangladesh Bank FEPD, ১৩ আগস্ট ২০২৬)",
+      "last_reviewed": "2026-10-17",
+      "disclaimer": "ডেমোর জন্য সহজ করা সারসংক্ষেপ — সরকারি উৎস থেকে যাচাই করে নিন। এটি আইনি বা আর্থিক পরামর্শ নয়।",
+      "score": 0.019841
+     }
+    ],
+    "withheld": [],
+    "security_flags": []
+   }
+  }
+ ],
+ "citations": [
+  {
+   "cite_id": "S1",
+   "source_id": "faq-bn",
+   "title": "আমদানিকারকদের সাধারণ প্রশ্ন ও উত্তর",
+   "heading_path": "আমদানিকারকদের সাধারণ প্রশ্ন ও উত্তর > অগ্রিম পেমেন্টের সীমা কত?",
+   "source_type": "product_doc",
+   "original_reference": "Setu নিজস্ব সারসংক্ষেপ; অগ্রিম পেমেন্টের জন্য official circular দেখুন (Bangladesh Bank FEPD, ১৩ আগস্ট ২০২৬)",
+   "last_reviewed": "2026-10-17",
+   "disclaimer": "ডেমোর জন্য সহজ করা সারসংক্ষেপ — সরকারি উৎস থেকে যাচাই করে নিন। এটি আইনি বা আর্থিক পরামর্শ নয়।"
+  }
+ ]
+}

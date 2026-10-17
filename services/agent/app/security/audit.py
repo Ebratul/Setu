@@ -11,12 +11,14 @@ import binascii
 import hashlib
 import json
 import os
+from collections import deque
 from dataclasses import dataclass
 from datetime import UTC, datetime
 from decimal import Decimal
 from pathlib import Path
 from typing import Any
 
+import structlog
 from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey, Ed25519PublicKey
 from cryptography.hazmat.primitives.serialization import Encoding, PublicFormat
 
@@ -176,3 +178,33 @@ def verify_chain(public_key: Ed25519PublicKey, entries: list[SignedEntry]) -> li
             problems.append(f"seq {e.fields.seq}: bad signature")
         prev = e.entry_hash
     return problems
+
+
+# --- Agent action seam ---------------------------------------------------------------------
+# TODO(5.4): append a signed, hash-chained `audit_log` entry here. Until then agent actions are
+# logged as structured events (ids and hashes only, never raw text or PII).
+_audit_log = structlog.get_logger("setu.audit")
+RECENT_EVENTS: deque[dict[str, Any]] = deque(maxlen=500)
+
+
+def record_event(
+    *,
+    actor: str,
+    action: str,
+    tier: int,
+    params: dict[str, Any],
+    result: str,
+    refs: dict[str, str] | None = None,
+) -> dict[str, Any]:
+    event = {
+        "ts": datetime.now(UTC).isoformat(),
+        "actor": actor,
+        "action": action,
+        "tier": tier,
+        "params_hash": params_hash(params),
+        "result": result,
+        **(refs or {}),
+    }
+    RECENT_EVENTS.append(event)
+    _audit_log.info("agent_action", **event)
+    return event

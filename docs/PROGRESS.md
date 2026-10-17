@@ -6,7 +6,7 @@ Times are Dhaka (UTC+6). Deadline: 20 Oct 2026 21:59 Dhaka. Must-have cut line: 
 ## Phase checklist
 - [x] 0.1 · [x] 1.1 · [x] 1.2 · [ ] 1.3
 - [x] 2.1 · [x] 2.2 · [x] 2.3 (FR-2; FR-7 route compare open) · [~] 2.4 (i18n, fonts, shell, client only) · [x] 2.5 · [x] 2.6
-- [ ] 3.1 · [ ] 3.2 · [ ] 3.3 · [ ] 3.4
+- [~] 3.1 (LLM client, tracing, tier-gated registry, FR tools; no LLM cache) · [x] 3.2 (P10 RAG + citations) · [x] 3.3 (agent, FR tools, citations) · [x] 3.4 (P09 chat UI)
 - [ ] 4.1 · [ ] 4.2 · [ ] 4.3 · [ ] 4.4 · [ ] 4.5
 - [ ] 5.1 · [ ] 5.2 · [ ] 5.3 · [ ] 5.4 · [ ] 5.5
 - [ ] 6.1 · [ ] 6.2
@@ -24,6 +24,9 @@ Times are Dhaka (UTC+6). Deadline: 20 Oct 2026 21:59 Dhaka. Must-have cut line: 
 | 2.1+2.6a (P05) | 2026-10-17 04:07 | done | FR-3 domain lib + 5 analysis endpoints, demo-login stub, /app shell, EN/BN i18n, order analysis, calculator, monthly summary, supplier scorecard pages. | pytest 105 passed · vitest 13 passed · Playwright smoke 1 passed · lint/tsc/ruff clean · next build ok · security review: pass with fixes (fixed) | Financing UI (2.6) + FR-1 engine (2.2) next. Margin is 18.01, not 18.00. |
 | 2.3+2.5 (P06) | 2026-10-17 04:44 | done | FR-2 90-day forecaster, what-if scenarios, idempotent alert engine (shortfall/deadline/FX), alert + dashboard endpoints; Dashboard, Cash Flow, financing/approvals placeholders. | pytest 159 passed · vitest 25 passed · Playwright 2 passed · lint/tsc/ruff clean · build ok · verify_seed 17/17 · security review: pass with fixes (fixed) | Next P07 financing (FR-1) replaces /app/financing placeholder. |
 | 2.2+2.6b (P07) | 2026-10-17 05:21 | done | FR-1 gap (shortfall/order), option matching with eligibility + ranking, schedule, cash-flow impact, simulated applications (+ migration); /app/financing comparison UI. | pytest 189 passed · vitest 33 passed · Playwright 3 passed (serial, E2E_RESET_DEMO) · lint/tsc/ruff clean · build ok · verify_seed 17/17 · security review: pass with fixes (fixed) | TC-09 holds via two product rules; approvals must move behind ACCEPT_FINANCING tiers in 5.x. |
+| 3.3 (P08) | 2026-10-17 05:40 | done (real-model check open) | LangGraph agent: router → agent ⇄ tier-guarded tools → respond; 3 Tier 0 tools; Postgres checkpointer; chat threads; /chat + SSE; LangSmith; offline mock model. | pytest 233 passed (incl. db) · ruff clean · web tsc ok · security review: pass with fixes (1 medium + 6 low fixed; 1 medium privacy gap open → P18) | Real Claude run blocked: ANTHROPIC_API_KEY in .env is empty. P09 adds finance tools + chat UI. |
+| 3.4 (P09) | 2026-10-17 07:24 | done (real-model check open) | 10 Tier 0 finance tools returning cards (landed cost, cash flow, alerts, financing, FX route, monthly, scorecard), FR-7 FX route, Why-line guarantee; /app/chat + drawer with rich cards, threads, feedback. | pytest 322 passed (incl. db) · vitest 80 passed · Playwright 4 passed · lint/tsc/ruff clean · build ok · security review backend + UI: pass with fixes (fixed) | ANTHROPIC_API_KEY still empty: real-model run open. Next P10 RAG + citations. |
+| 3.2 (P10) | 2026-10-17 10:25 | done (real-model check open) | Cited knowledge base: 7 KB sources (own summaries + generated financing catalogue), heading chunker, local multilingual embeddings, hybrid pgvector + FTS retrieval (RRF), search_knowledge tool, [S1] citations in answers/API/UI. | pytest 355 passed (incl. db, real-model retrieval table) · vitest 90 passed · Playwright 5 passed · lint/tsc/ruff clean · build ok · security review: pass with fixes (2 medium + 6 low fixed) | Merged P08–P10 to main. ANTHROPIC_API_KEY still empty. |
 
 ## Handoff notes
 
@@ -326,6 +329,324 @@ Times are Dhaka (UTC+6). Deadline: 20 Oct 2026 21:59 Dhaka. Must-have cut line: 
     - (e) Another buyer's deal gives 403 vs 404 for a missing one (kept consistent with P05).
 - **Next phase reads:** this block, `docs/finance-formulas.md` (FR-1), `app/services/financing.py`
   (`quote_all`, `simulate_approval`), `components/financing/OptionCard.tsx`.
+
+### 3.3 (from the user's "P08 LangGraph agent skeleton" prompt)
+- **Branch / worktree:** `phase/3.3-agent-skeleton`, built in the worktree `/data/setu-3.3`, because another
+  session was editing phase 2.2 (financing) in `/data/Setu` at the same time. **Merge order:** both branches add
+  an Alembic revision on top of `60340801e54e` (mine: `b7c1a9e4d2f0`; 2.2's financing migration: `70bf00166094`).
+  Whichever merges second must set its `down_revision` to the other one (or add a merge revision).
+  **Done in P09:** 2.2 reached `main` first, so `b7c1a9e4d2f0` now revises `70bf00166094`.
+- **Layout (from the prompt; it overrides PLAN's `app/graph`/`app/tools` names):** `app/agent/{state,intents,
+  prompts,registry,mock_llm,models,nodes,graph,persistence,runner}.py`, `app/agent/tools/readonly.py`. The router
+  is `app/api/chat.py` (the existing `app/api` convention, not `app/routers`). Models: `app/llm/client.py` is
+  still the **only** module that imports `langchain_anthropic` (a test enforces it). `models.py` picks the real or
+  the mock model. Tracing: `app/llm/tracing.py`.
+  Security seams: `app/security/tiers.py` (`Tier`, `MAX_LLM_TOOL_TIER = T0`), `injection.py`
+  (`detect_instructions`, EN/BN/ZH patterns), `privacy_gateway.py` (identity stub, `TODO(P18)`),
+  `audit.py::record_event` (structlog + in-memory `RECENT_EVENTS`, `TODO(5.4)`: signed chain append).
+- **Graph:**
+  ```mermaid
+  flowchart LR
+    S((start)) --> L[load_context] --> P[privacy_gateway<br/>stub, TODO P18] --> R[router<br/>fast model, json_schema<br/>keyword fallback]
+    R -- greeting / out_of_scope / budget --> X[respond]
+    R -- other intents --> A[agent<br/>fast or smart model + allow-listed tools]
+    A -- tool_calls --> T[tools<br/>registry.guard]
+    T -- more steps --> A
+    T -- injection flag / 6-step cap --> X
+    A -- READY / budget / model error --> X
+    X --> E((END))
+  ```
+  - The agent node only gathers facts. It replies `READY`, and its text is never shown. `respond` writes the
+    answer from the `<tool_result untrusted="true">` blocks, in the turn language. `<` inside a payload is
+    escaped, so data cannot close the tag.
+  - Code then appends to the answer: the simulated-data note (when tools returned data), the injection warning,
+    the tool-cap note, and a "no money moved" line if the model claims a release or payment.
+  - `documents` intent (or `needs_smart_model`) uses MODEL_SMART for agent and respond.
+- **Tier guard (`registry.guard`):**
+  - Refuses any tool with `max_tier > 0` with `{"code":"requires_approval_flow","tier":N}` before validation or
+    execution. Also refuses unknown or non-allow-listed tools (`INTENT_TOOLS`).
+  - Validates args and output with pydantic `extra=forbid`. Runs each tool as a LangSmith tool run
+    (tags `setu, tool, <tier>`). Scans string values for instructions. Writes `record_event` for every call or
+    refusal.
+  - An injection finding sets `stop_reason="injection"`, so no further tool calls happen in that turn (enforced
+    in code, not by the prompt). It also records an `INJECTION_DETECTED` Tier 3 event.
+- **Tools (Tier 0):**
+  - `get_dashboard_snapshot(party_id?)` wraps `services.dashboard` and returns home-currency strings.
+  - `get_deal_summary(deal_id)` takes a ref or UUID matching `^[A-Za-z0-9-]+$`. Another buyer's deal gives
+    `not_found` (no oracle).
+  - `explain_how_setu_works()` returns static text.
+- **Persistence:**
+  - Migration `b7c1a9e4d2f0` adds: `chat_messages.role` `tool`, `chat_messages.meta` JSONB (intent, model,
+    tool, ok, args summary, usage, run id), `chat_threads.deal_id`, `tokens_used` and `updated_at`.
+  - It also creates the LangGraph checkpoint tables with the exact langgraph-checkpoint-postgres 3.2.0 DDL and
+    fills `checkpoint_migrations` (0–9), so `PostgresSaver.setup()` is never needed. Alembic stays the schema
+    owner (`alembic/env.py` ignores those 4 tables; `alembic check` clean).
+  - A test fails if the library's `MIGRATIONS` count changes. **Bumping langgraph-checkpoint-postgres needs a
+    new migration.**
+  - Checkpointer: `PostgresSaver` on a psycopg pool (`prepare_threshold=0` for pgbouncer/Neon), keyed by
+    `thread_id` = `chat_threads.id`. Without DATABASE_URL it falls back to `InMemorySaver`.
+  - Tool results are stored through `mask_for_storage` (identity until P18).
+- **API** (FastAPI paths; the web app uses `/api/...`; `make types` regenerated `schema.gen.ts`):
+  - `POST /chat` `{thread_id?, message (≤4000), language? en|bn|zh, deal_id?}` →
+    `{thread_id, answer, intent, model_used, language, tool_calls[{name,args_summary,ok}],
+    usage{input,output,total,thread_total,thread_budget}, stopped, trace_url, simulated}`.
+  - `POST /chat/stream` (SSE): `meta {thread_id,intent,model,language}` → `tool_start {name,id}` /
+    `tool_end {name,id,ok,args_summary,error_code}` → `token {text}`… → `final <ChatResponse>`, or `error
+    {code,message}`. The tokens joined equal `final.answer`. A static answer comes as a single token. Headers
+    are `Cache-Control: no-cache, no-transform` and `X-Accel-Buffering: no`. It uses FastAPI's built-in
+    `fastapi.sse.format_sse_event` with `StreamingResponse`, so there is no sse-starlette dependency.
+  - `GET /chat/threads?user_id=` (only your own id; anything else gives 403) and
+    `GET /chat/threads/{id}/messages`. Another user's thread gives 403 on read, post and stream.
+  - All endpoints need the demo session (401 otherwise).
+  - `trace_url` is returned to ADMIN and JUDGE only, when tracing is on.
+- **Language:** the request `language`, else the message script (Bangla → bn, Chinese → zh, Latin → en),
+  else the thread's language. (Rahima's profile is `bn`, but an English message gets an English answer.)
+- **Env vars** (in `.env.example`): `AGENT_MOCK_MODE`, `MODEL_FAST`, `MODEL_SMART` (`SETU_MODEL_FAST` and
+  `SETU_MODEL_REASONING` are still accepted as aliases), `LLM_MAX_TOKENS` 2048, `LLM_TIMEOUT_SECONDS` 30,
+  `LLM_MAX_RETRIES` 2 (SDK exponential backoff), `THREAD_TOKEN_BUDGET` 60000, `AGENT_MAX_TOOL_STEPS` 6,
+  `LANGSMITH_*`. I also added `APP_ENV`, `DEMO_SESSION_SECRET` and `DEMO_COOKIE_SECURE`, which P05 left out.
+  - **Mock mode** is on when `AGENT_MOCK_MODE=true` **or the key is missing or blank**. `MockChatModel` is
+    deterministic: keyword router, keyword tool choice, answers composed from tool JSON in EN/BN/ZH, word
+    streaming, estimated token usage.
+- **Models:** `claude-haiku-5-5` (fast: router, agent, respond) and `claude-sonnet-5-5` (smart: documents).
+  The router uses `with_structured_output(method="json_schema")` because Sonnet 5.5 rejects forced
+  `tool_choice`.
+- **Pinned versions (uv.lock):** langgraph 1.2.15, langgraph-checkpoint 4.3.0, langgraph-checkpoint-postgres
+  3.2.0, langchain-core 1.6.12, langchain-anthropic 1.7.6, anthropic 1.15.0, langsmith 0.14.11, psycopg 3.3.6,
+  psycopg-pool 3.3.3, FastAPI 0.143.3. `langchain-core`, `langgraph-checkpoint` and `psycopg-pool` are now
+  direct dependencies.
+- **Verified:**
+  - Mock mode: curl `POST /chat "hello"` works offline. Rahima's "What's on my dashboard?" gives USD 6,000.00
+    cash, 2,880.00 in escrow and a **1,560.00 shortfall on 2026-11-07**, in English and Bangla. `curl -N` on
+    `/chat/stream` shows tokens arriving one by one.
+  - LangSmith (real key, mock model): the root run `setu-chat` is in project `setu` with tags `[setu, phase-P08,
+    intent:…, model:…]` and metadata `{user_role, thread_id}`. Tool child runs are tagged. The judge got the run
+    URL.
+  - **Not verified with a real Claude model:** `ANTHROPIC_API_KEY` in the local `.env` is empty, so the service
+    fell back to mock mode. Set the key and rerun the two dashboard questions as Rahima (EN + BN).
+- **Security review (security-reviewer): PASS WITH FIXES, no critical or high findings.** Fixed:
+  - (M1) Token budget bypass by disconnecting mid-stream. `abort_turn` now charges the checkpointed usage
+    plus the streamed text, on error, `GeneratorExit` or GC, and writes an `aborted` assistant marker.
+    `add_tokens` is an atomic `UPDATE … RETURNING`, and `append_message` locks the thread row for `seq`.
+  - (L3) Tool names from the model are checked against `^[A-Za-z0-9_]{1,64}$` (else `invalid_tool_name`).
+  - (L4) Conversation and user text in the respond prompt are escaped, so `<tool_result>` cannot be forged.
+  - (L5) The detector applies NFKC and strips zero-width characters, and adds the `MONEY_TO_ACCOUNT` and
+    `APPROVAL_COMMAND` rules (no hits on the seeded alert texts).
+  - (L6) The model is only offered tools at or below the tier ceiling, and the tier check runs before the
+    allow-list.
+  - (L7) The dashboard tool returns the same `not_found` for any foreign, unknown or invalid `party_id`.
+  - (L8) Each tool call runs in a DB savepoint, so a DB error becomes `tool_failed` and the turn still saves.
+  - **Open (M2, for P18):** the Privacy Gateway node masks only the latest user message. The system prompt
+    (names, deal refs), tool results and history reach the model, and LangSmith, unmasked. P18 must mask
+    every model input inside `app/llm/client.py` (security.md §3) and extend the "no raw PII reaches the
+    model" test to system and tool content.
+  - Accepted: two turns in parallel on one thread can each start under the budget (overshoot ≤ 1 turn).
+- **Tests:** `tests/agent/` has 58 tests (no DB, no network). They cover node order, the privacy gateway
+  running before the first model call, the tool loop, Tier 1/2/3 refusal, injection, Bangla, out of scope,
+  documents → smart, router fallback, the budget (at start and mid-turn), model failure, the 6-step cap,
+  checkpoint resume, the detector, and the import boundary. They also cover hostile tool names, forged
+  results in user text, and tier-filtered tool offers. `tests/api/test_chat_api.py` has 16 db tests: offline,
+  dashboard numbers, BN, deal isolation, SSE order, persistence + resume, 403s, budget, 401/422, SSE
+  disconnect still charging tokens, the atomic token counter, `trace_url` by role with tracing on, the party
+  oracle, and a tool DB error.
+  DB tests ran on `TEST_DATABASE_URL=…/setu_p08_test`, not `setu_test`, to stay clear of the parallel session.
+- **Known gaps:**
+  - No LLM cache (PLAN 3.1).
+  - Privacy masking is a stub covering only the user message (see M2 above), and LangSmith traces contain
+    raw prompts and tool outputs until P18. Don't enable tracing with real PII.
+  - The audit seam does not append to the signed chain yet (5.4).
+  - No RAG/citations (`citations` stays empty; P10).
+  - The mock router equals the keyword fallback.
+  - `GET /chat/threads` has no pagination.
+  - Thread titles are the raw first message (≤ 80 chars).
+  - Chat history is not shown to ADMIN/JUDGE (by design: own threads only).
+- **Next phase reads:** this block, `app/agent/registry.py` (how to add a tool: `@REGISTRY.tool(...)` + an
+  `INTENT_TOOLS` entry), `app/agent/nodes.py` (respond input format), `app/schemas/chat.py` (SSE payloads).
+
+### 3.4 (from the user's "P09 Core finance tools + Chat UI" prompt)
+- **Branch:** `phase/3.4-chat-tools` (worktree `/data/setu-3.3`), branched from `phase/3.3-agent-skeleton` with
+  `main` (2.2 financing) merged in. That merge re-parented `b7c1a9e4d2f0` onto `70bf00166094` (one Alembic head).
+  **P08 and P09 reach `main` together when this branch merges.** `docs/SRS.md` still does not exist, so the
+  prompt's SRS 5.2 / FR-9 references map to `docs/REQUIREMENTS.md`.
+- **Tools** (`app/agent/tools/finance.py`, all `max_tier=0`, registered on the P08 registry; 13 tools in
+  total, and a test asserts every one is Tier 0 and allow-listed). Each returns a card
+  `{card_type, data, explanation_codes, explanation_en, explanation_bn, simulated}` (`app/schemas/cards.py`):
+  | tool | card | service |
+  |---|---|---|
+  | `analyze_order(deal_id?)` | landed_cost | `analysis.order_analysis` |
+  | `landed_cost_what_if(goods_value, quantity, unit, currency, cost_lines, selling_price?)` | landed_cost | `analysis.what_if` |
+  | `forecast_cashflow(days=90)` | cashflow (series, first shortfall, lowest, 5 biggest payments in 30 d) | `cashflow.get_forecast` |
+  | `simulate_cashflow_scenario(moves, removes, loans, days)` | cashflow before/after | `scenario.run` |
+  | `get_alerts(status=OPEN)` | alerts (severity-sorted, safe routes) | `alerts.list_alerts` |
+  | `match_financing(deal_id?, mode)` | financing_comparison (ranked, recommended + reasons, why_not, apply_route) | `financing.match` |
+  | `financing_impact(option_id, amount, deal_id?, mode)` | cashflow before/after | `financing.impact` |
+  | `compare_fx_route(amount?, from_currency=BDT, to_currency?, deal_id?)` | fx_compare | `services/fx_route.compare` → `domain/fx_route.py` |
+  | `get_monthly_summary(month?)` | monthly_summary | `analysis.monthly` |
+  | `get_supplier_scorecard()` | scorecard | `analysis.suppliers` |
+  - **Deal resolution:** the explicit `deal_id`, else the chat's "About deal" scope (`ToolContext.deal_ref`),
+    else the most recent in-flight deal, with drafts last (`defaulted_deal=true`, and the answer says which).
+    Shortfall-mode financing without a deal leaves the choice to the service, which takes the deal behind
+    the first shortfall.
+  - **Isolation:** another buyer's deal gives `not_found` (explicit, scoped or impact). Admin and judge get a
+    clean `bad_request` from buyer-scoped tools. A test shows the 10 tools write nothing (row counts are
+    unchanged).
+  - **No action tools:** `apply_financing` and rate lock are not tools. A model call to them is refused
+    (`unknown_tool`). The Apply button only links to `/app/financing`.
+- **FR-7 (new):** `domain/fx_route.compare_routes` covers the USD route (bank USD spread, supplier-side
+  USD→CNY spread, SWIFT and correspondent fees) and the direct CNY route (CNY spread, flat fee). Mid rates come
+  from `fx_rates`. The spreads and fees are **MOCK** constants and are labelled `MOCK:` in `assumptions`.
+  Golden example: USD 5,760 → USD route BDT 718,223.24 vs CNY route 712,766.14, saving 5,457.10 (0.76 %). The
+  rate lock is still not built (Tier 2, Phase 5).
+- **Agent behaviour:**
+  - The agent prompt maps question types to tools and covers the default-deal and clarifying-question rules
+    (`agent@2`).
+  - The respond prompt asks for 2–5 sentences plus a "Why:" line from the explanation fields, and natural
+    Bangla that keeps common English finance terms (`respond@2`).
+  - Code guarantees the Why line: the model's text is kept verbatim, and a missing line is appended from
+    the card explanation, in the turn language. It is **never** taken from a flagged result (then a generic
+    fallback is used).
+  - The model sees cards without `series`/`history` (`ToolOutcome.model_payload`), but the UI gets the full
+    card. Earlier answers are escaped in the agent's history.
+  - Keyword router and mock: analysis before deal status; FX, alert, Bangla financing and summary keywords.
+    The mock picks all the new tools and writes card summaries in EN and BN.
+- **API changes** (`make types` was run):
+  - `ChatResponse` gains `message_id`, `why`, `notes`, `cards[]`. The SSE `tool_end` event carries `card`.
+  - `MessageOut` gains `id` and `card` (for tool rows).
+  - New endpoints: `GET /chat/threads?q=` (ILIKE, escaped), `PATCH /chat/threads/{id}` `{title}`,
+    `DELETE /chat/threads/{id}` (checkpoints first, then the thread and its messages), and
+    `POST /chat/messages/{id}/feedback` `{rating: up|down, comment?}`. Feedback is stored in `meta.feedback`;
+    missing, someone else's and non-assistant messages all give 404.
+- **Web** (`apps/web`, built by the frontend-builder agent):
+  - `/app/chat` has a thread list (new, rename, delete, search) and a message stream. Streaming uses
+    `src/lib/sse.ts` with `src/lib/api/chat.ts`, with typing indicator, tool chips, stop and retry.
+  - Messages have a body (markdown-lite, no raw HTML), the Why line, notes, a Simulated tag, copy, and 👍/👎.
+  - Suggested EN/BN chips, the existing language toggle, an "About deal" selector, and the footer disclaimer.
+  - `ChatDrawer` is on every `/app` page except the chat. It is scoped to the deal on `/app/orders/[id]` and
+    on `/app/financing?deal=`, and has an "Open full chat" link.
+  - Cards are in `components/chat/cards/`: LandedCost, Cashflow (Recharts, shortfall zone, before/after),
+    Alerts, FinancingComparison, FxCompare, MonthlySummary, Scorecard.
+  - Links render only for internal `/app` routes (`safeAppHref`), and the Apply link only for `/app/financing`.
+  - The nav has a Chat item, and the `chat.*` i18n strings keep en/bn parity.
+- **Verified (mock mode):**
+  - All four suggested questions (EN and BN) route to the right tool and card with a Why line:
+    - cash-flow card: shortfall 1,560.00 on 2026-11-07;
+    - landed cost: 11,200.00, margin 18.01 %;
+    - cheapest financing: supplier credit 31.20 for the shortfall; for the order, the escrow loan 97.70 →
+      supplier credit 104.00 → bank loan 173.45;
+    - FX: CNY is cheaper for M1 of SETU-2026-0001.
+  - Playwright `chat.spec.ts` asks in Bangla, sees the CashflowCard with 1,560, and opens the drawer from the
+    dashboard. There is no horizontal scroll at 360 px (en and bn).
+  - **Not verified:** a real Claude run and LangSmith tool-call traces for these questions.
+    `ANTHROPIC_API_KEY` in `.env` is still empty, so the agent runs in mock mode. Set it, then ask the four
+    questions in EN and BN.
+- **Security reviews (security-reviewer):**
+  - **Backend: PASS WITH FIXES, fixed.**
+    - (H) The narrowed `MONEY_TO_ACCOUNT` missed fake-supplier payment requests. It now has three branches:
+      a request or sentence-start verb plus an amount, verb → to/into/via a destination, and verb plus an
+      account number (spaces and dashes allowed). Seven attack phrases are caught, and our own card text and
+      the seeded text are not flagged.
+    - (M) Flagged results never feed the Why line, and prior answers are escaped in the agent history.
+    - (L) Feedback 404s are uniform, checkpoints are deleted first, and the FX assumptions say MOCK.
+    - Open: privacy masking (P18). Tool runs and cards now carry supplier names and amounts to LangSmith
+      and the model.
+  - **UI: PASS WITH FIXES, fixed.** Fixes: the Apply route is restricted to `/app/financing`, thread ids are
+    UUID-checked and encoded, the SSE event parser and card shapes are hardened, the SSE buffer and answer
+    length are capped, and the drawer's percent-decoding is safe.
+- **Known gaps:**
+  - The chat threads in the seed have `meta: null`, so they show no separate Why or notes.
+  - At 360 px the scorecard table's last column scrolls inside the card.
+  - The `useChatSession` hook has no direct unit test; the stream path is covered by the parser tests and e2e.
+  - No LLM cache.
+  - FX route spreads and fees are mock constants.
+  - The forecast stays structurally negative (lowest −3,835.00), as noted in P07.
+  - Financing option names and conditions stay English in Bangla answers (catalogue text).
+- **Next phase reads:** this block, `app/schemas/cards.py` (add a card type: the model, the `Card` union,
+  `CARD_TYPES`, the UI dispatcher `components/chat/cards/ChatCard.tsx`), `app/agent/registry.py`
+  (`INTENT_TOOLS`), `app/agent/nodes.py` (`_respond_input`, `_finalize`), `app/agent/state.py`
+  (`citations`).
+
+### 3.2 (from the user's "P10 RAG knowledge base with citations" prompt)
+- **Branch:** `phase/3.2-rag` (worktree `/data/setu-3.3`), on top of `phase/3.4-chat-tools`. It was merged to
+  `main` with P08 and P09 (`--no-ff`).
+- **KB sources** (`services/agent/kb/sources/`, our own summaries, about 3,900 words plus the generated
+  catalogue):
+  - `bb-advance-payment` (regulation_summary)
+  - `incoterms-basics`, `trade-document-fields`, `financing-glossary` (glossary)
+  - `setu-how-it-works`, `faq-bn` (product_doc, Bangla)
+  - `generated/financing-catalogue` (catalogue, from `financing_options` by `npm run kb:sync`)
+
+  Each file has YAML front-matter: `id`, `title`, `source_type`, `original_reference`, `language`,
+  `last_reviewed`, `disclaimer`. The Bangladesh Bank figures are as given in the prompt (USD 20,000;
+  raised from USD 10,000 in Sept 2025; FEPD circular of 13 Aug 2026). They are **not independently
+  verified**, are marked "simplified summary for demo — verify with the official circular", and no circular
+  number is invented. A native speaker should review the Bangla FAQ.
+- **Embeddings:** fastembed has no `multilingual-e5-small`, so the KB uses
+  **`sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2`** (384-d, which fits the existing
+  `Vector(384)`; Apache-2.0, 50+ languages including Bengali). It runs locally through fastembed with no paid
+  API and is cached in `~/.cache/setu-fastembed` (`KB_MODEL_CACHE_DIR`, about 240 MB). It needs no e5
+  prefixes. `KB_EMBEDDER=hash` gives a deterministic offline stub (all tests default to it). The licence is
+  in the README.
+- **Schema:**
+  - Migration `c4d2e8f1a9b3` (revises `b7c1a9e4d2f0`) rebuilds the empty `kb_chunks` table: `source_id`,
+    `seq`, `title`, `heading_path`, `content`, `language`, `content_hash`, `embedding vector(384)`,
+    `metadata` JSONB, and `tsv` (a generated `to_tsvector('simple', title‖heading‖content)`).
+  - Indexes: HNSW (`vector_cosine_ops`) and GIN on `tsv`. `alembic check` is clean.
+  - Alembic stays the schema owner; the prompt's "Prisma migration" does not apply here.
+- **Indexing** (`app/rag/chunker.py`, `ingest.py`, `cli.py`; `npm run kb:index` / `make kb-index`):
+  - Sections are split by `##`/`###`, about 300–450 tokens (estimated as words × 1.3), with a 40-token
+    overlap when a section is split. Tiny sections and intros fold into the next one.
+  - Every chunk keeps "Title > Section > Sub".
+  - Idempotent by `content_hash` (model id + heading path + text): an edit re-embeds only the changed
+    chunks, and a deleted source removes its chunks. The current KB is 7 sources and 59 chunks.
+- **Retrieval** (`app/rag/retrieve.py`):
+  - Vector top 20 (cosine ≥ 0.30) plus full-text top 20 (`to_tsquery('simple')`, OR of the prefix terms,
+    with stop words dropped in EN and BN). The two lists are merged with RRF (k = 60) and return the top 4.
+  - Passages in the requested language score × 1.25.
+  - If the model is missing, retrieval falls back to full-text only.
+  - Every candidate goes through the injection detector. A flagged passage is **withheld**, and its codes
+    are reported in `security_flags`, which the registry turns into the turn's injection flags.
+  - A test asserts that all our own KB chunks pass the detector, so a bad edit fails CI. Two passages were
+    reworded for this.
+  - The retrieval table is top-1 correct with the real model for: the advance payment limit, FOB, bill of
+    lading fields, escrow, and the Bangla advance-limit question.
+- **Agent:**
+  - Tool `search_knowledge(query, language?)` is Tier 0 and allow-listed for every agent intent. It
+    returns a `citations` card.
+  - The model sees `<retrieved_document cite_id="S1" source_id="…">` blocks (escaped) inside the
+    untrusted `<tool_result>`.
+  - Cite ids are unique per turn across several searches (S1…S4, then S5…).
+  - The respond prompt (`respond@3`, `CITE_RULE`) says to cite `[S#]` and only from retrieved passages.
+    `state.citations` keeps only ids that were actually retrieved and not flagged.
+  - `ChatResponse.citations[]` holds `{cite_id, source_id, title, heading_path, source_type,
+    original_reference, last_reviewed, disclaimer}`, also stored in `meta.citations`.
+  - Answers that come only from the KB get no "simulated figures" note.
+  - The mock model picks `search_knowledge` for rule and definition questions and answers from the top
+    passage with `[S1]`.
+- **UI:** citation chips `[S1]` in the answer, a Sources / উৎস list under the message, a withheld-passage
+  notice, and KB suggestion chips.
+- **Verified (mock mode, real embeddings):**
+  - The four example questions and the Bangla FAQ questions answer with `[S1]` from the right source.
+  - `kb:index` re-run gives `+0 embedded, 59 unchanged`.
+- **Security review (security-reviewer): PASS WITH FIXES, all fixed.**
+  - (M1) The user's own query was echoed in the card and scanned as untrusted data, so "release the
+    tranche?" flagged the turn. The card no longer carries the query.
+  - (M2) A missing model triggered a download or a failure on every request. Now the request path never
+    downloads (`get_embedder()` returns None and search runs full-text only, with the failure cached);
+    only `kb:index` may download.
+  - (L) The vector query runs in a savepoint, so a failure falls back to full-text.
+  - (L) Detection covers title, heading, content and meta; withheld entries are id + codes only.
+  - (L) `<retrieved_document>` attributes are escaped.
+  - (L) The indexer refuses symlinks, non-mapping front-matter, unknown languages, duplicate ids and
+    instruction-like sources.
+  - (L) Catalogue values are collapsed to one line.
+- **Known gaps:**
+  - A real Claude run is untested (the key is empty).
+  - The hash stub is plumbing-only (ranking quality is tested with the real model).
+  - The KB content is unreviewed by a domain expert.
+  - No `docs/SRS.md`, so the 1.4 / 6.3 references were not checked.
+  - The first `kb:index` downloads the model (needs network once).
+- **Next phase reads:** this block, `app/rag/retrieve.py` (tuning constants), `app/agent/tools/knowledge.py`,
+  `kb/sources/*` front-matter format.
 
 ## Known issues / risks
 - 1.2: the local `.env` / `.env.example` `DATABASE_URL` points at a hosted Postgres, so `db:migrate`/`db:seed` without

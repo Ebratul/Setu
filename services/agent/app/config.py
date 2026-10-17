@@ -3,7 +3,7 @@ from functools import lru_cache
 from pathlib import Path
 from typing import Literal
 
-from pydantic import SecretStr
+from pydantic import AliasChoices, Field, SecretStr
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 AGENT_DIR = Path(__file__).resolve().parent.parent
@@ -30,6 +30,26 @@ class Settings(BaseSettings):
     langsmith_tracing: bool = False
     langsmith_project: str = "setu"
 
+    # Knowledge base (app/rag). Local multilingual model, Apache-2.0; "hash" = offline test stub.
+    kb_embedder: Literal["fastembed", "hash"] = "fastembed"
+    kb_embedding_model: str = "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2"
+    kb_model_cache_dir: Path = Path.home() / ".cache" / "setu-fastembed"
+
+    # Agent (app/agent). Model ids come from env; SETU_MODEL_* are the older names.
+    model_fast: str = Field(
+        "claude-haiku-5-5", validation_alias=AliasChoices("MODEL_FAST", "SETU_MODEL_FAST")
+    )
+    model_smart: str = Field(
+        "claude-sonnet-5-5", validation_alias=AliasChoices("MODEL_SMART", "SETU_MODEL_REASONING")
+    )
+    llm_max_tokens: int = 2048
+    llm_timeout_seconds: float = 30.0
+    llm_max_retries: int = 2
+    thread_token_budget: int = 60_000
+    agent_max_tool_steps: int = 6
+    # true, or no ANTHROPIC_API_KEY, -> deterministic offline model (dev, tests, demo).
+    agent_mock_mode: bool = False
+
     audit_signing_key: SecretStr | None = None
     audit_dev_key_path: Path = REPO_ROOT / "keys" / "audit_dev_ed25519.key"
 
@@ -38,6 +58,15 @@ class Settings(BaseSettings):
     # Demo "login as" stub (app/auth/demo.py). Replace with real auth before any non-demo use.
     demo_session_secret: SecretStr | None = None
     demo_cookie_secure: bool = False
+
+    @property
+    def has_anthropic_key(self) -> bool:
+        key = self.anthropic_api_key
+        return key is not None and bool(key.get_secret_value().strip())
+
+    @property
+    def use_mock_llm(self) -> bool:
+        return self.agent_mock_mode or not self.has_anthropic_key
 
     @property
     def cors_origins(self) -> list[str]:

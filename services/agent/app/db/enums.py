@@ -188,6 +188,7 @@ class CheckStatus(StrEnum):
 class ChatRole(StrEnum):
     USER = "user"
     ASSISTANT = "assistant"
+    TOOL = "tool"
 
 
 class FxLockStatus(StrEnum):

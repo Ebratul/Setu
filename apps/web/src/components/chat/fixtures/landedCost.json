@@ -1,0 +1,65 @@
+{
+ "explanation_codes": [
+  "LARGEST_EXTRA_COST",
+  "EXTRA_COSTS_TOTAL",
+  "GROSS_MARGIN",
+  "BREAK_EVEN",
+  "FX_RATES_USED"
+ ],
+ "explanation_en": "Gross margin is 18.01% (USD 2,460.00) on expected revenue of USD 13,660.00: healthy (15% or more).",
+ "explanation_bn": "প্রত্যাশিত আয় USD ১৩,৬৬০.০০-এর ওপর গ্রস মার্জিন ১৮.০১% (USD ২,৪৬০.০০): স্বাস্থ্যকর (১৫% বা বেশি)।",
+ "simulated": true,
+ "card_type": "landed_cost",
+ "data": {
+  "deal_ref": "SETU-2026-0001",
+  "title": "Dyed cotton jersey fabric",
+  "defaulted_deal": false,
+  "currency": "USD",
+  "quantity": "8000",
+  "unit": "m",
+  "lines": [
+   {
+    "kind": "GOODS",
+    "label": null,
+    "amount": "9600.00",
+    "share_pct": "85.71"
+   },
+   {
+    "kind": "FREIGHT",
+    "label": "Ocean freight Ningbo → Chittagong (FOB, buyer pays)",
+    "amount": "600.00",
+    "share_pct": "5.36"
+   },
+   {
+    "kind": "INSURANCE",
+    "label": "Marine cargo insurance",
+    "amount": "50.00",
+    "share_pct": "0.45"
+   },
+   {
+    "kind": "DUTY",
+    "label": "Customs duty, due 5 days after arrival",
+    "amount": "800.00",
+    "share_pct": "7.14"
+   },
+   {
+    "kind": "BANK_CHARGES",
+    "label": "Remittance and escrow bank charges",
+    "amount": "150.00",
+    "share_pct": "1.34"
+   }
+  ],
+  "goods_value": "9600.00",
+  "extra_costs": "1600.00",
+  "landed_cost": "11200.00",
+  "landed_cost_bdt": "1373008.00",
+  "cost_per_unit": "1.40",
+  "selling_price_per_unit": "1.7075",
+  "expected_revenue": "13660.00",
+  "gross_margin": "2460.00",
+  "gross_margin_pct": "18.01",
+  "margin_band": "healthy",
+  "break_even_price_per_unit": "1.40",
+  "analysis_route": "/app/orders/SETU-2026-0001/analysis"
+ }
+}

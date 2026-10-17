@@ -1,0 +1,159 @@
+{
+ "explanation_codes": [
+  "LOWEST_COST",
+  "NO_COLLATERAL",
+  "NO_INTEREST"
+ ],
+ "explanation_en": "Recommended: Supplier credit — Shaoxing Huaxin (60 days), total cost USD 31.20 over 60 days.",
+ "explanation_bn": "প্রস্তাবিত: Supplier credit — Shaoxing Huaxin (৬০ days), ৬০ দিনে মোট খরচ USD ৩১.২০।",
+ "simulated": true,
+ "card_type": "financing_comparison",
+ "data": {
+  "mode": "shortfall",
+  "deal_ref": "SETU-2026-0001",
+  "defaulted_deal": true,
+  "currency": "USD",
+  "amount": "1560.00",
+  "needed_by": "2026-11-07",
+  "needed_for_days": 12,
+  "no_financing_needed": false,
+  "options": [
+   {
+    "option_id": "4b8af5bc-1ae0-5ac7-b0d1-c1097bace314",
+    "code": "supplier-credit-huaxin",
+    "name": "Supplier credit — Shaoxing Huaxin (60 days)",
+    "kind": "SUPPLIER_CREDIT",
+    "rank": 1,
+    "recommended": true,
+    "eligible": true,
+    "tenor_days": 60,
+    "total_cost": "31.20",
+    "effective_annual_rate_pct": "12.80",
+    "collateral": "None",
+    "conditions": "0% interest, but goods are priced 2% higher; pay 60 days after shipment.",
+    "why_not": []
+   },
+   {
+    "option_id": "e47e017d-7b8c-5fba-b506-f976903a93bb",
+    "code": "escrow-order-loan-setu-partner",
+    "name": "Escrow-backed order loan — Setu Partner Finance (Lender B)",
+    "kind": "ESCROW_BACKED_LOAN",
+    "rank": 2,
+    "recommended": false,
+    "eligible": true,
+    "tenor_days": 27,
+    "total_cost": "50.39",
+    "effective_annual_rate_pct": "53.68",
+    "collateral": "Assignment of the funded escrow tranches",
+    "conditions": "9.0% p.a., USD 40 flat fee, repaid when milestone 3 is released.",
+    "why_not": []
+   },
+   {
+    "option_id": "6120ab54-7078-5d02-80df-5db83b228849",
+    "code": "working-capital-shitalakshya",
+    "name": "Working-capital line — Shitalakshya Capital (NBFI)",
+    "kind": "WORKING_CAPITAL_LINE",
+    "rank": 3,
+    "recommended": false,
+    "eligible": true,
+    "tenor_days": 120,
+    "total_cost": "71.80",
+    "effective_annual_rate_pct": "14.67",
+    "collateral": "Personal guarantee of the proprietor",
+    "conditions": "14% p.a. on the drawn amount, 30 to 120 days, no invoice needed.",
+    "why_not": []
+   },
+   {
+    "option_id": "ba14a175-a8ee-5c47-860c-2fbe270b2a46",
+    "code": "insured-supplier-terms",
+    "name": "Export-credit-insured supplier terms — Silk Route Cover",
+    "kind": "INSURED_SUPPLIER_TERMS",
+    "rank": 4,
+    "recommended": false,
+    "eligible": false,
+    "tenor_days": 90,
+    "total_cost": "18.72",
+    "effective_annual_rate_pct": "4.96",
+    "collateral": "Supplier's export-credit insurance policy",
+    "conditions": "Supplier ships on 90-day open account; about 1.2% flat cost passed on.",
+    "why_not": [
+     {
+      "code": "MIN_AMOUNT",
+      "en": "Minimum amount USD 3,000.00",
+      "bn": "সর্বনিম্ন পরিমাণ USD ৩,০০০.০০"
+     },
+     {
+      "code": "NOT_WITH_FUNDED_ESCROW",
+      "en": "Open-account insured terms replace escrow; not offered once escrow is funded",
+      "bn": "ইনস্যুরড ওপেন-অ্যাকাউন্ট শর্ত এসক্রোর বিকল্প; এসক্রো অর্থায়িত হলে প্রযোজ্য নয়"
+     }
+    ]
+   },
+   {
+    "option_id": "1ac870ae-e888-589a-b470-f8d114474fb7",
+    "code": "import-loan-meghna",
+    "name": "Import loan — Meghna Commercial Bank (Lender A)",
+    "kind": "BANK_IMPORT_LOAN",
+    "rank": 5,
+    "recommended": false,
+    "eligible": false,
+    "tenor_days": 90,
+    "total_cost": "52.04",
+    "effective_annual_rate_pct": "14.23",
+    "collateral": "Lien on imported goods + post-dated cheque",
+    "conditions": "11.5% p.a., 0.5% processing fee, 90-day tenor, minimum USD 2,000.",
+    "why_not": [
+     {
+      "code": "RULE_AMOUNT_USD",
+      "en": "Amount must be at least USD 2000.00",
+      "bn": "পরিমাণ অন্তত USD ২০০০.০০ হতে হবে"
+     },
+     {
+      "code": "MIN_AMOUNT",
+      "en": "Minimum amount USD 2,000.00",
+      "bn": "সর্বনিম্ন পরিমাণ USD ২,০০০.০০"
+     }
+    ]
+   }
+  ],
+  "recommended": {
+   "code": "supplier-credit-huaxin",
+   "name": "Supplier credit — Shaoxing Huaxin (60 days)",
+   "total_cost": "31.20",
+   "saving_vs_next": "19.19",
+   "why_codes": [
+    "LOWEST_COST",
+    "NO_COLLATERAL",
+    "NO_INTEREST"
+   ],
+   "reasons": [
+    {
+     "code": "PICK",
+     "en": "Recommended: Supplier credit — Shaoxing Huaxin (60 days), total cost USD 31.20 over 60 days.",
+     "bn": "প্রস্তাবিত: Supplier credit — Shaoxing Huaxin (৬০ days), ৬০ দিনে মোট খরচ USD ৩১.২০।"
+    },
+    {
+     "code": "SAVING_VS_NEXT",
+     "en": "That is USD 19.19 cheaper than the next eligible option.",
+     "bn": "পরবর্তী যোগ্য বিকল্পের চেয়ে USD ১৯.১৯ কম।"
+    },
+    {
+     "code": "LOWEST_COST",
+     "en": "Lowest total cost of the eligible options.",
+     "bn": "যোগ্য বিকল্পগুলোর মধ্যে মোট খরচ সবচেয়ে কম।"
+    },
+    {
+     "code": "NO_COLLATERAL",
+     "en": "No collateral needed.",
+     "bn": "জামানত লাগে না।"
+    },
+    {
+     "code": "NO_INTEREST",
+     "en": "No interest is charged.",
+     "bn": "কোনো সুদ নেই।"
+    }
+   ]
+  },
+  "apply_route": "/app/financing?deal=SETU-2026-0001&mode=shortfall"
+ }
+}

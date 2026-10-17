@@ -10,14 +10,18 @@ dependencies = [
     "fastembed>=0.9.0",
     "langchain>=1.4.6",
     "langchain-anthropic>=1.7.6",
+    "langchain-core>=1.6.12",
     "langgraph>=1.2.15",
+    "langgraph-checkpoint>=4.3.0",
     "langgraph-checkpoint-postgres>=3.2.0",
     "langsmith>=0.14.11",
     "pdfplumber>=0.11.10",
     "pgvector>=0.5.1",
+    "psycopg-pool>=3.3.3",
     "psycopg[binary]>=3.3.6",
     "pydantic-settings>=2.16.0",
     "pyotp>=2.10.0",
+    "pyyaml>=6.0.3",
     "rapidfuzz>=3.14.6",
     "reportlab>=5.0.1",
     "sqlalchemy>=2.1.4",
@@ -42,6 +46,13 @@ allowed-confusables = ["−", "×", "–"]
 "tests/domain/test_narrative.py" = ["RUF001"]
 "tests/domain/test_alerts.py" = ["RUF001"]
 "app/domain/alerts.py" = ["RUF001"]
+# Chinese/Bangla reply templates use full-width punctuation on purpose.
+"app/agent/prompts.py" = ["RUF001"]
+"app/agent/mock_llm.py" = ["RUF001"]
+"tests/agent/*.py" = ["RUF001"]
+# Tokenizer punctuation classes include typographic quotes and dashes on purpose.
+"app/rag/embed.py" = ["RUF001"]
+"tests/rag/*.py" = ["RUF001"]
 
 [tool.ruff.format]
 quote-style = "double"

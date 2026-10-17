@@ -1,7 +1,7 @@
 # Thin wrappers around the root package.json scripts (cross-platform users can run `pnpm run <script>` directly).
 AGENT := uv run --directory services/agent
 
-.PHONY: install up down migrate seed reset-demo verify-seed dev test lint format types eval
+.PHONY: install up down migrate seed reset-demo verify-seed kb-sync kb-index dev test lint format types eval
 
 install:
 	pnpm install
@@ -18,6 +18,12 @@ migrate:
 
 seed:
 	pnpm run db:seed
+
+kb-sync:
+	pnpm run kb:sync
+
+kb-index:
+	pnpm run kb:index
 
 reset-demo:
 	pnpm run db:reset-demo

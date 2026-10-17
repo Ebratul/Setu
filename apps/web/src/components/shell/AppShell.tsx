@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { Suspense, type ReactNode } from "react";
 
+import { ChatDrawer } from "@/components/chat/ChatDrawer";
 import { SimulatedBadge } from "@/components/ui/SimulatedBadge";
 import { useT } from "@/i18n";
 
@@ -47,6 +48,9 @@ export function AppShell({ children }: { children: ReactNode }) {
           {children}
         </main>
       </div>
+      <Suspense fallback={null}>
+        <ChatDrawer />
+      </Suspense>
       <footer className="px-4 py-6 text-center text-sm text-muted">
         {t("common.footer")}
       </footer>
