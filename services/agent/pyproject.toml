@@ -15,8 +15,10 @@ dependencies = [
     "langgraph-checkpoint>=4.3.0",
     "langgraph-checkpoint-postgres>=3.2.0",
     "langsmith>=0.14.11",
+    "numpy>=2.5.4",
     "pdfplumber>=0.11.10",
     "pgvector>=0.5.1",
+    "pillow>=12.3.0",
     "psycopg-pool>=3.3.3",
     "psycopg[binary]>=3.3.6",
     "pydantic-settings>=2.16.0",
@@ -53,6 +55,9 @@ allowed-confusables = ["−", "×", "–"]
 # Tokenizer punctuation classes include typographic quotes and dashes on purpose.
 "app/rag/embed.py" = ["RUF001"]
 "tests/rag/*.py" = ["RUF001"]
+# Attack payloads are multilingual literals; demo.py holds long data strings.
+"synthetic/attacks.py" = ["RUF001", "E501"]
+"synthetic/demo.py" = ["E501"]
 
 [tool.ruff.format]
 quote-style = "double"

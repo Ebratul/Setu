@@ -45,5 +45,7 @@ If port 5432 is already in use, set `POSTGRES_PORT` (and the port in `DATABASE_U
 ## Third-party licences
 - [Recharts](https://github.com/recharts/recharts) — MIT (charts in `apps/web`)
 - [sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2](https://huggingface.co/sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2) — Apache-2.0 (local KB embeddings via [fastembed](https://github.com/qdrant/fastembed), Apache-2.0; downloaded once to `~/.cache/setu-fastembed`, override with `KB_MODEL_CACHE_DIR`)
+- [ReportLab](https://www.reportlab.com/opensource/) — BSD (synthetic trade-document PDFs, `services/agent/synthetic`)
+- [Pillow](https://python-pillow.org/) — MIT-CMU (HPND) and [NumPy](https://numpy.org/) — BSD-3 (synthetic fabric photos)
 - [Noto Sans Bengali](https://fonts.google.com/noto/specimen/Noto+Sans+Bengali) — SIL Open Font License 1.1 (via `next/font/google`)
 - [Inter](https://rsms.me/inter/) — SIL Open Font License 1.1 (via `next/font/google`)
