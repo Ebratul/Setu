@@ -27,7 +27,7 @@ synth/out/
 eval/data/
 services/agent/synth/out/
 services/agent/eval/data/
-data/generated/**/*.pdf
+data/generated/
 
 # Tooling / OS
 .deepeval/

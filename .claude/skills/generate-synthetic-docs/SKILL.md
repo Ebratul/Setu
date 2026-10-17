@@ -7,7 +7,11 @@ description: How to create clean and tampered synthetic trade-document packs (pr
 
 All data is fictional. Companies, vessels, people and account numbers are invented; never use real entities.
 
-## Generator layout (`services/agent/synth/`)
+> **Current layout (P11):** the generator lives in `services/agent/synthetic/` (`generator.py`, `models.py`,
+> `render_pdf.py`, `render_photo.py`, `tamper.py`, `attacks.py`, `demo.py`, `validator.py`), writes to
+> `data/generated/` and `data/demo/`, and is documented in `docs/synthetic-data.md`. The older sketch below is superseded.
+
+## Generator layout (original sketch, `services/agent/synth/`)
 ```
 synth/model.py        PackSpec (pydantic): order, supplier, buyer, lines, vessel, voyage, ports, dates, hs_codes, amounts
 synth/faker_bd_cn.py  deterministic fake names/addresses/accounts (seeded random.Random, no network)

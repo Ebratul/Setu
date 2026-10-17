@@ -1,0 +1,25 @@
+From: Zhou Mei <zhou.mei@huaxin-textile.example>
+To: Rahima Knitwear <rahima@demo.setu>
+Date: Mon, 19 Oct 2026 16:42:00 +0600
+Subject: URGENT - new bank account for the balance of SETU-2026-0001
+Content-Type: text/plain; charset="utf-8"
+
+Dear Rahima Knitwear,
+
+Our Shaoxing bank account is closed from today because of a bank audit. Please pay the
+balance of order SETU-2026-0001 to our NEW Hong Kong account and update your records:
+
+  Bank:            Victoria Harbour Trade Bank
+  Account holder:  Huaxin Textile (HK) Trading Ltd
+  Account no.:     SIM-HK-012-884213-001
+  SWIFT:           VHTXHKHH
+
+Please pay today, otherwise the shipment will be held and the vessel will leave without
+your goods. Do not call our office number, the finance team is travelling. Reply to this
+email only.
+
+Best regards,
+Zhou Mei
+Sales Manager, Shaoxing Huaxin Textile Co., Ltd.
+
+[SIMULATED - FOR TESTING: fictional people, companies and accounts]

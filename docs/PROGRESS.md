@@ -4,7 +4,7 @@ Updated at the end of every phase by the `phase-handoff` skill. Newest entries a
 Times are Dhaka (UTC+6). Deadline: 20 Oct 2026 21:59 Dhaka. Must-have cut line: 19 Oct 23:59.
 
 ## Phase checklist
-- [x] 0.1 · [x] 1.1 · [x] 1.2 · [ ] 1.3
+- [x] 0.1 · [x] 1.1 · [x] 1.2 · [x] 1.3
 - [x] 2.1 · [x] 2.2 · [x] 2.3 (FR-2; FR-7 route compare open) · [~] 2.4 (i18n, fonts, shell, client only) · [x] 2.5 · [x] 2.6
 - [~] 3.1 (LLM client, tracing, tier-gated registry, FR tools; no LLM cache) · [x] 3.2 (P10 RAG + citations) · [x] 3.3 (agent, FR tools, citations) · [x] 3.4 (P09 chat UI)
 - [ ] 4.1 · [ ] 4.2 · [ ] 4.3 · [ ] 4.4 · [ ] 4.5
@@ -28,6 +28,7 @@ Times are Dhaka (UTC+6). Deadline: 20 Oct 2026 21:59 Dhaka. Must-have cut line: 
 | 3.4 (P09) | 2026-10-17 07:24 | done (real-model check open) | 10 Tier 0 finance tools returning cards (landed cost, cash flow, alerts, financing, FX route, monthly, scorecard), FR-7 FX route, Why-line guarantee; /app/chat + drawer with rich cards, threads, feedback. | pytest 322 passed (incl. db) · vitest 80 passed · Playwright 4 passed · lint/tsc/ruff clean · build ok · security review backend + UI: pass with fixes (fixed) | ANTHROPIC_API_KEY still empty: real-model run open. Next P10 RAG + citations. |
 | 3.2 (P10) | 2026-10-17 10:25 | done (real-model check open) | Cited knowledge base: 7 KB sources (own summaries + generated financing catalogue), heading chunker, local multilingual embeddings, hybrid pgvector + FTS retrieval (RRF), search_knowledge tool, [S1] citations in answers/API/UI. | pytest 355 passed (incl. db, real-model retrieval table) · vitest 90 passed · Playwright 5 passed · lint/tsc/ruff clean · build ok · security review: pass with fixes (2 medium + 6 low fixed) | Merged P08–P10 to main. ANTHROPIC_API_KEY still empty. |
 | 3.1b (OpenRouter) | 2026-10-17 10:39 | done | Real-model path via OpenRouter (Anthropic-compatible endpoint); provider auto-selection; first real Claude run of the P08–P10 chat. | pytest 362 passed · ruff clean · 12 live EN/BN questions OK | LangSmith traces verified. |
+| 1.3 (P11) | 2026-10-17 11:03 | done | Synthetic trade-document generator: 100 clean + 100 tampered packs (10 fraud types, obvious/subtle), 25-item injection attack set, committed demo files matching the seed. | pytest tests/synthetic 29 passed · full suite 275 passed · ruff clean · verify_seed 18/18 | Hash registry now matches prefinanced_invoice.pdf. P14 tunes on dev only, P24 reports on test. |
 
 ## Handoff notes
 
@@ -671,6 +672,56 @@ Times are Dhaka (UTC+6). Deadline: 20 Oct 2026 21:59 Dhaka. Must-have cut line: 
   per turn with a tool round trip.
 - **Tests:** a developer's real key no longer reaches tests (autouse mock mode); provider selection and
   model-id mapping are tested.
+
+### 1.3 (from the user's "P11 Synthetic trade-document generator" prompt)
+- **Branch:** `phase/1.3-synthetic-docs`. `docs/SRS.md` still does not exist, so FR-6 / metrics come from `docs/REQUIREMENTS.md`
+  (NFR-4). The prompt's `services/agent/synthetic/` and `data/` layout override the skill's older `synth/` sketch
+  (the skill file now points at the new layout). Full reference: **`docs/synthetic-data.md`**.
+- **Run (repo root):** `uv run --directory services/agent python -m synthetic.generator --clean 100 --tampered 100 --seed 42`
+  (about 7 s, 35 MB, prints the count table); `--demo` rewrites only `data/demo/SETU-2026-0001/`; `--no-attacks`, `--out DIR`.
+  Same seed gives identical manifest and bytes. Tests: `uv run --directory services/agent pytest -q tests/synthetic`.
+- **Files** (`services/agent/synthetic/`): `generator.py` (CLI, pipeline, split, summary), `models.py` (pydantic docs, `Pack`,
+  `DealTerms`, manifest), `render_pdf.py` (reportlab, extractable text, per-pack font/date-format/field-order variation),
+  `render_photo.py` (Pillow + numpy swatches with a tape-measure width), `tamper.py` (one mutator per fraud type),
+  `attacks.py`, `demo.py`, plus `catalog.py` (fictional master data, price bands), `factory.py` (plans to packs), and
+  `validator.py` (the ground truth). New direct deps: `pillow`, `numpy` (reportlab and pdfplumber were already there).
+- **Output** (`data/generated/`, now fully git-ignored): `manifest.jsonl`, `price_bands.json`, `packs/PACK-xxxx/` (6 PDFs + JSON,
+  2 JPEGs, `deal.json`), `attacks/` + `attacks_manifest.jsonl`. Pack ids are shuffled, so the id does not leak the label.
+- **Counts (seed 42):** 100 clean + 100 tampered = 200 packs; 100 dev / 100 test. Each of the 10 fraud types has 5 obvious +
+  5 subtle, split 3/2 or 2/3 (stratified, `SPLIT_SEED = 20261020`); 20 tampered packs carry a secondary type. Attacks: 25 =
+  5 styles × 5 variants (plain, plain, spaced, homoglyph, zero-width; en/zh/bn; 4 actions per style cover all 5 target actions).
+- **Checks** in every manifest line (11): QUANTITY_MATCH, VALUE_MATCH, VESSEL_DATE_MATCH, NAME_MATCH, DUPLICATE_INVOICE,
+  PRICE_IN_BAND, BENEFICIARY_MATCH, HIDDEN_TEXT_SCAN, INSTRUCTION_SCAN, PORT_MATCH, HS_CODE_MATCH. `HIDDEN_INSTRUCTION` fails
+  both HIDDEN_TEXT_SCAN and INSTRUCTION_SCAN (same names as the seed's checks). A pack's checks come from `validator.validate`;
+  a test cross-checks them with `tamper.EXPECTED_FAILS`.
+- **Split policy:** P14 may tune only on `dev`; P24 reports on `test`. Stratified by clean and fraud type × difficulty.
+- **Demo files** (`data/demo/SETU-2026-0001/`, committed, 13 files): see `data/demo/README.md`. `prefinanced_invoice.pdf` is a
+  byte copy of `proforma_invoice.pdf`, so its sha256 equals the seeded registry value: `c912b855…3026`.
+  Verified by a test and by re-running `db:seed` + `verify_seed` (18/18) on the local DB. `proforma_invoice_resaved.pdf` is the
+  near-duplicate; `bill_of_lading_forged.pdf` has the wrong vessel, on-board 14 Oct and hidden white text.
+- **Decisions:**
+  - (1) Demo file names follow the seed (`bill_of_lading_clean|forged.pdf`, `production_photo_N.jpg`), not the prompt's
+    `forged_bill_of_lading.pdf`.
+  - (2) `prefinanced_invoice.pdf` is the registered PI itself, so the seed needed no change.
+  - (3) The PI carries the booked vessel/voyage, production-completion date, ETA and shipment date, so P14 can check the B/L
+    from documents alone.
+  - (4) Bangla attacks are emails (no portable Bangla font in the repo); Chinese ones use reportlab's built-in `STSong-Light`.
+  - (5) Hidden text sits at the page bottom so it extracts on its own line.
+  - (6) A duplicate is a clone of a clean pack, so only DUPLICATE_INVOICE fails.
+  - (7) Photos use "-" not "–" in the footer text (PIL's default font lacks the en dash).
+- **Visual check:** 4 pages rendered with `pdftoppm` (a clean packing list, a tampered invoice, the demo invoice and the forged
+  B/L). They look like real documents. The white text is invisible on screen but present in `pdftotext` output.
+- **Security review:** not run: the diff touches no `app/security`, `tools`, `graph`, `llm`, escrow or approvals code.
+- **Local DB:** the dev docker DB was one migration behind, so I ran `alembic upgrade head` on `localhost:5435` before re-seeding.
+- **Known gaps:**
+  - (a) Demo dates are fixed for `DEMO_TODAY = 2026-10-20`.
+  - (b) PII corpus (skill step 6) is not built: Phase 5.2/7.1 need it.
+  - (c) Photo-vs-spec mismatches (cut-if-late) are not a fraud type; photos always match.
+  - (d) Duty rates, price bands and HS codes are illustrative.
+  - (e) PDFs are single page and text-based; there are no scanned or image-only variants for OCR.
+  - (f) `tests/api/test_chat_api.py::test_tool_db_error…` fails without a reachable Postgres (it passes with the local DB): unrelated to this phase.
+- **Next phase reads:** this block, `docs/synthetic-data.md`, `data/demo/README.md`, `synthetic/models.py` (field names the
+  extractor must recover), `synthetic/validator.py` (check semantics), `seed/documents.py` (checks the seed expects).
 
 ## Known issues / risks
 - 1.2: the local `.env` / `.env.example` `DATABASE_URL` points at a hosted Postgres, so `db:migrate`/`db:seed` without
