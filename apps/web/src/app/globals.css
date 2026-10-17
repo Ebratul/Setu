@@ -44,7 +44,7 @@
   --color-chart-6: #be185d;
 
   --font-sans:
-    var(--font-inter), var(--font-bengali), ui-sans-serif, system-ui, sans-serif;
+    var(--font-inter), var(--font-bengali), var(--font-sc), ui-sans-serif, system-ui, sans-serif;
 }
 
 body {

@@ -3,7 +3,7 @@
 Flow sources (all converted to the buyer's cash currency):
 - cashflow_items dated today or later that are *not* linked to a milestone or deal cost
   (sales, salary, rent, utilities, loan repayments, local purchases, other);
-- active deals (FUNDED, IN_PRODUCTION, SHIPPED): each tranche not yet deposited into escrow
+- active deals (FUNDED, IN_PRODUCTION, SHIPPED, ARRIVED): each tranche not yet deposited into escrow
   (beyond escrow.funded_total, status not RELEASED/REFUNDED/CANCELLED) on its due date, and each
   deal cost on its due date. The seed's linked cashflow_items rows mirror exactly these, so they are
   skipped to avoid double counting.
@@ -48,7 +48,12 @@ from app.schemas.cashflow import (
 from app.services.analysis import fmt, fx_table
 from app.services.scope import demo_today, require_buyer
 
-ACTIVE = (DealStatus.FUNDED, DealStatus.IN_PRODUCTION, DealStatus.SHIPPED)
+ACTIVE = (
+    DealStatus.FUNDED,
+    DealStatus.IN_PRODUCTION,
+    DealStatus.SHIPPED,
+    DealStatus.ARRIVED,
+)
 SETTLED = (MilestoneStatus.RELEASED, MilestoneStatus.REFUNDED, MilestoneStatus.CANCELLED)
 DEFAULT_DAYS = 90
 FX_MEAN_DAYS = 30

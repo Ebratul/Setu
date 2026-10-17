@@ -1,11 +1,16 @@
 "use client";
 
 import Link from "next/link";
-import { Suspense, type ReactNode } from "react";
+import { useRouter } from "next/navigation";
+import { Suspense, useEffect, type ReactNode } from "react";
 
 import { ChatDrawer } from "@/components/chat/ChatDrawer";
 import { SimulatedBadge } from "@/components/ui/SimulatedBadge";
+import { Skeleton } from "@/components/ui/Skeleton";
+import { ToastProvider } from "@/components/ui/Toast";
 import { useT } from "@/i18n";
+import { getMe } from "@/lib/api/auth";
+import { useApi } from "@/lib/useApi";
 
 import { AppNav } from "./AppNav";
 import { LanguageToggle } from "./LanguageToggle";
@@ -13,8 +18,14 @@ import { UserMenu } from "./UserMenu";
 
 export function AppShell({ children }: { children: ReactNode }) {
   const t = useT();
+  const router = useRouter();
+  const me = useApi((s) => getMe(s), "me");
+  const isSupplier = me.data?.role === "SUPPLIER";
+  useEffect(() => {
+    if (isSupplier) router.replace("/supplier");
+  }, [isSupplier, router]);
   return (
-    <>
+    <ToastProvider>
       <a
         href="#main"
         className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-50 focus:rounded-md focus:bg-surface focus:px-4 focus:py-2 focus:font-semibold focus:text-brand-700 focus:ring-2 focus:ring-brand-500"
@@ -45,7 +56,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           </Suspense>
         </aside>
         <main id="main" className="min-w-0 flex-1">
-          {children}
+          {me.loading || isSupplier ? <Skeleton className="h-64" /> : children}
         </main>
       </div>
       <Suspense fallback={null}>
@@ -54,6 +65,6 @@ export function AppShell({ children }: { children: ReactNode }) {
       <footer className="px-4 py-6 text-center text-sm text-muted">
         {t("common.footer")}
       </footer>
-    </>
+    </ToastProvider>
   );
 }

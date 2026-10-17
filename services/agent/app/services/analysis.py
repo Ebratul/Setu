@@ -61,6 +61,7 @@ COMMITTED = (
     DealStatus.FUNDED,
     DealStatus.IN_PRODUCTION,
     DealStatus.SHIPPED,
+    DealStatus.ARRIVED,
     DealStatus.COMPLETED,
     DealStatus.DISPUTED,
 )

@@ -36,7 +36,7 @@ export function ChatPage() {
   const [showList, setShowList] = useState(false);
 
   const session = useChatSession({
-    language: lang,
+    language: lang === "bn" ? "bn" : "en",
     onThread: (id) => {
       dealSynced.current = id;
       router.replace(`/app/chat?thread=${encodeURIComponent(id)}`, { scroll: false });

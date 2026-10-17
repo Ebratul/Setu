@@ -22,6 +22,8 @@ class Settings(BaseSettings):
     app_version: str = "0.1.0"
     app_env: Literal["dev", "test", "prod"] = "dev"
     database_url: SecretStr | None = None
+    # Dev/test-only POST /milestones/{id}/evidence: explicit opt-in, ignored when APP_ENV=prod.
+    enable_dev_evidence: bool = False
     db_check_timeout_seconds: float = 2.0
     allowed_origins: str = "http://localhost:3000"
 

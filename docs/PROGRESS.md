@@ -7,7 +7,7 @@ Times are Dhaka (UTC+6). Deadline: 20 Oct 2026 21:59 Dhaka. Must-have cut line: 
 - [x] 0.1 · [x] 1.1 · [x] 1.2 · [x] 1.3
 - [x] 2.1 · [x] 2.2 · [x] 2.3 (FR-2; FR-7 route compare open) · [~] 2.4 (i18n, fonts, shell, client only) · [x] 2.5 · [x] 2.6
 - [~] 3.1 (LLM client, tracing, tier-gated registry, FR tools; no LLM cache) · [x] 3.2 (P10 RAG + citations) · [x] 3.3 (agent, FR tools, citations) · [x] 3.4 (P09 chat UI)
-- [ ] 4.1 · [x] 4.2 · [ ] 4.3 · [ ] 4.4 · [ ] 4.5
+- [x] 4.1 · [x] 4.2 · [ ] 4.3 · [ ] 4.4 · [ ] 4.5
 - [ ] 5.1 · [ ] 5.2 · [ ] 5.3 · [ ] 5.4 · [ ] 5.5
 - [ ] 6.1 · [ ] 6.2
 - [ ] 7.1 · [ ] 7.2
@@ -30,6 +30,7 @@ Times are Dhaka (UTC+6). Deadline: 20 Oct 2026 21:59 Dhaka. Must-have cut line: 
 | 3.1b (OpenRouter) | 2026-10-17 10:39 | done | Real-model path via OpenRouter (Anthropic-compatible endpoint); provider auto-selection; first real Claude run of the P08–P10 chat. | pytest 362 passed · ruff clean · 12 live EN/BN questions OK | LangSmith traces verified. |
 | 1.3 (P11) | 2026-10-17 11:03 | done | Synthetic trade-document generator: 100 clean + 100 tampered packs (10 fraud types, obvious/subtle), 25-item injection attack set, committed demo files matching the seed. | pytest tests/synthetic 29 passed · full suite 275 passed · ruff clean · verify_seed 18/18 | Hash registry now matches prefinanced_invoice.pdf. P14 tunes on dev only, P24 reports on test. |
 | 4.2 (P12) | 2026-10-17 11:33 | done | Deterministic supplier KYB engine (8 checks, EN/BN reasons, per-account + per-deal results), signed audit append, KYB alerts, verify_party tool, Suppliers pages, deal KYB panel, chat card. | pytest 465 passed (incl. db) · vitest 99 passed · Playwright suppliers 2 passed · lint/tsc/ruff clean · next build ok · verify_seed 19/19 · security review: pass with fixes (1 high + 4 medium + 4 low fixed) | Next P13 escrow + Deals UI; reuse KybBadge, write_audit, KybResult. |
+| 4.1 (P13) | 2026-10-17 12:16 | done | Simulated milestone escrow: state machines, double-entry ledger, evidence-gated idempotent release behind a risk hook, refunds, Deals list/new/detail UI, supplier portal (EN + 中文). | pytest 639 passed (incl. db) · vitest 128 passed · Playwright 8/9 (chat citation test unrelated) · lint/tsc/ruff clean · next build ok · verify_seed 19/19 · security review: pass with fixes (1 high + 4 medium + 6 low fixed) | Next P14 forensics sets evidence_status via set_evidence_status; Phase 5.1 replaces risk_hook.default_evaluate. |
 
 ## Handoff notes
 
@@ -766,6 +767,51 @@ Times are Dhaka (UTC+6). Deadline: 20 Oct 2026 21:59 Dhaka. Must-have cut line: 
   the 360 px layout and the Huaxin pending section were not checked by eye; `docs/SRS.md` TC-06 is for later phases.
 - **Next phase reads:** this block, `docs/kyb.md`, `app/services/kyb.py` (`evaluate`, `verify`), `app/security/audit.py::write_audit`,
   `components/kyb/KybBadge.tsx`.
+
+### 4.1 (from the user's "P13 Escrow, milestones, Deals UI and Supplier portal" prompt)
+- **Branch:** `phase/4.1-escrow-deals`. No `docs/SRS.md` and no `app/finance`: rules live in `app/domain/{escrow,money,fx}.py`. Full
+  reference: **`docs/escrow.md`** (state machines, check order, hook contract, endpoints, invariants, roles).
+- **Files:** `app/domain/escrow.py`, `app/services/{escrow,deals}.py`, `app/schemas/deals.py`, `app/api/deals.py`,
+  `app/security/{risk_hook,policy}.py`, `app/agent/tools/escrow.py`; migration `4822f40a71c9` (backfills seeded rows; adds
+  milestone_confirmations, deals.kyb_run_id, milestone condition_text/evidence_status/release_idempotency_key, escrow refunded_total/
+  partner/advance_over_20k + CHECK funded = released + refunded + balance, ledger kind/milestone_id/fx fields, audit_log.deal_id).
+- **States:** Deal DRAFT → PROPOSED → CONFIRMED → FUNDED → IN_PRODUCTION → SHIPPED → ARRIVED → COMPLETED (+ DISPUTED, CANCELLED).
+  Milestone PENDING (the prompt's LOCKED) → PROPOSED/READY → PENDING_APPROVAL → RELEASED | REFUNDED (+ FROZEN). Release advances
+  the deal: first tranche IN_PRODUCTION, shipment SHIPPED, arrival ARRIVED, and COMPLETED when nothing is left unsettled.
+- **Release check order:** READY + evidence VERIFIED (`EVIDENCE_NOT_VERIFIED`) → balance (`INSUFFICIENT_ESCROW`) → beneficiary ACTIVE
+  and KYB-clean (`BENEFICIARY_NOT_ACTIVE`) → frozen escrow / open Tier 3 (`ESCROW_FROZEN`, `TIER3_APPROVAL_PENDING`) and open
+  PENDING/APPROVED approvals → `risk_hook` → one transaction with row locks (ledger RELEASE with FX for CNY, balance, milestone,
+  next milestone READY, deal status, cash-flow, alert recompute, signed `write_audit`). Same idempotency key replays; a new key on a
+  RELEASED milestone is refused. `release_tranche(..., approval_id=)` is the 5.5 execution path (re-checks binding hash, tier, params, cooling-off).
+- **risk_hook contract for 5.1:** `evaluate(action="RELEASE_TRANCHE", context) -> {decision ALLOW|REQUIRE_APPROVAL|BLOCK, tier, reasons}`.
+  The shipped `default_evaluate` is an interim FAIL-CLOSED policy, not the full engine: Tier 3 when USD amount > 20,000 (unrounded),
+  advance over 20,000 or receiving account < 30 days old; Tier 2 for a first deal with the supplier or a different settlement currency
+  (FX lock); otherwise ALLOW at tier 1 with a notice. REQUIRE_APPROVAL creates an ApprovalRequest bound by `approval_binding_hash` and sets
+  PENDING_APPROVAL (HTTP 202). The Python-level `hook=` argument of `release_tranche` (tests only) must be removed or locked in 5.1.
+- **Demo caveat:** the seeded deal pays Huaxin's CNY account, so every tranche is Tier 2 `FX_RATE_LOCK`; the seeded Tier 3
+  `CHANGE_BENEFICIARY` approval freezes all Huaxin releases until decided. The demo script (6.2) must decide it first.
+- **Endpoints:** POST /deals; GET /deals?status=; GET /deals/{id}; POST /deals/{id}/milestones/propose|confirm; POST /deals/{id}/escrow/fund
+  (amount optional: funds the next uncovered tranche, up to goods value; funding spends buyer cash, 409 `INSUFFICIENT_CASH`);
+  POST /milestones/{id}/release (200 RELEASED, 202 PENDING_APPROVAL), /refund (admin); GET /deals/{id}/ledger|activity; dev-only
+  POST /milestones/{id}/evidence (needs `ENABLE_DEV_EVIDENCE=true` and APP_ENV != prod; default off; UI control also needs `NEXT_PUBLIC_DEV_TOOLS=1`).
+  Responses carry `can_*` {allowed, reason} flags; errors are problem JSON with a stable `code`. Suppliers get a projection with buyer-private
+  fields nulled (expected sale value, costs, KYB score/reasons, approval reasons, refund reasons).
+- **Tools:** `propose_milestones` (Tier 2) and `release_tranche` (Tier 3) are registered but in no allow-list; `llm_tools()` hides them
+  and the guard returns `requires_approval_flow`. 17 tools in total.
+- **Web:** `/app/deals` (list), `/app/deals/new` (4 steps, exact string-math totals, landed-cost preview, warning dialog),
+  `/app/deals/[id]` (stepper, escrow bar, ledger, tabs, Propose/Confirm/Fund/Release dialogs, KYB panel); `/app/orders/[id]` redirects to
+  it (`/app/orders/[id]/analysis` stays); `/supplier` + `/supplier/[id]` portal (EN + 中文, `src/i18n/zh.json`, Noto Sans SC), suppliers are
+  redirected there from `/app`; new `Toast` and `ConfirmDialog`; ~30 error codes mapped to EN/BN.
+- **Decisions:** propose has no PendingApproval yet (both-party confirmation stands in; audit row at tier 2); re-seeding resets seeded
+  deals (use `db:reset-demo` after releasing the demo deal through the API); activity feed `deal_id` is unsigned grouping metadata.
+- **Security review: PASS WITH FIXES, all fixed.** (H) placeholder hook allowed everything at Tier 0; (M) APPROVED-unexecuted approval
+  bypass, frozen/Tier 3 holds, buyer cash race, supplier saw buyer-private data, dev endpoint default-on; (L) unrounded amount, approval key
+  collision and supersede, refund cancels approvals, 403 and resync audit, goods cap. 18 hardening tests added.
+- **Known gaps:** FR-8 credit record on COMPLETED not built; Documents tab shows evidence counts only (P14); refund has no UI; the new-deal
+  supplier picker lists only existing counterparties (no supplier-onboarding endpoint); `can_*` reasons are English only; admin Confirm hidden;
+  Playwright `chat.spec` citation test fails without the LLM/RAG backend (not investigated).
+- **Next phase reads:** this block, `docs/escrow.md`, `app/services/escrow.py::set_evidence_status` and `release_tranche`,
+  `app/security/risk_hook.py`, `components/deals/`.
 
 ## Known issues / risks
 - 1.2: the local `.env` / `.env.example` `DATABASE_URL` points at a hosted Postgres, so `db:migrate`/`db:seed` without

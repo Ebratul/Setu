@@ -1,0 +1,127 @@
+{
+  "lang": {
+    "label": "语言",
+    "en": "EN",
+    "bn": "বাংলা",
+    "zh": "中文"
+  },
+  "common": {
+    "simulated": "模拟",
+    "simulatedHint": "Setu 中的所有资金均为模拟沙盒数据",
+    "close": "关闭",
+    "cancel": "取消",
+    "loading": "加载中…",
+    "retry": "重试",
+    "footer": "FinTechathon 2026 · 模拟沙盒，无真实支付"
+  },
+  "shell": {
+    "skip": "跳到主要内容",
+    "switchUser": "切换用户",
+    "logout": "退出登录"
+  },
+  "role": {
+    "BUYER": "买方",
+    "SUPPLIER": "供应商",
+    "ADMIN": "管理员",
+    "JUDGE": "评委"
+  },
+  "status": {
+    "DRAFT": "草稿",
+    "PROPOSED": "已提议",
+    "CONFIRMED": "已确认",
+    "FUNDED": "已注资",
+    "IN_PRODUCTION": "生产中",
+    "SHIPPED": "已发运",
+    "ARRIVED": "已到港",
+    "COMPLETED": "已完成",
+    "DISPUTED": "有争议",
+    "CANCELLED": "已取消"
+  },
+  "trigger": {
+    "PRODUCTION_START": "开始生产",
+    "SHIPMENT": "发运",
+    "ARRIVAL": "到货"
+  },
+  "docType": {
+    "PROFORMA_INVOICE": "形式发票",
+    "PRODUCTION_PHOTO": "生产照片",
+    "BILL_OF_LADING": "提单",
+    "PACKING_LIST": "装箱单",
+    "COMMERCIAL_INVOICE": "商业发票",
+    "BILL_OF_ENTRY": "进口报关单"
+  },
+  "ms": {
+    "step": "里程碑 {seq}",
+    "due": "到期 {date}",
+    "funded": "已由托管覆盖",
+    "evidence": "证明材料",
+    "docCount": "已上传 {n} 份",
+    "listLabel": "按顺序排列的里程碑",
+    "none": "尚无里程碑。",
+    "status": {
+      "PROPOSED": "已提议",
+      "PENDING": "已锁定",
+      "READY": "可放款",
+      "PENDING_APPROVAL": "等待批准",
+      "RELEASED": "已放款",
+      "FROZEN": "已冻结",
+      "REFUNDED": "已退款",
+      "CANCELLED": "已取消"
+    },
+    "ev": {
+      "MISSING": "缺失",
+      "PENDING": "待审",
+      "VERIFIED": "已验证",
+      "FLAGGED": "存疑",
+      "REJECTED": "已拒绝"
+    },
+    "settlement": "以 {currency} 支付 {amount}，汇率 {rate}"
+  },
+  "dd": {
+    "unitPrice": "单价",
+    "route": "航线",
+    "confirmed": "已确认",
+    "notConfirmed": "尚未确认"
+  },
+  "orders": {
+    "quantity": "数量",
+    "incoterm": "贸易术语",
+    "opened": "创建日期"
+  },
+  "led": {
+    "milestone": "里程碑",
+    "amount": "金额",
+    "fx": "外汇付款",
+    "posted": "入账时间",
+    "fxDetail": "{amount}，汇率 {rate}"
+  },
+  "act2": {
+    "confirm": "确认付款计划",
+    "confirmTitle": "确认付款计划？",
+    "confirmBody": "您同意所示的里程碑、金额和证明材料。",
+    "confirmed": "付款计划已确认。"
+  },
+  "dealErr": {
+    "generic": "出错了，请重试。",
+    "FORBIDDEN": "您无权执行此操作。",
+    "NOT_FOUND": "找不到该订单。",
+    "DEAL_NOT_PROPOSED": "没有可确认的付款计划。",
+    "INVALID_TRANSITION": "订单当前状态不允许此步骤。"
+  },
+  "sp": {
+    "orders": "订单",
+    "empty": "暂无订单。",
+    "buyer": "买方：{name}",
+    "back": "全部订单",
+    "orderValue": "订单金额",
+    "secured": "托管中的资金",
+    "nextMilestone": "下一个里程碑",
+    "escrowHeading": "托管状态",
+    "fundsSecured": "托管账户中已确保资金：{amount}",
+    "escrowNote": "模拟数据。证明材料核验通过后，资金按里程碑逐笔支付给您。",
+    "milestones": "付款里程碑",
+    "payments": "已收款项",
+    "noPayments": "尚未收到款项。",
+    "details": "订单详情"
+  }
+}

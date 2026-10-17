@@ -11,6 +11,7 @@ import binascii
 import hashlib
 import json
 import os
+import uuid
 from collections import deque
 from dataclasses import dataclass
 from datetime import UTC, datetime
@@ -228,9 +229,11 @@ def write_audit(
     params: dict[str, Any],
     result: str,
     ts: datetime | None = None,
+    deal_id: "uuid.UUID | None" = None,
 ) -> int:
     """Append one signed, hash-chained row to `audit_log` in the caller's transaction (the caller
     commits). Returns its seq. Only ids and hashes go in: `params` is stored as its hash.
+    `deal_id` is unsigned listing metadata (not part of the hash) for the per-deal activity feed.
 
     Takes a transaction-scoped advisory lock, reads the chain head, and signs with the audit key
     (AUDIT_SIGNING_KEY or the dev key file). Raises if no key is available: no unsigned rows.
@@ -274,6 +277,7 @@ def write_audit(
             entry_hash=digest,
             signature=sign_hash(key, digest),
             key_id=key_id(key.public_key()),
+            deal_id=deal_id,
         )
     )
     db.flush()

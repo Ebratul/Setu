@@ -57,8 +57,16 @@ from app.services import alerts as alert_service
 from app.services import analysis, cashflow, financing, fx_route, scenario
 from app.services.scope import demo_today
 
-ACTIVE = (DealStatus.DRAFT, DealStatus.FUNDED, DealStatus.IN_PRODUCTION, DealStatus.SHIPPED)
-OPEN_MILESTONES = ("PENDING", "READY", "FROZEN")
+ACTIVE = (
+    DealStatus.DRAFT,
+    DealStatus.PROPOSED,
+    DealStatus.CONFIRMED,
+    DealStatus.FUNDED,
+    DealStatus.IN_PRODUCTION,
+    DealStatus.SHIPPED,
+    DealStatus.ARRIVED,
+)
+OPEN_MILESTONES = ("PROPOSED", "PENDING", "READY", "PENDING_APPROVAL", "FROZEN")
 UPCOMING_DAYS = 30
 UPCOMING_MAX = 5
 APP_ROUTE_RE = re.compile(APP_ROUTE_PATTERN)
@@ -91,7 +99,10 @@ def pick_deal(ctx: ToolContext, deal_id: str | None) -> tuple[Deal, bool]:
         select(Deal)
         .where(Deal.buyer_id == ctx.user.party_id, Deal.status.in_(ACTIVE))
         # In-flight deals (funded, in production, shipped) before drafts, newest first.
-        .order_by((Deal.status == DealStatus.DRAFT).asc(), Deal.opened_on.desc())
+        .order_by(
+            Deal.status.in_((DealStatus.DRAFT, DealStatus.PROPOSED, DealStatus.CONFIRMED)).asc(),
+            Deal.opened_on.desc(),
+        )
     ).first()
     if deal is None:
         raise ToolError("needs_deal", "no active deal found; ask which deal")

@@ -42,3 +42,14 @@ def login(client: TestClient, email: str) -> TestClient:
     res = client.post("/auth/demo-login", json={"email": email})
     assert res.status_code == 200, res.text
     return client
+
+
+@pytest.fixture(autouse=True)
+def dev_evidence_enabled(monkeypatch: pytest.MonkeyPatch) -> Iterator[None]:
+    """The dev evidence endpoint is opt-in (ENABLE_DEV_EVIDENCE); API tests turn it on."""
+    from app.config import get_settings
+
+    monkeypatch.setenv("ENABLE_DEV_EVIDENCE", "true")
+    get_settings.cache_clear()
+    yield
+    get_settings.cache_clear()

@@ -1,10 +1,11 @@
 export type Currency = "USD" | "BDT" | "CNY";
-export type FormatLang = "en" | "bn";
+export type FormatLang = "en" | "bn" | "zh";
 
 const SYMBOL: Record<Currency, string> = { USD: "$", BDT: "৳", CNY: "¥" };
 
 function locale(lang: FormatLang) {
-  return lang === "bn" ? "bn-BD" : "en-US";
+  if (lang === "bn") return "bn-BD";
+  return lang === "zh" ? "zh-CN" : "en-US";
 }
 
 type NumericString = `${number}`;

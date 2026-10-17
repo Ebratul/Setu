@@ -23,10 +23,13 @@ from sqlalchemy.orm import Mapped, mapped_column
 
 from app.db.base import Amount, Base, Created, CurrencyCode, Fraction, UUIDPk, str_enum
 from app.db.enums import (
+    ConfirmRole,
     CostKind,
     DealStatus,
     EscrowStatus,
+    EvidenceStatus,
     LedgerDirection,
+    LedgerKind,
     MilestoneStatus,
     MilestoneTrigger,
 )
@@ -66,6 +69,9 @@ class Deal(Base):
     on_time: Mapped[bool | None] = mapped_column(Boolean)
     dispute_count: Mapped[int] = mapped_column(Integer, default=0)
     dispute_reason: Mapped[str | None] = mapped_column(Text)
+    kyb_run_id: Mapped[uuid.UUID | None] = mapped_column(
+        Uuid, ForeignKey("kyb_runs.id", use_alter=True, name="fk_deals_kyb_run_id_kyb_runs")
+    )
     created_at: Mapped[Created]
 
 
@@ -110,13 +116,38 @@ class Milestone(Base):
     status: Mapped[MilestoneStatus] = mapped_column(str_enum(MilestoneStatus, "milestone_status"))
     required_evidence: Mapped[list[str]] = mapped_column(JSONB, default=list)
     released_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    condition_text: Mapped[str | None] = mapped_column(Text)
+    evidence_status: Mapped[EvidenceStatus] = mapped_column(
+        str_enum(EvidenceStatus, "evidence_status"),
+        default=EvidenceStatus.PENDING,
+        server_default=EvidenceStatus.PENDING.value,
+    )
+    release_idempotency_key: Mapped[str | None] = mapped_column(String(80))
+
+
+class MilestoneConfirmation(Base):
+    """One row per party that confirmed the current milestone schedule (reset on re-propose)."""
+
+    __tablename__ = "milestone_confirmations"
+    __table_args__ = (UniqueConstraint("deal_id", "party_role"),)
+
+    id: Mapped[UUIDPk]
+    deal_id: Mapped[uuid.UUID] = mapped_column(Uuid, ForeignKey("deals.id", ondelete="CASCADE"))
+    party_role: Mapped[ConfirmRole] = mapped_column(str_enum(ConfirmRole, "confirm_role"))
+    user_id: Mapped[uuid.UUID | None] = mapped_column(Uuid, ForeignKey("users.id"))
+    confirmed_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
 
 
 class EscrowAccount(Base):
     """Simulated escrow wallet per deal. The buyer funds tranche by tranche before each due date."""
 
     __tablename__ = "escrow_accounts"
-    __table_args__ = (CheckConstraint("balance >= 0", name="balance_non_negative"),)
+    __table_args__ = (
+        CheckConstraint("balance >= 0", name="balance_non_negative"),
+        CheckConstraint(
+            "funded_total = released_total + refunded_total + balance", name="escrow_invariant"
+        ),
+    )
 
     id: Mapped[UUIDPk]
     deal_id: Mapped[uuid.UUID] = mapped_column(
@@ -128,6 +159,13 @@ class EscrowAccount(Base):
     balance: Mapped[Amount]
     status: Mapped[EscrowStatus] = mapped_column(str_enum(EscrowStatus, "escrow_status"))
     simulated: Mapped[bool] = mapped_column(Boolean, default=True)
+    refunded_total: Mapped[Amount] = mapped_column(
+        Numeric(20, 4), default=Decimal("0"), server_default="0"
+    )
+    partner: Mapped[str] = mapped_column(
+        String(80), default="Simulated Escrow Partner", server_default="Simulated Escrow Partner"
+    )
+    advance_over_20k: Mapped[bool] = mapped_column(Boolean, default=False, server_default="false")
 
 
 class LedgerEntry(Base):
@@ -148,6 +186,13 @@ class LedgerEntry(Base):
     memo: Mapped[str] = mapped_column(String(200))
     posted_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
     simulated: Mapped[bool] = mapped_column(Boolean, default=True)
+    kind: Mapped[LedgerKind] = mapped_column(str_enum(LedgerKind, "ledger_kind"))
+    milestone_id: Mapped[uuid.UUID | None] = mapped_column(
+        Uuid, ForeignKey("milestones.id", ondelete="SET NULL")
+    )
+    fx_rate: Mapped[Decimal | None] = mapped_column(Numeric(20, 8))
+    counter_amount: Mapped[Amount | None]
+    counter_currency: Mapped[str | None] = mapped_column(CHAR(3))
 
 
 class SupplierScore(Base):

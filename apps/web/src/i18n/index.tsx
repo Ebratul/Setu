@@ -12,8 +12,9 @@ import {
 
 import bn from "./bn.json";
 import en from "./en.json";
+import zh from "./zh.json";
 
-export type Lang = "en" | "bn";
+export type Lang = "en" | "bn" | "zh";
 type Dict = { [key: string]: string | Dict };
 type Vars = Record<string, string | number>;
 
@@ -31,6 +32,7 @@ function flatten(dict: Dict, prefix = "", out: Record<string, string> = {}) {
 export const messages: Record<Lang, Record<string, string>> = {
   en: flatten(en as Dict),
   bn: flatten(bn as Dict),
+  zh: flatten(zh as Dict),
 };
 
 export function translate(lang: Lang, key: string, vars?: Vars): string {
@@ -49,10 +51,10 @@ const listeners = new Set<() => void>();
 
 function readLang(): Lang {
   const m = document.cookie.match(new RegExp(`(?:^|; )${LANG_COOKIE}=(\\w+)`));
-  if (m?.[1] === "bn" || m?.[1] === "en") return m[1];
+  if (m?.[1] === "bn" || m?.[1] === "en" || m?.[1] === "zh") return m[1];
   try {
     const stored = localStorage.getItem(LANG_COOKIE);
-    if (stored === "bn" || stored === "en") return stored;
+    if (stored === "bn" || stored === "en" || stored === "zh") return stored;
   } catch {
     /* storage unavailable */
   }

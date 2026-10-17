@@ -40,9 +40,12 @@ class AccountStatus(StrEnum):
 
 class DealStatus(StrEnum):
     DRAFT = "DRAFT"
+    PROPOSED = "PROPOSED"
+    CONFIRMED = "CONFIRMED"
     FUNDED = "FUNDED"
     IN_PRODUCTION = "IN_PRODUCTION"
     SHIPPED = "SHIPPED"
+    ARRIVED = "ARRIVED"
     COMPLETED = "COMPLETED"
     DISPUTED = "DISPUTED"
     CANCELLED = "CANCELLED"
@@ -63,12 +66,34 @@ class MilestoneTrigger(StrEnum):
 
 
 class MilestoneStatus(StrEnum):
+    """PROPOSED -> PENDING (locked) -> READY -> PENDING_APPROVAL -> RELEASED | REFUNDED."""
+
+    PROPOSED = "PROPOSED"
     PENDING = "PENDING"
     READY = "READY"
+    PENDING_APPROVAL = "PENDING_APPROVAL"
     RELEASED = "RELEASED"
     FROZEN = "FROZEN"
     REFUNDED = "REFUNDED"
     CANCELLED = "CANCELLED"
+
+
+class EvidenceStatus(StrEnum):
+    PENDING = "PENDING"
+    VERIFIED = "VERIFIED"
+    FLAGGED = "FLAGGED"
+    REJECTED = "REJECTED"
+
+
+class ConfirmRole(StrEnum):
+    BUYER = "BUYER"
+    SUPPLIER = "SUPPLIER"
+
+
+class LedgerKind(StrEnum):
+    FUND = "FUND"
+    RELEASE = "RELEASE"
+    REFUND = "REFUND"
 
 
 class EscrowStatus(StrEnum):

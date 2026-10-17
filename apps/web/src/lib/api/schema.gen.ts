@@ -651,6 +651,232 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/deals": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Deals
+         * @description Deals the caller may see: a buyer's own, a supplier's own, or all for admin and judge.
+         */
+        get: operations["list_deals_deals_get"];
+        put?: never;
+        /**
+         * Create Deal
+         * @description Create a DRAFT deal and run KYB on the supplier for it (buyer or admin).
+         */
+        post: operations["create_deal_deals_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/deals/{deal_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Deal
+         * @description Deal header, KYB, milestones with evidence status, escrow card and `can_*` flags.
+         */
+        get: operations["get_deal_deals__deal_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/deals/{deal_id}/milestones/propose": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Propose
+         * @description Propose the 30/60/10 template or custom percents; resets any confirmations.
+         */
+        post: operations["propose_deals__deal_id__milestones_propose_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/deals/{deal_id}/milestones/confirm": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Confirm
+         * @description Confirm the proposed schedule for your side; the deal is CONFIRMED when both have.
+         */
+        post: operations["confirm_deals__deal_id__milestones_confirm_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/deals/{deal_id}/escrow/fund": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Fund
+         * @description Deposit into the simulated escrow (buyer or admin). Omit `amount` for the next tranche.
+         */
+        post: operations["fund_deals__deal_id__escrow_fund_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/deals/{deal_id}/ledger": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Deal Ledger
+         * @description Simulated double-entry postings of the deal (read-only for supplier and judge).
+         */
+        get: operations["deal_ledger_deals__deal_id__ledger_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/deals/{deal_id}/activity": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Deal Activity
+         * @description Signed audit entries recorded for this deal, newest first.
+         */
+        get: operations["deal_activity_deals__deal_id__activity_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/deals/{deal_id}/refund": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Refund Deal
+         * @description Admin dispute path: return the whole escrow balance to the buyer and cancel the deal.
+         */
+        post: operations["refund_deal_deals__deal_id__refund_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/milestones/{milestone_id}/release": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Release
+         * @description Release a tranche to the supplier (buyer or admin). Idempotent per `idempotency_key`.
+         *     202 when the risk engine requires approval: no money moves until a human approves.
+         */
+        post: operations["release_milestones__milestone_id__release_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/milestones/{milestone_id}/refund": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Refund Milestone
+         * @description Admin dispute path: return one funded, unreleased tranche to the buyer.
+         */
+        post: operations["refund_milestone_milestones__milestone_id__refund_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/milestones/{milestone_id}/evidence": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Set Evidence
+         * @description DEV/TEST ONLY (404 unless ENABLE_DEV_EVIDENCE=true and APP_ENV is not prod): set the
+         *     evidence verdict that Phase 14's document pipeline will set.
+         */
+        post: operations["set_evidence_milestones__milestone_id__evidence_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -691,6 +917,59 @@ export interface components {
             age_days: number;
             /** Verified */
             verified: boolean;
+        };
+        /** ActionFlag */
+        ActionFlag: {
+            /** Allowed */
+            allowed: boolean;
+            /**
+             * Reason
+             * @description Why not, when allowed is false
+             */
+            reason?: string | null;
+        };
+        /** ActivityOut */
+        ActivityOut: {
+            /**
+             * Simulated
+             * @default true
+             * @constant
+             */
+            simulated: true;
+            /**
+             * Deal Id
+             * Format: uuid
+             */
+            deal_id: string;
+            /** Rows */
+            rows: components["schemas"]["ActivityRow"][];
+        };
+        /** ActivityRow */
+        ActivityRow: {
+            /** Seq */
+            seq: number;
+            /**
+             * Ts
+             * Format: date-time
+             */
+            ts: string;
+            /**
+             * Actor
+             * @enum {string}
+             */
+            actor: "user" | "llm" | "system";
+            /** Action */
+            action: string;
+            /** Tier */
+            tier: number;
+            /** Result */
+            result: string;
+            /** Params Hash */
+            params_hash: string;
+            /** Entry Hash */
+            entry_hash: string;
+            /** Key Id */
+            key_id: string;
         };
         /** AlertAction */
         AlertAction: {
@@ -995,6 +1274,26 @@ export interface components {
             application: components["schemas"]["ApplicationOut"];
             alerts: components["schemas"]["RecomputeOut"];
         };
+        /** ApprovalRef */
+        ApprovalRef: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Key */
+            key: string;
+            /** Tier */
+            tier: number;
+            /** Status */
+            status: string;
+            /** Reasons */
+            reasons: string[];
+            /** Otp Required */
+            otp_required: boolean;
+            /** Cooling Off Until */
+            cooling_off_until: string | null;
+        };
         /** Bilingual */
         Bilingual: {
             /** Code */
@@ -1244,6 +1543,28 @@ export interface components {
              */
             security_flags?: string[];
         };
+        /** ConfirmRequest */
+        ConfirmRequest: {
+            /**
+             * Party Role
+             * @description Derived from the signed-in user; admins must say which side.
+             */
+            party_role?: ("BUYER" | "SUPPLIER") | null;
+        };
+        /** ConfirmationOut */
+        ConfirmationOut: {
+            /**
+             * Party Role
+             * @enum {string}
+             */
+            party_role: "BUYER" | "SUPPLIER";
+            /** Confirmed */
+            confirmed: boolean;
+            /** Confirmed At */
+            confirmed_at: string | null;
+            /** Confirmed By */
+            confirmed_by: string | null;
+        };
         /** CostDriverOut */
         CostDriverOut: {
             /**
@@ -1257,6 +1578,29 @@ export interface components {
              * @example 11200.00
              */
             share_pct: string;
+        };
+        /** CostIn */
+        CostIn: {
+            /**
+             * Kind
+             * @enum {string}
+             */
+            kind: "FREIGHT" | "INSURANCE" | "DUTY" | "BANK_CHARGES" | "OTHER";
+            /**
+             * Amount
+             * @example 9600.00
+             */
+            amount: string;
+            /**
+             * Currency
+             * @default USD
+             * @enum {string}
+             */
+            currency: "USD" | "BDT" | "CNY";
+            /** Due On */
+            due_on?: string | null;
+            /** Note */
+            note?: string | null;
         };
         /** CostLine */
         CostLine: {
@@ -1306,19 +1650,59 @@ export interface components {
              */
             share_pct: string;
         };
-        /** CostOut */
-        CostOut: {
-            interest: components["schemas"]["Amounts"];
-            fees: components["schemas"]["Amounts"];
-            uplift: components["schemas"]["Amounts"];
-            flat: components["schemas"]["Amounts"];
-            total: components["schemas"]["Amounts"];
-            per_30_days: components["schemas"]["Amounts"];
+        /** CreateDealRequest */
+        CreateDealRequest: {
             /**
-             * Effective Annual Rate Pct
-             * @example 11200.00
+             * Buyer Id
+             * @description Admin only; a buyer always creates deals for its own business.
              */
-            effective_annual_rate_pct: string;
+            buyer_id?: string | null;
+            /**
+             * Supplier Id
+             * Format: uuid
+             */
+            supplier_id: string;
+            /**
+             * Title
+             * @description The goods
+             */
+            title: string;
+            /**
+             * Hs Code
+             * @default 0000.00
+             */
+            hs_code: string;
+            /**
+             * Quantity
+             * @example 9600.00
+             */
+            quantity: string;
+            /** Unit */
+            unit: string;
+            /**
+             * Unit Price
+             * @example 9600.00
+             */
+            unit_price: string;
+            /**
+             * Currency
+             * @default USD
+             * @enum {string}
+             */
+            currency: "USD" | "CNY";
+            /**
+             * Incoterm
+             * @default FOB
+             */
+            incoterm: string;
+            /** Port Of Loading */
+            port_of_loading: string;
+            /** Port Of Discharge */
+            port_of_discharge: string;
+            /** Expected Sale Value */
+            expected_sale_value?: string | null;
+            /** Costs */
+            costs?: components["schemas"]["CostIn"][];
         };
         /** DashboardDeal */
         DashboardDeal: {
@@ -1331,7 +1715,7 @@ export interface components {
             /** Supplier Name */
             supplier_name: string;
             goods_value: components["schemas"]["Amounts"];
-            next_milestone: components["schemas"]["NextMilestone"] | null;
+            next_milestone: components["schemas"]["app__schemas__cashflow__NextMilestone"] | null;
         };
         /** DashboardMonth */
         DashboardMonth: {
@@ -1450,6 +1834,207 @@ export interface components {
             /** Items */
             items: components["schemas"]["FlowOut"][];
         };
+        /** DealActions */
+        DealActions: {
+            can_propose: components["schemas"]["ActionFlag"];
+            can_confirm: components["schemas"]["ActionFlag"];
+            can_fund: components["schemas"]["ActionFlag"];
+            can_release: components["schemas"]["ActionFlag"];
+            can_refund: components["schemas"]["ActionFlag"];
+        };
+        /** DealDetail */
+        DealDetail: {
+            /**
+             * Simulated
+             * @default true
+             * @constant
+             */
+            simulated: true;
+            /**
+             * Viewer Role
+             * @enum {string}
+             */
+            viewer_role: "BUYER" | "SUPPLIER" | "ADMIN" | "JUDGE";
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Reference */
+            reference: string;
+            /** Title */
+            title: string;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "DRAFT" | "PROPOSED" | "CONFIRMED" | "FUNDED" | "IN_PRODUCTION" | "SHIPPED" | "ARRIVED" | "COMPLETED" | "DISPUTED" | "CANCELLED";
+            /**
+             * Buyer Id
+             * Format: uuid
+             */
+            buyer_id: string;
+            /** Buyer Name */
+            buyer_name: string;
+            /**
+             * Supplier Id
+             * Format: uuid
+             */
+            supplier_id: string;
+            /** Supplier Name */
+            supplier_name: string;
+            /** Beneficiary Account Id */
+            beneficiary_account_id: string | null;
+            /** Beneficiary Masked */
+            beneficiary_masked: string | null;
+            /** Settlement Currency */
+            settlement_currency: ("USD" | "BDT" | "CNY") | null;
+            /** Hs Code */
+            hs_code: string;
+            /**
+             * Quantity
+             * @example 11200.00
+             */
+            quantity: string;
+            /** Unit */
+            unit: string;
+            /**
+             * Unit Price
+             * @example 11200.00
+             */
+            unit_price: string;
+            /**
+             * Currency
+             * @enum {string}
+             */
+            currency: "USD" | "BDT" | "CNY";
+            /**
+             * Goods Value
+             * @example 11200.00
+             */
+            goods_value: string;
+            /** Incoterm */
+            incoterm: string;
+            /** Port Of Loading */
+            port_of_loading: string;
+            /** Port Of Discharge */
+            port_of_discharge: string;
+            /** Expected Sale Value */
+            expected_sale_value: string | null;
+            /**
+             * Opened On
+             * Format: date
+             */
+            opened_on: string;
+            /** Funded On */
+            funded_on: string | null;
+            /** Completed On */
+            completed_on: string | null;
+            /** Dispute Count */
+            dispute_count: number;
+            /** Dispute Reason */
+            dispute_reason: string | null;
+            /** Costs */
+            costs: components["schemas"]["app__schemas__deals__CostOut"][];
+            kyb: components["schemas"]["KybSummary"];
+            /** Milestones */
+            milestones: components["schemas"]["MilestoneOut"][];
+            /** Confirmations */
+            confirmations: components["schemas"]["ConfirmationOut"][];
+            escrow: components["schemas"]["EscrowCard"];
+            next_milestone: components["schemas"]["app__schemas__deals__NextMilestone"] | null;
+            can: components["schemas"]["DealActions"];
+        };
+        /** DealList */
+        DealList: {
+            /**
+             * Simulated
+             * @default true
+             * @constant
+             */
+            simulated: true;
+            /**
+             * Viewer Role
+             * @enum {string}
+             */
+            viewer_role: "BUYER" | "SUPPLIER" | "ADMIN" | "JUDGE";
+            /** Deals */
+            deals: components["schemas"]["DealListItem"][];
+        };
+        /** DealListItem */
+        DealListItem: {
+            /**
+             * Simulated
+             * @default true
+             * @constant
+             */
+            simulated: true;
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Reference */
+            reference: string;
+            /** Title */
+            title: string;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "DRAFT" | "PROPOSED" | "CONFIRMED" | "FUNDED" | "IN_PRODUCTION" | "SHIPPED" | "ARRIVED" | "COMPLETED" | "DISPUTED" | "CANCELLED";
+            /**
+             * Buyer Id
+             * Format: uuid
+             */
+            buyer_id: string;
+            /** Buyer Name */
+            buyer_name: string;
+            /**
+             * Supplier Id
+             * Format: uuid
+             */
+            supplier_id: string;
+            /** Supplier Name */
+            supplier_name: string;
+            /**
+             * Goods Value
+             * @example 11200.00
+             */
+            goods_value: string;
+            /**
+             * Currency
+             * @enum {string}
+             */
+            currency: "USD" | "BDT" | "CNY";
+            /**
+             * Opened On
+             * Format: date
+             */
+            opened_on: string;
+            /**
+             * Funded
+             * @example 11200.00
+             */
+            funded: string;
+            /**
+             * Released
+             * @example 11200.00
+             */
+            released: string;
+            /**
+             * Balance
+             * @example 11200.00
+             */
+            balance: string;
+            /** Milestones Total */
+            milestones_total: number;
+            /** Milestones Released */
+            milestones_released: number;
+            next_milestone: components["schemas"]["app__schemas__deals__NextMilestone"] | null;
+            /** Supplier Kyb Status */
+            supplier_kyb_status: string;
+        };
         /** DealRef */
         DealRef: {
             /** Reference */
@@ -1459,6 +2044,11 @@ export interface components {
             /** Supplier Name */
             supplier_name: string;
         };
+        /**
+         * DealStatus
+         * @enum {string}
+         */
+        DealStatus: "DRAFT" | "PROPOSED" | "CONFIRMED" | "FUNDED" | "IN_PRODUCTION" | "SHIPPED" | "ARRIVED" | "COMPLETED" | "DISPUTED" | "CANCELLED";
         /** DealSummary */
         DealSummary: {
             /**
@@ -1556,6 +2146,93 @@ export interface components {
             demo: true;
             /** Users */
             users: components["schemas"]["DemoUserOut"][];
+        };
+        /** EscrowCard */
+        EscrowCard: {
+            /**
+             * Simulated
+             * @default true
+             * @constant
+             */
+            simulated: true;
+            /**
+             * Deal Id
+             * Format: uuid
+             */
+            deal_id: string;
+            /** Exists */
+            exists: boolean;
+            /**
+             * Currency
+             * @enum {string}
+             */
+            currency: "USD" | "BDT" | "CNY";
+            /** Partner */
+            partner: string;
+            /** Status */
+            status: string;
+            /**
+             * Funded
+             * @example 11200.00
+             */
+            funded: string;
+            /**
+             * Released
+             * @example 11200.00
+             */
+            released: string;
+            /**
+             * Refunded
+             * @example 11200.00
+             */
+            refunded: string;
+            /**
+             * Balance
+             * @example 11200.00
+             */
+            balance: string;
+            /**
+             * Remaining To Fund
+             * @example 11200.00
+             */
+            remaining_to_fund: string;
+            /** Advance Over 20K */
+            advance_over_20k: boolean;
+            /** Invariant Ok */
+            invariant_ok: boolean;
+        };
+        /** EvidenceItem */
+        EvidenceItem: {
+            /** Doc Type */
+            doc_type: string;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "MISSING" | "PENDING" | "VERIFIED" | "FLAGGED" | "REJECTED";
+            /**
+             * Documents
+             * @description Uploaded documents of this type for the milestone
+             */
+            documents: number;
+        };
+        /** EvidenceRequest */
+        EvidenceRequest: {
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "PENDING" | "VERIFIED" | "FLAGGED" | "REJECTED";
+        };
+        /** EvidenceResult */
+        EvidenceResult: {
+            /**
+             * Simulated
+             * @default true
+             * @constant
+             */
+            simulated: true;
+            milestone: components["schemas"]["MilestoneOut"];
         };
         /** Explanation */
         Explanation: {
@@ -1786,6 +2463,14 @@ export interface components {
             weekly: components["schemas"]["WeekOut"][];
             /** Facts */
             facts: string[];
+        };
+        /** FundRequest */
+        FundRequest: {
+            /**
+             * Amount
+             * @description Deposit in the deal currency. Omit for the next uncovered tranche.
+             */
+            amount?: string | null;
         };
         /** FxCompareCard */
         FxCompareCard: {
@@ -2249,6 +2934,21 @@ export interface components {
             /** History */
             history: components["schemas"]["KybHistoryItem"][];
         };
+        /** KybSummary */
+        KybSummary: {
+            /** Status */
+            status: string;
+            /** Score */
+            score: number | null;
+            /** Run Id */
+            run_id: string | null;
+            /** Checked At */
+            checked_at: string | null;
+            /** Reason Codes */
+            reason_codes: string[];
+            /** Supplier Route */
+            supplier_route: string;
+        };
         /** KybThresholds */
         KybThresholds: {
             /** Match */
@@ -2382,6 +3082,78 @@ export interface components {
             /** Target Margin Pct */
             target_margin_pct?: string | null;
         };
+        /** LedgerOut */
+        LedgerOut: {
+            /**
+             * Simulated
+             * @default true
+             * @constant
+             */
+            simulated: true;
+            /**
+             * Deal Id
+             * Format: uuid
+             */
+            deal_id: string;
+            /** Reference */
+            reference: string;
+            /** Rows */
+            rows: components["schemas"]["LedgerRow"][];
+            /** Balanced */
+            balanced: boolean;
+            escrow: components["schemas"]["EscrowCard"];
+        };
+        /** LedgerRow */
+        LedgerRow: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Txn Ref */
+            txn_ref: string;
+            /**
+             * Kind
+             * @enum {string}
+             */
+            kind: "FUND" | "RELEASE" | "REFUND";
+            /** Account */
+            account: string;
+            /**
+             * Direction
+             * @enum {string}
+             */
+            direction: "DEBIT" | "CREDIT";
+            /**
+             * Amount
+             * @example 11200.00
+             */
+            amount: string;
+            /**
+             * Currency
+             * @enum {string}
+             */
+            currency: "USD" | "BDT" | "CNY";
+            /** Memo */
+            memo: string;
+            /**
+             * Posted At
+             * Format: date-time
+             */
+            posted_at: string;
+            /** Milestone Id */
+            milestone_id: string | null;
+            /** Milestone Seq */
+            milestone_seq: number | null;
+            /** Fx Rate */
+            fx_rate: string | null;
+            /** Counter Amount */
+            counter_amount: string | null;
+            /** Counter Currency */
+            counter_currency: ("USD" | "BDT" | "CNY") | null;
+            /** Simulated */
+            simulated: boolean;
+        };
         /** LoanIn */
         LoanIn: {
             /**
@@ -2496,6 +3268,73 @@ export interface components {
              * @description For tool messages that produced a card.
              */
             card?: (components["schemas"]["CitationsCard"] | components["schemas"]["LandedCostCard"] | components["schemas"]["CashflowCard"] | components["schemas"]["AlertsCard"] | components["schemas"]["FinancingComparisonCard"] | components["schemas"]["FxCompareCard"] | components["schemas"]["MonthlySummaryCard"] | components["schemas"]["ScorecardCard"] | components["schemas"]["KybCard"]) | null;
+        };
+        /** MilestoneActions */
+        MilestoneActions: {
+            can_release: components["schemas"]["ActionFlag"];
+            can_refund: components["schemas"]["ActionFlag"];
+        };
+        /** MilestoneOut */
+        MilestoneOut: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Seq */
+            seq: number;
+            /**
+             * Trigger
+             * @enum {string}
+             */
+            trigger: "PRODUCTION_START" | "SHIPMENT" | "ARRIVAL";
+            /**
+             * Percent
+             * @description Fraction, 0.300000 = 30 %
+             * @example 11200.00
+             */
+            percent: string;
+            /** Percent Label */
+            percent_label: string;
+            /**
+             * Amount
+             * @example 11200.00
+             */
+            amount: string;
+            /**
+             * Currency
+             * @enum {string}
+             */
+            currency: "USD" | "BDT" | "CNY";
+            /** Condition Text */
+            condition_text: string;
+            /** Required Evidence */
+            required_evidence: components["schemas"]["EvidenceItem"][];
+            /**
+             * Evidence Status
+             * @enum {string}
+             */
+            evidence_status: "PENDING" | "VERIFIED" | "FLAGGED" | "REJECTED";
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "PROPOSED" | "PENDING" | "READY" | "PENDING_APPROVAL" | "RELEASED" | "FROZEN" | "REFUNDED" | "CANCELLED";
+            /**
+             * Due On
+             * Format: date
+             */
+            due_on: string;
+            /** Released At */
+            released_at: string | null;
+            /**
+             * Funded
+             * @description Covered by the money deposited in escrow so far
+             */
+            funded: boolean;
+            settlement: components["schemas"]["SettlementOut"] | null;
+            approval: components["schemas"]["ApprovalRef"] | null;
+            can: components["schemas"]["MilestoneActions"];
         };
         /** MonthPoint */
         MonthPoint: {
@@ -2663,21 +3502,6 @@ export interface components {
              */
             on: string;
         };
-        /** NextMilestone */
-        NextMilestone: {
-            /** Seq */
-            seq: number;
-            /** Trigger */
-            trigger: string;
-            amount: components["schemas"]["Amounts"];
-            /**
-             * Due On
-             * Format: date
-             */
-            due_on: string;
-            /** Status */
-            status: string;
-        };
         /** OptionQuote */
         OptionQuote: {
             /**
@@ -2712,7 +3536,7 @@ export interface components {
              */
             maturity_on: string;
             principal: components["schemas"]["Amounts"];
-            cost: components["schemas"]["CostOut"];
+            cost: components["schemas"]["app__schemas__financing__CostOut"];
             /** Collateral */
             collateral: string;
             /** Conditions */
@@ -2835,6 +3659,20 @@ export interface components {
              */
             closing: string;
         };
+        /** ProposeRequest */
+        ProposeRequest: {
+            /**
+             * Template
+             * @default 30/60/10
+             * @enum {string}
+             */
+            template: "30/60/10" | "custom";
+            /**
+             * Percents
+             * @description Percentages, e.g. ["40", "40", "20"]; custom only.
+             */
+            percents?: string[] | null;
+        };
         /** Recommendation */
         Recommendation: {
             /** Code */
@@ -2876,6 +3714,81 @@ export interface components {
             resolved: number;
             /** Open */
             open: number;
+        };
+        /** RefundRequest */
+        RefundRequest: {
+            /** Reason */
+            reason: string;
+        };
+        /** RefundResult */
+        RefundResult: {
+            /**
+             * Simulated
+             * @default true
+             * @constant
+             */
+            simulated: true;
+            /**
+             * Refunded Amount
+             * @example 11200.00
+             */
+            refunded_amount: string;
+            /**
+             * Currency
+             * @enum {string}
+             */
+            currency: "USD" | "BDT" | "CNY";
+            /** Ledger */
+            ledger: components["schemas"]["LedgerRow"][];
+            deal: components["schemas"]["DealDetail"];
+        };
+        /** ReleaseRequest */
+        ReleaseRequest: {
+            /**
+             * Idempotency Key
+             * @example rel-m1-0001
+             */
+            idempotency_key: string;
+        };
+        /** ReleaseResult */
+        ReleaseResult: {
+            /**
+             * Simulated
+             * @default true
+             * @constant
+             */
+            simulated: true;
+            /**
+             * Outcome
+             * @enum {string}
+             */
+            outcome: "RELEASED" | "PENDING_APPROVAL";
+            /** Idempotent Replay */
+            idempotent_replay: boolean;
+            milestone: components["schemas"]["MilestoneOut"];
+            /** Ledger */
+            ledger: components["schemas"]["LedgerRow"][];
+            approval: components["schemas"]["ApprovalRef"] | null;
+            /** @description Absent on an idempotent replay */
+            risk: components["schemas"]["RiskOut"] | null;
+            /**
+             * Notice
+             * @description Tier 1 releases carry a notice for the buyer
+             */
+            notice: string | null;
+            deal: components["schemas"]["DealDetail"];
+        };
+        /** RiskOut */
+        RiskOut: {
+            /**
+             * Decision
+             * @enum {string}
+             */
+            decision: "ALLOW" | "REQUIRE_APPROVAL" | "BLOCK";
+            /** Tier */
+            tier: number;
+            /** Reasons */
+            reasons: string[];
         };
         /** Route */
         Route: {
@@ -2985,7 +3898,7 @@ export interface components {
              * Format: date
              */
             maturity_on: string;
-            cost: components["schemas"]["CostOut"];
+            cost: components["schemas"]["app__schemas__financing__CostOut"];
             /** Instalments */
             instalments: components["schemas"]["InstalmentOut"][];
         };
@@ -3029,6 +3942,18 @@ export interface components {
             window_months: number;
             /** Suppliers */
             suppliers: components["schemas"]["SupplierItem"][];
+        };
+        /** SettlementOut */
+        SettlementOut: {
+            /**
+             * Currency
+             * @enum {string}
+             */
+            currency: "USD" | "BDT" | "CNY";
+            /** Fx Rate */
+            fx_rate: string | null;
+            /** Counter Amount */
+            counter_amount: string | null;
         };
         /** Shortfall */
         Shortfall: {
@@ -3425,6 +4350,92 @@ export interface components {
             source_id: string;
             /** Codes */
             codes: string[];
+        };
+        /** NextMilestone */
+        app__schemas__cashflow__NextMilestone: {
+            /** Seq */
+            seq: number;
+            /** Trigger */
+            trigger: string;
+            amount: components["schemas"]["Amounts"];
+            /**
+             * Due On
+             * Format: date
+             */
+            due_on: string;
+            /** Status */
+            status: string;
+        };
+        /** CostOut */
+        app__schemas__deals__CostOut: {
+            /**
+             * Kind
+             * @enum {string}
+             */
+            kind: "FREIGHT" | "INSURANCE" | "DUTY" | "BANK_CHARGES" | "OTHER";
+            /**
+             * Amount
+             * @example 11200.00
+             */
+            amount: string;
+            /**
+             * Currency
+             * @enum {string}
+             */
+            currency: "USD" | "BDT" | "CNY";
+            /** Due On */
+            due_on: string | null;
+            /** Note */
+            note: string | null;
+        };
+        /** NextMilestone */
+        app__schemas__deals__NextMilestone: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Seq */
+            seq: number;
+            /**
+             * Amount
+             * @example 11200.00
+             */
+            amount: string;
+            /**
+             * Currency
+             * @enum {string}
+             */
+            currency: "USD" | "BDT" | "CNY";
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "PROPOSED" | "PENDING" | "READY" | "PENDING_APPROVAL" | "RELEASED" | "FROZEN" | "REFUNDED" | "CANCELLED";
+            /**
+             * Due On
+             * Format: date
+             */
+            due_on: string;
+            /**
+             * Trigger
+             * @enum {string}
+             */
+            trigger: "PRODUCTION_START" | "SHIPMENT" | "ARRIVAL";
+        };
+        /** CostOut */
+        app__schemas__financing__CostOut: {
+            interest: components["schemas"]["Amounts"];
+            fees: components["schemas"]["Amounts"];
+            uplift: components["schemas"]["Amounts"];
+            flat: components["schemas"]["Amounts"];
+            total: components["schemas"]["Amounts"];
+            per_30_days: components["schemas"]["Amounts"];
+            /**
+             * Effective Annual Rate Pct
+             * @example 11200.00
+             */
+            effective_annual_rate_pct: string;
         };
     };
     responses: never;
@@ -4492,6 +5503,417 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["SupplierProfile"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_deals_deals_get: {
+        parameters: {
+            query?: {
+                status?: components["schemas"]["DealStatus"] | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DealList"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_deal_deals_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateDealRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DealDetail"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_deal_deals__deal_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                deal_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DealDetail"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    propose_deals__deal_id__milestones_propose_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                deal_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ProposeRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DealDetail"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    confirm_deals__deal_id__milestones_confirm_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                deal_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ConfirmRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DealDetail"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    fund_deals__deal_id__escrow_fund_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                deal_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["FundRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DealDetail"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    deal_ledger_deals__deal_id__ledger_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                deal_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LedgerOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    deal_activity_deals__deal_id__activity_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                deal_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ActivityOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    refund_deal_deals__deal_id__refund_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                deal_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RefundRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RefundResult"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    release_milestones__milestone_id__release_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                milestone_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ReleaseRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReleaseResult"];
+                };
+            };
+            /** @description Waiting for human approval */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReleaseResult"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    refund_milestone_milestones__milestone_id__refund_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                milestone_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RefundRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RefundResult"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    set_evidence_milestones__milestone_id__evidence_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                milestone_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["EvidenceRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EvidenceResult"];
                 };
             };
             /** @description Validation Error */

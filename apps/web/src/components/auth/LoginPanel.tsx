@@ -11,8 +11,11 @@ import { useT } from "@/i18n";
 import { demoLogin, getDemoUsers } from "@/lib/api/auth";
 import { useApi } from "@/lib/useApi";
 
-function safeNext(next: string | null) {
-  return next && next.startsWith("/app") ? next : "/app";
+function safeNext(next: string | null, role: string) {
+  if (role === "SUPPLIER") {
+    return next && /^\/supplier(\/|$)/.test(next) ? next : "/supplier";
+  }
+  return next && /^\/app(\/|$)/.test(next) ? next : "/app";
 }
 
 export function LoginPanel() {
@@ -27,8 +30,8 @@ export function LoginPanel() {
     setPending(email);
     setFailed(false);
     try {
-      await demoLogin(email);
-      router.replace(safeNext(params.get("next")));
+      const user = await demoLogin(email);
+      router.replace(safeNext(params.get("next"), user.role));
     } catch {
       setFailed(true);
       setPending(null);

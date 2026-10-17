@@ -11,7 +11,7 @@ export function OrderAnalysisPage({ reference }: { reference: string }) {
   return (
     <div className="space-y-4">
       <Link
-        href={`/app/orders/${reference}`}
+        href={`/app/deals/${reference}`}
         className="text-sm font-semibold text-brand-700 underline focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:outline-none"
       >
         ← {reference}
