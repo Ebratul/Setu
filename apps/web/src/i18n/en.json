@@ -37,7 +37,8 @@
     "cashflow": "Cash Flow",
     "financing": "Financing",
     "chat": "Chat",
-    "suppliers": "Suppliers"
+    "suppliers": "Suppliers",
+    "registry": "Registry"
   },
   "role": {
     "BUYER": "Buyer",
@@ -505,7 +506,8 @@
       "repay": "Repayment",
       "lowestBefore": "Lowest balance without",
       "lowestAfter": "Lowest balance with"
-    }
+    },
+    "registryBlocked": "Blocked: invoice already financed"
   },
   "approvals": {
     "title": "Approvals",
@@ -664,7 +666,8 @@
       "note": "Simplified summaries — verify with the official source.",
       "reviewed": "Last reviewed {date}",
       "withheld": "Some passages were withheld because they contained instruction-like text."
-    }
+    },
+    "card.registry": "Registry · {ref}"
   },
   "sup": {
     "title": "Suppliers",
@@ -998,7 +1001,8 @@
     "BUYER_REQUIRED": "Only the buyer can do this.",
     "NOT_REFUNDABLE": "This milestone cannot be refunded.",
     "NOTHING_TO_REFUND": "There is nothing to refund.",
-    "DOCUMENTS_PENDING": "Some documents are still being checked, so the payment cannot be released yet. Try again in a moment."
+    "DOCUMENTS_PENDING": "Some documents are still being checked, so the payment cannot be released yet. Try again in a moment.",
+    "INVOICE_ALREADY_FINANCED": "This invoice is already financed with another lender, so a second financing cannot be placed on it."
   },
   "sp": {
     "orders": "Orders",
@@ -1198,5 +1202,81 @@
       "confirm": "Accept as reference"
     },
     "checkFailed": "The check could not finish. Use Re-check to try again."
+  },
+  "reg": {
+    "purpose": {
+      "ESCROW_EVIDENCE": "Escrow evidence",
+      "FINANCING_COLLATERAL": "Financing collateral"
+    },
+    "purposeLower": {
+      "ESCROW_EVIDENCE": "escrow evidence",
+      "FINANCING_COLLATERAL": "financing collateral"
+    },
+    "state": {
+      "REGISTERED": "Registered",
+      "DUPLICATE": "Duplicate",
+      "NOT_REGISTERED": "Not registered"
+    },
+    "box": {
+      "title": "Registry",
+      "registered": "Registered on {date} as {purpose}",
+      "registeredWith": "Registered on {date} as {purpose} with {lender}",
+      "dupExact": "Duplicate: exact copy of a document already registered as {purpose} on {date}",
+      "dupExactWith": "Duplicate: exact copy of a document already registered as {purpose} with {lender} on {date}",
+      "dupNear": "Duplicate: near copy (re-saved) of a document already registered as {purpose} on {date}",
+      "dupNearWith": "Duplicate: near copy (re-saved) of a document already registered as {purpose} with {lender} on {date}",
+      "notRegistered": "Not registered yet"
+    },
+    "card": {
+      "dup": "{purpose} with {holder} on {date}",
+      "dupNoHolder": "{purpose} on {date}",
+      "reg": "Registered as {purpose} on {date}",
+      "none": "Not registered yet"
+    },
+    "demo": {
+      "title": "Demo: double-financing check",
+      "intro": "Show what happens when this invoice is offered to another lender.",
+      "button": "Try to finance this invoice at Lender B",
+      "busy": "Checking with Lender B…",
+      "noInvoice": "This deal has no invoice document to check yet.",
+      "error": "The registry check failed. Please try again.",
+      "blockedTitle": "Blocked",
+      "blocked": "Lender B would reject this: the invoice is already registered as {purpose} (held by {holder}) since {date}. Setu's shared registry prevents double financing.",
+      "blockedNoHolder": "Lender B would reject this: the invoice is already registered as {purpose} since {date}. Setu's shared registry prevents double financing.",
+      "clearTitle": "No conflict found",
+      "clear": "Lender B would find no existing claim on this invoice."
+    },
+    "admin": {
+      "title": "Document hash registry",
+      "intro": "Every invoice and evidence document is fingerprinted once, so the same document cannot be financed twice.",
+      "duplicates": "Duplicates caught",
+      "exact": "Exact copies",
+      "near": "Near copies",
+      "entries": "Entries",
+      "active": "Active",
+      "released": "Released",
+      "filters": "Filters",
+      "status": "Status",
+      "result": "Duplicates caught",
+      "all": "All",
+      "statusActive": "Active",
+      "statusReleased": "Released",
+      "resultExact": "Exact",
+      "resultNear": "Near",
+      "table": "Registry entries",
+      "hash": "Hash",
+      "docType": "Document",
+      "purpose": "Purpose",
+      "lender": "Lender",
+      "deal": "Deal",
+      "registered": "Registered",
+      "seen": "Seen",
+      "hits": "Hits (exact / near)",
+      "empty": "No registry entries match these filters.",
+      "range": "Showing {from}–{to} of {total}",
+      "prev": "Previous",
+      "next": "Next",
+      "pagination": "Pagination"
+    }
   }
 }

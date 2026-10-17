@@ -14,6 +14,7 @@ when the problem returns (or got worse after a user resolved it).
 import uuid
 from collections.abc import Sequence
 from dataclasses import replace
+from datetime import date
 from typing import Any
 
 from sqlalchemy import case, select
@@ -599,6 +600,85 @@ def sync_document_alert(
                 "query": {},
             },
             "engine": "forensics-v1",
+        },
+    }
+    if row is None:
+        db.add(
+            Alert(
+                id=uuid.uuid5(uuid.NAMESPACE_URL, f"setu:{key}"),
+                key=key,
+                status=AlertStatus.OPEN,
+                **values,
+            )
+        )
+        db.flush()
+        return "created"
+    if row.status == AlertStatus.RESOLVED:
+        row.status = AlertStatus.OPEN
+    for k, v in values.items():
+        if getattr(row, k) != v:
+            setattr(row, k, v)
+    db.flush()
+    return "updated"
+
+
+PURPOSE_LABELS = {
+    "FINANCING_COLLATERAL": ("financing collateral", "ঋণের জামানত"),
+    "ESCROW_EVIDENCE": ("escrow evidence", "এসক্রো প্রমাণ"),
+}
+
+
+def registry_alert_key(deal_id: uuid.UUID, scope: str) -> str:
+    return f"alert:fraud:registry:{deal_id}:{scope}"[:80]
+
+
+def raise_registry_alert(
+    db: Session,
+    deal: Deal,
+    *,
+    scope: str,
+    result: str,
+    purpose: str,
+    holder: str | None,
+    registered_on: date,
+    doc_type: str,
+) -> str:
+    """FRAUD alert for an attempt to finance an invoice the hash registry already holds elsewhere
+    (one per deal and target, idempotent, reopened by a repeat). Codes and labels only, no
+    document text. Returns "created" | "updated". The caller commits."""
+    key = registry_alert_key(deal.id, scope)
+    row = db.scalar(select(Alert).where(Alert.key == key))
+    doc_en, doc_bn = DOC_TYPE_LABELS.get(doc_type, DOC_TYPE_LABELS["OTHER"])
+    use_en, use_bn = PURPOSE_LABELS.get(purpose, PURPOSE_LABELS["ESCROW_EVIDENCE"])
+    who_en = f" with {holder}" if holder else ""
+    who_bn = f" ({holder})" if holder else ""
+    kind_en = "copy" if result == "NEAR_DUPLICATE" else "exact copy"
+    values: dict[str, Any] = {
+        "party_id": deal.buyer_id,
+        "deal_id": deal.id,
+        "milestone_id": None,
+        "type": AlertType.FRAUD,
+        "severity": Severity.CRITICAL,
+        "title_en": f"Duplicate financing blocked: {deal.reference}"[:200],
+        "title_bn": f"দ্বৈত অর্থায়ন আটকানো হয়েছে: {deal.reference}"[:200],
+        "message_en": f"The {doc_en} of {deal.reference} is a {kind_en} of a document already "
+        f"registered as {use_en}{who_en} on {registered_on.isoformat()}. It cannot back a second "
+        "financing. Review before any further action.",
+        "message_bn": bn(
+            f"{deal.reference}-এর {doc_bn} ইতিমধ্যে {registered_on.isoformat()} তারিখে "
+            f"{use_bn}{who_bn} হিসেবে নিবন্ধিত নথির প্রতিলিপি। এটি দ্বিতীয় অর্থায়নের "
+            "জামানত হতে পারে না। পরবর্তী পদক্ষেপের আগে পর্যালোচনা করুন।"
+        ),
+        "amount": None,
+        "currency": None,
+        "due_on": None,
+        "facts": {
+            "deal_ref": deal.reference,
+            "result": result,
+            "purpose": purpose,
+            "registered_on": registered_on.isoformat(),
+            "action": {"code": "REVIEW_DEAL", "route": f"/app/deals/{deal.id}", "query": {}},
+            "engine": "registry-v1",
         },
     }
     if row is None:

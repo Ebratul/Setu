@@ -105,6 +105,12 @@ export function validateCard(v: unknown): ChatCardData | null {
         d.documents.every(isObj) &&
         (d.focus == null || (isObj(d.focus) && isArr(d.focus.reasons)));
       break;
+    case "registry":
+      ok =
+        typeof d.deal_ref === "string" &&
+        typeof d.route === "string" &&
+        ["REGISTERED", "DUPLICATE", "NOT_REGISTERED"].includes(d.state as string);
+      break;
     case "citations":
       ok = isArr(d.snippets) && isArr(d.withheld);
       break;

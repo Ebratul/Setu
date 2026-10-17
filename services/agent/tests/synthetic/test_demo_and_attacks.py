@@ -64,8 +64,10 @@ def test_demo_files_exist() -> None:
 
 def test_prefinanced_invoice_sha_equals_seeded_hash_registry() -> None:
     rows = dict(build_documents(Ctx(today=date(2026, 10, 20))))
-    registry = rows[HashRegistry]
+    all_rows = rows[HashRegistry]
+    registry = [r for r in all_rows if r["purpose"].value == "FINANCING_COLLATERAL"]
     assert len(registry) == 1 and registry[0]["external_ref"] == "MCB-IMPLOAN-2026-0412"
+    assert {r["purpose"].value for r in all_rows} == {"FINANCING_COLLATERAL", "ESCROW_EVIDENCE"}
     assert registry[0]["sha256"] == sha(DEMO / "prefinanced_invoice.pdf")
     pi_row = next(d for d in rows[Document] if d["file_name"] == "proforma_invoice.pdf")
     assert pi_row["sha256"] == registry[0]["sha256"]

@@ -233,3 +233,13 @@ class FinancingApplicationStatus(StrEnum):
     APPROVED = "APPROVED"
     REJECTED = "REJECTED"
     CANCELLED = "CANCELLED"
+
+
+class RegistryPurpose(StrEnum):
+    ESCROW_EVIDENCE = "ESCROW_EVIDENCE"
+    FINANCING_COLLATERAL = "FINANCING_COLLATERAL"
+
+
+class RegistryStatus(StrEnum):
+    ACTIVE = "ACTIVE"
+    RELEASED = "RELEASED"

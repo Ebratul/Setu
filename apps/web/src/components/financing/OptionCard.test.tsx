@@ -103,4 +103,36 @@ describe("OptionCard", () => {
     expect(within(card).queryByRole("button", { name: /Apply/ })).toBeNull();
     expect(within(card).queryByText("Recommended")).toBeNull();
   });
+  it("shows a blocked option with the localized reason, no actions and no recommendation", () => {
+    render(
+      <OptionCard
+        option={option({
+          eligible: false,
+          recommended: false,
+          registry_block: {
+            code: "INVOICE_ALREADY_FINANCED",
+            result: "EXACT_DUPLICATE",
+            purpose: "FINANCING_COLLATERAL",
+            holder: "Lender A",
+            registered_on: "2026-10-01",
+            reason_en: "This invoice is already financed with Lender A.",
+            reason_bn: "এই ইনভয়েস ইতিমধ্যে ঋণদাতা এ-এর কাছে অর্থায়িত।",
+          },
+          why_not: [
+            { code: "INVOICE_ALREADY_FINANCED", ok: false, en: "dup en", bn: "dup bn", params: {} },
+          ],
+        })}
+        pick={pick}
+        currency="USD"
+        {...handlers}
+      />,
+    );
+    const card = screen.getByTestId("option-card");
+    expect(card).toHaveAttribute("data-blocked", "true");
+    expect(card).toHaveAttribute("data-recommended", "false");
+    expect(within(card).getByText("Blocked: invoice already financed")).toBeInTheDocument();
+    expect(within(card).getByTestId("registry-block")).toHaveTextContent("already financed with Lender A");
+    expect(within(card).queryByText("dup en")).toBeNull();
+    expect(within(card).queryByRole("button", { name: /Apply/ })).toBeNull();
+  });
 });

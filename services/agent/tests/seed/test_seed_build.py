@@ -98,7 +98,7 @@ def test_registry_hash_matches_pi_document(ctx: Ctx) -> None:
     (_, docs), _, (_, registry) = build_documents(ctx)
     pi = next(d for d in docs if d["doc_type"] == "PROFORMA_INVOICE")
     assert registry[0]["sha256"] == pi["sha256"]
-    assert registry[0]["canonical_hash"] == pi["canonical_hash"]
+    assert registry[0]["semantic_fingerprint"] == pi["canonical_hash"]
 
 
 def test_all_deal_statuses_present() -> None:

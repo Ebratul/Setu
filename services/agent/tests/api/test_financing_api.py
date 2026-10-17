@@ -31,15 +31,20 @@ def test_tc09_order_mode(client: TestClient) -> None:
         ("supplier-credit-huaxin", "104.00", 60),
         ("import-loan-meghna", "173.45", 90),
     ]
-    assert m["options"][0]["recommended"] and not any(o["recommended"] for o in m["options"][1:])
+    escrow = m["options"][0]  # cheapest, but its provider would take an invoice Lender A holds
+    assert not escrow["eligible"] and not escrow["recommended"]
+    assert escrow["registry_block"]["result"] == "EXACT_DUPLICATE"
+    assert escrow["registry_block"]["holder"] == "Lender A"
+    assert next(w["code"] for w in escrow["why_not"]) == "INVOICE_ALREADY_FINANCED"
+    assert m["options"][1]["recommended"] and not any(o["recommended"] for o in m["options"][2:])
     assert all(o["checks"] for o in m["options"])  # every option carries its eligibility reasons
     insured = next(o for o in m["options"] if o["code"] == "insured-supplier-terms")
     assert not insured["eligible"]
     assert [w["code"] for w in insured["why_not"]] == ["NOT_WITH_FUNDED_ESCROW"]
     pick = m["top_pick"]
-    assert pick["code"] == "escrow-order-loan-setu-partner"
-    assert pick["saving_vs_next"]["USD"] == "6.30"
-    assert {"LOWEST_COST", "USES_ESCROW"} <= set(pick["why_codes"])
+    assert pick["code"] == "supplier-credit-huaxin"
+    assert pick["saving_vs_next"]["USD"] == "69.45"
+    assert "LOWEST_COST" in set(pick["why_codes"])
     assert all(s["en"] and s["bn"] for s in pick["sentences"])
     supplier = next(o for o in m["options"] if o["code"] == "supplier-credit-huaxin")
     assert any(n["code"] == "PRICE_UPLIFT" for n in supplier["risk_notes"])

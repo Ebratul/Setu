@@ -30,7 +30,7 @@ from app.forensics.context import DealContext, DocView
 from app.forensics.fields import EXTRACTOR_VERSION, REQUIRED
 from app.forensics.names import LABELS
 from app.forensics.parse_fields import DateOrder
-from app.services import alerts
+from app.services import alerts, hash_registry
 from app.services import escrow as escrow_service
 from app.services.documents import evidence, scoring
 from app.services.documents.checks import (
@@ -243,6 +243,16 @@ def process_document(
         before = row.check_status
         outcomes, result = _check_one(db, row, views, rows, ctx, now)
         primary = row.id == doc.id
+        dup = next((o for o in outcomes if o.code == "DUPLICATE_HASH"), None)
+        hash_registry.after_document_check(
+            db,
+            row,
+            duplicate=dict(dup.detail) if dup is not None and dup.status == "FAIL" else None,
+            failed=result.status == "FAILED",
+            primary=primary,
+            user_id=user.id if user else None,
+            now=now,
+        )
         if primary or before != row.check_status:
             escrow_service.audit(
                 db,

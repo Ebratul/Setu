@@ -22,6 +22,7 @@ import {
   type DocumentDetail,
   type HiddenTextOut,
 } from "@/lib/api/documents";
+import { getDocumentRegistry } from "@/lib/api/registry";
 import { useApi } from "@/lib/useApi";
 
 import { ChecksList } from "./ChecksList";
@@ -29,6 +30,7 @@ import { DocStatusBadge } from "./DocStatusBadge";
 import { FieldsTable } from "./FieldsTable";
 import { HiddenTextPanel } from "./HiddenTextPanel";
 import { PreviewPane } from "./PreviewPane";
+import { RegistryBox } from "./RegistryBox";
 import { VerdictPanel } from "./VerdictPanel";
 
 const linkCls =
@@ -75,6 +77,7 @@ function Viewer({
   const [acceptBusy, setAcceptBusy] = useState(false);
   const [acceptError, setAcceptError] = useState<string | null>(null);
 
+  const registry = useApi((s) => getDocumentRegistry(doc.id, s), `doc-registry|${doc.id}|${doc.check_status}`, role !== "SUPPLIER");
   const canRecheck = role === "BUYER" || role === "ADMIN";
   const buyerSide = role !== "SUPPLIER";
   const hasHidden = buyerSide && (doc.hidden_text_found === true || (doc.hidden_spans_count ?? 0) > 0);
@@ -231,6 +234,8 @@ function Viewer({
               <FieldsTable fields={doc.fields} findings={doc.findings} />
             </Card>
           ) : null}
+
+          {buyerSide && registry.data ? <RegistryBox registry={registry.data} /> : null}
 
           {buyerSide ? (
             <Card as="section" labelledBy="c-h" className="space-y-3">

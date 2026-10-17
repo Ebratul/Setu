@@ -11,6 +11,7 @@ from app.api import (
     financing,
     health,
     kyb,
+    registry,
     suppliers,
 )
 from app.api.body_limit import UploadBodyLimit
@@ -58,6 +59,7 @@ def create_app() -> FastAPI:
     app.include_router(suppliers.router)
     app.include_router(deals.router)
     app.include_router(documents.router)
+    app.include_router(registry.router)
     return app
 
 

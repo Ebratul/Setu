@@ -55,6 +55,8 @@ export function ApplyDialog({
     setPhase("error");
     if (e instanceof ApiError && e.status === 403)
       setProblem(t("fin.readOnly"));
+    else if (e instanceof ApiError && e.code === "INVOICE_ALREADY_FINANCED")
+      setProblem(t("dealErr.INVOICE_ALREADY_FINANCED"));
     else if (e instanceof ApiError && e.detail) setProblem(e.detail);
     else setProblem(t("error.body"));
   }

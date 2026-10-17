@@ -141,7 +141,7 @@ def test_roles_foreign_deal_judge_and_supplier(client: TestClient, deal: dict) -
     )
 
 
-def test_identical_file_on_the_same_deal_is_reused_on_another_deal_it_is_a_409(
+def test_identical_file_on_the_same_deal_is_reused_on_another_deal_it_is_a_duplicate(
     client: TestClient, deal: dict
 ) -> None:
     rahima = as_user(RAHIMA)
@@ -154,10 +154,10 @@ def test_identical_file_on_the_same_deal_is_reused_on_another_deal_it_is_a_409(
     assert audit_actions().count("DOC_UPLOADED") == uploads
     other = create(rahima, HUAXIN)
     res = upload(rahima, other["id"], "COMMERCIAL_INVOICE", "a.pdf", data)
-    assert res.status_code == 409 and res.json()["code"] == "DUPLICATE_DOCUMENT"
-    assert "DOC_DUPLICATE_REJECTED" in audit_actions()
-    assert doc_count() == doc_count()  # nothing new stored for the rejected copy
-    assert as_user(RAHIMA).get(f"/deals/{other['id']}/documents").json()["documents"] == []
+    assert res.status_code == 201 and res.json()["reused"] is False
+    assert res.json()["document"]["id"] != first["document"]["id"]
+    got = as_user(RAHIMA).get(f"/documents/{res.json()['document']['id']}").json()
+    assert {f["check_code"]: f for f in got["findings"]}["DUPLICATE_HASH"]["status"] == "FAIL"
 
 
 def test_background_check_runs_and_wait_runs_inline(client: TestClient, deal: dict) -> None:

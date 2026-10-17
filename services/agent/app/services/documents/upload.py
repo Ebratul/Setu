@@ -2,11 +2,11 @@
 the Document row (status UPLOADED, check PENDING). Checking runs afterwards (background task,
 or `pipeline.process_document` synchronously).
 
-Duplicates: the sha256 is UNIQUE. Re-uploading identical bytes to the SAME deal returns the
-existing document (`reused=True`, nothing new is stored or re-checked). Identical bytes already
-stored on ANOTHER deal are refused with 409 `DUPLICATE_DOCUMENT`: the same invoice cannot back two
-deals (audited, tier 0). The cross-lender question "was this financed elsewhere?" is the hash
-registry's (`services/hash_registry.py`, Phase 15); this rule only covers this platform.
+Duplicates: sha256 is unique per deal. Re-uploading identical bytes to the SAME deal returns the
+existing document (`reused=True`, nothing new is stored or re-checked). The same bytes on ANOTHER
+deal are stored and checked like any file; the hash registry (`services/hash_registry.py`) then
+fails DUPLICATE_HASH when they are registered elsewhere, which fails the document and raises the
+FRAUD alert.
 """
 
 import hashlib
@@ -126,24 +126,11 @@ def accept_upload(
     sha = hashlib.sha256(data).hexdigest()
     name = sanitise_filename(filename, mime)
 
-    existing = db.scalars(select(Document).where(Document.sha256 == sha)).first()
+    existing = db.scalars(
+        select(Document).where(Document.deal_id == deal.id, Document.sha256 == sha)
+    ).first()
     if existing is not None:
-        if existing.deal_id == deal.id:
-            return UploadOutcome(existing, reused=True)
-        escrow_service.audit(
-            db,
-            deal,
-            "DOC_DUPLICATE_REJECTED",
-            0,
-            {"deal_id": str(deal.id), "sha256": sha, "user_id": str(user.id)},
-            "DUPLICATE_DOCUMENT",
-            ts=now,
-        )
-        db.commit()
-        raise Conflict(
-            "this exact file is already stored on another deal and cannot be used again",
-            "DUPLICATE_DOCUMENT",
-        )
+        return UploadOutcome(existing, reused=True)
 
     path = get_storage().put(f"deals/{deal.id}/{sha}{EXTENSION[mime]}", data)
     placeholder = db.scalars(
@@ -178,8 +165,10 @@ def accept_upload(
         db.flush()
     except IntegrityError:  # a concurrent upload of the same bytes won the race
         db.rollback()
-        winner = db.scalars(select(Document).where(Document.sha256 == sha)).first()
-        if winner is not None and winner.deal_id == deal.id:
+        winner = db.scalars(
+            select(Document).where(Document.deal_id == deal.id, Document.sha256 == sha)
+        ).first()
+        if winner is not None:
             return UploadOutcome(winner, reused=True)
         raise Conflict("this exact file is already stored", "DUPLICATE_DOCUMENT") from None
     escrow_service.audit(

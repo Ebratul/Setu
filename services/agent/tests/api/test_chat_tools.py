@@ -116,9 +116,12 @@ def test_match_financing_order_ranking(db: Session) -> None:
     assert d["amount"] == "5200.00"
     eligible = [(o["code"], o["kind"], o["total_cost"]) for o in d["options"] if o["eligible"]]
     costs = [c for _, _, c in eligible]
-    assert costs[:3] == ["97.70", "104.00", "173.45"]
-    assert d["options"][0]["recommended"] is True
-    assert d["recommended"]["total_cost"] == "97.70" and d["recommended"]["reasons"]
+    # The escrow-backed loan (cheapest, 97.70) is blocked: the main deal's invoice is already
+    # registered as collateral at Lender A. The next cheapest is recommended.
+    assert costs[:3] == ["104.00", "173.45", "239.34"]
+    assert not any(c == "escrow-order-loan-setu-partner" for c, _, _ in eligible)
+    assert next(o for o in d["options"] if o["recommended"])["code"] == "supplier-credit-huaxin"
+    assert d["recommended"]["total_cost"] == "104.00" and d["recommended"]["reasons"]
     assert any(not o["eligible"] and o["why_not"] for o in d["options"])
     assert d["apply_route"] == f"/app/financing?deal={DEAL}&mode=order"
 

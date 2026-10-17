@@ -4,6 +4,8 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 import { useT } from "@/i18n";
+import { getMe } from "@/lib/api/auth";
+import { useApi } from "@/lib/useApi";
 
 const ITEMS = [
   { href: "/app", key: "nav.dashboard", exact: true },
@@ -15,13 +17,18 @@ const ITEMS = [
   { href: "/app/chat", key: "nav.chat", exact: false },
 ] as const;
 
+const REGISTRY = { href: "/app/admin/registry", key: "nav.registry", exact: false } as const;
+
 export function AppNav() {
   const t = useT();
   const pathname = usePathname();
+  const me = useApi((s) => getMe(s), "me");
+  const staff = me.data?.role === "ADMIN" || me.data?.role === "JUDGE";
+  const items = staff ? [...ITEMS, REGISTRY] : ITEMS;
   return (
     <nav aria-label={t("nav.label")}>
       <ul className="flex flex-wrap gap-1 md:flex-col">
-        {ITEMS.map((item) => {
+        {items.map((item) => {
           const current = item.exact
             ? pathname === item.href
             : pathname.startsWith(item.href);

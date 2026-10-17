@@ -10,6 +10,7 @@ import { FxCompareCard } from "./FxCompareCard";
 import { KybCard } from "./KybCard";
 import { LandedCostCard } from "./LandedCostCard";
 import { MonthlySummaryCard } from "./MonthlySummaryCard";
+import { RegistryCard } from "./RegistryCard";
 import { ScorecardCard } from "./ScorecardCard";
 
 /** Dispatches on the discriminated `card_type`; unknown types render nothing. */
@@ -33,6 +34,8 @@ export function ChatCard({ card }: { card: ChatCardData }) {
       return <KybCard card={card} />;
     case "document_check":
       return <DocumentCheckCard card={card} />;
+    case "registry":
+      return <RegistryCard card={card} />;
     default:
       return null;
   }

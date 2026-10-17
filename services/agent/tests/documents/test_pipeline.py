@@ -241,12 +241,10 @@ def test_hidden_white_text_without_an_instruction_still_fails(
 
 def test_registry_duplicate_forces_failed(client: TestClient, deal: dict) -> None:
     rahima = as_user(RAHIMA)
-    seen: list[tuple[str, str | None, str]] = []
+    seen: list[tuple[str | None, str | None, str]] = []
 
-    def fake(
-        db: Session, sha: str, canonical: str | None, doc_type: str
-    ) -> hash_registry.RegistryResult:
-        seen.append((sha, canonical, doc_type))
+    def fake(db: Session, doc: Any) -> hash_registry.RegistryResult:
+        seen.append((doc.sha256, doc.canonical_hash, doc.doc_type.value))
         return hash_registry.RegistryResult("DUPLICATE", {"registry": "lender-a"})
 
     with hash_registry.use_checker(fake):
@@ -259,10 +257,10 @@ def test_registry_duplicate_forces_failed(client: TestClient, deal: dict) -> Non
     assert d["check_status"] == "FAILED" and d["verdict"]["forced_by"] == ["DUPLICATE_HASH"]
     assert seen and len(seen[0][0]) == 64 and seen[0][2] == "COMMERCIAL_INVOICE" and seen[0][1]
     d = detail(client, upload(rahima, deal["id"], "COMMERCIAL_INVOICE", "ok.pdf", new_pdf()))
-    assert {f["check_code"]: f["status"] for f in d["findings"]}["DUPLICATE_HASH"] == "PASS"  # stub
+    assert {f["check_code"]: f["status"] for f in d["findings"]}["DUPLICATE_HASH"] == "PASS"
 
 
-def test_same_invoice_identity_on_another_deal_is_a_platform_duplicate(
+def test_same_invoice_identity_on_another_deal_is_a_registry_near_duplicate(
     client: TestClient, deal: dict
 ) -> None:
     rahima = as_user(RAHIMA)
@@ -279,7 +277,8 @@ def test_same_invoice_identity_on_another_deal_is_a_platform_duplicate(
     st = {f["check_code"]: f for f in d["findings"]}
     assert (
         st["DUPLICATE_HASH"]["status"] == "FAIL"
-        and st["DUPLICATE_HASH"]["detail"]["scope"] == "platform"
+        and st["DUPLICATE_HASH"]["detail"]["scope"] == "registry"
+        and st["DUPLICATE_HASH"]["detail"]["result"] == "NEAR_DUPLICATE"
     )
     assert d["check_status"] == "FAILED"
 

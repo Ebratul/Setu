@@ -28,6 +28,7 @@ import { ActivityList } from "./ActivityList";
 import { DealActions, ReleaseDialog } from "./DealActions";
 import { DevEvidenceControl } from "./DevEvidenceControl";
 import { EscrowPanel } from "./EscrowPanel";
+import { LenderCheckDemo } from "./LenderCheckDemo";
 import { LedgerTable } from "./LedgerTable";
 import { MilestoneStepper } from "./MilestoneStepper";
 
@@ -140,6 +141,7 @@ function Overview({ deal, reload }: { deal: DealDetail; reload: () => void }) {
             )}
           </section>
           <Confirmations deal={deal} />
+          <LenderCheckDemo deal={deal} />
         </div>
         <div className="space-y-6">
           <EscrowPanel

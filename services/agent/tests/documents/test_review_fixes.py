@@ -155,8 +155,8 @@ def test_a_duplicate_hash_failure_elsewhere_on_the_deal_also_forces_tier_3(
 ) -> None:
     d = verified_m1(client)
     rahima = as_user(RAHIMA)
-    dup = lambda db, sha, ch, dt: hash_registry.RegistryResult(  # noqa: E731
-        "DUPLICATE" if dt == "COMMERCIAL_INVOICE" else "NEW", {}
+    dup = lambda db, doc: hash_registry.RegistryResult(  # noqa: E731
+        "DUPLICATE" if doc.doc_type.value == "COMMERCIAL_INVOICE" else "NEW", {}
     )
     with hash_registry.use_checker(dup):
         upload(rahima, d["id"], "COMMERCIAL_INVOICE", "dup.pdf", ci_pdf())
@@ -289,7 +289,7 @@ def test_automatic_runs_never_loosen_a_rejected_milestone_but_an_admin_run_can(
 ) -> None:
     rahima = as_user(RAHIMA)
     n = uuid.uuid4().hex
-    dup = lambda db, sha, ch, dt: hash_registry.RegistryResult("DUPLICATE", {})  # noqa: E731
+    dup = lambda db, doc: hash_registry.RegistryResult("DUPLICATE", {})  # noqa: E731
     with hash_registry.use_checker(dup):
         bad = upload(rahima, deal["id"], "COMMERCIAL_INVOICE", "d.pdf", ci_pdf()).json()["document"]
     assert evidence_of(deal["id"])[2] == "REJECTED"

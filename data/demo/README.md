@@ -58,7 +58,7 @@ fictional sanctions list used by the KYB screen.
 | Good CNY day | T+2 (2026-10-22): CNY/BDT 16.9682 vs 30-day mean 17.2865 (−1.84%, mock forecast) |
 | Tier 2 pending | Release M1 of SETU-2026-0001. Reason `FX_RATE_LOCK`: USD 2,880.00 is paid into Huaxin's CNY account, so a USD/CNY lock is needed |
 | Tier 3 pending | Beneficiary change to Huaxin's new Hong Kong account (requested by email; reasons BENEFICIARY_CHANGE, CHANGE_VIA_EMAIL, HOLDER_NAME_MISMATCH, NEW_ACCOUNT); OTP required, cooling-off 10 min |
-| Duplicate financing | PI `HX-PI-2026-118` of SETU-2026-0001 already registered at **Lender A** (Meghna Commercial Bank, loan ref MCB-IMPLOAN-2026-0412). Any second financing of the same invoice is a duplicate hit |
+| Duplicate financing | PI `HX-PI-2026-118` of SETU-2026-0001 already registered at **Lender A** (Meghna Commercial Bank, loan ref MCB-IMPLOAN-2026-0412). Any second financing of the same invoice is a duplicate hit (`docs/registry.md`): Lender B (Setu Partner Finance) is blocked for this deal, Lender A is not |
 
 **Projected-balance formula** (`seed/cashflow.py`): balance available on day D = opening cash +
 Σ inflows − Σ outflows over projected items with DEMO_TODAY ≤ date < D. Shortfall(D) = max(0, payment due

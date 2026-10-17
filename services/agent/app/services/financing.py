@@ -19,6 +19,7 @@ from app.db.enums import (
     CashflowKind,
     DealStatus,
     FinancingApplicationStatus,
+    FinancingKind,
     FlowDirection,
     MilestoneTrigger,
 )
@@ -76,7 +77,9 @@ from app.schemas.financing import (
     ScheduleOut,
     TopPick,
 )
-from app.services import analysis
+from app.schemas.registry import RegistryBlockOut
+from app.services import alerts as alert_service
+from app.services import analysis, hash_registry
 from app.services.alerts import recompute_book
 from app.services.cashflow import (
     ACTIVE,
@@ -92,6 +95,39 @@ ACTIVE_APPS = (FinancingApplicationStatus.SUBMITTED, FinancingApplicationStatus.
 
 
 # ---------- loading ----------
+
+
+INVOICE_COLLATERAL = (FinancingKind.BANK_IMPORT_LOAN, FinancingKind.ESCROW_BACKED_LOAN)
+PURPOSE_EN = {"FINANCING_COLLATERAL": "financing collateral", "ESCROW_EVIDENCE": "escrow evidence"}
+PURPOSE_BN = {"FINANCING_COLLATERAL": "ঋণের জামানত", "ESCROW_EVIDENCE": "এসক্রো প্রমাণ"}
+
+
+def registry_gate(
+    db: Session, deal: Deal, o: FinancingOption
+) -> tuple[hash_registry.Verdict, hash_registry.Subject | None]:
+    """Options that take the invoice as collateral are blocked when the registry already holds it
+    in another context (another deal, or pledged to another lender)."""
+    if o.kind not in INVOICE_COLLATERAL or o.provider_party_id is None:
+        return hash_registry.Verdict(), None
+    return hash_registry.invoice_gate(db, deal, o.provider_party_id)
+
+
+def block_out(v: hash_registry.Verdict) -> RegistryBlockOut:
+    assert v.conflict is not None
+    c = v.conflict
+    who_en = f" with {c.lender_name}" if c.lender_name else ""
+    who_bn = f" ({c.lender_name})" if c.lender_name else ""
+    purpose = c.purpose.value
+    return RegistryBlockOut(
+        result=v.result,  # type: ignore[arg-type]
+        purpose=purpose,  # type: ignore[arg-type]
+        holder=c.lender_name,
+        registered_on=c.registered_on,
+        reason_en=f"Blocked: invoice already registered as {PURPOSE_EN[purpose]}{who_en} "
+        f"on {c.registered_on.isoformat()}.",
+        reason_bn=f"আটকানো: চালানটি {c.registered_on.isoformat()} তারিখে "
+        f"{PURPOSE_BN[purpose]}{who_bn} হিসেবে নিবন্ধিত।",
+    )
 
 
 def positive(amount: str, ccy: Currency) -> Money:
@@ -395,9 +431,30 @@ def match(db: Session, user: CurrentUser, req: MatchRequest) -> MatchOut:
     pick = None
     if not none_needed:
         pairs = quote_all(db, book, deal, amount, start, needed)
-        eligible = [(o, q) for o, q in pairs if q.eligible]
+        blocks = {o.id: v for o, _ in pairs if (v := registry_gate(db, deal, o)[0]).blocked}
+        eligible = [(o, q) for o, q in pairs if q.eligible and o.id not in blocks]
         for i, (o, q) in enumerate(pairs, start=1):
-            options.append(quote_out(db, o, q, i, bool(eligible) and o is eligible[0][0], book))
+            opt = quote_out(db, o, q, i, bool(eligible) and o is eligible[0][0], book)
+            if o.id in blocks:
+                blk = block_out(blocks[o.id])
+                opt = opt.model_copy(
+                    update={
+                        "eligible": False,
+                        "recommended": False,
+                        "registry_block": blk,
+                        "why_not": [
+                            CheckOut(
+                                code=blk.code,
+                                ok=False,
+                                en=blk.reason_en,
+                                bn=blk.reason_bn,
+                                params={"result": blk.result},
+                            ),
+                            *opt.why_not,
+                        ],
+                    }
+                )
+            options.append(opt)
         if eligible:
             (po, pq), nxt = eligible[0], (eligible[1][1] if len(eligible) > 1 else None)
             pick = TopPick(
@@ -673,6 +730,24 @@ def apply(db: Session, user: CurrentUser, req: ApplicationRequest) -> Applicatio
     quote = next(q for opt, q in quote_all(db, book, deal, amount, start, needed) if opt.id == o.id)
     if not quote.eligible:
         raise DomainError(f"option {o.code} is not eligible: {quote.failed[0].en}")
+    if o.kind in INVOICE_COLLATERAL:
+        hash_registry.lock_registry(db)
+        if not hash_registry.invoice_subjects(db, deal):
+            raise DomainError(
+                "upload the invoice first: this option takes it as collateral", "INVOICE_REQUIRED"
+            )
+    verdict, subject = registry_gate(db, deal, o)
+    if verdict.conflict is not None and subject is not None:
+        c = verdict.conflict
+        hash_registry.record_hit(
+            db, verdict, subject, source="FINANCING", deal_id=deal.id, user_id=user.id
+        )
+        alert_service.raise_registry_alert(
+            db, deal, scope=o.code, result=verdict.result, purpose=c.purpose.value,
+            holder=c.lender_name, registered_on=c.registered_on, doc_type=subject.doc_type.value,
+        )  # fmt: skip
+        db.commit()
+        raise Conflict(block_out(verdict).reason_en, "INVOICE_ALREADY_FINANCED")
     inst = schedule(quote.cost, quote.start)
     a = FinancingApplication(
         id=uuid.uuid4(),
@@ -701,6 +776,10 @@ def apply(db: Session, user: CurrentUser, req: ApplicationRequest) -> Applicatio
         submitted_at=datetime.now(UTC),
     )
     db.add(a)
+    if o.kind in INVOICE_COLLATERAL and o.provider_party_id is not None:
+        hash_registry.register_collateral(
+            db, deal, o.provider_party_id, external_ref=a.reference, user_id=user.id
+        )
     db.commit()
     return app_out(db, a, book)
 
@@ -729,6 +808,10 @@ def _recheck(db: Session, a: FinancingApplication, buyer: Party) -> str | None:
     )
     if not quote.eligible:
         return quote.failed[0].en
+    if o.kind in INVOICE_COLLATERAL and o.provider_party_id is not None:
+        hash_registry.lock_registry(db)
+        if hash_registry.invoice_gate(db, deal, o.provider_party_id)[0].blocked:
+            return "the invoice is already registered elsewhere"
     if q2(quote.cost.total.amount) != q2(a.total_cost) or quote.cost.days != a.tenor_days:
         return "the terms changed since submission"
     return None

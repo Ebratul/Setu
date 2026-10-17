@@ -8,6 +8,7 @@ from pydantic import BaseModel, ConfigDict, Field
 
 from app.schemas.analysis import Amounts, CurrencyCode, DecStr, Explanation, FxRateOut, InDec, Out
 from app.schemas.cashflow import RecomputeOut, ShortfallOut
+from app.schemas.registry import RegistryBlockOut
 
 ModeOut = Literal["shortfall", "order"]
 AppStatusOut = Literal["SUBMITTED", "APPROVED", "REJECTED", "CANCELLED"]
@@ -77,6 +78,7 @@ class OptionQuote(Out):
     why_not: list[CheckOut]
     risk_notes: list[Explanation]
     facts: list[str]
+    registry_block: RegistryBlockOut | None = None
 
 
 class TopPick(Out):

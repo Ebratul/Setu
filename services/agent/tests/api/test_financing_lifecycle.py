@@ -99,7 +99,7 @@ def test_approval_rechecks_at_execution(client: TestClient) -> None:
     login(client, "rahima@demo.setu")
     body = {
         "deal_id": MAIN,
-        "option_id": "escrow-order-loan-setu-partner",
+        "option_id": "import-loan-meghna",  # Lender A already holds this deal's invoice: allowed
         "amount": "5200.00",
         "mode": "order",
     }
@@ -108,7 +108,7 @@ def test_approval_rechecks_at_execution(client: TestClient) -> None:
     with batch_session() as s:
         s.execute(
             update(FinancingOption)
-            .where(FinancingOption.code == "escrow-order-loan-setu-partner")
+            .where(FinancingOption.code == "import-loan-meghna")
             .values(active=False)
         )
     try:
@@ -120,7 +120,7 @@ def test_approval_rechecks_at_execution(client: TestClient) -> None:
         with batch_session() as s:
             s.execute(
                 update(FinancingOption)
-                .where(FinancingOption.code == "escrow-order-loan-setu-partner")
+                .where(FinancingOption.code == "import-loan-meghna")
                 .values(active=True)
             )
     with batch_session() as s:

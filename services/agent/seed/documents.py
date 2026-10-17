@@ -10,7 +10,7 @@ the registry and the document row always agree.
 import hashlib
 
 from app.config import REPO_ROOT
-from app.db.enums import CheckStatus, DocStatus, DocType, Severity
+from app.db.enums import CheckStatus, DocStatus, DocType, RegistryPurpose, RegistryStatus, Severity
 from app.db.models import Document, ForensicFinding, HashRegistry
 from app.forensics.canonical import canonical_invoice_hash
 from app.security.audit import sha256_hex
@@ -187,16 +187,49 @@ def build(ctx: Ctx) -> Rows:
                 }
             )
 
-    registry = [
+    # Lender A holds the PI as collateral (loan MCB-IMPLOAN-2026-0412); every PASSED upload of the
+    # deal is also registered as escrow evidence, as the pipeline would have done.
+    main = deal_id(MAIN_DEAL)
+    lender_a = sid("party", LENDER_A)
+    registry: list[Row] = [
         {
             "id": sid("hash_registry", f"{PI_KEY}:{LENDER_A}"),
             "sha256": pi_sha,
-            "canonical_hash": canonical_hash(pi_fields()),
-            "lender_party_id": sid("party", LENDER_A),
-            "deal_id": deal_id(MAIN_DEAL),
+            "semantic_fingerprint": canonical_hash(pi_fields()),
             "doc_type": DocType.PROFORMA_INVOICE,
+            "purpose": RegistryPurpose.FINANCING_COLLATERAL,
+            "context_key": f"{RegistryPurpose.FINANCING_COLLATERAL.value}:{lender_a}:{main}",
+            "lender_party_id": lender_a,
+            "deal_id": main,
+            "document_id": sid("document", PI_KEY),
             "external_ref": LENDER_A_LOAN_REF,
             "registered_at": ctx.at(-5, 15, 20),
+            "seen_count": 1,
+            "status": RegistryStatus.ACTIVE,
+            "exact_hits": 0,
+            "near_hits": 0,
         }
     ]
+    for d in documents:
+        if d["status"] != DocStatus.UPLOADED or not d["sha256"]:
+            continue
+        registry.append(
+            {
+                "id": sid("hash_registry", f"{d['key']}:evidence"),
+                "sha256": d["sha256"],
+                "semantic_fingerprint": d["canonical_hash"],
+                "doc_type": d["doc_type"],
+                "purpose": RegistryPurpose.ESCROW_EVIDENCE,
+                "context_key": f"{RegistryPurpose.ESCROW_EVIDENCE.value}:-:{main}",
+                "lender_party_id": None,
+                "deal_id": main,
+                "document_id": d["id"],
+                "external_ref": None,
+                "registered_at": d["uploaded_at"],
+                "seen_count": 1,
+                "status": RegistryStatus.ACTIVE,
+                "exact_hits": 0,
+                "near_hits": 0,
+            }
+        )
     return [(Document, documents), (ForensicFinding, findings), (HashRegistry, registry)]

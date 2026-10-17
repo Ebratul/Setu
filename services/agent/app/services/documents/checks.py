@@ -12,7 +12,7 @@ from sqlalchemy import delete, select
 from sqlalchemy.orm import Session
 
 from app.config import get_settings
-from app.db.enums import AccountStatus, CheckStatus, DocStatus, DocType, Severity
+from app.db.enums import AccountStatus, CheckStatus, DocType, Severity
 from app.db.models import BankAccount, Deal, Document, ForensicFinding, Party
 from app.forensics.checks import PRICE_BANDS, Outcome, run_checks
 from app.forensics.context import (
@@ -187,32 +187,13 @@ def with_reference_booking(ctx: DealContext, pack: Pack) -> DealContext:
     )
 
 
-def platform_duplicate(db: Session, doc: Document) -> dict[str, Any] | None:
-    """The same invoice identity (seller, number, total, currency) already stored on ANOTHER deal
-    of this platform. Cross-lender duplicates are the hash registry's job (Phase 15)."""
-    if doc.canonical_hash is None:
-        return None
-    other = db.scalars(
-        select(Document.id).where(
-            Document.canonical_hash == doc.canonical_hash,
-            Document.id != doc.id,
-            Document.deal_id != doc.deal_id,
-            Document.status == DocStatus.UPLOADED,
-        )
-    ).first()
-    return {"scope": "platform"} if other is not None else None
-
-
 def run_for_document(
     db: Session, doc: Document, view: DocView, pack: Pack, ctx: DealContext
 ) -> list[Outcome]:
     status, detail = "NEW", {}
     if doc.sha256:
-        res = hash_registry.check(db, doc.sha256, doc.canonical_hash, doc.doc_type.value)
+        res = hash_registry.check(db, doc)
         status, detail = res.status, dict(res.detail)
-        local = platform_duplicate(db, doc)
-        if status == "NEW" and local:
-            status, detail = "DUPLICATE", local
     s = get_settings()
     return run_checks(
         view,

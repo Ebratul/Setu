@@ -21,9 +21,11 @@ from app.schemas.cards import (
     DocumentCheckData,
     DocumentCheckItem,
     DocumentReason,
+    RegistryCard,
+    RegistryData,
 )
 from app.security.tiers import Tier
-from app.services import alerts
+from app.services import alerts, registry
 from app.services.documents import read
 from app.services.documents.checks import STATUS_FROM_DB
 
@@ -58,6 +60,7 @@ def _item(db, doc: Document) -> DocumentCheckItem:  # type: ignore[no-untyped-de
         if c in LABELS and by.get(c) in ("WARN", "FAIL")
     ][:TOP_REASONS]
     en, bn = alerts.DOC_TYPE_LABELS.get(doc.doc_type.value, alerts.DOC_TYPE_LABELS["OTHER"])
+    reg = registry.state_of(db, doc)
     return DocumentCheckItem(
         document_id=doc.id,
         doc_type=doc.doc_type.value,
@@ -68,6 +71,8 @@ def _item(db, doc: Document) -> DocumentCheckItem:  # type: ignore[no-untyped-de
         reasons=reasons,
         instruction_from_document=by.get("INSTRUCTION_SCAN") == "FAIL",
         hidden_text_found=by.get("HIDDEN_TEXT") == "FAIL",
+        registry_state=reg.state,
+        registry_result=reg.result,
         route=f"/app/documents/{doc.id}",  # type: ignore[arg-type]
     )
 
@@ -135,6 +140,8 @@ def check_documents(args: CheckDocumentsIn, ctx: ToolContext) -> DocumentCheckCa
         flags.append("HIDDEN_TEXT")
     if any(i.instruction_from_document for i in items):
         flags.append("DOC_INSTRUCTION")
+    if any(i.registry_state == "DUPLICATE" for i in items):
+        flags.append("REGISTRY_DUPLICATE")
     data = DocumentCheckData(
         deal_ref=deal.reference,
         defaulted_deal=defaulted,
@@ -157,4 +164,75 @@ def check_documents(args: CheckDocumentsIn, ctx: ToolContext) -> DocumentCheckCa
     )
 
 
-__all__ = ["check_documents"]
+class RegistryStatusIn(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    document_id: uuid.UUID = Field(description="One document of a deal the caller can read.")
+
+
+@REGISTRY.tool(
+    name="registry_status",
+    tier=Tier.T0,
+    args_schema=RegistryStatusIn,
+    output_schema=RegistryCard,
+    tags=("documents", "registry"),
+)
+def registry_status(args: RegistryStatusIn, ctx: ToolContext) -> RegistryCard:
+    """Is this document registered in the cross-lender hash registry, or is it a duplicate of
+    one already used as escrow evidence or financing collateral elsewhere? Returns the state,
+    what it is registered for, the holder label and the date. Read-only."""
+    from app.domain.narrative import bn as to_bn
+    from app.errors import NotFound
+
+    if ctx.user.role == Role.SUPPLIER:
+        raise ToolError("forbidden", "the registry status is for the buyer of the deal")
+    db = _db(ctx)
+    try:
+        doc, deal = registry.find_visible(db, ctx.user, args.document_id)
+    except NotFound as exc:
+        raise ToolError("not_found", "document not found") from exc
+    reg = registry.state_of(db, doc)
+    en, bn_label = alerts.DOC_TYPE_LABELS.get(doc.doc_type.value, alerts.DOC_TYPE_LABELS["OTHER"])
+    flags = ["REGISTRY_DUPLICATE"] if reg.state == "DUPLICATE" else []
+    data = RegistryData(
+        document_id=doc.id,
+        doc_type=doc.doc_type.value,
+        doc_label_en=en,
+        doc_label_bn=bn_label,
+        deal_ref=deal.reference,
+        state=reg.state,
+        result=reg.result,
+        purpose=reg.purpose,
+        holder=reg.lender_name,
+        registered_on=reg.registered_on,
+        security_flags=flags,
+        route=f"/app/documents/{doc.id}",  # type: ignore[arg-type]
+    )
+    if reg.state == "DUPLICATE":
+        who = f" with {reg.lender_name}" if reg.lender_name else ""
+        who_bn = f" ({reg.lender_name})" if reg.lender_name else ""
+        use = "financing collateral" if reg.purpose == "FINANCING_COLLATERAL" else "escrow evidence"
+        use_bn = "ঋণের জামানত" if reg.purpose == "FINANCING_COLLATERAL" else "এসক্রো প্রমাণ"
+        codes = ["REGISTRY_DUPLICATE", reg.result]
+        text_en = (
+            f"This {en.lower()} duplicates one already registered as {use}{who} on "
+            f"{reg.registered_on}. It cannot be used again."
+        )
+        text_bn = (
+            f"এই ডকুমেন্টটি {reg.registered_on} তারিখে {use_bn}{who_bn} হিসেবে নিবন্ধিত "
+            "ডকুমেন্টের প্রতিলিপি। এটি আবার ব্যবহার করা যাবে না।"
+        )
+    elif reg.state == "REGISTERED":
+        codes = ["REGISTERED"]
+        text_en = f"Registered on {reg.registered_on}; no other use of it was found."
+        text_bn = f"{reg.registered_on} তারিখে নিবন্ধিত; অন্য কোথাও ব্যবহারের প্রমাণ নেই।"
+    else:
+        codes = ["NOT_REGISTERED"]
+        text_en = "Not registered yet; it is registered once its checks pass."
+        text_bn = "এখনও নিবন্ধিত নয়; যাচাই সফল হলে নিবন্ধিত হবে।"
+    return RegistryCard(
+        data=data, explanation_codes=codes, explanation_en=text_en, explanation_bn=to_bn(text_bn)
+    )
+
+
+__all__ = ["check_documents", "registry_status"]

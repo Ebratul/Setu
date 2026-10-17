@@ -62,6 +62,7 @@ from app.security.audit import sha256_hex, write_audit
 from app.security.policy import COOLING_OFF_MINUTES, TIER1_MAX_USD
 from app.security.risk_hook import ReleaseContext, RiskAction, RiskDecision, RiskHook, RiskResult
 from app.services import alerts as alert_service
+from app.services import hash_registry
 from app.services import kyb as kyb_service
 from app.services.analysis import fx_table
 from app.services.cashflow import load_book
@@ -1034,6 +1035,7 @@ def _post_release(
         set_deal_status(deal, status)
     if deal.status == DealStatus.COMPLETED:
         deal.completed_on = demo_today(db)
+        hash_registry.release_for_deal(db, deal.id, now=now)
     escrow.status = (
         EscrowStatus.COMPLETED
         if all_settled and escrow.balance == ZERO
@@ -1186,6 +1188,7 @@ def refund(
                 set_milestone_status(m, MilestoneStatus.READY)
             set_milestone_status(m, target)
         set_deal_status(deal, DealStatus.CANCELLED)
+        hash_registry.release_for_deal(db, deal.id)
         escrow.status = EscrowStatus.REFUNDED
     verify_invariant(escrow)
     recompute_alerts(db, deal)

@@ -336,7 +336,7 @@ ANALYSIS = frozenset(
 CASHFLOW = frozenset({"forecast_cashflow", "simulate_cashflow_scenario", "get_alerts"})
 FINANCING = frozenset({"match_financing", "financing_impact"})
 KYB = frozenset({"verify_party"})
-DOCS = frozenset({"check_documents"})
+DOCS = frozenset({"check_documents", "registry_status"})
 # Per-intent allow-lists (SR-3): the tools each intent is likely to need, all Tier 0.
 # greeting and out_of_scope never reach the agent node.
 INTENT_TOOLS: dict[Intent, frozenset[str]] = {

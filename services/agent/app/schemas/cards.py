@@ -345,6 +345,8 @@ class DocumentCheckItem(_M):
     reasons: list[DocumentReason] = Field(description="Top 3 non-passing checks, worst first.")
     instruction_from_document: bool
     hidden_text_found: bool
+    registry_state: Literal["REGISTERED", "DUPLICATE", "NOT_REGISTERED"] = "NOT_REGISTERED"
+    registry_result: Literal["NEW", "SAME_CONTEXT", "EXACT_DUPLICATE", "NEAR_DUPLICATE"] = "NEW"
     route: AppRoute
 
 
@@ -404,6 +406,28 @@ class CitationsData(_M):
     )
 
 
+class RegistryData(_M):
+    """Hash-registry status of one document: purpose, holder label and date only."""
+
+    document_id: uuid.UUID
+    doc_type: str
+    doc_label_en: str
+    doc_label_bn: str
+    deal_ref: str
+    state: Literal["REGISTERED", "DUPLICATE", "NOT_REGISTERED"]
+    result: Literal["NEW", "SAME_CONTEXT", "EXACT_DUPLICATE", "NEAR_DUPLICATE"]
+    purpose: Literal["ESCROW_EVIDENCE", "FINANCING_COLLATERAL"] | None
+    holder: str | None
+    registered_on: date | None
+    security_flags: list[str] = Field(default_factory=list)
+    route: AppRoute
+
+
+class RegistryCard(_Card):
+    card_type: Literal["registry"] = "registry"
+    data: RegistryData
+
+
 class CitationsCard(_Card):
     card_type: Literal["citations"] = "citations"
     data: CitationsData
@@ -419,7 +443,8 @@ Card = Annotated[
     | MonthlySummaryCard
     | ScorecardCard
     | KybCard
-    | DocumentCheckCard,
+    | DocumentCheckCard
+    | RegistryCard,
     Field(discriminator="card_type"),
 ]
 CARD_TYPES = frozenset(
@@ -434,5 +459,6 @@ CARD_TYPES = frozenset(
         "scorecard",
         "kyb",
         "document_check",
+        "registry",
     }
 )

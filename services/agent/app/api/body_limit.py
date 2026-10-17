@@ -10,7 +10,7 @@ from starlette.types import ASGIApp, Message, Receive, Scope, Send
 from app.config import get_settings
 from app.errors import problem
 
-UPLOAD_PATH = re.compile(r"^/deals/[^/]+/documents/?$")
+UPLOAD_PATH = re.compile(r"^(/deals/[^/]+/documents|/registry/lender-check/file)/?$")
 SLACK = 64 * 1024  # multipart framing around the file
 
 

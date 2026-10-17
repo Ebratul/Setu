@@ -29,7 +29,10 @@ export function OptionCard({
   const { lang } = useLang();
   const headId = `opt-${o.code}-h`;
   const kindKey = `fin.kind.${o.kind}`;
-  const saving = o.recommended ? pick?.saving_vs_next : null;
+  const block = o.registry_block ?? null;
+  const recommended = o.recommended && !block;
+  const whyNot = block ? o.why_not.filter((c) => c.code !== block.code) : o.why_not;
+  const saving = recommended ? pick?.saving_vs_next : null;
   const rows: [string, React.ReactNode][] = [
     [
       t("fin.opt.interest"),
@@ -55,7 +58,7 @@ export function OptionCard({
       <Money key="p" amounts={o.cost.per_30_days} currency={currency} />,
     ],
   ];
-  const style = o.recommended
+  const style = recommended
     ? "border-2 border-brand-600 bg-brand-50 shadow-card-hover"
     : o.eligible
       ? "border border-line bg-surface shadow-card"
@@ -64,7 +67,8 @@ export function OptionCard({
     <li
       data-testid="option-card"
       data-code={o.code}
-      data-recommended={o.recommended}
+      data-recommended={recommended}
+      data-blocked={block ? "true" : undefined}
       data-eligible={o.eligible}
     >
       <article
@@ -73,7 +77,7 @@ export function OptionCard({
       >
         <header className="space-y-2">
           <div className="flex flex-wrap items-center gap-2">
-            {o.recommended ? (
+            {recommended ? (
               <Badge tone="success" icon="★">
                 {t("fin.recommended")}
               </Badge>
@@ -87,6 +91,11 @@ export function OptionCard({
                 {t("fin.ineligible")}
               </Badge>
             )}
+            {block ? (
+              <Badge tone="danger" icon="■">
+                {t("fin.registryBlocked")}
+              </Badge>
+            ) : null}
             <Badge>{`#${o.rank}`}</Badge>
           </div>
           <h3 id={headId} className="text-lg font-bold text-ink">
@@ -112,7 +121,7 @@ export function OptionCard({
           ) : null}
         </div>
 
-        {o.recommended && pick && pick.sentences.length > 0 ? (
+        {recommended && pick && pick.sentences.length > 0 ? (
           <ul className="list-disc space-y-1 pl-5 text-sm text-ink">
             {pick.sentences.map((s) => (
               <li key={s.code}>{pickLang(s, lang)}</li>
@@ -120,13 +129,23 @@ export function OptionCard({
           </ul>
         ) : null}
 
-        {!o.eligible && o.why_not.length > 0 ? (
+        {block ? (
+          <p
+            data-testid="registry-block"
+            className="rounded-xl border-2 border-danger bg-danger-soft p-3 text-sm font-semibold text-danger"
+          >
+            <span aria-hidden="true">■ </span>
+            {lang === "bn" ? block.reason_bn : block.reason_en}
+          </p>
+        ) : null}
+
+        {!o.eligible && whyNot.length > 0 ? (
           <div className="rounded-xl border border-danger bg-danger-soft p-3">
             <h4 className="text-sm font-semibold text-danger">
               {t("fin.whyNot")}
             </h4>
             <ul className="mt-1 list-disc space-y-1 pl-5 text-sm text-ink">
-              {o.why_not.map((c) => (
+              {whyNot.map((c) => (
                 <li key={c.code}>{pickLang(c, lang)}</li>
               ))}
             </ul>
@@ -168,7 +187,7 @@ export function OptionCard({
           </div>
         ) : null}
 
-        {o.eligible ? (
+        {o.eligible && !block ? (
           <div className="mt-auto flex flex-wrap gap-2 pt-2">
             <Button variant="primary" onClick={() => onApply(o)}>
               {t("fin.apply.button")}

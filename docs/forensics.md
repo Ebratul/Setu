@@ -76,7 +76,7 @@ attaches to both. The `detail` JSON holds the conflicting values and the documen
 | `HIDDEN_TEXT` | PDFs | a hard hidden span (white, tiny, off-page, render mode 3) = FAIL; only soft ones (covered, low contrast) = WARN | 70, FAIL forces FAILED |
 | `INSTRUCTION_SCAN` | PDFs | instruction-like text in visible text, hidden text or metadata = FAIL, `instruction_from_document=true` | 70, forces FAILED |
 | `METADATA_ANOMALY` | PDFs | modified > 1 h after creation, editing tool in Producer/Creator, producer differs from the rest of the pack: WARN only | 10 (no status floor) |
-| `DUPLICATE_HASH` | all | `hash_registry.check` (stub: NEW until P15) or the same invoice identity stored on **another deal** of this platform = FAIL | 70, forces FAILED |
+| `DUPLICATE_HASH` | all | `hash_registry.check` (P15, `docs/registry.md`): the exact bytes or the same invoice / B/L identity already registered in another context = FAIL | 70, forces FAILED |
 | `PHOTO_MATCH` | production photos | dominant colour of the central area vs the colour named in the PI/CI goods description (12-colour table, nearest named colour must equal the ordered one, RGB distance <= 60 PASS, <= 100 WARN). The labelled width needs OCR or the vision model (`FORENSICS_VISION`, off): not checked | 35 |
 | `EXTRACTION_COMPLETE` | PDFs | a required field is missing, the file could not be read, the title names another document type, the text was truncated (> 100 pages or > 200k characters), or **a required field was filled by a model** (the verdict can then never be PASSED) = WARN | 30 |
 | `REFERENCE_CHANGED` | PI, CI | identity (invoice no.), booking, production/ETA dates, bank details, price, quantity or totals differ from the **pinned** proforma invoice = WARN (buyer review) | 35 |
@@ -152,14 +152,12 @@ production path.
 
 ## Duplicates (decision)
 
-`documents.sha256` is UNIQUE. Identical bytes re-uploaded to the **same deal** return the existing document
-(`UploadResult.reused = true`, nothing stored or re-checked). Identical bytes already stored on **another deal** are refused with
-**409 `DUPLICATE_DOCUMENT`** (audited as `DOC_DUPLICATE_REJECTED`): one invoice cannot back two deals. A re-saved copy (different
-bytes, same seller + invoice no. + total + currency, `canonical_invoice_hash`) is stored and fails `DUPLICATE_HASH` when it sits on
-another deal. The cross-lender question ("was this financed elsewhere?") belongs to the hash registry:
-`app/services/hash_registry.py` is a stub that answers NEW; Phase 15 replaces `_default_check` (or calls `set_checker`).
-The demo's seeded PI row and its `hash_registry` row use the same canonical recipe.
-**Disclosure trade-off (accepted):** the 409 tells any uploader that these exact bytes exist elsewhere on the platform (not whose or where). The caller already holds the file, the alternative is two deals backed by one invoice, and the audit row records the attempt.
+`documents` is unique per `(deal_id, sha256)`. Identical bytes re-uploaded to the **same deal** return the existing document
+(`UploadResult.reused = true`, nothing stored or re-checked). Identical bytes on **another deal** (since P15) are stored and checked
+like any file; the hash registry (`docs/registry.md`) answers `DUPLICATE_HASH` FAIL when they, or a re-saved copy with the same seller +
+invoice no. + total + currency, are registered in another context, so the document FAILS and a FRAUD alert is raised. The old 409
+`DUPLICATE_DOCUMENT` and the platform-only duplicate rule are gone. `set_checker(fn(db, doc))` stays as the test seam.
+The demo's seeded PI row and its `hash_registry` rows use the same fingerprint recipe.
 Uploading a demo file that claims a seeded PLACEHOLDER row (same deal, type and file name, e.g. the clean or forged B/L) activates
 that row instead of creating a second one.
 
@@ -167,7 +165,7 @@ that row instead of creating a second one.
 
 | Method / path | Who | Notes |
 |---|---|---|
-| `POST /deals/{id}/documents` | buyer or supplier of the deal, admin | multipart `doc_type` + `file`; `?wait=true` checks inline (buyer/admin only; a supplier's request is queued); 201 `UploadResult`; judge 403, foreign deal 404, 413/415/409 as above |
+| `POST /deals/{id}/documents` | buyer or supplier of the deal, admin | multipart `doc_type` + `file`; `?wait=true` checks inline (buyer/admin only; a supplier's request is queued); 201 `UploadResult`; judge 403, foreign deal 404, 413/415 as above |
 | `GET /deals/{id}/documents` | participants, admin, judge | `DocumentList` (placeholders are not listed) |
 | `GET /documents/{id}` | participants, admin, judge | `DocumentDetail` incl. a signed `file_url`; **suppliers get status only**: `status` is `UPLOADED` or `IN_REVIEW`, `check_status` is always `PENDING`, score, findings, fields, verdict, hidden-span count and the flags are null/empty, and `file_url` only for documents they uploaded (`documents.uploaded_by_user_id`, migration `26b582a72d5c`) |
 | `POST /documents/{id}/recheck` | buyer of the deal, admin | re-extracts and re-checks the document and its siblings; supplier / judge 403 (`DOC_RECHECK_FORBIDDEN` audit) |

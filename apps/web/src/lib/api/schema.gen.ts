@@ -1007,6 +1007,102 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/registry": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Registry
+         * @description Registered documents: hash prefixes and minimal metadata. `result` keeps entries that
+         *     blocked at least one exact or near duplicate.
+         */
+        get: operations["list_registry_registry_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/registry/stats": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Registry Stats */
+        get: operations["registry_stats_registry_stats_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/registry/lender-check": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Lender Check
+         * @description A simulated institution asks whether a document is already registered elsewhere. Returns
+         *     the result, what it is registered for and when; never a buyer, price or deal.
+         */
+        post: operations["lender_check_registry_lender_check_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/registry/lender-check/file": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Lender Check File */
+        post: operations["lender_check_file_registry_lender_check_file_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/documents/{document_id}/registry": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Document Registry
+         * @description Is this document registered, and does it clash with another context? Not for suppliers.
+         */
+        get: operations["document_registry_documents__document_id__registry_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -1433,6 +1529,16 @@ export interface components {
             /** Bn */
             bn: string;
         };
+        /** Body_lender_check_file_registry_lender_check_file_post */
+        Body_lender_check_file_registry_lender_check_file_post: {
+            /** Lender Id */
+            lender_id: string;
+            /**
+             * File
+             * @description The document to look up (PDF, at most 10 MB)
+             */
+            file: string;
+        };
         /** Body_upload_document_deals__deal_id__documents_post */
         Body_upload_document_deals__deal_id__documents_post: {
             /** @description Document type */
@@ -1581,7 +1687,7 @@ export interface components {
              * Cards
              * @description Result cards, in tool order.
              */
-            cards?: (components["schemas"]["CitationsCard"] | components["schemas"]["LandedCostCard"] | components["schemas"]["CashflowCard"] | components["schemas"]["AlertsCard"] | components["schemas"]["FinancingComparisonCard"] | components["schemas"]["FxCompareCard"] | components["schemas"]["MonthlySummaryCard"] | components["schemas"]["ScorecardCard"] | components["schemas"]["KybCard"] | components["schemas"]["DocumentCheckCard"])[];
+            cards?: (components["schemas"]["CitationsCard"] | components["schemas"]["LandedCostCard"] | components["schemas"]["CashflowCard"] | components["schemas"]["AlertsCard"] | components["schemas"]["FinancingComparisonCard"] | components["schemas"]["FxCompareCard"] | components["schemas"]["MonthlySummaryCard"] | components["schemas"]["ScorecardCard"] | components["schemas"]["KybCard"] | components["schemas"]["DocumentCheckCard"] | components["schemas"]["RegistryCard"])[];
             /**
              * Citations
              * @description Knowledge-base sources cited in the answer ([S1]…).
@@ -2385,6 +2491,18 @@ export interface components {
             instruction_from_document: boolean;
             /** Hidden Text Found */
             hidden_text_found: boolean;
+            /**
+             * Registry State
+             * @default NOT_REGISTERED
+             * @enum {string}
+             */
+            registry_state: "REGISTERED" | "DUPLICATE" | "NOT_REGISTERED";
+            /**
+             * Registry Result
+             * @default NEW
+             * @enum {string}
+             */
+            registry_result: "NEW" | "SAME_CONTEXT" | "EXACT_DUPLICATE" | "NEAR_DUPLICATE";
             /** Route */
             route: string;
         };
@@ -2539,6 +2657,32 @@ export interface components {
             detail_en: string;
             /** Detail Bn */
             detail_bn: string;
+        };
+        /** DocumentRegistryOut */
+        DocumentRegistryOut: {
+            /**
+             * Document Id
+             * Format: uuid
+             */
+            document_id: string;
+            /**
+             * State
+             * @enum {string}
+             */
+            state: "REGISTERED" | "DUPLICATE" | "NOT_REGISTERED";
+            /**
+             * Result
+             * @enum {string}
+             */
+            result: "NEW" | "SAME_CONTEXT" | "EXACT_DUPLICATE" | "NEAR_DUPLICATE";
+            /** Purpose */
+            purpose?: ("ESCROW_EVIDENCE" | "FINANCING_COLLATERAL") | null;
+            /** Registered On */
+            registered_on?: string | null;
+            /** Lender Name */
+            lender_name?: string | null;
+            /** Seen Count */
+            seen_count?: number | null;
         };
         /** EscrowCard */
         EscrowCard: {
@@ -3619,6 +3763,39 @@ export interface components {
             /** Simulated */
             simulated: boolean;
         };
+        /**
+         * LenderCheckIn
+         * @description Exactly one of `sha256`, `document_id` or `fields`. A file goes to `/lender-check/file`.
+         */
+        LenderCheckIn: {
+            /** Lender Id */
+            lender_id: string;
+            /** Sha256 */
+            sha256?: string | null;
+            /** Document Id */
+            document_id?: string | null;
+            fields?: components["schemas"]["SemanticFields"] | null;
+        };
+        /** LenderCheckOut */
+        LenderCheckOut: {
+            /**
+             * Simulated
+             * @default true
+             * @constant
+             */
+            simulated: true;
+            /**
+             * Result
+             * @enum {string}
+             */
+            result: "NEW" | "SAME_CONTEXT" | "EXACT_DUPLICATE" | "NEAR_DUPLICATE";
+            /** Already Registered For */
+            already_registered_for?: ("ESCROW_EVIDENCE" | "FINANCING_COLLATERAL") | null;
+            /** Registered On */
+            registered_on?: string | null;
+            /** Held By */
+            held_by?: string | null;
+        };
         /** LoanIn */
         LoanIn: {
             /**
@@ -3732,7 +3909,7 @@ export interface components {
              * Card
              * @description For tool messages that produced a card.
              */
-            card?: (components["schemas"]["CitationsCard"] | components["schemas"]["LandedCostCard"] | components["schemas"]["CashflowCard"] | components["schemas"]["AlertsCard"] | components["schemas"]["FinancingComparisonCard"] | components["schemas"]["FxCompareCard"] | components["schemas"]["MonthlySummaryCard"] | components["schemas"]["ScorecardCard"] | components["schemas"]["KybCard"] | components["schemas"]["DocumentCheckCard"]) | null;
+            card?: (components["schemas"]["CitationsCard"] | components["schemas"]["LandedCostCard"] | components["schemas"]["CashflowCard"] | components["schemas"]["AlertsCard"] | components["schemas"]["FinancingComparisonCard"] | components["schemas"]["FxCompareCard"] | components["schemas"]["MonthlySummaryCard"] | components["schemas"]["ScorecardCard"] | components["schemas"]["KybCard"] | components["schemas"]["DocumentCheckCard"] | components["schemas"]["RegistryCard"]) | null;
         };
         /** MilestoneActions */
         MilestoneActions: {
@@ -4016,6 +4193,7 @@ export interface components {
             risk_notes: components["schemas"]["Explanation"][];
             /** Facts */
             facts: string[];
+            registry_block?: components["schemas"]["RegistryBlockOut"] | null;
         };
         /** OrderAnalysis */
         OrderAnalysis: {
@@ -4207,6 +4385,176 @@ export interface components {
             ledger: components["schemas"]["LedgerRow"][];
             deal: components["schemas"]["DealDetail"];
         };
+        /**
+         * RegistryBlockOut
+         * @description Why a financing option is blocked on invoice collateral.
+         */
+        RegistryBlockOut: {
+            /**
+             * Code
+             * @default INVOICE_ALREADY_FINANCED
+             * @constant
+             */
+            code: "INVOICE_ALREADY_FINANCED";
+            /**
+             * Result
+             * @enum {string}
+             */
+            result: "NEW" | "SAME_CONTEXT" | "EXACT_DUPLICATE" | "NEAR_DUPLICATE";
+            /**
+             * Purpose
+             * @enum {string}
+             */
+            purpose: "ESCROW_EVIDENCE" | "FINANCING_COLLATERAL";
+            /** Holder */
+            holder: string | null;
+            /**
+             * Registered On
+             * Format: date
+             */
+            registered_on: string;
+            /** Reason En */
+            reason_en: string;
+            /** Reason Bn */
+            reason_bn: string;
+        };
+        /** RegistryCard */
+        RegistryCard: {
+            /** Explanation Codes */
+            explanation_codes: string[];
+            /** Explanation En */
+            explanation_en: string;
+            /** Explanation Bn */
+            explanation_bn: string;
+            /**
+             * Simulated
+             * @default true
+             * @constant
+             */
+            simulated: true;
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            card_type: "registry";
+            data: components["schemas"]["RegistryData"];
+        };
+        /**
+         * RegistryData
+         * @description Hash-registry status of one document: purpose, holder label and date only.
+         */
+        RegistryData: {
+            /**
+             * Document Id
+             * Format: uuid
+             */
+            document_id: string;
+            /** Doc Type */
+            doc_type: string;
+            /** Doc Label En */
+            doc_label_en: string;
+            /** Doc Label Bn */
+            doc_label_bn: string;
+            /** Deal Ref */
+            deal_ref: string;
+            /**
+             * State
+             * @enum {string}
+             */
+            state: "REGISTERED" | "DUPLICATE" | "NOT_REGISTERED";
+            /**
+             * Result
+             * @enum {string}
+             */
+            result: "NEW" | "SAME_CONTEXT" | "EXACT_DUPLICATE" | "NEAR_DUPLICATE";
+            /** Purpose */
+            purpose: ("ESCROW_EVIDENCE" | "FINANCING_COLLATERAL") | null;
+            /** Holder */
+            holder: string | null;
+            /** Registered On */
+            registered_on: string | null;
+            /** Security Flags */
+            security_flags?: string[];
+            /** Route */
+            route: string;
+        };
+        /** RegistryEntryOut */
+        RegistryEntryOut: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Sha256 Prefix */
+            sha256_prefix: string;
+            /** Semantic Prefix */
+            semantic_prefix: string | null;
+            /** Doc Type */
+            doc_type: string;
+            /**
+             * Purpose
+             * @enum {string}
+             */
+            purpose: "ESCROW_EVIDENCE" | "FINANCING_COLLATERAL";
+            /** Lender Name */
+            lender_name: string | null;
+            /** Deal Ref */
+            deal_ref: string | null;
+            /**
+             * Registered On
+             * Format: date
+             */
+            registered_on: string;
+            /** Last Seen At */
+            last_seen_at: string | null;
+            /** Seen Count */
+            seen_count: number;
+            /** Exact Hits */
+            exact_hits: number;
+            /** Near Hits */
+            near_hits: number;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "ACTIVE" | "RELEASED";
+        };
+        /** RegistryList */
+        RegistryList: {
+            /** Items */
+            items: components["schemas"]["RegistryEntryOut"][];
+            /** Total */
+            total: number;
+        };
+        /**
+         * RegistryPurpose
+         * @enum {string}
+         */
+        RegistryPurpose: "ESCROW_EVIDENCE" | "FINANCING_COLLATERAL";
+        /** RegistryStatsOut */
+        RegistryStatsOut: {
+            /** Entries */
+            entries: number;
+            /** Active */
+            active: number;
+            /** Released */
+            released: number;
+            /** By Purpose */
+            by_purpose: {
+                [key: string]: number;
+            };
+            /** Duplicates Blocked */
+            duplicates_blocked: number;
+            /** Exact Blocked */
+            exact_blocked: number;
+            /** Near Blocked */
+            near_blocked: number;
+        };
+        /**
+         * RegistryStatus
+         * @enum {string}
+         */
+        RegistryStatus: "ACTIVE" | "RELEASED";
         /** ReleaseRequest */
         ReleaseRequest: {
             /**
@@ -4407,6 +4755,27 @@ export interface components {
             window_months: number;
             /** Suppliers */
             suppliers: components["schemas"]["SupplierItem"][];
+        };
+        /**
+         * SemanticFields
+         * @description The identity fields of an invoice or bill of lading (what a lender reads off the paper).
+         */
+        SemanticFields: {
+            /**
+             * Doc Type
+             * @enum {string}
+             */
+            doc_type: "PROFORMA_INVOICE" | "COMMERCIAL_INVOICE" | "BILL_OF_LADING";
+            /** Seller */
+            seller: string;
+            /** Number */
+            number: string;
+            /** Total */
+            total?: string | null;
+            /** Currency */
+            currency?: string | null;
+            /** Vessel */
+            vessel?: string | null;
         };
         /** SettlementOut */
         SettlementOut: {
@@ -6656,6 +7025,158 @@ export interface operations {
                 };
                 content: {
                     "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_registry_registry_get: {
+        parameters: {
+            query?: {
+                status?: components["schemas"]["RegistryStatus"] | null;
+                result?: ("EXACT_DUPLICATE" | "NEAR_DUPLICATE") | null;
+                purpose?: components["schemas"]["RegistryPurpose"] | null;
+                limit?: number;
+                offset?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RegistryList"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    registry_stats_registry_stats_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RegistryStatsOut"];
+                };
+            };
+        };
+    };
+    lender_check_registry_lender_check_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["LenderCheckIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LenderCheckOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    lender_check_file_registry_lender_check_file_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "multipart/form-data": components["schemas"]["Body_lender_check_file_registry_lender_check_file_post"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LenderCheckOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    document_registry_documents__document_id__registry_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                document_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DocumentRegistryOut"];
                 };
             };
             /** @description Validation Error */

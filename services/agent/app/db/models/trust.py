@@ -26,6 +26,8 @@ from app.db.enums import (
     CheckStatus,
     DocStatus,
     DocType,
+    RegistryPurpose,
+    RegistryStatus,
     Severity,
 )
 
@@ -34,6 +36,7 @@ class Document(Base):
     """Trade document metadata. `sha256` is over file bytes; `canonical_hash` over key fields."""
 
     __tablename__ = "documents"
+    __table_args__ = (UniqueConstraint("deal_id", "sha256"),)
 
     id: Mapped[UUIDPk]
     key: Mapped[str] = mapped_column(String(80), unique=True)
@@ -47,7 +50,7 @@ class Document(Base):
     file_name: Mapped[str] = mapped_column(String(200))
     storage_path: Mapped[str] = mapped_column(String(300))
     mime_type: Mapped[str] = mapped_column(String(80))
-    sha256: Mapped[str | None] = mapped_column(CHAR(64), unique=True)
+    sha256: Mapped[str | None] = mapped_column(CHAR(64), index=True)
     canonical_hash: Mapped[str | None] = mapped_column(CHAR(64), index=True)
     size_bytes: Mapped[int | None] = mapped_column(Integer)
     status: Mapped[DocStatus] = mapped_column(str_enum(DocStatus, "doc_status"))
@@ -76,21 +79,41 @@ class ForensicFinding(Base):
 
 
 class HashRegistry(Base):
-    """Shared cross-lender registry of financed documents (SR-6)."""
+    """Shared cross-lender registry of documents used as escrow evidence or financing collateral
+    (SR-6). Hashes and minimal metadata only: never document content, prices or counterparties.
+    `context_key` (purpose + lender + deal) makes one entry per document per context."""
 
     __tablename__ = "hash_registry"
-    __table_args__ = (UniqueConstraint("canonical_hash", "lender_party_id"),)
+    __table_args__ = (UniqueConstraint("sha256", "context_key"),)
 
     id: Mapped[UUIDPk]
     sha256: Mapped[str] = mapped_column(CHAR(64), index=True)
-    canonical_hash: Mapped[str] = mapped_column(CHAR(64))
-    lender_party_id: Mapped[uuid.UUID] = mapped_column(Uuid, ForeignKey("parties.id"))
+    semantic_fingerprint: Mapped[str | None] = mapped_column(CHAR(64), index=True)
+    doc_type: Mapped[DocType] = mapped_column(str_enum(DocType, "registry_doc_type"))
+    purpose: Mapped[RegistryPurpose] = mapped_column(
+        str_enum(RegistryPurpose, "registry_purpose"), default=RegistryPurpose.FINANCING_COLLATERAL
+    )
+    context_key: Mapped[str] = mapped_column(String(100))
+    lender_party_id: Mapped[uuid.UUID | None] = mapped_column(Uuid, ForeignKey("parties.id"))
     deal_id: Mapped[uuid.UUID | None] = mapped_column(
         Uuid, ForeignKey("deals.id", ondelete="SET NULL")
     )
-    doc_type: Mapped[DocType] = mapped_column(str_enum(DocType, "registry_doc_type"))
-    external_ref: Mapped[str] = mapped_column(String(64))
+    document_id: Mapped[uuid.UUID | None] = mapped_column(
+        Uuid, ForeignKey("documents.id", ondelete="SET NULL")
+    )
+    external_ref: Mapped[str | None] = mapped_column(String(64))
+    registered_by_user_id: Mapped[uuid.UUID | None] = mapped_column(
+        Uuid, ForeignKey("users.id", ondelete="SET NULL")
+    )
     registered_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    last_seen_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    seen_count: Mapped[int] = mapped_column(Integer, default=1)
+    status: Mapped[RegistryStatus] = mapped_column(
+        str_enum(RegistryStatus, "registry_status"), default=RegistryStatus.ACTIVE, index=True
+    )
+    released_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    exact_hits: Mapped[int] = mapped_column(Integer, default=0)
+    near_hits: Mapped[int] = mapped_column(Integer, default=0)
 
 
 class ApprovalRequest(Base):
