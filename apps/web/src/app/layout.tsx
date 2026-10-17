@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Inter, Noto_Sans_Bengali } from "next/font/google";
+import { Inter, Noto_Sans_Bengali, Noto_Sans_SC } from "next/font/google";
 
 import { I18nProvider } from "@/i18n";
 
@@ -9,6 +9,12 @@ const inter = Inter({ variable: "--font-inter", subsets: ["latin"] });
 const bengali = Noto_Sans_Bengali({
   variable: "--font-bengali",
   subsets: ["bengali"],
+});
+
+const chinese = Noto_Sans_SC({
+  variable: "--font-sc",
+  weight: ["400", "700"],
+  preload: false,
 });
 
 export const metadata: Metadata = {
@@ -21,7 +27,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="en"
-      className={`${inter.variable} ${bengali.variable} h-full antialiased`}
+      className={`${inter.variable} ${bengali.variable} ${chinese.variable} h-full antialiased`}
       suppressHydrationWarning
     >
       <body className="flex min-h-full flex-col font-sans">

@@ -56,11 +56,16 @@ def dashboard(db: Session, user: CurrentUser, party_id: uuid.UUID | None) -> Das
 
     active = []
     for d in deals:
-        if d.status not in (*ACTIVE, DealStatus.DRAFT):
+        if d.status not in (*ACTIVE, DealStatus.DRAFT, DealStatus.PROPOSED, DealStatus.CONFIRMED):
             continue
         ms = db.scalars(
             select(Milestone)
-            .where(Milestone.deal_id == d.id, Milestone.status.in_(("PENDING", "READY", "FROZEN")))
+            .where(
+                Milestone.deal_id == d.id,
+                Milestone.status.in_(
+                    ("PROPOSED", "PENDING", "READY", "PENDING_APPROVAL", "FROZEN")
+                ),
+            )
             .order_by(Milestone.seq)
             .limit(1)
         ).first()

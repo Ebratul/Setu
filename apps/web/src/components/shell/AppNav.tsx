@@ -7,7 +7,7 @@ import { useT } from "@/i18n";
 
 const ITEMS = [
   { href: "/app", key: "nav.dashboard", exact: true },
-  { href: "/app/orders", key: "nav.orders", exact: false },
+  { href: "/app/deals", key: "nav.orders", exact: false },
   { href: "/app/cashflow", key: "nav.cashflow", exact: false },
   { href: "/app/financing", key: "nav.financing", exact: false },
   { href: "/app/suppliers", key: "nav.suppliers", exact: false },

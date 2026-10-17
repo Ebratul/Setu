@@ -9,15 +9,26 @@ from dataclasses import dataclass, field
 from decimal import Decimal
 
 from app.db.enums import (
+    ConfirmRole,
     CostKind,
     DealStatus,
     DocType,
     EscrowStatus,
+    EvidenceStatus,
     LedgerDirection,
+    LedgerKind,
     MilestoneStatus,
     MilestoneTrigger,
 )
-from app.db.models import Deal, DealCost, EscrowAccount, LedgerEntry, Milestone
+from app.db.models import (
+    Deal,
+    DealCost,
+    EscrowAccount,
+    LedgerEntry,
+    Milestone,
+    MilestoneConfirmation,
+)
+from app.domain.escrow import CONDITIONS
 from app.domain.money import Money, money_sum, split_by_ratios
 from seed.common import Ctx, Row, Rows, sid
 from seed.parties import (
@@ -311,7 +322,16 @@ def _escrow_status(spec: DealSpec, funded: Decimal, released: Decimal) -> Escrow
 
 
 def _ledger_pair(
-    ctx: Ctx, spec: DealSpec, txn: str, debit: str, credit: str, amount: Money, day: int, memo: str
+    ctx: Ctx,
+    spec: DealSpec,
+    txn: str,
+    debit: str,
+    credit: str,
+    amount: Money,
+    day: int,
+    memo: str,
+    kind: LedgerKind,
+    seq: int,
 ) -> list[Row]:
     base = {
         "txn_ref": f"{spec.ref}:{txn}",
@@ -321,6 +341,11 @@ def _ledger_pair(
         "memo": f"Simulated · {memo}",
         "posted_at": ctx.at(day, 11, 0),
         "simulated": True,
+        "kind": kind,
+        "milestone_id": milestone_id(spec.ref, seq),
+        "fx_rate": None,
+        "counter_amount": None,
+        "counter_currency": None,
     }
     return [
         {
@@ -338,12 +363,32 @@ def _ledger_pair(
     ]
 
 
+def _evidence_status(spec: DealSpec, seq: int, status: MilestoneStatus) -> EvidenceStatus:
+    """Released tranches were verified; the main deal's M1 evidence (PI + photos) passed its checks;
+    the frozen disputed tranche is flagged; everything else is still waiting for evidence."""
+    if status == MilestoneStatus.RELEASED or (spec.ref == MAIN_DEAL and seq == 1):
+        return EvidenceStatus.VERIFIED
+    return EvidenceStatus.FLAGGED if status == MilestoneStatus.FROZEN else EvidenceStatus.PENDING
+
+
+def _confirmers(spec: DealSpec) -> list[tuple[ConfirmRole, str | None]]:
+    """Both sides confirmed the schedule of every deal that got past DRAFT (demo users only)."""
+    from seed.users import USERS
+
+    by_party = {party: email for email, _, _, _, party in USERS if party}
+    return [
+        (ConfirmRole.BUYER, by_party.get(spec.buyer)),
+        (ConfirmRole.SUPPLIER, by_party.get(spec.supplier)),
+    ]
+
+
 def build(ctx: Ctx) -> Rows:
     deals: list[Row] = []
     costs: list[Row] = []
     milestones: list[Row] = []
     escrows: list[Row] = []
     ledger: list[Row] = []
+    confirmations: list[Row] = []
     for spec in DEALS:
         deals.append(
             {
@@ -408,6 +453,9 @@ def build(ctx: Ctx) -> Rows:
                     "released_at": ctx.at(plan.released, 11, 0)
                     if plan.released is not None
                     else None,
+                    "condition_text": CONDITIONS[trigger],
+                    "evidence_status": _evidence_status(spec, seq, plan.status),
+                    "release_idempotency_key": None,
                 }
             )
             if plan.funded is not None:
@@ -421,6 +469,8 @@ def build(ctx: Ctx) -> Rows:
                     amount,
                     plan.funded,
                     f"buyer funds milestone {seq} into escrow",
+                    LedgerKind.FUND,
+                    seq,
                 )
             if plan.released is not None:
                 released += amount.amount
@@ -433,6 +483,8 @@ def build(ctx: Ctx) -> Rows:
                     amount,
                     plan.released,
                     f"release milestone {seq} to supplier",
+                    LedgerKind.RELEASE,
+                    seq,
                 )
         escrows.append(
             {
@@ -444,12 +496,27 @@ def build(ctx: Ctx) -> Rows:
                 "balance": funded - released,
                 "status": _escrow_status(spec, funded, released),
                 "simulated": True,
+                "refunded_total": Decimal("0"),
+                "partner": "Simulated Escrow Partner",
+                "advance_over_20k": False,
             }
         )
+        if spec.status not in (DealStatus.DRAFT, DealStatus.CANCELLED):
+            for role, user_email in _confirmers(spec):
+                confirmations.append(
+                    {
+                        "id": sid("confirmation", f"{spec.ref}:{role}"),
+                        "deal_id": deal_id(spec.ref),
+                        "party_role": role,
+                        "user_id": sid("user", user_email) if user_email else None,
+                        "confirmed_at": ctx.at(spec.opened + 1, 10, 0),
+                    }
+                )
     return [
         (Deal, deals),
         (DealCost, costs),
         (Milestone, milestones),
         (EscrowAccount, escrows),
         (LedgerEntry, ledger),
+        (MilestoneConfirmation, confirmations),
     ]

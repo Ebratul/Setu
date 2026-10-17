@@ -18,8 +18,8 @@ export function dealFromRoute(
   deal: string | null,
 ): string | null {
   let candidate: string | null = null;
-  const m = /^\/app\/orders\/([^/]+)/.exec(pathname);
-  if (m) {
+  const m = /^\/app\/(?:orders|deals)\/([^/]+)/.exec(pathname);
+  if (m && m[1] !== "new") {
     try {
       candidate = decodeURIComponent(m[1]);
     } catch {
@@ -37,7 +37,7 @@ export function ChatDrawer() {
   const pathname = usePathname();
   const params = useSearchParams();
   const [open, setOpen] = useState(false);
-  const session = useChatSession({ language: lang });
+  const session = useChatSession({ language: lang === "bn" ? "bn" : "en" });
   const { setDeal } = session;
   const routeDeal = dealFromRoute(pathname, params.get("deal"));
   const lastRouteDeal = useRef<string | null | undefined>(undefined);

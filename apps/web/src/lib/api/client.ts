@@ -7,22 +7,35 @@ const API_BASE = process.env.NEXT_PUBLIC_API_BASE ?? "/api";
 export class ApiError extends Error {
   readonly status: number;
   readonly detail: string | null;
+  /** Stable machine-readable reason from the problem JSON, e.g. EVIDENCE_NOT_VERIFIED. */
+  readonly code: string | null;
 
-  constructor(status: number, message: string, detail: string | null = null) {
+  constructor(
+    status: number,
+    message: string,
+    detail: string | null = null,
+    code: string | null = null,
+  ) {
     super(message);
     this.name = "ApiError";
     this.status = status;
     this.detail = detail;
+    this.code = code;
   }
 }
 
 async function toError(method: string, path: string, res: Response) {
   let detail: string | null = null;
+  let code: string | null = null;
   try {
     const body: unknown = await res.json();
     if (body && typeof body === "object" && "detail" in body) {
       const d = (body as { detail: unknown }).detail;
       detail = typeof d === "string" ? d : JSON.stringify(d);
+    }
+    if (body && typeof body === "object" && "code" in body) {
+      const c = (body as { code: unknown }).code;
+      if (typeof c === "string") code = c;
     }
   } catch {
     /* non-JSON error body */
@@ -31,6 +44,7 @@ async function toError(method: string, path: string, res: Response) {
     res.status,
     `${method} ${path} failed with ${res.status}`,
     detail,
+    code,
   );
 }
 

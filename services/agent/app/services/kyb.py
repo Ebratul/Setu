@@ -180,7 +180,13 @@ def invoice_name_for(
 
 def history_facts(db: Session, supplier: Party) -> engine.HistoryFacts:
     deals = db.scalars(select(Deal).where(Deal.supplier_id == supplier.id)).all()
-    counted = [d for d in deals if d.status not in (DealStatus.DRAFT, DealStatus.CANCELLED)]
+    not_started = (
+        DealStatus.DRAFT,
+        DealStatus.PROPOSED,
+        DealStatus.CONFIRMED,
+        DealStatus.CANCELLED,
+    )
+    counted = [d for d in deals if d.status not in not_started]
     previous = db.execute(
         select(KybRun.checked_at, KybRun.status)
         .where(KybRun.party_id == supplier.id)
@@ -448,6 +454,7 @@ def verify(
         },
         result=result.status,
         ts=at,
+        deal_id=deal.id if deal else None,
     )
     if run.invoice_flags:
         write_audit(
@@ -463,6 +470,7 @@ def verify(
             },
             result="FLAGGED",
             ts=at,
+            deal_id=deal.id if deal else None,
         )
     db.add(
         KybRun(

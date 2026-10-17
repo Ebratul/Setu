@@ -358,16 +358,31 @@ def test_apply_financing_is_not_a_tool(run_turn: Runner) -> None:
     assert rec["ok"] is False and rec["error_code"] == "unknown_tool"
 
 
-def test_all_registered_tools_are_tier0() -> None:
+HUMAN_ONLY = {"propose_milestones": Tier.T2, "release_tranche": Tier.T3}
+
+
+def test_registered_tools_are_tier0_except_the_two_human_only_escrow_actions() -> None:
     from app.agent.registry import INTENT_TOOLS, default_registry
 
     reg = default_registry()
-    assert len(reg.names) == 15
+    assert len(reg.names) == 17
     for name in reg.names:
-        assert reg.get(name).max_tier == Tier.T0  # type: ignore[union-attr]
+        expected = HUMAN_ONLY.get(name, Tier.T0)
+        assert reg.get(name).max_tier == expected  # type: ignore[union-attr]
+    # The human-only actions are in no intent allow-list, so they are never offered to the model.
     listed = set().union(*INTENT_TOOLS.values())
     assert listed <= set(reg.names)
-    assert set(reg.names) <= listed
+    assert set(reg.names) - listed == set(HUMAN_ONLY)
+
+
+def test_tier_filtered_offers_hide_the_escrow_actions_even_if_allow_listed() -> None:
+    from app.agent.registry import default_registry
+
+    reg = default_registry()
+    everything = frozenset(reg.names)
+    offered = reg.llm_tools(everything)
+    assert not set(HUMAN_ONLY) & set(offered)
+    assert set(offered) == set(reg.names) - set(HUMAN_ONLY)
 
 
 def test_flagged_card_text_never_reaches_the_answer(run_turn: Runner) -> None:

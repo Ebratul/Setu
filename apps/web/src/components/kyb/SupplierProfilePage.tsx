@@ -243,7 +243,7 @@ function Loaded({
                   <tr key={d.deal_id} className="border-b border-line last:border-0">
                     <th scope="row" className={`${td} text-left font-semibold`}>
                       <Link
-                        href={`/app/orders/${d.reference}`}
+                        href={`/app/deals/${d.reference}`}
                         className="rounded text-brand-700 underline focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:outline-none"
                       >
                         {d.reference}

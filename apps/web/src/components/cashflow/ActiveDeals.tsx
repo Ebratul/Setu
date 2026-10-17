@@ -53,7 +53,7 @@ export function ActiveDeals({ deals, currency }: Props) {
                 >
                   <th scope="row" className="py-2 pr-3 text-left">
                     <Link
-                      href={`/app/orders/${encodeURIComponent(d.reference)}`}
+                      href={`/app/deals/${encodeURIComponent(d.reference)}`}
                       className="font-semibold text-brand-700 underline focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:outline-none"
                     >
                       {d.reference}

@@ -1,5 +1,5 @@
-import { OrdersPage } from "@/components/analysis/OrdersPage";
+import { redirect } from "next/navigation";
 
 export default function Page() {
-  return <OrdersPage />;
+  redirect("/app/deals");
 }

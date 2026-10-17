@@ -67,6 +67,7 @@ DEMO_TABLES = (
     "supplier_scores",
     "ledger_entries",
     "escrow_accounts",
+    "milestone_confirmations",
     "milestones",
     "deal_costs",
     "deals",

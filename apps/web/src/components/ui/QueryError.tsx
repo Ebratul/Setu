@@ -36,7 +36,7 @@ export function QueryError({ error, onRetry }: Props) {
         body={t("error.noAccessBody")}
         action={
           <Link
-            href="/app/orders"
+            href="/app/deals"
             className="font-semibold text-brand-700 underline focus-visible:ring-2 focus-visible:ring-brand-500"
           >
             {t("nav.orders")}

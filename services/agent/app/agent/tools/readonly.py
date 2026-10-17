@@ -17,7 +17,7 @@ from app.services.analysis import find_deal, fmt
 from app.services.scope import party
 
 REGISTRY = ToolRegistry()
-OPEN_MILESTONES = ("PENDING", "READY", "FROZEN")
+OPEN_MILESTONES = ("PROPOSED", "PENDING", "READY", "PENDING_APPROVAL", "FROZEN")
 
 
 class _In(BaseModel):

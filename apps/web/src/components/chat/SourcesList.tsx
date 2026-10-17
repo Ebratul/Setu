@@ -15,7 +15,7 @@ type Props = {
 export const sourceDomId = (prefix: string, citeId: string) =>
   `${prefix}-src-${citeId}`;
 
-function safeDate(iso: string, lang: "en" | "bn"): string {
+function safeDate(iso: string, lang: "en" | "bn" | "zh"): string {
   return /^\d{4}-\d{2}-\d{2}$/.test(iso) ? formatDate(iso, lang) : iso;
 }
 

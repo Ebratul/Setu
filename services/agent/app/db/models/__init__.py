@@ -6,6 +6,7 @@ from app.db.models.deals import (
     EscrowAccount,
     LedgerEntry,
     Milestone,
+    MilestoneConfirmation,
     SupplierScore,
 )
 from app.db.models.finance import (
@@ -51,6 +52,7 @@ __all__ = [
     "LedgerEntry",
     "LlmCache",
     "Milestone",
+    "MilestoneConfirmation",
     "Party",
     "SupplierScore",
     "User",

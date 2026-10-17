@@ -139,9 +139,10 @@ class AuditLog(Base):
     action: Mapped[str] = mapped_column(String(64))
     tier: Mapped[int] = mapped_column(SmallInteger)
     params_hash: Mapped[str] = mapped_column(CHAR(64))
-    result: Mapped[str] = mapped_column(String(32))
+    result: Mapped[str] = mapped_column(String(64))
     prev_hash: Mapped[str] = mapped_column(CHAR(64))
     entry_hash: Mapped[str] = mapped_column(CHAR(64), unique=True)
     signature: Mapped[str] = mapped_column(String(128))
     key_id: Mapped[str] = mapped_column(String(32))
+    deal_id: Mapped[uuid.UUID | None] = mapped_column(Uuid, index=True)  # unsigned, for listings
     created_at: Mapped[Created]

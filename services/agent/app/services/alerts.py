@@ -309,9 +309,12 @@ def set_status(
 
 OPEN_DEAL_STATUSES = (
     DealStatus.DRAFT,
+    DealStatus.PROPOSED,
+    DealStatus.CONFIRMED,
     DealStatus.FUNDED,
     DealStatus.IN_PRODUCTION,
     DealStatus.SHIPPED,
+    DealStatus.ARRIVED,
 )
 KYB_SEVERITY = {"WARNING": Severity.WARNING, "BLOCKED": Severity.CRITICAL}
 

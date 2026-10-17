@@ -369,8 +369,9 @@ _default: ToolRegistry | None = None
 def default_registry() -> ToolRegistry:
     global _default
     if _default is None:
-        # Importing registers the finance, knowledge and KYB tools on the same registry.
-        from app.agent.tools import finance, knowledge, kyb  # noqa: F401
+        # Importing registers the finance, knowledge, KYB and escrow tools on the same registry.
+        # The escrow tools are Tier 2/3 and exist only so the guard can refuse them.
+        from app.agent.tools import escrow, finance, knowledge, kyb  # noqa: F401
 
         _default = finance.REGISTRY
     return _default

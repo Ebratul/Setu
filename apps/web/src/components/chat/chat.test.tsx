@@ -166,6 +166,8 @@ describe("dealFromRoute", () => {
     expect(dealFromRoute("/app/financing", "SETU-2026-0002")).toBe("SETU-2026-0002");
     expect(dealFromRoute("/app/cashflow", "x")).toBeNull();
     expect(dealFromRoute("/app/orders", null)).toBeNull();
+    expect(dealFromRoute("/app/deals/SETU-2026-0001", null)).toBe("SETU-2026-0001");
+    expect(dealFromRoute("/app/deals/new", null)).toBeNull();
     expect(() => dealFromRoute("/app/orders/%E0%A4%A", null)).not.toThrow();
     expect(dealFromRoute("/app/orders/%E0%A4%A", null)).toBeNull();
     expect(dealFromRoute("/app/orders/a%20b", null)).toBeNull();
