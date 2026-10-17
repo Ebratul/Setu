@@ -1,4 +1,5 @@
 from datetime import date
+from decimal import Decimal
 from functools import lru_cache
 from pathlib import Path
 from typing import Literal
@@ -66,6 +67,23 @@ class Settings(BaseSettings):
     kyb_match_threshold: float = Field(92.0, ge=0, le=100)
     kyb_partial_threshold: float = Field(80.0, ge=0, le=100)
     kyb_sanctions_path: Path = Path("data/demo/sanctions_mock.json")  # relative to REPO_ROOT
+
+    # Document forensics (app/services/documents, app/forensics). Weights: docs/forensics.md.
+    storage_dir: Path = AGENT_DIR / "storage"  # git-ignored; never under a public folder
+    storage_backend: Literal["local", "s3"] = "local"
+    document_max_bytes: int = Field(10 * 1024 * 1024, gt=0)
+    document_url_ttl_seconds: int = Field(300, gt=0, le=3600)
+    document_url_secret: SecretStr | None = None  # falls back to DEMO_SESSION_SECRET / dev value
+    forensics_quantity_tolerance_pct: Decimal = Field(Decimal("0"), ge=0, le=100)
+    forensics_money_tolerance: Decimal = Field(Decimal("0.01"), ge=0)
+    forensics_min_transit_days: int = Field(7, ge=0)
+    forensics_warn_score: int = Field(30, ge=0, le=100)  # score >= this -> WARNING
+    forensics_fail_score: int = Field(60, ge=0, le=100)  # score > this -> FAILED
+    forensics_sandbox: bool = True  # parse PDFs in a resource-limited child process
+    forensics_parse_timeout_seconds: float = Field(20.0, gt=0)
+    forensics_parse_memory_mb: int = Field(1024, ge=128)
+    forensics_llm_extraction: bool = True  # still skipped in mock mode (no network)
+    forensics_vision: bool = False  # optional vision model for photo checks (off by default)
 
     # Demo "login as" stub (app/auth/demo.py). Replace with real auth before any non-demo use.
     demo_session_secret: SecretStr | None = None

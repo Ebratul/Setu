@@ -877,6 +877,136 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/deals/{deal_id}/documents": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Documents
+         * @description Documents of a deal with their check status (suppliers: status only).
+         */
+        get: operations["list_documents_deals__deal_id__documents_get"];
+        put?: never;
+        /**
+         * Upload Document
+         * @description Store a document and check it. By default the checks run in the background and the
+         *     response has `checking: QUEUED`; with `wait=true` they finish first (`DONE`; buyers and
+         *     admins only, a supplier's request is queued).
+         */
+        post: operations["upload_document_deals__deal_id__documents_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/documents/{document_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Document
+         * @description Extracted fields, findings, verdict and a short-lived signed file URL. Suppliers get the
+         *     status only (no score, findings, fields or hidden text).
+         */
+        get: operations["get_document_documents__document_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/documents/{document_id}/recheck": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Recheck
+         * @description Re-extract and re-check one document (and its siblings). Buyer of the deal or admin.
+         */
+        post: operations["recheck_documents__document_id__recheck_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/documents/{document_id}/accept-reference": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Accept Reference
+         * @description The buyer (or an admin) accepts this proforma invoice, e.g. one that only WARNed, as the
+         *     deal's reference for booking, dates and bank details. Tier 2 human action, audited.
+         */
+        post: operations["accept_reference_documents__document_id__accept_reference_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/documents/{document_id}/hidden-text": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Hidden Text
+         * @description Text found hidden in the file (untrusted; shown as inert text). Not for suppliers.
+         */
+        get: operations["hidden_text_documents__document_id__hidden_text_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/documents/{document_id}/file": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Download
+         * @description The stored file via a signed URL from `GET /documents/{id}` (expires after a few minutes
+         *     and only works for the user it was issued to). An attachment by default; `inline=1` serves
+         *     only PDF/PNG/JPG whose bytes still match their stored type, for the in-page viewer.
+         */
+        get: operations["download_documents__document_id__file_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -1303,6 +1433,16 @@ export interface components {
             /** Bn */
             bn: string;
         };
+        /** Body_upload_document_deals__deal_id__documents_post */
+        Body_upload_document_deals__deal_id__documents_post: {
+            /** @description Document type */
+            doc_type: components["schemas"]["DocType"];
+            /**
+             * File
+             * @description PDF, PNG or JPG, at most 10 MB
+             */
+            file: string;
+        };
         /** CashflowCard */
         CashflowCard: {
             /** Explanation Codes */
@@ -1441,7 +1581,7 @@ export interface components {
              * Cards
              * @description Result cards, in tool order.
              */
-            cards?: (components["schemas"]["CitationsCard"] | components["schemas"]["LandedCostCard"] | components["schemas"]["CashflowCard"] | components["schemas"]["AlertsCard"] | components["schemas"]["FinancingComparisonCard"] | components["schemas"]["FxCompareCard"] | components["schemas"]["MonthlySummaryCard"] | components["schemas"]["ScorecardCard"] | components["schemas"]["KybCard"])[];
+            cards?: (components["schemas"]["CitationsCard"] | components["schemas"]["LandedCostCard"] | components["schemas"]["CashflowCard"] | components["schemas"]["AlertsCard"] | components["schemas"]["FinancingComparisonCard"] | components["schemas"]["FxCompareCard"] | components["schemas"]["MonthlySummaryCard"] | components["schemas"]["ScorecardCard"] | components["schemas"]["KybCard"] | components["schemas"]["DocumentCheckCard"])[];
             /**
              * Citations
              * @description Knowledge-base sources cited in the answer ([S1]…).
@@ -2147,6 +2287,259 @@ export interface components {
             /** Users */
             users: components["schemas"]["DemoUserOut"][];
         };
+        /**
+         * DocType
+         * @enum {string}
+         */
+        DocType: "PROFORMA_INVOICE" | "COMMERCIAL_INVOICE" | "PACKING_LIST" | "BILL_OF_LADING" | "CERTIFICATE_OF_ORIGIN" | "BILL_OF_ENTRY" | "PRODUCTION_PHOTO" | "OTHER";
+        /** DocumentCheckCard */
+        DocumentCheckCard: {
+            /** Explanation Codes */
+            explanation_codes: string[];
+            /** Explanation En */
+            explanation_en: string;
+            /** Explanation Bn */
+            explanation_bn: string;
+            /**
+             * Simulated
+             * @default true
+             * @constant
+             */
+            simulated: true;
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            card_type: "document_check";
+            data: components["schemas"]["DocumentCheckData"];
+        };
+        /** DocumentCheckData */
+        DocumentCheckData: {
+            /** Deal Ref */
+            deal_ref: string;
+            /**
+             * Defaulted Deal
+             * @default false
+             */
+            defaulted_deal: boolean;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "PASSED" | "WARNING" | "FAILED" | "PENDING" | "NOT_RUN" | "NONE";
+            /** Score */
+            score: number | null;
+            /** @description The requested or worst document. */
+            focus: components["schemas"]["DocumentCheckItem"] | null;
+            /** Documents */
+            documents: components["schemas"]["DocumentCheckItem"][];
+            /** Checks Total */
+            checks_total: number;
+            /** Passed */
+            passed: number;
+            /** Warning */
+            warning: number;
+            /** Failed */
+            failed: number;
+            /** Instruction From Document */
+            instruction_from_document: boolean;
+            /** Hidden Text Found */
+            hidden_text_found: boolean;
+            /**
+             * Security Flags
+             * @description Codes that flag the turn (hidden text, instructions).
+             */
+            security_flags?: string[];
+            /** Deal Route */
+            deal_route: string;
+        };
+        /**
+         * DocumentCheckItem
+         * @description One document by role label and codes. File names and document text never appear here.
+         */
+        DocumentCheckItem: {
+            /**
+             * Document Id
+             * Format: uuid
+             */
+            document_id: string;
+            /** Doc Type */
+            doc_type: string;
+            /** Doc Label En */
+            doc_label_en: string;
+            /** Doc Label Bn */
+            doc_label_bn: string;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "PASSED" | "WARNING" | "FAILED" | "PENDING" | "NOT_RUN";
+            /** Score */
+            score: number | null;
+            /**
+             * Reasons
+             * @description Top 3 non-passing checks, worst first.
+             */
+            reasons: components["schemas"]["DocumentReason"][];
+            /** Instruction From Document */
+            instruction_from_document: boolean;
+            /** Hidden Text Found */
+            hidden_text_found: boolean;
+            /** Route */
+            route: string;
+        };
+        /** DocumentDetail */
+        DocumentDetail: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Deal Id
+             * Format: uuid
+             */
+            deal_id: string;
+            /** Deal Reference */
+            deal_reference: string;
+            /** Milestone Id */
+            milestone_id: string | null;
+            /** Milestone Seq */
+            milestone_seq: number | null;
+            /**
+             * Doc Type
+             * @enum {string}
+             */
+            doc_type: "PROFORMA_INVOICE" | "COMMERCIAL_INVOICE" | "PACKING_LIST" | "BILL_OF_LADING" | "CERTIFICATE_OF_ORIGIN" | "BILL_OF_ENTRY" | "PRODUCTION_PHOTO" | "OTHER";
+            /** File Name */
+            file_name: string;
+            /** Mime Type */
+            mime_type: string;
+            /** Size Bytes */
+            size_bytes: number | null;
+            /** Sha256 */
+            sha256: string | null;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "UPLOADED" | "PLACEHOLDER" | "REJECTED" | "IN_REVIEW";
+            /**
+             * Check Status
+             * @enum {string}
+             */
+            check_status: "NOT_RUN" | "PENDING" | "PASSED" | "WARNING" | "FAILED";
+            /** Score */
+            score: number | null;
+            /** Instruction From Document */
+            instruction_from_document: boolean | null;
+            /** Hidden Text Found */
+            hidden_text_found: boolean | null;
+            top_reason?: components["schemas"]["TopReasonOut"] | null;
+            /** Reference Accepted */
+            reference_accepted?: boolean | null;
+            /** Uploaded At */
+            uploaded_at: string | null;
+            /** Fields */
+            fields: {
+                [key: string]: unknown;
+            } | null;
+            /** Findings */
+            findings: components["schemas"]["FindingOut"][];
+            verdict: components["schemas"]["VerdictOut"] | null;
+            /** Hidden Spans Count */
+            hidden_spans_count: number | null;
+            /** Warnings */
+            warnings: string[];
+            /** Extractor Version */
+            extractor_version: string | null;
+            /** File Url */
+            file_url: string | null;
+            /** File Url Expires At */
+            file_url_expires_at: string | null;
+            /** File Inline Url */
+            file_inline_url?: string | null;
+            /** Viewer Role */
+            viewer_role?: ("BUYER" | "SUPPLIER" | "ADMIN" | "JUDGE") | null;
+            /**
+             * Simulated
+             * @default true
+             * @constant
+             */
+            simulated: true;
+        };
+        /** DocumentList */
+        DocumentList: {
+            /** Documents */
+            documents: components["schemas"]["DocumentOut"][];
+        };
+        /** DocumentOut */
+        DocumentOut: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Deal Id
+             * Format: uuid
+             */
+            deal_id: string;
+            /** Deal Reference */
+            deal_reference: string;
+            /** Milestone Id */
+            milestone_id: string | null;
+            /** Milestone Seq */
+            milestone_seq: number | null;
+            /**
+             * Doc Type
+             * @enum {string}
+             */
+            doc_type: "PROFORMA_INVOICE" | "COMMERCIAL_INVOICE" | "PACKING_LIST" | "BILL_OF_LADING" | "CERTIFICATE_OF_ORIGIN" | "BILL_OF_ENTRY" | "PRODUCTION_PHOTO" | "OTHER";
+            /** File Name */
+            file_name: string;
+            /** Mime Type */
+            mime_type: string;
+            /** Size Bytes */
+            size_bytes: number | null;
+            /** Sha256 */
+            sha256: string | null;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "UPLOADED" | "PLACEHOLDER" | "REJECTED" | "IN_REVIEW";
+            /**
+             * Check Status
+             * @enum {string}
+             */
+            check_status: "NOT_RUN" | "PENDING" | "PASSED" | "WARNING" | "FAILED";
+            /** Score */
+            score: number | null;
+            /** Instruction From Document */
+            instruction_from_document: boolean | null;
+            /** Hidden Text Found */
+            hidden_text_found: boolean | null;
+            top_reason?: components["schemas"]["TopReasonOut"] | null;
+            /** Reference Accepted */
+            reference_accepted?: boolean | null;
+            /** Uploaded At */
+            uploaded_at: string | null;
+        };
+        /** DocumentReason */
+        DocumentReason: {
+            /** Code */
+            code: string;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "WARN" | "FAIL";
+            /** Detail En */
+            detail_en: string;
+            /** Detail Bn */
+            detail_bn: string;
+        };
         /** EscrowCard */
         EscrowCard: {
             /**
@@ -2360,6 +2753,40 @@ export interface components {
             conditions: string;
             /** Why Not */
             why_not: components["schemas"]["Bilingual"][];
+        };
+        /** FindingOut */
+        FindingOut: {
+            /** Check Code */
+            check_code: string;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "PASS" | "WARN" | "FAIL" | "SKIPPED";
+            /**
+             * Severity
+             * @enum {string}
+             */
+            severity: "INFO" | "WARNING" | "CRITICAL";
+            /** Label En */
+            label_en: string;
+            /** Label Bn */
+            label_bn: string;
+            /** Issue En */
+            issue_en: string;
+            /** Issue Bn */
+            issue_bn: string;
+            /** Ground Truth */
+            ground_truth?: string | null;
+            /** Detail */
+            detail: {
+                [key: string]: unknown;
+            };
+            /**
+             * Checked At
+             * Format: date-time
+             */
+            checked_at: string;
         };
         /** FlowOut */
         FlowOut: {
@@ -2632,6 +3059,44 @@ export interface components {
             db: "ok" | "unavailable";
             /** Version */
             version: string;
+        };
+        /** HiddenSpanOut */
+        HiddenSpanOut: {
+            /** Text */
+            text: string;
+            /** Page */
+            page: number;
+            /** Bbox */
+            bbox: number[];
+            /** Colour */
+            colour: number[] | null;
+            /** Size */
+            size: number;
+            /** Page Width */
+            page_width?: number | null;
+            /** Page Height */
+            page_height?: number | null;
+            /**
+             * Reason
+             * @enum {string}
+             */
+            reason: "WHITE_TEXT" | "TINY_TEXT" | "OFF_PAGE" | "INVISIBLE_RENDER" | "COVERED_TEXT" | "LOW_CONTRAST";
+        };
+        /** HiddenTextOut */
+        HiddenTextOut: {
+            /**
+             * Document Id
+             * Format: uuid
+             */
+            document_id: string;
+            /** Spans */
+            spans: components["schemas"]["HiddenSpanOut"][];
+            /** Instruction Codes */
+            instruction_codes: {
+                [key: string]: string[];
+            };
+            /** Notice */
+            notice: string;
         };
         /** ImpactOut */
         ImpactOut: {
@@ -3267,7 +3732,7 @@ export interface components {
              * Card
              * @description For tool messages that produced a card.
              */
-            card?: (components["schemas"]["CitationsCard"] | components["schemas"]["LandedCostCard"] | components["schemas"]["CashflowCard"] | components["schemas"]["AlertsCard"] | components["schemas"]["FinancingComparisonCard"] | components["schemas"]["FxCompareCard"] | components["schemas"]["MonthlySummaryCard"] | components["schemas"]["ScorecardCard"] | components["schemas"]["KybCard"]) | null;
+            card?: (components["schemas"]["CitationsCard"] | components["schemas"]["LandedCostCard"] | components["schemas"]["CashflowCard"] | components["schemas"]["AlertsCard"] | components["schemas"]["FinancingComparisonCard"] | components["schemas"]["FxCompareCard"] | components["schemas"]["MonthlySummaryCard"] | components["schemas"]["ScorecardCard"] | components["schemas"]["KybCard"] | components["schemas"]["DocumentCheckCard"]) | null;
         };
         /** MilestoneActions */
         MilestoneActions: {
@@ -4285,6 +4750,35 @@ export interface components {
             /** Sentences */
             sentences: components["schemas"]["Explanation"][];
         };
+        /** TopReasonOut */
+        TopReasonOut: {
+            /** Code */
+            code: string;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "WARN" | "FAIL";
+            /** Label En */
+            label_en: string;
+            /** Label Bn */
+            label_bn: string;
+            /** Issue En */
+            issue_en: string;
+            /** Issue Bn */
+            issue_bn: string;
+        };
+        /** UploadResult */
+        UploadResult: {
+            document: components["schemas"]["DocumentOut"];
+            /** Reused */
+            reused: boolean;
+            /**
+             * Checking
+             * @enum {string}
+             */
+            checking: "QUEUED" | "DONE";
+        };
         /** UsageOut */
         UsageOut: {
             /** Input Tokens */
@@ -4310,6 +4804,26 @@ export interface components {
             input?: unknown;
             /** Context */
             ctx?: Record<string, never>;
+        };
+        /** VerdictOut */
+        VerdictOut: {
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "PASSED" | "WARNING" | "FAILED";
+            /** Score */
+            score: number;
+            /** Reason Codes */
+            reason_codes: string[];
+            /** Forced By */
+            forced_by: string[];
+            /** Explanation En */
+            explanation_en: string;
+            /** Explanation Bn */
+            explanation_bn: string;
+            /** Checked At */
+            checked_at?: string | null;
         };
         /** WeekOut */
         WeekOut: {
@@ -5914,6 +6428,234 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["EvidenceResult"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_documents_deals__deal_id__documents_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                deal_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DocumentList"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    upload_document_deals__deal_id__documents_post: {
+        parameters: {
+            query?: {
+                /** @description Run the checks before answering */
+                wait?: boolean;
+            };
+            header?: never;
+            path: {
+                deal_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "multipart/form-data": components["schemas"]["Body_upload_document_deals__deal_id__documents_post"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UploadResult"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_document_documents__document_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                document_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DocumentDetail"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    recheck_documents__document_id__recheck_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                document_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DocumentDetail"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    accept_reference_documents__document_id__accept_reference_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                document_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DocumentDetail"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    hidden_text_documents__document_id__hidden_text_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                document_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HiddenTextOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    download_documents__document_id__file_get: {
+        parameters: {
+            query: {
+                token: string;
+                /** @description Serve a validated PDF/PNG/JPG for preview */
+                inline?: boolean;
+            };
+            header?: never;
+            path: {
+                document_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
                 };
             };
             /** @description Validation Error */

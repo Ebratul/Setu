@@ -260,6 +260,46 @@ def _kyb_sentences(d: dict[str, Any], lang: Lang) -> list[str]:
     return [head, *why]
 
 
+def _document_sentences(d: dict[str, Any], lang: Lang) -> list[str]:
+    focus = d.get("focus")
+    if focus is None:
+        return [
+            "এই ডিলের জন্য এখনও কোনো ডকুমেন্ট আপলোড করা হয়নি।"
+            if lang == "bn"
+            else "No documents have been uploaded for this deal yet."
+        ]
+    bn_ = lang == "bn"
+    name = focus["doc_label_bn" if bn_ else "doc_label_en"]
+    out: list[str] = []
+    if d.get("instruction_from_document") or d.get("hidden_text_found"):
+        out.append(
+            f"{name}-এ একটি লুকানো নির্দেশ আছে, যা Setu উপেক্ষা করেছে; এটি আমি অনুসরণ করিনি।"
+            if bn_
+            else f"The {name.lower()} contains a hidden instruction that Setu ignored; I did not "
+            "follow it."
+        )
+    status, score = focus["status"], focus["score"]
+    tail = f" (স্কোর {score}/100)" if bn_ else f" (score {score}/100)"
+    tail = tail if score is not None else ""
+    word = {
+        "PASSED": ("সব যাচাই সফল", "passed all checks"),
+        "WARNING": ("পর্যালোচনা দরকার", "needs review"),
+        "FAILED": ("যাচাইয়ে ব্যর্থ", "failed the checks"),
+    }.get(status, ("যাচাই চলছে", "is still being checked"))
+    out.append(f"{name}: {word[0]}{tail}।" if bn_ else f"The {name.lower()} {word[1]}{tail}.")
+    out.extend(r["detail_bn" if bn_ else "detail_en"] for r in focus["reasons"][:2])
+    others = len(d.get("documents", [])) - 1
+    if others > 0:
+        out.append(
+            f"এই ডিলের আরও {others}টি ডকুমেন্ট আছে: {d['passed']}টি সফল, {d['warning']}টি "
+            f"পর্যালোচনা, {d['failed']}টি ব্যর্থ।"
+            if bn_
+            else f"{others} more document(s) on this deal: {d['passed']} passed, "
+            f"{d['warning']} to review, {d['failed']} failed."
+        )
+    return out
+
+
 _FORMATTERS = {
     "get_dashboard_snapshot": _dashboard_sentences,
     "get_deal_summary": _deal_sentences,
@@ -299,6 +339,7 @@ _CARD_FORMATTERS = {
     "monthly_summary": _monthly_sentences,
     "scorecard": _scorecard_sentences,
     "kyb": _kyb_sentences,
+    "document_check": _document_sentences,
 }
 _GREETING = {
     "en": "Hello! I'm Setu, your import-finance copilot. Ask me about your cash flow, a deal, "
@@ -373,6 +414,24 @@ _KYB = (
     "বিশ্বস্ত",
     "核实",
 )
+_DOCS = (
+    "document",
+    "invoice",
+    "bill of lading",
+    "b/l",
+    "packing list",
+    "certificate of origin",
+    "forged",
+    "tamper",
+    "ডকুমেন্ট",
+    "কাগজ",
+    "চালান",
+    "বিল অফ লেডিং",
+    "বিল অব লেডিং",
+    "提单",
+    "发票",
+    "文件",
+)
 _SUPPLIER_CODES = {
     "huaxin": "shaoxing-huaxin",
     "huameng": "guangzhou-huameng",
@@ -434,6 +493,7 @@ def _pick_tool(
     rules: list[tuple[bool, str, dict[str, Any]]] = [
         (has(_DASH_ONLY), "get_dashboard_snapshot", {}),
         (knowledge, "search_knowledge", kb_args),
+        (has(_DOCS), "check_documents", deal),
         (has(_KYB), "verify_party", {**deal, **_supplier_arg(q)}),
         (has(_ALERTS), "get_alerts", {}),
         (has(_LANDED), "analyze_order", deal),

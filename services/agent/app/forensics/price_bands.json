@@ -1,0 +1,61 @@
+{
+  "_note": "Reference unit-price bands (USD per unit), mirrors synthetic/catalog.py GOODS and data/generated/price_bands.json. Illustrative, not market data.",
+  "bands": {
+    "5205.22": {
+      "name": "Combed cotton yarn",
+      "unit": "kg",
+      "currency": "USD",
+      "min": "2.80",
+      "max": "4.40"
+    },
+    "5208.32": {
+      "name": "Dyed plain-weave cotton fabric",
+      "unit": "m",
+      "currency": "USD",
+      "min": "1.10",
+      "max": "2.10"
+    },
+    "5402.33": {
+      "name": "Textured polyester filament yarn",
+      "unit": "kg",
+      "currency": "USD",
+      "min": "1.40",
+      "max": "2.40"
+    },
+    "5407.52": {
+      "name": "Dyed polyester woven fabric",
+      "unit": "m",
+      "currency": "USD",
+      "min": "0.60",
+      "max": "1.30"
+    },
+    "5509.21": {
+      "name": "Polyester staple fibre yarn",
+      "unit": "kg",
+      "currency": "USD",
+      "min": "1.35",
+      "max": "2.30"
+    },
+    "6006.22": {
+      "name": "Dyed cotton jersey fabric",
+      "unit": "m",
+      "currency": "USD",
+      "min": "0.95",
+      "max": "1.65"
+    },
+    "9606.22": {
+      "name": "Metal garment buttons",
+      "unit": "pcs",
+      "currency": "USD",
+      "min": "0.015",
+      "max": "0.045"
+    },
+    "9607.19": {
+      "name": "Zip fasteners (nylon coil)",
+      "unit": "pcs",
+      "currency": "USD",
+      "min": "0.10",
+      "max": "0.30"
+    }
+  }
+}

@@ -96,6 +96,15 @@ export function validateCard(v: unknown): ChatCardData | null {
         isArr(d.reasons) &&
         d.reasons.every(isObj);
       break;
+    case "document_check":
+      ok =
+        typeof d.deal_ref === "string" &&
+        typeof d.status === "string" &&
+        ["PASSED", "WARNING", "FAILED", "PENDING", "NOT_RUN", "NONE"].includes(d.status) &&
+        isArr(d.documents) &&
+        d.documents.every(isObj) &&
+        (d.focus == null || (isObj(d.focus) && isArr(d.focus.reasons)));
+      break;
     case "citations":
       ok = isArr(d.snippets) && isArr(d.withheld);
       break;

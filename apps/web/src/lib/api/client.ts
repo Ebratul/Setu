@@ -80,6 +80,17 @@ export function apiPost<T>(
   });
 }
 
+/** multipart/form-data POST; the browser sets the boundary header itself. */
+export function apiPostForm<T>(
+  path: string,
+  body: FormData,
+  init?: RequestInit,
+): Promise<T> {
+  return request<T>("POST", path, { ...init, body });
+}
+
+export const API_BASE_URL = API_BASE;
+
 export function getHealth(signal?: AbortSignal): Promise<HealthResponse> {
   return apiGet<HealthResponse>("/health", { signal, cache: "no-store" });
 }

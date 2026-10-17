@@ -1,7 +1,19 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.api import analysis, auth, cashflow, chat, deals, financing, health, kyb, suppliers
+from app.api import (
+    analysis,
+    auth,
+    cashflow,
+    chat,
+    deals,
+    documents,
+    financing,
+    health,
+    kyb,
+    suppliers,
+)
+from app.api.body_limit import UploadBodyLimit
 from app.config import Settings, get_settings
 from app.errors import install_handlers
 
@@ -27,6 +39,7 @@ def create_app() -> FastAPI:
         version=settings.app_version,
         description="Setu AI SME Finance Copilot. All money movement is simulated.",
     )
+    app.add_middleware(UploadBodyLimit)  # inside CORS, so a 413 still carries CORS headers
     app.add_middleware(
         CORSMiddleware,
         allow_origins=settings.cors_origins,
@@ -44,6 +57,7 @@ def create_app() -> FastAPI:
     app.include_router(kyb.router)
     app.include_router(suppliers.router)
     app.include_router(deals.router)
+    app.include_router(documents.router)
     return app
 
 

@@ -74,6 +74,9 @@ describe("validateCard", () => {
     expect(validateCard({ ...base, card_type: "cashflow", data: { before: {}, upcoming: [] } })).toBeNull();
     expect(validateCard({ ...base, card_type: "alerts", data: { alerts: {} } })).toBeNull();
     expect(validateCard({ ...base, card_type: "scorecard", data: {} })).toBeNull();
+    expect(validateCard({ ...base, card_type: "document_check", data: { deal_ref: "X", status: "FAILED", documents: {} } })).toBeNull();
+    expect(validateCard({ ...base, card_type: "document_check", data: { deal_ref: "X", status: "FAILED", documents: [], focus: { reasons: {} } } })).toBeNull();
+    expect(validateCard({ ...base, card_type: "document_check", data: { deal_ref: "X", status: "FAILED", documents: [], focus: null } })).not.toBeNull();
     expect(validateCard({ ...base, card_type: "fx_compare", data: {} })).toBeNull();
     expect(validateCard({ ...base, card_type: "monthly_summary", data: {} })).toBeNull();
     expect(validateCard({ ...base, card_type: "landed_cost", data: {} })).toBeNull();

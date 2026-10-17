@@ -16,6 +16,7 @@ import { formatDate, formatMoney } from "@/lib/format";
 import { useApi } from "@/lib/useApi";
 
 import { Bi } from "./Bi";
+import { SupplierDocuments } from "./SupplierDocuments";
 
 export function SupplierOrderPage({ reference }: { reference: string }) {
   const t = useT();
@@ -116,6 +117,8 @@ function Body({ deal, reload, back }: { deal: DealDetail; reload: () => void; ba
           </div>
         ) : null}
       </section>
+
+      {deal.status !== "CANCELLED" ? <SupplierDocuments dealId={deal.id} onChanged={reload} /> : null}
 
       <Card as="section" labelledBy="sp-pay-h" className="space-y-3">
         <h2 id="sp-pay-h" className="text-lg font-bold text-ink">

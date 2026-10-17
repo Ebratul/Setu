@@ -38,3 +38,6 @@ data/generated/
 # Playwright output
 apps/web/test-results/
 apps/web/playwright-report/
+
+# Uploaded documents (local storage backend)
+services/agent/storage/

@@ -54,6 +54,7 @@ ACTION_LABELS: dict[str, tuple[str, str]] = {
     "REVIEW_CASHFLOW": ("Open cash flow", "নগদ প্রবাহ দেখুন"),
     "REVIEW_FX_TIMING": ("Review payment timing", "পরিশোধের সময় দেখুন"),
     "REVIEW_SUPPLIER": ("Review the supplier", "সরবরাহকারীকে দেখুন"),
+    "REVIEW_DOCUMENT": ("Review the document", "ডকুমেন্টটি দেখুন"),
 }
 SEVERITY_ORDER = {"CRITICAL": 0, "WARNING": 1, "INFO": 2}
 
@@ -517,3 +518,104 @@ def sync_kyb_alerts(
                 _kyb_resolve(row, counts)
     db.flush()
     return counts
+
+
+DOC_TYPE_LABELS: dict[str, tuple[str, str]] = {
+    "PROFORMA_INVOICE": ("Proforma invoice", "প্রফর্মা ইনভয়েস"),
+    "COMMERCIAL_INVOICE": ("Commercial invoice", "কমার্শিয়াল ইনভয়েস"),
+    "PACKING_LIST": ("Packing list", "প্যাকিং লিস্ট"),
+    "BILL_OF_LADING": ("Bill of lading", "বিল অব লেডিং"),
+    "CERTIFICATE_OF_ORIGIN": ("Certificate of origin", "সার্টিফিকেট অব অরিজিন"),
+    "BILL_OF_ENTRY": ("Bill of entry", "বিল অব এন্ট্রি"),
+    "PRODUCTION_PHOTO": ("Production photo", "উৎপাদনের ছবি"),
+    "OTHER": ("Document", "ডকুমেন্ট"),
+}
+
+
+def document_alert_key(document_id: uuid.UUID) -> str:
+    return f"alert:fraud:doc:{document_id}"
+
+
+def sync_document_alert(
+    db: Session,
+    deal: Deal,
+    *,
+    document_id: uuid.UUID,
+    doc_type: str,
+    failed: bool,
+    score: int | None,
+    reason_codes: Sequence[str],
+    labels: dict[str, tuple[str, str]],
+    instruction: bool,
+    milestone_id: uuid.UUID | None = None,
+    allow_resolve: bool = False,
+) -> str | None:
+    """FRAUD alert for a document that failed forensics (one per document, idempotent; resolved
+    when a re-check no longer fails). The text is built from codes and fixed labels only, never
+    from document text. Returns "created" | "updated" | "resolved" | None. The caller commits."""
+    key = document_alert_key(document_id)
+    row = db.scalar(select(Alert).where(Alert.key == key))
+    if not failed:
+        # never auto-resolved: a re-check by an admin (allow_resolve) clears it
+        if allow_resolve and row is not None and row.status != AlertStatus.RESOLVED:
+            row.status = AlertStatus.RESOLVED
+            row.facts = {**(row.facts or {}), "resolved_by": "engine"}
+            return "resolved"
+        return None
+    name_en, name_bn = DOC_TYPE_LABELS.get(doc_type, DOC_TYPE_LABELS["OTHER"])
+    why_en = "; ".join(labels[c][0] for c in reason_codes[:3] if c in labels)
+    why_bn = "; ".join(labels[c][1] for c in reason_codes[:3] if c in labels)
+    tail_score = f" (score {score}/100)" if score is not None else ""
+    values: dict[str, Any] = {
+        "party_id": deal.buyer_id,
+        "deal_id": deal.id,
+        "milestone_id": milestone_id,
+        "type": AlertType.FRAUD,
+        "severity": Severity.CRITICAL,
+        "title_en": f"{name_en} failed document checks: {deal.reference}"[:200],
+        "title_bn": f"{name_bn} যাচাইয়ে ব্যর্থ: {deal.reference}"[:200],
+        "message_en": f"{name_en} for {deal.reference} failed forensic checks{tail_score}. "
+        f"{why_en}. Hold any payment until it has been reviewed."
+        + (" It contains a hidden instruction that Setu ignored." if instruction else ""),
+        "message_bn": bn(
+            f"{deal.reference}-এর {name_bn} ডকুমেন্ট যাচাইয়ে ব্যর্থ"
+            f"{f' (স্কোর {score}/100)' if score is not None else ''}। {why_bn}। "
+            "এই ডকুমেন্টের ভিত্তিতে অর্থ ছাড় করা যাবে না।"
+            + (" এতে একটি লুকানো নির্দেশ ছিল যা Setu উপেক্ষা করেছে।" if instruction else "")
+        ),
+        "amount": None,
+        "currency": None,
+        "due_on": None,
+        "facts": {
+            "document_id": str(document_id),
+            "doc_type": doc_type,
+            "deal_ref": deal.reference,
+            "score": score,
+            "reasons": list(reason_codes),
+            "instruction_from_document": instruction,
+            "action": {
+                "code": "REVIEW_DOCUMENT",
+                "route": f"/app/documents/{document_id}",
+                "query": {},
+            },
+            "engine": "forensics-v1",
+        },
+    }
+    if row is None:
+        db.add(
+            Alert(
+                id=uuid.uuid5(uuid.NAMESPACE_URL, f"setu:{key}"),
+                key=key,
+                status=AlertStatus.OPEN,
+                **values,
+            )
+        )
+        db.flush()
+        return "created"
+    if row.status == AlertStatus.RESOLVED:
+        row.status = AlertStatus.OPEN
+    for k, v in values.items():
+        if getattr(row, k) != v:
+            setattr(row, k, v)
+    db.flush()
+    return "updated"

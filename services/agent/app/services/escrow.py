@@ -447,6 +447,7 @@ def set_evidence_status(
     *,
     actor: CurrentUser | None = None,
     now: datetime | None = None,
+    commit: bool = True,
 ) -> Milestone:
     """Record the evidence verdict for a tranche. Internal: Phase 14's document pipeline calls this
     once every required document passed (VERIFIED) or something failed. Not exposed to the LLM, and
@@ -481,7 +482,8 @@ def set_evidence_status(
         actor="user" if actor else "system",
         ts=now,
     )
-    db.commit()
+    if commit:
+        db.commit()
     return ms
 
 
@@ -706,6 +708,20 @@ def release_tranche(
             now,
         )
 
+    from app.services.documents import release_facts  # lazy: documents import this module
+
+    doc_facts = release_facts.facts(db, deal.id, ms.id)
+    if doc_facts.pending:
+        raise _refuse(
+            db,
+            deal,
+            ms,
+            requested_by,
+            "DOCUMENTS_PENDING",
+            "a document for this tranche has not finished its checks",
+            now,
+        )
+
     # b. funds
     if escrow is None or escrow.balance < ms.amount:
         raise _refuse(
@@ -788,6 +804,8 @@ def release_tranche(
         advance_over_20k=escrow.advance_over_20k,
         requested_by_user_id=requested_by.id,
         requested_by_role=requested_by.role.value,
+        document_instruction=doc_facts.instruction,
+        document_duplicate=doc_facts.duplicate,
     )
     evaluate = hook or risk_hook.evaluate
     result = risk_hook.normalise(evaluate(RiskAction.RELEASE_TRANCHE, context))

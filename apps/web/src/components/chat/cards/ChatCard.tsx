@@ -4,6 +4,7 @@ import type { ChatCardData } from "@/lib/api/chat";
 
 import { AlertsCard } from "./AlertsCard";
 import { CashflowCard } from "./CashflowCard";
+import { DocumentCheckCard } from "./DocumentCheckCard";
 import { FinancingComparisonCard } from "./FinancingComparisonCard";
 import { FxCompareCard } from "./FxCompareCard";
 import { KybCard } from "./KybCard";
@@ -30,6 +31,8 @@ export function ChatCard({ card }: { card: ChatCardData }) {
       return <ScorecardCard card={card} />;
     case "kyb":
       return <KybCard card={card} />;
+    case "document_check":
+      return <DocumentCheckCard card={card} />;
     default:
       return null;
   }

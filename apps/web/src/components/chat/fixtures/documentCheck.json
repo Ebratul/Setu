@@ -1,0 +1,63 @@
+{
+  "explanation_codes": ["DOC_FAILED"],
+  "explanation_en": "The bill of lading failed the checks (score 100). Do not rely on it.",
+  "explanation_bn": "বিল অব লেডিং যাচাইয়ে ব্যর্থ হয়েছে (স্কোর ১০০)। এর ওপর নির্ভর করবেন না।",
+  "simulated": true,
+  "card_type": "document_check",
+  "data": {
+    "deal_ref": "SETU-2026-0001",
+    "defaulted_deal": false,
+    "status": "FAILED",
+    "score": 100,
+    "focus": {
+      "document_id": "22222222-2222-4222-8222-222222222222",
+      "doc_type": "BILL_OF_LADING",
+      "doc_label_en": "Bill of lading",
+      "doc_label_bn": "বিল অব লেডিং",
+      "status": "FAILED",
+      "score": 100,
+      "reasons": [
+        { "code": "INSTRUCTION_SCAN", "status": "FAIL", "detail_en": "Instruction-like text was found in the document.", "detail_bn": "নথিতে নির্দেশের মতো লেখা পাওয়া গেছে।" },
+        { "code": "HIDDEN_TEXT", "status": "FAIL", "detail_en": "Hidden text was found in the document.", "detail_bn": "নথিতে লুকানো লেখা পাওয়া গেছে।" },
+        { "code": "METADATA_ANOMALY", "status": "WARN", "detail_en": "The file metadata looks unusual.", "detail_bn": "ফাইলের মেটাডেটা অস্বাভাবিক।" }
+      ],
+      "instruction_from_document": true,
+      "hidden_text_found": true,
+      "route": "/app/documents/22222222-2222-4222-8222-222222222222"
+    },
+    "documents": [
+      {
+        "document_id": "22222222-2222-4222-8222-222222222222",
+        "doc_type": "BILL_OF_LADING",
+        "doc_label_en": "Bill of lading",
+        "doc_label_bn": "বিল অব লেডিং",
+        "status": "FAILED",
+        "score": 100,
+        "reasons": [],
+        "instruction_from_document": true,
+        "hidden_text_found": true,
+        "route": "/app/documents/22222222-2222-4222-8222-222222222222"
+      },
+      {
+        "document_id": "33333333-3333-4333-8333-333333333333",
+        "doc_type": "PACKING_LIST",
+        "doc_label_en": "Packing list",
+        "doc_label_bn": "প্যাকিং লিস্ট",
+        "status": "PASSED",
+        "score": 0,
+        "reasons": [],
+        "instruction_from_document": false,
+        "hidden_text_found": false,
+        "route": "/app/documents/33333333-3333-4333-8333-333333333333"
+      }
+    ],
+    "checks_total": 16,
+    "passed": 1,
+    "warning": 0,
+    "failed": 1,
+    "instruction_from_document": true,
+    "hidden_text_found": true,
+    "security_flags": ["HIDDEN_TEXT", "DOC_INSTRUCTION"],
+    "deal_route": "/app/deals/SETU-2026-0001"
+  }
+}

@@ -32,7 +32,7 @@ from sqlalchemy.orm import Session
 
 from app.auth.deps import CurrentUser, can_read_party
 from app.config import get_settings
-from app.db.enums import AccountStatus, DealStatus, DocType, KybStatus, PartyKind
+from app.db.enums import AccountStatus, CheckStatus, DealStatus, DocType, KybStatus, PartyKind
 from app.db.models import BankAccount, Deal, Document, KybCheck, KybRun, Party
 from app.domain import kyb as engine
 from app.errors import NotFound, ServiceUnavailable
@@ -168,6 +168,10 @@ def invoice_name_for(
             .order_by(Document.uploaded_at.desc().nulls_last(), Document.key)
         ).all()
         for doc in docs:
+            # only a PASSED or buyer-accepted proforma invoice may speak for the seller
+            meta = (doc.extracted_json or {}).get("_forensics") or {}
+            if doc.check_status != CheckStatus.PASSED and not meta.get("accepted"):
+                continue
             seller = (doc.extracted_json or {}).get("seller")
             if isinstance(seller, str) and clean_name(seller):
                 name, source = clean_name(seller), "proforma"

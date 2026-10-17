@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useState } from "react";
 
 import { StatusBadge } from "@/components/analysis/StatusBadge";
+import { DocumentsTab } from "@/components/documents/DocumentsTab";
 import { DealKybPanel } from "@/components/kyb/DealKybPanel";
 import { KybBadge } from "@/components/kyb/KybBadge";
 import { Card } from "@/components/ui/Card";
@@ -57,7 +58,7 @@ export function DealDetailPage({ reference }: { reference: string }) {
         ]}
       >
         {tab === "overview" ? <Overview deal={d} reload={deal.reload} /> : null}
-        {tab === "documents" ? <Documents deal={d} /> : null}
+        {tab === "documents" ? <DocumentsTab deal={d} onChanged={deal.reload} /> : null}
         {tab === "analysis" ? <AnalysisLinks deal={d} /> : null}
         {tab === "activity" ? <Activity deal={d} /> : null}
       </Tabs>
@@ -199,34 +200,6 @@ function Confirmations({ deal }: { deal: DealDetail }) {
         ))}
       </ul>
     </Card>
-  );
-}
-
-function Documents({ deal }: { deal: DealDetail }) {
-  const t = useT();
-  return (
-    <div className="space-y-4">
-      <Card>
-        <p className="text-sm text-muted">{t("dd.docsSoon")}</p>
-      </Card>
-      {deal.milestones.map((m) => (
-        <Card key={m.id} as="section" className="space-y-2">
-          <h2 className="text-base font-bold text-ink">
-            {t("ms.step", { seq: m.seq })} · {t(`trigger.${m.trigger}`)}
-          </h2>
-          <ul className="space-y-1 text-sm">
-            {m.required_evidence.map((e) => (
-              <li key={e.doc_type} className="flex flex-wrap gap-2">
-                <span className="font-semibold text-ink">{t(`docType.${e.doc_type}`)}</span>
-                <span className="text-muted">
-                  {t(`ms.ev.${e.status}`)} · {t("ms.docCount", { n: e.documents })}
-                </span>
-              </li>
-            ))}
-          </ul>
-        </Card>
-      ))}
-    </div>
   );
 }
 
