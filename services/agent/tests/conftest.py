@@ -106,3 +106,12 @@ def kb_hash_embedder(monkeypatch: pytest.MonkeyPatch) -> Iterator[None]:
     get_settings.cache_clear()
     yield
     get_settings.cache_clear()
+
+
+@pytest.fixture(autouse=True)
+def default_to_mock_llm(monkeypatch: pytest.MonkeyPatch) -> Iterator[None]:
+    """A real key in a developer's .env must never make the tests call a model."""
+    monkeypatch.setenv("AGENT_MOCK_MODE", "true")
+    get_settings.cache_clear()
+    yield
+    get_settings.cache_clear()

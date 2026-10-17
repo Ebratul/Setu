@@ -27,6 +27,7 @@ Times are Dhaka (UTC+6). Deadline: 20 Oct 2026 21:59 Dhaka. Must-have cut line: 
 | 3.3 (P08) | 2026-10-17 05:40 | done (real-model check open) | LangGraph agent: router → agent ⇄ tier-guarded tools → respond; 3 Tier 0 tools; Postgres checkpointer; chat threads; /chat + SSE; LangSmith; offline mock model. | pytest 233 passed (incl. db) · ruff clean · web tsc ok · security review: pass with fixes (1 medium + 6 low fixed; 1 medium privacy gap open → P18) | Real Claude run blocked: ANTHROPIC_API_KEY in .env is empty. P09 adds finance tools + chat UI. |
 | 3.4 (P09) | 2026-10-17 07:24 | done (real-model check open) | 10 Tier 0 finance tools returning cards (landed cost, cash flow, alerts, financing, FX route, monthly, scorecard), FR-7 FX route, Why-line guarantee; /app/chat + drawer with rich cards, threads, feedback. | pytest 322 passed (incl. db) · vitest 80 passed · Playwright 4 passed · lint/tsc/ruff clean · build ok · security review backend + UI: pass with fixes (fixed) | ANTHROPIC_API_KEY still empty: real-model run open. Next P10 RAG + citations. |
 | 3.2 (P10) | 2026-10-17 10:25 | done (real-model check open) | Cited knowledge base: 7 KB sources (own summaries + generated financing catalogue), heading chunker, local multilingual embeddings, hybrid pgvector + FTS retrieval (RRF), search_knowledge tool, [S1] citations in answers/API/UI. | pytest 355 passed (incl. db, real-model retrieval table) · vitest 90 passed · Playwright 5 passed · lint/tsc/ruff clean · build ok · security review: pass with fixes (2 medium + 6 low fixed) | Merged P08–P10 to main. ANTHROPIC_API_KEY still empty. |
+| 3.1b (OpenRouter) | 2026-10-17 10:39 | done | Real-model path via OpenRouter (Anthropic-compatible endpoint); provider auto-selection; first real Claude run of the P08–P10 chat. | pytest 362 passed · ruff clean · 12 live EN/BN questions OK | LangSmith traces verified. |
 
 ## Handoff notes
 
@@ -647,6 +648,29 @@ Times are Dhaka (UTC+6). Deadline: 20 Oct 2026 21:59 Dhaka. Must-have cut line: 
   - The first `kb:index` downloads the model (needs network once).
 - **Next phase reads:** this block, `app/rag/retrieve.py` (tuning constants), `app/agent/tools/knowledge.py`,
   `kb/sources/*` front-matter format.
+
+### 3.1b OpenRouter provider (from the user's switch of ANTHROPIC_API_KEY to OPENROUTER_API_KEY)
+- **What changed:** `app/llm/client.py` (still the only place models are built) now supports two providers
+  for the same Claude models. `Settings.active_llm_provider`: `LLM_PROVIDER=auto` picks Anthropic when
+  `ANTHROPIC_API_KEY` is set, else OpenRouter when `OPENROUTER_API_KEY` is set, else mock mode. OpenRouter
+  uses `ChatAnthropic` against its Anthropic-compatible endpoint (`OPENROUTER_BASE_URL`, default
+  `https://openrouter.ai/api`) with a bearer header; model ids are mapped
+  (`claude-haiku-5-5` → `anthropic/claude-haiku-5.5`, `claude-sonnet-5-5` → `anthropic/claude-sonnet-5.5`).
+  `model_used` in responses shows the id actually called.
+- **Verified live (real Haiku 5.5 via OpenRouter, local DB):** plain text, structured router output
+  (`json_schema`), tool calls, and 12 EN/BN questions through `/chat`:
+  - dashboard and cash flow: shortfall USD 1,560.00 on 2026-11-07, lowest balance quoted from the forecast;
+  - landed cost: USD 11,200.00, margin 18.01 %;
+  - financing: supplier credit 31.20 cheapest for the shortfall, default deal stated;
+  - FX: CNY route saves BDT 4,373.88 (1.21 %) on milestone 1;
+  - KB: advance limit USD 20,000 with `[S2]`/`[S3]`, FOB in Bangla with `[S1]`/`[S2]`.
+  Each answer used the right tool and card, and ended with a "Why:" line in the user's language. LangSmith
+  traces appear in project `setu` (URL returned to admin/judge only).
+- **Observations:** a turn costs about 8k–15k tokens (system prompt + 14 tool definitions), so the default
+  `THREAD_TOKEN_BUDGET=60000` allows only about 4–6 turns per thread; raise it for demos. Latency is 8–15 s
+  per turn with a tool round trip.
+- **Tests:** a developer's real key no longer reaches tests (autouse mock mode); provider selection and
+  model-id mapping are tested.
 
 ## Known issues / risks
 - 1.2: the local `.env` / `.env.example` `DATABASE_URL` points at a hosted Postgres, so `db:migrate`/`db:seed` without

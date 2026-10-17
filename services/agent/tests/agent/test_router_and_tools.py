@@ -214,7 +214,52 @@ def test_blank_api_key_means_mock_mode(
 
     monkeypatch.setenv("AGENT_MOCK_MODE", "false")
     monkeypatch.setenv("ANTHROPIC_API_KEY", key)
+    monkeypatch.setenv("OPENROUTER_API_KEY", "")
     assert Settings().use_mock_llm is mock
+
+
+@pytest.mark.parametrize(
+    ("env", "provider"),
+    [
+        ({"ANTHROPIC_API_KEY": "", "OPENROUTER_API_KEY": ""}, None),
+        ({"ANTHROPIC_API_KEY": "a", "OPENROUTER_API_KEY": ""}, "anthropic"),
+        ({"ANTHROPIC_API_KEY": "", "OPENROUTER_API_KEY": "o"}, "openrouter"),
+        ({"ANTHROPIC_API_KEY": "a", "OPENROUTER_API_KEY": "o"}, "anthropic"),
+        (
+            {"ANTHROPIC_API_KEY": "a", "OPENROUTER_API_KEY": "o", "LLM_PROVIDER": "openrouter"},
+            "openrouter",
+        ),
+        ({"ANTHROPIC_API_KEY": "a", "OPENROUTER_API_KEY": "", "LLM_PROVIDER": "openrouter"}, None),
+    ],
+)
+def test_provider_selection(
+    env: dict[str, str], provider: str | None, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    from app.config import Settings
+
+    monkeypatch.setenv("AGENT_MOCK_MODE", "false")
+    monkeypatch.delenv("LLM_PROVIDER", raising=False)
+    for k, v in env.items():
+        monkeypatch.setenv(k, v)
+    s = Settings()
+    assert s.active_llm_provider == provider and s.use_mock_llm is (provider is None)
+
+
+def test_openrouter_model_ids_and_client(monkeypatch: pytest.MonkeyPatch) -> None:
+    from app.config import get_settings
+    from app.llm.client import anthropic_chat_model, openrouter_model_id
+
+    assert openrouter_model_id("claude-haiku-5-5") == "anthropic/claude-haiku-5.5"
+    assert openrouter_model_id("claude-sonnet-5-5") == "anthropic/claude-sonnet-5.5"
+    assert openrouter_model_id("claude-opus-4-8") == "anthropic/claude-opus-4.8"
+    assert openrouter_model_id("anthropic/claude-sonnet-5.5") == "anthropic/claude-sonnet-5.5"
+    monkeypatch.setenv("AGENT_MOCK_MODE", "false")
+    monkeypatch.setenv("ANTHROPIC_API_KEY", "")
+    monkeypatch.setenv("OPENROUTER_API_KEY", "sk-or-test")
+    get_settings.cache_clear()
+    m = anthropic_chat_model("claude-haiku-5-5")
+    assert m.model == "anthropic/claude-haiku-5.5"  # type: ignore[attr-defined]
+    assert "openrouter.ai" in str(m.anthropic_api_url)  # type: ignore[attr-defined]
 
 
 @pytest.mark.parametrize(
