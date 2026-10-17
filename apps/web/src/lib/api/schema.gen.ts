@@ -571,10 +571,127 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/kyb/verify/{supplier_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Verify Supplier
+         * @description Run the KYB checks now and save the result, history, audit entry and alerts.
+         */
+        post: operations["verify_supplier_kyb_verify__supplier_id__post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/kyb/{supplier_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Supplier Kyb
+         * @description Latest KYB result and run history (read-only; judges allowed).
+         */
+        get: operations["supplier_kyb_kyb__supplier_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/suppliers": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Suppliers
+         * @description Suppliers with KYB badge, score, completed deals and on-time rate.
+         */
+        get: operations["list_suppliers_suppliers_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/suppliers/{supplier_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Supplier Profile
+         * @description Company details, bank accounts, deal history, scorecard trend and the latest KYB result.
+         */
+        get: operations["supplier_profile_suppliers__supplier_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        /** AccountSummary */
+        AccountSummary: {
+            /**
+             * Account Id
+             * Format: uuid
+             */
+            account_id: string;
+            /** Bank Name */
+            bank_name: string;
+            /** Masked Number */
+            masked_number: string;
+            /** Holder Name */
+            holder_name: string;
+            /**
+             * Account Type
+             * @enum {string}
+             */
+            account_type: "CORPORATE" | "PERSONAL";
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "ACTIVE" | "PENDING_CHANGE" | "RETIRED";
+            /** Currency */
+            currency: string;
+            /** Bank Country */
+            bank_country: string;
+            /**
+             * First Seen On
+             * Format: date
+             */
+            first_seen_on: string;
+            /** Age Days */
+            age_days: number;
+            /** Verified */
+            verified: boolean;
+        };
         /** AlertAction */
         AlertAction: {
             /** Code */
@@ -1025,7 +1142,7 @@ export interface components {
              * Cards
              * @description Result cards, in tool order.
              */
-            cards?: (components["schemas"]["CitationsCard"] | components["schemas"]["LandedCostCard"] | components["schemas"]["CashflowCard"] | components["schemas"]["AlertsCard"] | components["schemas"]["FinancingComparisonCard"] | components["schemas"]["FxCompareCard"] | components["schemas"]["MonthlySummaryCard"] | components["schemas"]["ScorecardCard"])[];
+            cards?: (components["schemas"]["CitationsCard"] | components["schemas"]["LandedCostCard"] | components["schemas"]["CashflowCard"] | components["schemas"]["AlertsCard"] | components["schemas"]["FinancingComparisonCard"] | components["schemas"]["FxCompareCard"] | components["schemas"]["MonthlySummaryCard"] | components["schemas"]["ScorecardCard"] | components["schemas"]["KybCard"])[];
             /**
              * Citations
              * @description Knowledge-base sources cited in the answer ([S1]…).
@@ -1357,6 +1474,11 @@ export interface components {
             status: string;
             /** Buyer Name */
             buyer_name: string;
+            /**
+             * Supplier Id
+             * Format: uuid
+             */
+            supplier_id: string;
             /** Supplier Name */
             supplier_name: string;
             /** Supplier Kyb Status */
@@ -1920,6 +2042,224 @@ export interface components {
             cost: components["schemas"]["Amounts"];
             total: components["schemas"]["Amounts"];
         };
+        /** KybCard */
+        KybCard: {
+            /** Explanation Codes */
+            explanation_codes: string[];
+            /** Explanation En */
+            explanation_en: string;
+            /** Explanation Bn */
+            explanation_bn: string;
+            /**
+             * Simulated
+             * @default true
+             * @constant
+             */
+            simulated: true;
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            card_type: "kyb";
+            data: components["schemas"]["KybData"];
+        };
+        /** KybCheckOut */
+        KybCheckOut: {
+            /** Code */
+            code: string;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "PASS" | "WARN" | "FAIL";
+            /** Weight */
+            weight: number;
+            /** Detail En */
+            detail_en: string;
+            /** Detail Bn */
+            detail_bn: string;
+            /** Evidence */
+            evidence: {
+                [key: string]: unknown;
+            };
+        };
+        /** KybData */
+        KybData: {
+            /**
+             * Supplier Id
+             * Format: uuid
+             */
+            supplier_id: string;
+            /** Supplier Code */
+            supplier_code: string;
+            /** Supplier Name */
+            supplier_name: string;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "VERIFIED" | "WARNING" | "BLOCKED";
+            /** Score */
+            score: number;
+            /** Deal Ref */
+            deal_ref: string | null;
+            /**
+             * Reasons
+             * @description Top 3 non-passing checks, worst first.
+             */
+            reasons: components["schemas"]["KybReason"][];
+            /** Checks Passed */
+            checks_passed: number;
+            /** Checks Total */
+            checks_total: number;
+            /** Has Pending Change */
+            has_pending_change: boolean;
+            /** Pending Status */
+            pending_status: ("VERIFIED" | "WARNING" | "BLOCKED") | null;
+            /** Supplier Route */
+            supplier_route: string;
+        };
+        /** KybHistoryItem */
+        KybHistoryItem: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Checked At
+             * Format: date-time
+             */
+            checked_at: string;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "VERIFIED" | "WARNING" | "BLOCKED";
+            /** Score */
+            score: number;
+            /** Reason Codes */
+            reason_codes: string[];
+            /** Deal Ref */
+            deal_ref: string | null;
+        };
+        /** KybReason */
+        KybReason: {
+            /** Code */
+            code: string;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "WARN" | "FAIL";
+            /** Detail En */
+            detail_en: string;
+            /** Detail Bn */
+            detail_bn: string;
+        };
+        /**
+         * KybResult
+         * @description Supplier-level result: the active receiving account plus name, sanctions and history
+         *     checks. A pending beneficiary change is evaluated on its own and never downgrades this.
+         */
+        KybResult: {
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "VERIFIED" | "WARNING" | "BLOCKED";
+            /** Score */
+            score: number;
+            /** Checks */
+            checks: components["schemas"]["KybCheckOut"][];
+            /** Reason Codes */
+            reason_codes: string[];
+            /** Explanation En */
+            explanation_en: string;
+            /** Explanation Bn */
+            explanation_bn: string;
+            /**
+             * Simulated
+             * @default true
+             * @constant
+             */
+            simulated: true;
+            /**
+             * Supplier Id
+             * Format: uuid
+             */
+            supplier_id: string;
+            /** Supplier Code */
+            supplier_code: string;
+            /** Supplier Name */
+            supplier_name: string;
+            /** Deal Ref */
+            deal_ref: string | null;
+            /** Invoice Name */
+            invoice_name: string;
+            /**
+             * Invoice Name Source
+             * @enum {string}
+             */
+            invoice_name_source: "proforma" | "legal_name" | "override";
+            account: components["schemas"]["AccountSummary"] | null;
+            /** Pending Accounts */
+            pending_accounts: components["schemas"]["PendingAccountResult"][];
+            /** Has Pending Change */
+            has_pending_change: boolean;
+            /**
+             * Checked At
+             * Format: date-time
+             */
+            checked_at: string;
+            thresholds: components["schemas"]["KybThresholds"];
+            /** Persisted */
+            persisted: boolean;
+            /** Route */
+            route: string;
+            /**
+             * Party Status
+             * @enum {string}
+             */
+            party_status: "VERIFIED" | "WARNING" | "BLOCKED";
+            /** Party Score */
+            party_score: number;
+            /**
+             * Invoice Flags
+             * @description Instruction-like text codes found in the seller name.
+             */
+            invoice_flags?: string[];
+        };
+        /**
+         * KybStatusOut
+         * @description Latest stored result (or a live read-only evaluation if never verified) and history.
+         */
+        KybStatusOut: {
+            /**
+             * Supplier Id
+             * Format: uuid
+             */
+            supplier_id: string;
+            /**
+             * Source
+             * @enum {string}
+             */
+            source: "stored" | "live";
+            latest: components["schemas"]["KybResult"];
+            /** History */
+            history: components["schemas"]["KybHistoryItem"][];
+        };
+        /** KybThresholds */
+        KybThresholds: {
+            /** Match */
+            match: number;
+            /** Partial */
+            partial: number;
+            /** Account Age Warn Days */
+            account_age_warn_days: number;
+            /** Account Age Fail Days */
+            account_age_fail_days: number;
+        };
         /** LandedCostCard */
         LandedCostCard: {
             /** Explanation Codes */
@@ -2155,7 +2495,7 @@ export interface components {
              * Card
              * @description For tool messages that produced a card.
              */
-            card?: (components["schemas"]["CitationsCard"] | components["schemas"]["LandedCostCard"] | components["schemas"]["CashflowCard"] | components["schemas"]["AlertsCard"] | components["schemas"]["FinancingComparisonCard"] | components["schemas"]["FxCompareCard"] | components["schemas"]["MonthlySummaryCard"] | components["schemas"]["ScorecardCard"]) | null;
+            card?: (components["schemas"]["CitationsCard"] | components["schemas"]["LandedCostCard"] | components["schemas"]["CashflowCard"] | components["schemas"]["AlertsCard"] | components["schemas"]["FinancingComparisonCard"] | components["schemas"]["FxCompareCard"] | components["schemas"]["MonthlySummaryCard"] | components["schemas"]["ScorecardCard"] | components["schemas"]["KybCard"]) | null;
         };
         /** MonthPoint */
         MonthPoint: {
@@ -2463,6 +2803,25 @@ export interface components {
             /** Deal Ref */
             deal_ref: string | null;
         };
+        /** PendingAccountResult */
+        PendingAccountResult: {
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "VERIFIED" | "WARNING" | "BLOCKED";
+            /** Score */
+            score: number;
+            /** Checks */
+            checks: components["schemas"]["KybCheckOut"][];
+            /** Reason Codes */
+            reason_codes: string[];
+            /** Explanation En */
+            explanation_en: string;
+            /** Explanation Bn */
+            explanation_bn: string;
+            account: components["schemas"]["AccountSummary"];
+        };
         /** Point */
         Point: {
             /**
@@ -2697,6 +3056,54 @@ export interface components {
              */
             amount: string;
         };
+        /** SupplierCompany */
+        SupplierCompany: {
+            /** Legal Name */
+            legal_name: string;
+            /** License Name */
+            license_name: string | null;
+            /** License No */
+            license_no: string | null;
+            /** City */
+            city: string;
+            /** Country */
+            country: string;
+            /**
+             * First Seen On
+             * Format: date
+             */
+            first_seen_on: string;
+        };
+        /** SupplierDealItem */
+        SupplierDealItem: {
+            /**
+             * Deal Id
+             * Format: uuid
+             */
+            deal_id: string;
+            /** Reference */
+            reference: string;
+            /** Title */
+            title: string;
+            /** Status */
+            status: string;
+            /** Currency */
+            currency: string;
+            /**
+             * Goods Value
+             * @example 11200.00
+             */
+            goods_value: string;
+            /**
+             * Opened On
+             * Format: date
+             */
+            opened_on: string;
+            /** On Time */
+            on_time: boolean | null;
+            /** Dispute Count */
+            dispute_count: number;
+        };
         /** SupplierItem */
         SupplierItem: {
             /** Code */
@@ -2723,6 +3130,101 @@ export interface components {
             weak: boolean;
             /** Flags */
             flags: string[];
+        };
+        /** SupplierList */
+        SupplierList: {
+            /**
+             * Simulated
+             * @default true
+             * @constant
+             */
+            simulated: true;
+            /** Buyer Id */
+            buyer_id: string | null;
+            /** Suppliers */
+            suppliers: components["schemas"]["SupplierListItem"][];
+        };
+        /** SupplierListItem */
+        SupplierListItem: {
+            /**
+             * Supplier Id
+             * Format: uuid
+             */
+            supplier_id: string;
+            /** Code */
+            code: string;
+            /** Name */
+            name: string;
+            /** City */
+            city: string;
+            /** Country */
+            country: string;
+            /** Kyb Status */
+            kyb_status: string;
+            /**
+             * Kyb Badge
+             * @enum {string}
+             */
+            kyb_badge: "VERIFIED" | "WARNING" | "BLOCKED" | "PENDING";
+            /** Kyb Score */
+            kyb_score: number | null;
+            /** Has Pending Change */
+            has_pending_change: boolean;
+            /** Last Checked */
+            last_checked: string | null;
+            /** Completed Deals */
+            completed_deals: number;
+            /** Your Deals Count */
+            your_deals_count: number;
+            /** On Time Rate Pct */
+            on_time_rate_pct: string | null;
+            /** Scorecard Score */
+            scorecard_score: string | null;
+            /** Weak */
+            weak: boolean;
+        };
+        /** SupplierProfile */
+        SupplierProfile: {
+            /**
+             * Simulated
+             * @default true
+             * @constant
+             */
+            simulated: true;
+            /**
+             * Supplier Id
+             * Format: uuid
+             */
+            supplier_id: string;
+            /** Code */
+            code: string;
+            company: components["schemas"]["SupplierCompany"];
+            /** Kyb Status */
+            kyb_status: string;
+            kyb: components["schemas"]["KybResult"];
+            /**
+             * Kyb Source
+             * @enum {string}
+             */
+            kyb_source: "stored" | "live";
+            /** Last Checked */
+            last_checked: string | null;
+            /** Accounts */
+            accounts: components["schemas"]["AccountSummary"][];
+            /** Deals */
+            deals: components["schemas"]["SupplierDealItem"][];
+            /** Score */
+            score: string | null;
+            /** Score Trend */
+            score_trend: components["schemas"]["ScorePoint"][];
+            /** On Time Rate Pct */
+            on_time_rate_pct: string | null;
+            /** Dispute Rate Pct */
+            dispute_rate_pct: string | null;
+            /** Completed Deals */
+            completed_deals: number;
+            /** History */
+            history: components["schemas"]["KybHistoryItem"][];
         };
         /** SupplierScoreOut */
         SupplierScoreOut: {
@@ -3861,6 +4363,135 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["MessageList"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    verify_supplier_kyb_verify__supplier_id__post: {
+        parameters: {
+            query?: {
+                /** @description Reference or id */
+                deal_id?: string | null;
+            };
+            header?: never;
+            path: {
+                supplier_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["KybResult"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    supplier_kyb_kyb__supplier_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                supplier_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["KybStatusOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_suppliers_suppliers_get: {
+        parameters: {
+            query?: {
+                buyer_id?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SupplierList"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    supplier_profile_suppliers__supplier_id__get: {
+        parameters: {
+            query?: {
+                buyer_id?: string | null;
+            };
+            header?: never;
+            path: {
+                supplier_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SupplierProfile"];
                 };
             };
             /** @description Validation Error */

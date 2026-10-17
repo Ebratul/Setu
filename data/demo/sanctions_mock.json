@@ -1,0 +1,26 @@
+{
+  "version": "mock-1",
+  "note": "SIMULATED sandbox list for the Setu demo. All names are fictional and match no real person or company.",
+  "entries": [
+    {
+      "id": "MOCK-SANC-001",
+      "names": ["Zhongtai Meridian Trading Co., Ltd.", "Zhongtai Meridian Trade"],
+      "reason": "Fictional entry: simulated export-control designation"
+    },
+    {
+      "id": "MOCK-SANC-002",
+      "names": ["Baihe Orchid Logistics Limited"],
+      "reason": "Fictional entry: simulated sanctions evasion network"
+    },
+    {
+      "id": "MOCK-SANC-003",
+      "names": ["Zhao Meilin", "Meilin Zhao"],
+      "reason": "Fictional entry: simulated individual designation"
+    },
+    {
+      "id": "MOCK-SANC-004",
+      "names": ["Nordhaven Garment Exports LLC"],
+      "reason": "Fictional entry: simulated restricted party"
+    }
+  ]
+}

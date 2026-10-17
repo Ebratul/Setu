@@ -88,6 +88,14 @@ export function validateCard(v: unknown): ChatCardData | null {
     case "scorecard":
       ok = isArr(d.suppliers);
       break;
+    case "kyb":
+      ok =
+        typeof d.supplier_name === "string" &&
+        typeof d.status === "string" &&
+        ["VERIFIED", "WARNING", "BLOCKED"].includes(d.status) &&
+        isArr(d.reasons) &&
+        d.reasons.every(isObj);
+      break;
     case "citations":
       ok = isArr(d.snippets) && isArr(d.withheld);
       break;

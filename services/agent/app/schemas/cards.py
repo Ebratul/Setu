@@ -24,6 +24,7 @@ CardType = Literal[
     "fx_compare",
     "monthly_summary",
     "scorecard",
+    "kyb",
 ]
 
 
@@ -291,6 +292,36 @@ class ScorecardCard(_Card):
     data: ScorecardData
 
 
+# --- kyb ------------------------------------------------------------------------------------
+
+
+class KybReason(_M):
+    code: str
+    status: Literal["WARN", "FAIL"]
+    detail_en: str
+    detail_bn: str
+
+
+class KybData(_M):
+    supplier_id: uuid.UUID
+    supplier_code: str
+    supplier_name: str
+    status: Literal["VERIFIED", "WARNING", "BLOCKED"]
+    score: int
+    deal_ref: str | None
+    reasons: list[KybReason] = Field(description="Top 3 non-passing checks, worst first.")
+    checks_passed: int
+    checks_total: int
+    has_pending_change: bool
+    pending_status: Literal["VERIFIED", "WARNING", "BLOCKED"] | None
+    supplier_route: AppRoute
+
+
+class KybCard(_Card):
+    card_type: Literal["kyb"] = "kyb"
+    data: KybData
+
+
 # --- citations (RAG) ------------------------------------------------------------------------
 
 
@@ -336,7 +367,8 @@ Card = Annotated[
     | FinancingComparisonCard
     | FxCompareCard
     | MonthlySummaryCard
-    | ScorecardCard,
+    | ScorecardCard
+    | KybCard,
     Field(discriminator="card_type"),
 ]
 CARD_TYPES = frozenset(
@@ -349,5 +381,6 @@ CARD_TYPES = frozenset(
         "fx_compare",
         "monthly_summary",
         "scorecard",
+        "kyb",
     }
 )

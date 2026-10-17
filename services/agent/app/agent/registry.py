@@ -335,17 +335,18 @@ ANALYSIS = frozenset(
 )
 CASHFLOW = frozenset({"forecast_cashflow", "simulate_cashflow_scenario", "get_alerts"})
 FINANCING = frozenset({"match_financing", "financing_impact"})
+KYB = frozenset({"verify_party"})
 # Per-intent allow-lists (SR-3): the tools each intent is likely to need, all Tier 0.
 # greeting and out_of_scope never reach the agent node.
 INTENT_TOOLS: dict[Intent, frozenset[str]] = {
     "greeting": frozenset(),
     "out_of_scope": frozenset(),
-    "analysis": READONLY | ANALYSIS | {"forecast_cashflow"},
+    "analysis": READONLY | ANALYSIS | KYB | {"forecast_cashflow"},
     "cashflow": READONLY | CASHFLOW | FINANCING,
     "financing": READONLY | FINANCING | {"forecast_cashflow", "analyze_order", "compare_fx_route"},
-    "deal_status": READONLY | {"analyze_order", "get_alerts", "compare_fx_route"},
+    "deal_status": READONLY | KYB | {"analyze_order", "get_alerts", "compare_fx_route"},
     # documents → smart model; document forensics tools arrive in P14.
-    "documents": frozenset({"get_deal_summary", "explain_how_setu_works"}),
+    "documents": frozenset({"get_deal_summary", "explain_how_setu_works", "verify_party"}),
     "how_it_works": frozenset({"explain_how_setu_works", "get_deal_summary"}),
 }
 # Knowledge-base search (rules, definitions, how Setu works) is useful for every agent intent.
@@ -368,8 +369,8 @@ _default: ToolRegistry | None = None
 def default_registry() -> ToolRegistry:
     global _default
     if _default is None:
-        # Importing registers the finance and knowledge tools on the same registry.
-        from app.agent.tools import finance, knowledge  # noqa: F401
+        # Importing registers the finance, knowledge and KYB tools on the same registry.
+        from app.agent.tools import finance, knowledge, kyb  # noqa: F401
 
         _default = finance.REGISTRY
     return _default

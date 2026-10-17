@@ -35,7 +35,8 @@
     "dashboard": "Dashboard",
     "cashflow": "Cash Flow",
     "financing": "Financing",
-    "chat": "Chat"
+    "chat": "Chat",
+    "suppliers": "Suppliers"
   },
   "role": {
     "BUYER": "Buyer",
@@ -77,7 +78,26 @@
     "WARNING": "Warning",
     "PENDING": "Pending",
     "REJECTED": "Rejected",
-    "UNVERIFIED": "Unverified"
+    "UNVERIFIED": "Unverified",
+    "BLOCKED": "Blocked",
+    "badgeLabel": "Supplier check: {status}",
+    "scoreLabel": "Check score {score} out of 100",
+    "check": {
+      "PASS": "Passed",
+      "WARN": "Warning",
+      "FAIL": "Failed"
+    },
+    "code": {
+      "LICENSE_VS_INVOICE_NAME": "Licence name vs invoice seller",
+      "LICENSE_VS_ACCOUNT_HOLDER": "Licence name vs account holder",
+      "ACCOUNT_TYPE": "Account type",
+      "ACCOUNT_AGE": "Account age",
+      "ACCOUNT_COUNTRY": "Bank country",
+      "PENDING_BENEFICIARY_CHANGE": "Pending account change",
+      "REGISTRY_HISTORY": "Deal history",
+      "SANCTIONS_SCREEN": "Sanctions screening",
+      "RECEIVING_ACCOUNT": "Receiving account"
+    }
   },
   "orders": {
     "title": "Orders",
@@ -580,7 +600,12 @@
       "financing": "Financing options",
       "fx": "USD vs CNY payment",
       "monthly": "Summary for {month}",
-      "scorecard": "Supplier scorecard"
+      "scorecard": "Supplier scorecard",
+      "kyb": "Supplier check: {name}",
+      "openSupplier": "Open supplier profile",
+      "checksPassed": "{passed} of {total} checks passed",
+      "pendingChange": "Pending account change: {status}",
+      "allPassed": "All checks passed."
     },
     "landed": {
       "perUnit": "Cost per {unit}",
@@ -631,6 +656,104 @@
       "note": "Simplified summaries — verify with the official source.",
       "reviewed": "Last reviewed {date}",
       "withheld": "Some passages were withheld because they contained instruction-like text."
+    }
+  },
+  "sup": {
+    "title": "Suppliers",
+    "intro": "Business checks (KYB) for the suppliers you trade with. Simulated data.",
+    "search": "Search suppliers",
+    "searchPlaceholder": "Name or city",
+    "filter": "Check status",
+    "all": "All",
+    "caption": "Suppliers with check status, score, deals and on-time rate",
+    "empty": "No suppliers yet.",
+    "noMatch": "No supplier matches your filters.",
+    "never": "Not checked yet",
+    "pendingChange": "Pending account change",
+    "openProfile": "View profile",
+    "yourDeals": "{n} of your deals",
+    "col": {
+      "name": "Supplier",
+      "city": "City",
+      "status": "KYB status",
+      "score": "Score",
+      "deals": "Completed deals",
+      "onTime": "On-time",
+      "lastChecked": "Last checked"
+    },
+    "back": "All suppliers",
+    "company": "Company details",
+    "legalName": "Legal name",
+    "licenseName": "Licence name",
+    "licenseNo": "Licence number",
+    "city": "City",
+    "country": "Country",
+    "firstSeen": "On file since",
+    "score": "Check score",
+    "liveNote": "Live evaluation, not stored yet.",
+    "checks": "Business checks",
+    "evidence": "Evidence",
+    "noEvidence": "No extra evidence.",
+    "pendingTitle": "Unreviewed new bank account",
+    "pendingBody": "A new receiving account was submitted. Do not pay it until it is approved. It does not change the current status below.",
+    "pendingAccount": "New account {number}: {status}",
+    "accounts": "Bank accounts",
+    "accountsCaption": "Supplier bank accounts, masked",
+    "acc": {
+      "bank": "Bank",
+      "number": "Account",
+      "holder": "Holder",
+      "type": "Type",
+      "age": "Age",
+      "status": "Status",
+      "currency": "Currency",
+      "country": "Bank country"
+    },
+    "accType": {
+      "CORPORATE": "Corporate",
+      "PERSONAL": "Personal"
+    },
+    "accStatus": {
+      "ACTIVE": "Active",
+      "PENDING_CHANGE": "Pending change",
+      "RETIRED": "Retired"
+    },
+    "days": "{n} days",
+    "deals": "Deal history",
+    "dealsCaption": "Deals with this supplier",
+    "dealsEmpty": "No deals yet.",
+    "deal": {
+      "ref": "Reference",
+      "title": "Title",
+      "status": "Status",
+      "value": "Goods value",
+      "opened": "Opened",
+      "onTime": "On time"
+    },
+    "yes": "Yes",
+    "no": "No",
+    "trend": "Supplier score trend",
+    "trendTable": "Show data table",
+    "trendCaption": "Monthly supplier score",
+    "month": "Month",
+    "trendEmpty": "Not enough history for a trend.",
+    "onTimeRate": "On-time rate",
+    "disputeRate": "Dispute rate",
+    "completed": "Completed deals",
+    "rerun": "Re-run KYB",
+    "rerunning": "Checking...",
+    "rerunDone": "Check finished. Result updated.",
+    "rerunForbidden": "Your role cannot re-run checks. Buyers and admins can.",
+    "rerunFailed": "The check could not run. Try again.",
+    "readOnly": "Read-only view: re-running checks is for buyers and admins.",
+    "history": "Previous checks",
+    "historyCaption": "Earlier KYB runs",
+    "panel": {
+      "title": "Supplier check",
+      "blocked": "This supplier is blocked. Do not send any payment for this deal.",
+      "allPassed": "All checks passed.",
+      "viewProfile": "View supplier profile",
+      "unavailable": "Supplier check is not available for this deal."
     }
   }
 }

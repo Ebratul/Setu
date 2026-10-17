@@ -6,6 +6,7 @@ import { AlertsCard } from "./AlertsCard";
 import { CashflowCard } from "./CashflowCard";
 import { FinancingComparisonCard } from "./FinancingComparisonCard";
 import { FxCompareCard } from "./FxCompareCard";
+import { KybCard } from "./KybCard";
 import { LandedCostCard } from "./LandedCostCard";
 import { MonthlySummaryCard } from "./MonthlySummaryCard";
 import { ScorecardCard } from "./ScorecardCard";
@@ -27,6 +28,8 @@ export function ChatCard({ card }: { card: ChatCardData }) {
       return <MonthlySummaryCard card={card} />;
     case "scorecard":
       return <ScorecardCard card={card} />;
+    case "kyb":
+      return <KybCard card={card} />;
     default:
       return null;
   }

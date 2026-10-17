@@ -22,9 +22,11 @@ The seed lives in `services/agent/seed/` (Python owns the schema and the seed). 
 
 ## Alerts
 
-The seed writes only the KYB alert for Karim. The SHORTFALL, DEADLINE and FX_OPPORTUNITY alerts
-come from the FR-2 alert engine (`app/services/alerts.py`), which `db:seed` and `db:reset-demo` run for
-every buyer after upserting. Rules: `docs/finance-formulas.md`.
+The seed writes no alerts itself. The SHORTFALL, DEADLINE and FX_OPPORTUNITY alerts come from the FR-2
+alert engine (`app/services/alerts.py`), and the KYB_WARNING for Karim / Huameng from the KYB alert sync
+(`app/services/kyb.py`, key `alert:dhaka-stitch-works:kyb:guangzhou-huameng`); `db:seed` and `db:reset-demo` run both
+after upserting. Rules: `docs/finance-formulas.md`, `docs/kyb.md`. `data/demo/sanctions_mock.json` is the
+fictional sanctions list used by the KYB screen.
 
 ## Anchor date rule
 

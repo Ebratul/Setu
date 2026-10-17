@@ -16,13 +16,16 @@ from dataclasses import dataclass
 from datetime import UTC, datetime
 from decimal import Decimal
 from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 import structlog
 from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey, Ed25519PublicKey
 from cryptography.hazmat.primitives.serialization import Encoding, PublicFormat
 
 from app.config import get_settings
+
+if TYPE_CHECKING:
+    from sqlalchemy.orm import Session
 
 GENESIS_HASH = "0" * 64
 
@@ -208,3 +211,71 @@ def record_event(
     RECENT_EVENTS.append(event)
     _audit_log.info("agent_action", **event)
     return event
+
+
+# --- Append service --------------------------------------------------------------------------
+AUDIT_LOCK_KEY = (
+    5_400_001  # pg_advisory_xact_lock: one appender at a time keeps seq/prev_hash linear
+)
+
+
+def write_audit(
+    db: "Session",
+    *,
+    actor: str,
+    action: str,
+    tier: int,
+    params: dict[str, Any],
+    result: str,
+    ts: datetime | None = None,
+) -> int:
+    """Append one signed, hash-chained row to `audit_log` in the caller's transaction (the caller
+    commits). Returns its seq. Only ids and hashes go in: `params` is stored as its hash.
+
+    Takes a transaction-scoped advisory lock, reads the chain head, and signs with the audit key
+    (AUDIT_SIGNING_KEY or the dev key file). Raises if no key is available: no unsigned rows.
+    """
+    from sqlalchemy import select, text
+
+    from app.db.enums import Actor
+    from app.db.models import AuditLog
+    from app.errors import ServiceUnavailable
+
+    try:
+        key = load_signing_key()
+    except (FileNotFoundError, PermissionError, ValueError) as exc:
+        raise ServiceUnavailable("the audit signing key is not available") from exc
+    db.execute(text("SELECT pg_advisory_xact_lock(:k)"), {"k": AUDIT_LOCK_KEY})
+    head = db.execute(
+        select(AuditLog.seq, AuditLog.entry_hash).order_by(AuditLog.seq.desc()).limit(1)
+    ).first()
+    seq, prev = (head[0] + 1, head[1]) if head else (1, GENESIS_HASH)
+    fields = AuditFields(
+        seq,
+        ts or datetime.now(UTC),
+        Actor(actor).value,
+        action,
+        tier,
+        params_hash(params),
+        result,
+        prev,
+    )
+    digest = compute_entry_hash(fields)
+    db.add(
+        AuditLog(
+            seq=seq,
+            ts=fields.ts,
+            actor=Actor(actor),
+            action=action,
+            tier=tier,
+            params_hash=fields.params_hash,
+            result=result,
+            prev_hash=prev,
+            entry_hash=digest,
+            signature=sign_hash(key, digest),
+            key_id=key_id(key.public_key()),
+        )
+    )
+    db.flush()
+    _audit_log.info("audit_appended", seq=seq, action=action, tier=tier, result=result)
+    return seq

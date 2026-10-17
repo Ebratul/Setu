@@ -60,9 +60,19 @@ class Settings(BaseSettings):
 
     demo_today: date = date(2026, 10, 20)
 
+    # Supplier KYB (app/domain/kyb.py): name-match bands and the mock sanctions list.
+    kyb_match_threshold: float = Field(92.0, ge=0, le=100)
+    kyb_partial_threshold: float = Field(80.0, ge=0, le=100)
+    kyb_sanctions_path: Path = Path("data/demo/sanctions_mock.json")  # relative to REPO_ROOT
+
     # Demo "login as" stub (app/auth/demo.py). Replace with real auth before any non-demo use.
     demo_session_secret: SecretStr | None = None
     demo_cookie_secure: bool = False
+
+    @property
+    def kyb_sanctions_file(self) -> Path:
+        path = self.kyb_sanctions_path
+        return path if path.is_absolute() else REPO_ROOT / path
 
     @staticmethod
     def _usable(key: SecretStr | None) -> bool:

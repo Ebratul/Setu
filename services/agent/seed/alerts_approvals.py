@@ -9,11 +9,8 @@ from decimal import Decimal
 
 from app.db.enums import (
     Actor,
-    AlertStatus,
-    AlertType,
     ApprovalAction,
     ApprovalStatus,
-    Severity,
 )
 from app.db.models import Alert, ApprovalRequest
 from app.domain.money import q2
@@ -21,9 +18,8 @@ from app.security.approvals import approval_binding_hash
 from seed.cashflow import OPENING, balance_available, build_rows, main_m2
 from seed.common import Ctx, Row, Rows, sid
 from seed.deals import DEALS_BY_REF, MAIN_DEAL, deal_id, milestone_id
-from seed.parties import HUAXIN, HUAXIN_CNY, HUAXIN_HK_PENDING, KARIM, RAHIMA
+from seed.parties import HUAXIN, HUAXIN_CNY, HUAXIN_HK_PENDING, RAHIMA
 
-HUAMENG_DEAL = "SETU-2026-0005"
 APPROVAL_T2 = f"approval:{MAIN_DEAL}:release-m1"
 APPROVAL_T3 = f"approval:{HUAXIN}:beneficiary-change-hk"
 COOLING_OFF_MINUTES = 10
@@ -45,70 +41,11 @@ def shortfall_facts(ctx: Ctx) -> Row:
     }
 
 
-def alert(
-    key: str,
-    party: str,
-    type_: AlertType,
-    severity: Severity,
-    title: tuple[str, str],
-    message: tuple[str, str],
-    *,
-    deal: str | None = None,
-    milestone: int | None = None,
-    amount: Decimal | None = None,
-    due_on: object = None,
-    facts: Row | None = None,
-    created: object,
-) -> Row:
-    return {
-        "id": sid("alert", key),
-        "key": key,
-        "party_id": sid("party", party),
-        "deal_id": deal_id(deal) if deal else None,
-        "milestone_id": milestone_id(deal, milestone) if deal and milestone else None,
-        "type": type_,
-        "severity": severity,
-        "status": AlertStatus.OPEN,
-        "title_en": title[0],
-        "title_bn": title[1],
-        "message_en": message[0],
-        "message_bn": message[1],
-        "amount": amount,
-        "currency": "USD" if amount else None,
-        "due_on": due_on,
-        "facts": facts or {},
-        "created_at": created,
-    }
-
-
 def alerts(ctx: Ctx) -> list[Row]:
-    """Seeded alerts the FR-2 engine does not own. SHORTFALL, DEADLINE and FX_OPPORTUNITY alerts
-    are produced by app/services/alerts.py, which seed.cli runs after every seed."""
-    return [
-        alert(
-            f"alert:{KARIM}:kyb-huameng",
-            KARIM,
-            AlertType.KYB_WARNING,
-            Severity.WARNING,
-            (
-                "Supplier KYB warning: Guangzhou Huameng Trading",
-                "সরবরাহকারী KYB সতর্কতা: Guangzhou Huameng Trading",
-            ),
-            (
-                "The receiving account is a PERSONAL account held by 'Chen Wei', which does not "
-                "match the licence name, and was first seen 3 days ago. Milestone 1 stays on hold.",
-                "গ্রহীতা অ্যাকাউন্টটি 'Chen Wei'-এর ব্যক্তিগত অ্যাকাউন্ট, যা লাইসেন্সের নামের সাথে "
-                "মেলে না, এবং মাত্র ৩ দিন আগে প্রথম দেখা গেছে। মাইলস্টোন ১ আটকে রাখা হয়েছে।",
-            ),
-            deal=HUAMENG_DEAL,
-            milestone=1,
-            facts={
-                "kyb_status": "WARNING",
-                "reasons": ["PERSONAL_ACCOUNT", "HOLDER_NAME_MISMATCH", "NEW_ACCOUNT"],
-            },
-            created=ctx.at(-3, 16, 0),
-        ),
-    ]
+    """No seeded alerts: every alert is owned by an engine. SHORTFALL, DEADLINE and FX_OPPORTUNITY
+    come from app/services/alerts.py, and the KYB_WARNING for Karim / Huameng comes from the KYB
+    alert sync (app/services/kyb.py `sync_all_alerts`); seed.cli runs both after every seed."""
+    return []
 
 
 def approvals(ctx: Ctx) -> list[Row]:

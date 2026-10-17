@@ -16,7 +16,7 @@ from app.db.models.finance import (
     FxLock,
     FxRate,
 )
-from app.db.models.identity import BankAccount, KybCheck, Party, User
+from app.db.models.identity import BankAccount, KybCheck, KybRun, Party, User
 from app.db.models.trust import (
     ApprovalRequest,
     AuditLog,
@@ -47,6 +47,7 @@ __all__ = [
     "HashRegistry",
     "KbChunk",
     "KybCheck",
+    "KybRun",
     "LedgerEntry",
     "LlmCache",
     "Milestone",

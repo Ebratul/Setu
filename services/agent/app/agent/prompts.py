@@ -4,8 +4,8 @@
 from app.agent.state import Lang
 
 SYSTEM_PROMPT_VERSION = "system@1"
-ROUTER_PROMPT_VERSION = "router@1"
-AGENT_PROMPT_VERSION = "agent@3"
+ROUTER_PROMPT_VERSION = "router@2"
+AGENT_PROMPT_VERSION = "agent@4"
 RESPOND_PROMPT_VERSION = "respond@3"
 
 LANGUAGE_NAMES: dict[Lang, str] = {"en": "English", "bn": "Bangla (বাংলা)", "zh": "Chinese (中文)"}
@@ -32,7 +32,7 @@ ROUTER_PROMPT = """Classify the user's latest message for Setu, an SME import-fi
 
 intent, one of:
 - greeting: hello, thanks, small talk about Setu itself
-- analysis: landed cost, margin, pricing, duty, FX, supplier comparison
+- analysis: landed cost, margin, pricing, duty, FX, supplier comparison, supplier KYB/safety
 - cashflow: cash balance, shortfall, forecast, dashboard, "will I run short"
 - financing: loans, supplier credit, lenders, how to cover a gap
 - documents: trade documents (bill of lading, invoice, packing list, certificate of origin), \
@@ -52,7 +52,8 @@ landed_cost_what_if; "will I run short", balance, forecast → forecast_cashflow
 or a short loan → simulate_cashflow_scenario; alerts → get_alerts; financing, loans, cheapest \
 option → match_financing (mode "order" for an order's gap, else "shortfall"); effect of one \
 option → financing_impact; paying in USD vs CNY → compare_fx_route; month overview → \
-get_monthly_summary; suppliers → get_supplier_scorecard; rules, regulations, \
+get_monthly_summary; suppliers → get_supplier_scorecard; is a supplier or its bank \
+account trustworthy, KYB → verify_party (supplier_id or deal_id; read-only); rules, regulations, \
 definitions (FOB, LC, advance payment limit), document fields or how Setu works → \
 search_knowledge (pass the user's language).
 - If a tool needs a deal and the user named none, call it without deal_id: it uses the chat's \
