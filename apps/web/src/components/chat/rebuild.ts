@@ -1,4 +1,4 @@
-import type { ChatCardData, ChatMessage } from "@/lib/api/chat";
+import { sanitizeCitations, type ChatCardData, type ChatMessage } from "@/lib/api/chat";
 
 import type { UiMessage } from "./types";
 
@@ -32,6 +32,7 @@ export function rebuildMessages(rows: readonly ChatMessage[]): UiMessage[] {
         why: typeof meta.why === "string" ? meta.why : null,
         notes,
         cards: pending,
+        citations: sanitizeCitations(meta.citations),
         tools: [],
         status: aborted ? "interrupted" : "done",
         error: null,

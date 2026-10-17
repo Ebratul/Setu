@@ -21,6 +21,7 @@ dependencies = [
     "psycopg[binary]>=3.3.6",
     "pydantic-settings>=2.16.0",
     "pyotp>=2.10.0",
+    "pyyaml>=6.0.3",
     "rapidfuzz>=3.14.6",
     "reportlab>=5.0.1",
     "sqlalchemy>=2.1.4",
@@ -49,6 +50,9 @@ allowed-confusables = ["−", "×", "–"]
 "app/agent/prompts.py" = ["RUF001"]
 "app/agent/mock_llm.py" = ["RUF001"]
 "tests/agent/*.py" = ["RUF001"]
+# Tokenizer punctuation classes include typographic quotes and dashes on purpose.
+"app/rag/embed.py" = ["RUF001"]
+"tests/rag/*.py" = ["RUF001"]
 
 [tool.ruff.format]
 quote-style = "double"

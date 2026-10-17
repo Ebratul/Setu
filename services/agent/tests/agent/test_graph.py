@@ -362,7 +362,7 @@ def test_all_registered_tools_are_tier0() -> None:
     from app.agent.registry import INTENT_TOOLS, default_registry
 
     reg = default_registry()
-    assert len(reg.names) == 13
+    assert len(reg.names) == 14
     for name in reg.names:
         assert reg.get(name).max_tier == Tier.T0  # type: ignore[union-attr]
     listed = set().union(*INTENT_TOOLS.values())

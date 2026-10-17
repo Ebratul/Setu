@@ -47,6 +47,17 @@ class UsageOut(BaseModel):
     thread_budget: int
 
 
+class Citation(BaseModel):
+    cite_id: str
+    source_id: str
+    title: str
+    heading_path: str
+    source_type: str
+    original_reference: str
+    last_reviewed: str
+    disclaimer: str
+
+
 class ChatResponse(BaseModel):
     simulated: Literal[True] = True
     thread_id: uuid.UUID
@@ -62,6 +73,9 @@ class ChatResponse(BaseModel):
     why: str | None = Field(None, description='The "Why:" line of the answer.')
     notes: list[str] = Field(default_factory=list, description="Code-added notes (simulated…).")
     cards: list[Card] = Field(default_factory=list, description="Result cards, in tool order.")
+    citations: list[Citation] = Field(
+        default_factory=list, description="Knowledge-base sources cited in the answer ([S1]…)."
+    )
 
 
 class ThreadOut(BaseModel):

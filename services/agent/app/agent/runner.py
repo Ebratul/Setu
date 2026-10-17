@@ -38,7 +38,7 @@ from app.db.models import ChatThread
 from app.db.session import get_engine
 from app.errors import DomainError, ServiceUnavailable
 from app.llm import tracing
-from app.schemas.chat import ChatRequest, ChatResponse, ToolCallOut, UsageOut
+from app.schemas.chat import ChatRequest, ChatResponse, Citation, ToolCallOut, UsageOut
 from app.security.privacy_gateway import mask_for_storage
 
 log = structlog.get_logger("setu.chat")
@@ -129,6 +129,7 @@ def finish_turn(db: Session, user: CurrentUser, turn: Turn, values: dict[str, An
         )
     answer = state.answer or ""
     usage = state.token_usage
+    citations = citations_of(state)
     assistant = append_message(
         db,
         turn.thread,
@@ -144,6 +145,7 @@ def finish_turn(db: Session, user: CurrentUser, turn: Turn, values: dict[str, An
             "run_id": str(turn.run_id),
             "why": state.why,
             "notes": state.notes,
+            "citations": [c.model_dump() for c in citations],
         },
     )
     add_tokens(db, turn.thread, usage["total_tokens"])
@@ -183,7 +185,27 @@ def finish_turn(db: Session, user: CurrentUser, turn: Turn, values: dict[str, An
         why=state.why,
         notes=state.notes,
         cards=cards_of(state.tool_results),
+        citations=citations,
     )
+
+
+def citations_of(state: AgentState) -> list[Citation]:
+    """Citation objects for the cite ids the answer actually used (in order of first use)."""
+    by_id: dict[str, Citation] = {}
+    for card in cards_of(state.tool_results):
+        if card.card_type == "citations":
+            for s in card.data.snippets:
+                by_id[s.cite_id] = Citation(
+                    cite_id=s.cite_id,
+                    source_id=s.source_id,
+                    title=s.title,
+                    heading_path=s.heading_path,
+                    source_type=s.source_type,
+                    original_reference=s.original_reference,
+                    last_reviewed=s.last_reviewed,
+                    disclaimer=s.disclaimer,
+                )
+    return [by_id[c] for c in state.citations if c in by_id]
 
 
 def _finish_trace(turn: Turn, state: AgentState, user: CurrentUser) -> str | None:

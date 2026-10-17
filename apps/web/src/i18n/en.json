@@ -544,7 +544,8 @@
       "financing": "Which financing option is cheapest?",
       "fx": "How much would I save paying in CNY instead of USD?",
       "alerts": "Show my alerts",
-      "suppliers": "How are my suppliers doing?"
+      "suppliers": "How are my suppliers doing?",
+      "kb": "What does FOB mean?"
     },
     "tool": {
       "label": "Steps Setu took",
@@ -562,7 +563,8 @@
       "financing_impact": "Measuring the financing impact…",
       "compare_fx_route": "Comparing USD and CNY payment routes…",
       "get_monthly_summary": "Preparing the monthly summary…",
-      "get_supplier_scorecard": "Reviewing supplier scorecards…"
+      "get_supplier_scorecard": "Reviewing supplier scorecards…",
+      "search_knowledge": "Searching Setu's knowledge base…"
     },
     "drawer": {
       "open": "Ask Setu",
@@ -620,6 +622,15 @@
     },
     "monthly": {
       "history": "Landed cost, last 6 months"
+    },
+    "cite": {
+      "label": "Source {id}: {title}"
+    },
+    "sources": {
+      "title": "Sources",
+      "note": "Simplified summaries — verify with the official source.",
+      "reviewed": "Last reviewed {date}",
+      "withheld": "Some passages were withheld because they contained instruction-like text."
     }
   }
 }

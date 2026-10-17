@@ -1,4 +1,4 @@
-import type { ChatCardData } from "@/lib/api/chat";
+import type { ChatCardData, Citation } from "@/lib/api/chat";
 
 export type ToolStep = {
   id: string;
@@ -22,6 +22,7 @@ export type UiMessage =
       why: string | null;
       notes: string[];
       cards: ChatCardData[];
+      citations: Citation[];
       tools: ToolStep[];
       status: MessageStatus;
       error: string | null;

@@ -8,6 +8,7 @@ export type ChatResponse = S["ChatResponse"];
 export type ChatMessage = S["MessageOut"];
 export type ChatThread = S["ThreadOut"];
 export type ChatCardData = NonNullable<ChatResponse["cards"]>[number];
+export type Citation = components["schemas"]["Citation"];
 export type CardType = ChatCardData["card_type"];
 export type ChatLanguage = "en" | "bn";
 
@@ -87,8 +88,25 @@ export function validateCard(v: unknown): ChatCardData | null {
     case "scorecard":
       ok = isArr(d.suppliers);
       break;
+    case "citations":
+      ok = isArr(d.snippets) && isArr(d.withheld);
+      break;
   }
   return ok ? (v as unknown as ChatCardData) : null;
+}
+
+/** Keep only well-formed citation objects (all string fields). */
+export function sanitizeCitations(v: unknown): Citation[] {
+  if (!isArr(v)) return [];
+  const keys = ["cite_id", "source_id", "title", "heading_path", "source_type", "original_reference", "last_reviewed", "disclaimer"] as const;
+  const out: Citation[] = [];
+  for (const c of v) {
+    if (!isObj(c) || !/^S\d+$/.test(str(c.cite_id))) continue;
+    const item = {} as Record<string, string>;
+    for (const k of keys) item[k] = str(c[k]);
+    out.push(item as unknown as Citation);
+  }
+  return out;
 }
 
 function validCards(v: unknown): ChatCardData[] {
@@ -132,6 +150,7 @@ export function parseEvent(name: string, data: string): StreamEvent | null {
       const response = {
         ...json,
         cards: validCards(json.cards),
+        citations: sanitizeCitations(json.citations),
         notes: isArr(json.notes) ? json.notes.filter((n) => typeof n === "string") : [],
         why: typeof json.why === "string" ? json.why : null,
         message_id: isUuid(json.message_id) ? json.message_id : "",

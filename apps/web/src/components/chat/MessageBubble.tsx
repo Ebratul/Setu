@@ -7,8 +7,9 @@ import { Button } from "@/components/ui/Button";
 import { useT } from "@/i18n";
 
 import { ChatCard } from "./cards/ChatCard";
-import { Markdown } from "./markdown";
+import { Markdown, type CiteCtx } from "./markdown";
 import { splitAnswer } from "./messageParts";
+import { SourcesList, sourceDomId } from "./SourcesList";
 import { ToolChips } from "./ToolChips";
 import type { AssistantMessage, UiMessage } from "./types";
 
@@ -48,13 +49,31 @@ function AssistantBubble({
 }) {
   const t = useT();
   const [copied, setCopied] = useState(false);
+  const [highlight, setHighlight] = useState<string | null>(null);
+  const idPrefix = `cite-${m.id}`;
+  const visibleCards = m.cards.filter((c) => c.card_type !== "citations");
+  const withheld = m.cards.some(
+    (c) => c.card_type === "citations" && c.data.withheld.length > 0,
+  );
+  const cites: CiteCtx | undefined =
+    m.citations.length > 0
+      ? {
+          citations: new Map(m.citations.map((c) => [c.cite_id, c])),
+          onCite: (id) => {
+            setHighlight(id);
+            const el = document.getElementById(sourceDomId(idPrefix, id));
+            el?.scrollIntoView?.({ block: "nearest" });
+            el?.focus();
+          },
+        }
+      : undefined;
   const timer = useRef<ReturnType<typeof setTimeout>>(undefined);
   useEffect(() => () => clearTimeout(timer.current), []);
 
   const streaming = m.status === "streaming";
   const parts = streaming
-    ? { body: m.text, why: null, notes: [], simulated: m.cards.length > 0 }
-    : splitAnswer(m.text, m.why, m.notes, m.cards);
+    ? { body: m.text, why: null, notes: [], simulated: visibleCards.length > 0 }
+    : splitAnswer(m.text, m.why, m.notes, visibleCards);
   const waiting = streaming && m.text === "";
   const interrupted = m.status === "interrupted";
   const canRetry = (m.status === "error" || interrupted) && m.retryText;
@@ -97,18 +116,31 @@ function AssistantBubble({
             ))}
           </p>
         ) : null}
-        {parts.body ? <Markdown text={parts.body} /> : null}
+        {parts.body ? <Markdown text={parts.body} cites={cites} /> : null}
         {parts.why ? (
           <p className="rounded-md border-l-4 border-brand-600 bg-brand-50 px-3 py-1.5 text-sm break-words text-ink">
             {parts.why}
           </p>
         ) : null}
-        {m.cards.length > 0 ? (
+        {visibleCards.length > 0 ? (
           <div className="space-y-3">
-            {m.cards.map((c, i) => (
+            {visibleCards.map((c, i) => (
               <ChatCard key={`${c.card_type}-${i}`} card={c} />
             ))}
           </div>
+        ) : null}
+        {!streaming && m.citations.length > 0 ? (
+          <SourcesList
+            citations={m.citations}
+            idPrefix={idPrefix}
+            highlighted={highlight}
+          />
+        ) : null}
+        {!streaming && withheld ? (
+          <p role="note" data-testid="withheld" className="text-xs font-semibold text-warning">
+            <span aria-hidden="true">▲ </span>
+            {t("chat.sources.withheld")}
+          </p>
         ) : null}
         {parts.notes.length > 0 ? (
           <div className="space-y-0.5 text-xs text-muted">

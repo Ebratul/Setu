@@ -5,6 +5,7 @@ travel in `config["configurable"]["deps"]`; they are never checkpointed. Models,
 registry and limits are bound when the graph is built.
 """
 
+import html
 import json
 import re
 from collections.abc import Callable
@@ -101,13 +102,50 @@ def escape_prose(text: str) -> str:
     return text.replace("<", "&lt;").replace(">", "&gt;")
 
 
+CITE = re.compile(r"\[(S\d{1,3})\]")
+
+
 def render_tool_result(outcome: ToolOutcome) -> str:
     # "<" is escaped so data can never close the wrapper tag.
-    payload = outcome.model_payload().replace("<", "\\u003c")
     ok = "true" if outcome.ok else "false"
-    return (
-        f'<tool_result name="{outcome.name}" ok="{ok}" untrusted="true">\n{payload}\n</tool_result>'
-    )
+    data = outcome.data or {}
+    if outcome.ok and data.get("card_type") == "citations":
+        docs = [
+            f'<retrieved_document cite_id="{html.escape(s["cite_id"], quote=True)}" '
+            f'source_id="{html.escape(s["source_id"], quote=True)}">\n'
+            + escape_prose(f"{s['heading_path']}\n{s['content']}")
+            + "\n</retrieved_document>"
+            for s in data["data"]["snippets"]
+        ]
+        body = "\n".join(docs) or "(no matching passages)"
+    else:
+        body = outcome.model_payload().replace("<", "\\u003c")
+    return f'<tool_result name="{outcome.name}" ok="{ok}" untrusted="true">\n{body}\n</tool_result>'
+
+
+def renumber_citations(outcome: ToolOutcome, start: int) -> int:
+    """Give this result's passages turn-unique cite ids S{start+1}…; returns the new count."""
+    data = outcome.data or {}
+    if not outcome.ok or data.get("card_type") != "citations":
+        return start
+    for snippet in data["data"]["snippets"]:
+        start += 1
+        snippet["cite_id"] = f"S{start}"
+    return start
+
+
+def retrieved_ids(results: list[Any]) -> list[str]:
+    ids: list[str] = []
+    for r in results:
+        if not r["ok"] or r.get("flags"):
+            continue
+        try:
+            data = json.loads(r["payload"])
+        except ValueError:
+            continue
+        if isinstance(data, dict) and data.get("card_type") == "citations":
+            ids += [s["cite_id"] for s in data["data"]["snippets"]]
+    return ids
 
 
 class Nodes:
@@ -278,6 +316,7 @@ class Nodes:
         records: list[ToolCallRecord] = list(state.tool_calls_made)
         results: list[ToolResult] = list(state.tool_results)
         flags: list[str] = list(state.injection_flags)
+        cites = len(retrieved_ids(results))
         for call in calls:
             name, args, call_id = call["name"], call.get("args") or {}, call.get("id") or ""
             if steps >= self.max_tool_steps:
@@ -289,6 +328,7 @@ class Nodes:
                 )
             else:
                 outcome = self.registry.guard(name, args, ctx, config, allowed)
+                cites = renumber_citations(outcome, cites)
                 steps += 1
             out.append(
                 ToolMessage(
@@ -393,7 +433,10 @@ class Nodes:
             )
             parts.append(why)
         notes: list[str] = []
-        if tools_ok and not any(m in text.lower() for m in SIMULATED_MARKERS):
+        figures = [
+            n for n in tools_ok if n != "search_knowledge"
+        ]  # KB answers carry no Setu figures
+        if figures and not any(m in text.lower() for m in SIMULATED_MARKERS):
             notes.append(prompts.STATIC["simulated"][lang])
         if state.injection_flags:
             codes = ", ".join(state.injection_flags)
@@ -418,7 +461,11 @@ class Nodes:
             answer = prompts.STATIC["model_error"][lang]
         else:
             messages = [
-                SystemMessage(prompts.respond_system_prompt(lang, bool(state.injection_flags))),
+                SystemMessage(
+                    prompts.respond_system_prompt(
+                        lang, bool(state.injection_flags), bool(retrieved_ids(state.tool_results))
+                    )
+                ),
                 HumanMessage(self._respond_input(state)),
             ]
             try:
@@ -431,7 +478,10 @@ class Nodes:
                 log.warning("respond_model_failed", error=type(exc).__name__)
                 text, stop = prompts.STATIC["model_error"][lang], "model_error"
             answer, why, notes = self._finalize(text, state, lang)
+        retrieved = retrieved_ids(state.tool_results)
+        cited = list(dict.fromkeys(c for c in CITE.findall(answer) if c in retrieved))
         return {
+            "citations": cited,
             "messages": [AIMessage(content=answer)],
             "answer": answer,
             "why": why,

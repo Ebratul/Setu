@@ -30,6 +30,11 @@ class Settings(BaseSettings):
     langsmith_tracing: bool = False
     langsmith_project: str = "setu"
 
+    # Knowledge base (app/rag). Local multilingual model, Apache-2.0; "hash" = offline test stub.
+    kb_embedder: Literal["fastembed", "hash"] = "fastembed"
+    kb_embedding_model: str = "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2"
+    kb_model_cache_dir: Path = Path.home() / ".cache" / "setu-fastembed"
+
     # Agent (app/agent). Model ids come from env; SETU_MODEL_* are the older names.
     model_fast: str = Field(
         "claude-haiku-5-5", validation_alias=AliasChoices("MODEL_FAST", "SETU_MODEL_FAST")

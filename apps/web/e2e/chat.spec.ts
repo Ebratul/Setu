@@ -37,3 +37,27 @@ test("Rahima asks about cash in Bangla and gets a cash-flow card, then uses the 
   await page.keyboard.press("Escape");
   await expect(dialog).toBeHidden();
 });
+
+test("a knowledge-base answer shows a citation chip and a Sources entry", async ({
+  page,
+}) => {
+  await page.goto("/login");
+  await page
+    .getByRole("button", { name: /Rahima/ })
+    .first()
+    .click();
+  await page.waitForURL(/\/app$/);
+  await page.goto("/app/chat");
+  const box = page.getByLabel("Message to Setu");
+  await box.fill("What does FOB mean?");
+  await box.press("Enter");
+  const chip = page.getByRole("button", { name: /^Source S1/ });
+  await expect(chip).toHaveText("[S1]", { timeout: 30_000 });
+  const sources = page.getByTestId("sources");
+  await expect(sources).toContainText("Incoterms basics");
+  await chip.click();
+  await expect(sources.locator('[data-cite-entry="S1"]')).toHaveAttribute(
+    "data-highlighted",
+    "true",
+  );
+});

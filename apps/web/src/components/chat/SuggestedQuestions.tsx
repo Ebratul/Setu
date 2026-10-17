@@ -2,7 +2,7 @@
 
 import { useT } from "@/i18n";
 
-const KEYS = ["cash", "landed", "financing", "fx", "alerts", "suppliers"] as const;
+const KEYS = ["cash", "landed", "financing", "fx", "alerts", "suppliers", "kb"] as const;
 
 export function SuggestedQuestions({ onPick }: { onPick: (q: string) => void }) {
   const t = useT();

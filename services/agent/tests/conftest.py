@@ -97,3 +97,12 @@ def migrated_db(
     yield test_db_url
     db_session.get_batch_engine().dispose()
     _clear_caches()
+
+
+@pytest.fixture(autouse=True)
+def kb_hash_embedder(monkeypatch: pytest.MonkeyPatch) -> Iterator[None]:
+    """Tests never load or download the embedding model unless a test builds one explicitly."""
+    monkeypatch.setenv("KB_EMBEDDER", "hash")
+    get_settings.cache_clear()
+    yield
+    get_settings.cache_clear()

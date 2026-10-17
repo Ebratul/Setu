@@ -6,7 +6,7 @@ Times are Dhaka (UTC+6). Deadline: 20 Oct 2026 21:59 Dhaka. Must-have cut line: 
 ## Phase checklist
 - [x] 0.1 · [x] 1.1 · [x] 1.2 · [ ] 1.3
 - [x] 2.1 · [x] 2.2 · [x] 2.3 (FR-2; FR-7 route compare open) · [~] 2.4 (i18n, fonts, shell, client only) · [x] 2.5 · [x] 2.6
-- [~] 3.1 (LLM client, tracing, tier-gated registry, FR tools; no LLM cache) · [ ] 3.2 · [~] 3.3 (agent + FR tools; citations in P10) · [x] 3.4 (P09 chat UI)
+- [~] 3.1 (LLM client, tracing, tier-gated registry, FR tools; no LLM cache) · [x] 3.2 (P10 RAG + citations) · [x] 3.3 (agent, FR tools, citations) · [x] 3.4 (P09 chat UI)
 - [ ] 4.1 · [ ] 4.2 · [ ] 4.3 · [ ] 4.4 · [ ] 4.5
 - [ ] 5.1 · [ ] 5.2 · [ ] 5.3 · [ ] 5.4 · [ ] 5.5
 - [ ] 6.1 · [ ] 6.2
@@ -26,6 +26,7 @@ Times are Dhaka (UTC+6). Deadline: 20 Oct 2026 21:59 Dhaka. Must-have cut line: 
 | 2.2+2.6b (P07) | 2026-10-17 05:21 | done | FR-1 gap (shortfall/order), option matching with eligibility + ranking, schedule, cash-flow impact, simulated applications (+ migration); /app/financing comparison UI. | pytest 189 passed · vitest 33 passed · Playwright 3 passed (serial, E2E_RESET_DEMO) · lint/tsc/ruff clean · build ok · verify_seed 17/17 · security review: pass with fixes (fixed) | TC-09 holds via two product rules; approvals must move behind ACCEPT_FINANCING tiers in 5.x. |
 | 3.3 (P08) | 2026-10-17 05:40 | done (real-model check open) | LangGraph agent: router → agent ⇄ tier-guarded tools → respond; 3 Tier 0 tools; Postgres checkpointer; chat threads; /chat + SSE; LangSmith; offline mock model. | pytest 233 passed (incl. db) · ruff clean · web tsc ok · security review: pass with fixes (1 medium + 6 low fixed; 1 medium privacy gap open → P18) | Real Claude run blocked: ANTHROPIC_API_KEY in .env is empty. P09 adds finance tools + chat UI. |
 | 3.4 (P09) | 2026-10-17 07:24 | done (real-model check open) | 10 Tier 0 finance tools returning cards (landed cost, cash flow, alerts, financing, FX route, monthly, scorecard), FR-7 FX route, Why-line guarantee; /app/chat + drawer with rich cards, threads, feedback. | pytest 322 passed (incl. db) · vitest 80 passed · Playwright 4 passed · lint/tsc/ruff clean · build ok · security review backend + UI: pass with fixes (fixed) | ANTHROPIC_API_KEY still empty: real-model run open. Next P10 RAG + citations. |
+| 3.2 (P10) | 2026-10-17 10:25 | done (real-model check open) | Cited knowledge base: 7 KB sources (own summaries + generated financing catalogue), heading chunker, local multilingual embeddings, hybrid pgvector + FTS retrieval (RRF), search_knowledge tool, [S1] citations in answers/API/UI. | pytest 355 passed (incl. db, real-model retrieval table) · vitest 90 passed · Playwright 5 passed · lint/tsc/ruff clean · build ok · security review: pass with fixes (2 medium + 6 low fixed) | Merged P08–P10 to main. ANTHROPIC_API_KEY still empty. |
 
 ## Handoff notes
 
@@ -563,6 +564,89 @@ Times are Dhaka (UTC+6). Deadline: 20 Oct 2026 21:59 Dhaka. Must-have cut line: 
   `CARD_TYPES`, the UI dispatcher `components/chat/cards/ChatCard.tsx`), `app/agent/registry.py`
   (`INTENT_TOOLS`), `app/agent/nodes.py` (`_respond_input`, `_finalize`), `app/agent/state.py`
   (`citations`).
+
+### 3.2 (from the user's "P10 RAG knowledge base with citations" prompt)
+- **Branch:** `phase/3.2-rag` (worktree `/data/setu-3.3`), on top of `phase/3.4-chat-tools`. It was merged to
+  `main` with P08 and P09 (`--no-ff`).
+- **KB sources** (`services/agent/kb/sources/`, our own summaries, about 3,900 words plus the generated
+  catalogue):
+  - `bb-advance-payment` (regulation_summary)
+  - `incoterms-basics`, `trade-document-fields`, `financing-glossary` (glossary)
+  - `setu-how-it-works`, `faq-bn` (product_doc, Bangla)
+  - `generated/financing-catalogue` (catalogue, from `financing_options` by `npm run kb:sync`)
+
+  Each file has YAML front-matter: `id`, `title`, `source_type`, `original_reference`, `language`,
+  `last_reviewed`, `disclaimer`. The Bangladesh Bank figures are as given in the prompt (USD 20,000;
+  raised from USD 10,000 in Sept 2025; FEPD circular of 13 Aug 2026). They are **not independently
+  verified**, are marked "simplified summary for demo — verify with the official circular", and no circular
+  number is invented. A native speaker should review the Bangla FAQ.
+- **Embeddings:** fastembed has no `multilingual-e5-small`, so the KB uses
+  **`sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2`** (384-d, which fits the existing
+  `Vector(384)`; Apache-2.0, 50+ languages including Bengali). It runs locally through fastembed with no paid
+  API and is cached in `~/.cache/setu-fastembed` (`KB_MODEL_CACHE_DIR`, about 240 MB). It needs no e5
+  prefixes. `KB_EMBEDDER=hash` gives a deterministic offline stub (all tests default to it). The licence is
+  in the README.
+- **Schema:**
+  - Migration `c4d2e8f1a9b3` (revises `b7c1a9e4d2f0`) rebuilds the empty `kb_chunks` table: `source_id`,
+    `seq`, `title`, `heading_path`, `content`, `language`, `content_hash`, `embedding vector(384)`,
+    `metadata` JSONB, and `tsv` (a generated `to_tsvector('simple', title‖heading‖content)`).
+  - Indexes: HNSW (`vector_cosine_ops`) and GIN on `tsv`. `alembic check` is clean.
+  - Alembic stays the schema owner; the prompt's "Prisma migration" does not apply here.
+- **Indexing** (`app/rag/chunker.py`, `ingest.py`, `cli.py`; `npm run kb:index` / `make kb-index`):
+  - Sections are split by `##`/`###`, about 300–450 tokens (estimated as words × 1.3), with a 40-token
+    overlap when a section is split. Tiny sections and intros fold into the next one.
+  - Every chunk keeps "Title > Section > Sub".
+  - Idempotent by `content_hash` (model id + heading path + text): an edit re-embeds only the changed
+    chunks, and a deleted source removes its chunks. The current KB is 7 sources and 59 chunks.
+- **Retrieval** (`app/rag/retrieve.py`):
+  - Vector top 20 (cosine ≥ 0.30) plus full-text top 20 (`to_tsquery('simple')`, OR of the prefix terms,
+    with stop words dropped in EN and BN). The two lists are merged with RRF (k = 60) and return the top 4.
+  - Passages in the requested language score × 1.25.
+  - If the model is missing, retrieval falls back to full-text only.
+  - Every candidate goes through the injection detector. A flagged passage is **withheld**, and its codes
+    are reported in `security_flags`, which the registry turns into the turn's injection flags.
+  - A test asserts that all our own KB chunks pass the detector, so a bad edit fails CI. Two passages were
+    reworded for this.
+  - The retrieval table is top-1 correct with the real model for: the advance payment limit, FOB, bill of
+    lading fields, escrow, and the Bangla advance-limit question.
+- **Agent:**
+  - Tool `search_knowledge(query, language?)` is Tier 0 and allow-listed for every agent intent. It
+    returns a `citations` card.
+  - The model sees `<retrieved_document cite_id="S1" source_id="…">` blocks (escaped) inside the
+    untrusted `<tool_result>`.
+  - Cite ids are unique per turn across several searches (S1…S4, then S5…).
+  - The respond prompt (`respond@3`, `CITE_RULE`) says to cite `[S#]` and only from retrieved passages.
+    `state.citations` keeps only ids that were actually retrieved and not flagged.
+  - `ChatResponse.citations[]` holds `{cite_id, source_id, title, heading_path, source_type,
+    original_reference, last_reviewed, disclaimer}`, also stored in `meta.citations`.
+  - Answers that come only from the KB get no "simulated figures" note.
+  - The mock model picks `search_knowledge` for rule and definition questions and answers from the top
+    passage with `[S1]`.
+- **UI:** citation chips `[S1]` in the answer, a Sources / উৎস list under the message, a withheld-passage
+  notice, and KB suggestion chips.
+- **Verified (mock mode, real embeddings):**
+  - The four example questions and the Bangla FAQ questions answer with `[S1]` from the right source.
+  - `kb:index` re-run gives `+0 embedded, 59 unchanged`.
+- **Security review (security-reviewer): PASS WITH FIXES, all fixed.**
+  - (M1) The user's own query was echoed in the card and scanned as untrusted data, so "release the
+    tranche?" flagged the turn. The card no longer carries the query.
+  - (M2) A missing model triggered a download or a failure on every request. Now the request path never
+    downloads (`get_embedder()` returns None and search runs full-text only, with the failure cached);
+    only `kb:index` may download.
+  - (L) The vector query runs in a savepoint, so a failure falls back to full-text.
+  - (L) Detection covers title, heading, content and meta; withheld entries are id + codes only.
+  - (L) `<retrieved_document>` attributes are escaped.
+  - (L) The indexer refuses symlinks, non-mapping front-matter, unknown languages, duplicate ids and
+    instruction-like sources.
+  - (L) Catalogue values are collapsed to one line.
+- **Known gaps:**
+  - A real Claude run is untested (the key is empty).
+  - The hash stub is plumbing-only (ranking quality is tested with the real model).
+  - The KB content is unreviewed by a domain expert.
+  - No `docs/SRS.md`, so the 1.4 / 6.3 references were not checked.
+  - The first `kb:index` downloads the model (needs network once).
+- **Next phase reads:** this block, `app/rag/retrieve.py` (tuning constants), `app/agent/tools/knowledge.py`,
+  `kb/sources/*` front-matter format.
 
 ## Known issues / risks
 - 1.2: the local `.env` / `.env.example` `DATABASE_URL` points at a hosted Postgres, so `db:migrate`/`db:seed` without

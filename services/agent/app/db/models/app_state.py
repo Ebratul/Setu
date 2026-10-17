@@ -4,9 +4,11 @@ from typing import Any
 
 from pgvector.sqlalchemy import Vector
 from sqlalchemy import (
+    Computed,
     Date,
     DateTime,
     ForeignKey,
+    Index,
     Integer,
     SmallInteger,
     String,
@@ -15,13 +17,17 @@ from sqlalchemy import (
     Uuid,
     func,
 )
-from sqlalchemy.dialects.postgresql import JSONB
+from sqlalchemy.dialects.postgresql import JSONB, TSVECTOR
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.db.base import Base, Created, UUIDPk, str_enum
 from app.db.enums import ChatRole, Language
 
 EMBEDDING_DIM = 384
+KB_TSV = (
+    "to_tsvector('simple'::regconfig, coalesce(title, '') || ' ' || "
+    "coalesce(heading_path, '') || ' ' || coalesce(content, ''))"
+)
 
 
 class ChatThread(Base):
@@ -81,11 +87,32 @@ class LlmCache(Base):
 
 
 class KbChunk(Base):
+    """One heading-sized chunk of a knowledge-base source (services/agent/kb/sources)."""
+
     __tablename__ = "kb_chunks"
+    __table_args__ = (
+        UniqueConstraint("source_id", "seq"),
+        Index(
+            "ix_kb_chunks_embedding_hnsw",
+            "embedding",
+            postgresql_using="hnsw",
+            postgresql_ops={"embedding": "vector_cosine_ops"},
+        ),
+        Index("ix_kb_chunks_tsv", "tsv", postgresql_using="gin"),
+    )
 
     id: Mapped[UUIDPk]
-    source: Mapped[str] = mapped_column(String(120), index=True)
+    source_id: Mapped[str] = mapped_column(String(120), index=True)
+    seq: Mapped[int] = mapped_column(Integer)
     title: Mapped[str] = mapped_column(String(200))
     heading_path: Mapped[str] = mapped_column(String(300))
-    text: Mapped[str] = mapped_column(Text)
+    content: Mapped[str] = mapped_column(Text)
+    language: Mapped[str] = mapped_column(String(8))
+    content_hash: Mapped[str] = mapped_column(String(64), index=True)
     embedding: Mapped[list[float]] = mapped_column(Vector(EMBEDDING_DIM))
+    # 'simple' config: no stemming or stop words, so codes like "FOB" and Bangla tokens match as-is.
+    tsv: Mapped[Any] = mapped_column(
+        TSVECTOR,
+        Computed(KB_TSV, persisted=True),
+    )
+    meta: Mapped[dict[str, Any]] = mapped_column("metadata", JSONB, default=dict)

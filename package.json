@@ -13,6 +13,8 @@
     "db:migrate": "uv run --directory services/agent alembic upgrade head",
     "db:seed": "uv run --directory services/agent python -m seed.cli seed",
     "db:reset-demo": "uv run --directory services/agent python -m seed.cli reset-demo",
+    "kb:sync": "uv run --directory services/agent python -m app.rag.cli sync",
+    "kb:index": "uv run --directory services/agent python -m app.rag.cli index",
     "db:verify": "./scripts/verify_seed",
     "dev": "concurrently -k -n agent,web -c blue,green \"pnpm:dev:agent\" \"pnpm:dev:web\"",
     "dev:web": "pnpm --dir apps/web dev",

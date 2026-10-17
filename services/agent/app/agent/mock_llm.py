@@ -8,6 +8,7 @@ Mimics the three ways the graph uses a model, so dev, tests and the demo run wit
 It never reads instructions from tool results; it only formats known fields.
 """
 
+import html
 import json
 import re
 from collections.abc import Iterator, Sequence
@@ -31,6 +32,9 @@ from langchain_core.runnables import Runnable, RunnableLambda
 from app.agent.intents import DEAL_REF, keyword_intent, needs_smart
 from app.agent.state import Lang
 
+_DOC_BLOCK = re.compile(
+    r'<retrieved_document cite_id="(S\d+)"[^>]*>\n(.*?)\n</retrieved_document>', re.S
+)
 _TOOL_BLOCK = re.compile(
     r'<tool_result name="([^"]+)" ok="(true|false)"[^>]*>(.*?)</tool_result>', re.S
 )
@@ -251,7 +255,32 @@ _FORMATTERS = {
     "get_deal_summary": _deal_sentences,
     "explain_how_setu_works": _how_sentences,
 }
+
+
+def _citations_sentences(d: dict[str, Any], lang: Lang) -> list[str]:
+    snippets = d.get("snippets", [])
+    if not snippets:
+        return [
+            "এ বিষয়ে Setu-র knowledge base-এ কিছু পাইনি।"
+            if lang == "bn"
+            else "I couldn't find this in Setu's knowledge base."
+        ]
+    top = snippets[0]
+    lines = top["content"].split("\n")
+    # retrieved blocks are "heading path\nheading\nbody"; quote the body only
+    body = " ".join(lines[2:] if len(lines) > 2 else lines[1:]) or top["content"]
+    sentences = re.split(r"(?<=[.!?।])\s+", body.strip())
+    lead = " ".join(sentences[:2]).strip()
+    note = (
+        "এটি সহজ করা সারসংক্ষেপ; সরকারি উৎসে যাচাই করুন।"
+        if lang == "bn"
+        else "This is a simplified summary; verify with the official source."
+    )
+    return [f"{lead} [{top['cite_id']}]", note]
+
+
 _CARD_FORMATTERS = {
+    "citations": _citations_sentences,
     "landed_cost": _landed_sentences,
     "cashflow": _cashflow_sentences,
     "alerts": _alerts_sentences,
@@ -280,10 +309,18 @@ def compose_answer(messages: Sequence[BaseMessage]) -> str:
     sentences: list[str] = []
     failed = 0
     for name, ok, payload in _TOOL_BLOCK.findall(prompt):
+        docs = _DOC_BLOCK.findall(payload) if ok == "true" else []
         try:
-            data = json.loads(payload) if ok == "true" else None
+            data = json.loads(payload) if ok == "true" and not docs else None
         except json.JSONDecodeError:
             data = None
+        if docs:
+            data = {
+                "card_type": "citations",
+                "data": {
+                    "snippets": [{"cite_id": c, "content": html.unescape(b)} for c, b in docs]
+                },
+            }
         fmt = _CARD_FORMATTERS.get(data.get("card_type", "")) if isinstance(data, dict) else None
         if data is not None and fmt is not None:
             sentences.extend(fmt(data["data"], lang))
@@ -315,6 +352,34 @@ _SUPPLIERS = ("scorecard", "supplier", "সাপ্লায়ার")
 _CASH = ("cash", "shortfall", "short", "balance", "forecast", "কম পড়বে", "ক্যাশ", "নগদ", "现金")
 _MONTHLY = ("monthly", "summary", "month summary", "মাসিক", "সারাংশ", "সারসংক্ষেপ")
 _DASH_ONLY = ("dashboard", "ড্যাশবোর্ড")
+_KB_STRONG = (
+    "fob",
+    "cif",
+    "cfr",
+    "exw",
+    "dap",
+    "ddp",
+    "incoterm",
+    "advance payment",
+    "bangladesh bank",
+    "regulation",
+    "circular",
+    "must match",
+    "fields",
+    "how does setu",
+    "escrow work",
+    "মানে",
+    "সীমা",
+    "নিয়ম",
+    "কীভাবে কাজ",
+    "নিজে টাকা",
+)
+_DEFINITION = ("what is", "what are", "what does", "define", "meaning", "explain", "কী?", "কি?")
+_PERSONAL = (" my ", "my ", " i ", "i'm", "আমার", "আমি")
+
+
+def _query_lang(q: str) -> str:
+    return "bn" if re.search(r"[\u0980-\u09ff]", q) else "en"
 
 
 def _pick_tool(
@@ -330,8 +395,12 @@ def _pick_tool(
     def has(keys: tuple[str, ...]) -> bool:
         return any(k in q for k in keys)
 
+    personal = in_q is not None or any(w in q for w in _PERSONAL)
+    knowledge = has(_KB_STRONG) or (has(_DEFINITION) and not personal)
+    kb_args = {"query": _text(human)[:300] if human else q, "language": _query_lang(q)}
     rules: list[tuple[bool, str, dict[str, Any]]] = [
         (has(_DASH_ONLY), "get_dashboard_snapshot", {}),
+        (knowledge, "search_knowledge", kb_args),
         (has(_ALERTS), "get_alerts", {}),
         (has(_LANDED), "analyze_order", deal),
         (has(_FX), "compare_fx_route", deal),

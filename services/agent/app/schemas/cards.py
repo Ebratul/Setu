@@ -16,6 +16,7 @@ from app.schemas.analysis import DecStr
 APP_ROUTE_PATTERN = r"^/app(/[A-Za-z0-9_\-]+)*/?(\?[A-Za-z0-9_\-=&.%]*)?$"
 AppRoute = Annotated[str, Field(pattern=APP_ROUTE_PATTERN)]
 CardType = Literal[
+    "citations",
     "landed_cost",
     "cashflow",
     "alerts",
@@ -290,8 +291,46 @@ class ScorecardCard(_Card):
     data: ScorecardData
 
 
+# --- citations (RAG) ------------------------------------------------------------------------
+
+
+class CitationSnippet(_M):
+    cite_id: str = Field(pattern=r"^S\d{1,3}$")
+    source_id: str
+    title: str
+    heading_path: str
+    content: str
+    language: str
+    source_type: str
+    original_reference: str
+    last_reviewed: str
+    disclaimer: str
+    score: float
+
+
+class Withheld(_M):
+    source_id: str
+    codes: list[str]
+
+
+class CitationsData(_M):
+    # The user's query is deliberately not echoed: it is not tool data and must not be scanned
+    # as untrusted text (a normal "release the tranche?" question would flag the turn).
+    snippets: list[CitationSnippet]
+    withheld: list[Withheld] = []
+    security_flags: list[str] = Field(
+        default_factory=list, description="Injection codes of withheld passages (flags the turn)."
+    )
+
+
+class CitationsCard(_Card):
+    card_type: Literal["citations"] = "citations"
+    data: CitationsData
+
+
 Card = Annotated[
-    LandedCostCard
+    CitationsCard
+    | LandedCostCard
     | CashflowCard
     | AlertsCard
     | FinancingComparisonCard
@@ -302,6 +341,7 @@ Card = Annotated[
 ]
 CARD_TYPES = frozenset(
     {
+        "citations",
         "landed_cost",
         "cashflow",
         "alerts",

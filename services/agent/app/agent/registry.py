@@ -123,6 +123,18 @@ def _strings(value: Any) -> Iterable[str]:
             yield from _strings(v)
 
 
+FLAG_CODE = re.compile(r"[A-Z_]{2,40}")
+
+
+def declared_flags(data: dict[str, Any]) -> set[str]:
+    """Injection codes a tool reports for content it withheld (e.g. flagged KB passages)."""
+    inner = data.get("data")
+    flags = inner.get("security_flags") if isinstance(inner, dict) else None
+    if not isinstance(flags, list):
+        return set()
+    return {f for f in flags if isinstance(f, str) and FLAG_CODE.fullmatch(f)}
+
+
 def scan_result(data: dict[str, Any]) -> list[Finding]:
     """Instruction-like text in any string value of a tool result (keys are ours, not scanned)."""
     findings: list[Finding] = []
@@ -244,7 +256,7 @@ class ToolRegistry:
             )
 
         findings = scan_result(data)
-        codes = sorted({f.code for f in findings})
+        codes = sorted({f.code for f in findings} | declared_flags(data))
         record_event(
             actor="llm",
             action=f"TOOL:{name}",
@@ -336,6 +348,11 @@ INTENT_TOOLS: dict[Intent, frozenset[str]] = {
     "documents": frozenset({"get_deal_summary", "explain_how_setu_works"}),
     "how_it_works": frozenset({"explain_how_setu_works", "get_deal_summary"}),
 }
+# Knowledge-base search (rules, definitions, how Setu works) is useful for every agent intent.
+INTENT_TOOLS = {
+    k: (v | {"search_knowledge"} if k not in ("greeting", "out_of_scope") else v)
+    for k, v in INTENT_TOOLS.items()
+}
 
 
 AllowList = Callable[[Intent | None], frozenset[str]]
@@ -351,7 +368,8 @@ _default: ToolRegistry | None = None
 def default_registry() -> ToolRegistry:
     global _default
     if _default is None:
-        from app.agent.tools import finance  # registers the finance tools on the same registry
+        # Importing registers the finance and knowledge tools on the same registry.
+        from app.agent.tools import finance, knowledge  # noqa: F401
 
         _default = finance.REGISTRY
     return _default

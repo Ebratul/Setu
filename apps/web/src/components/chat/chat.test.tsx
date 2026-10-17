@@ -52,6 +52,7 @@ function assistant(over: Partial<AssistantMessage> = {}): AssistantMessage {
     why: "Why: because.",
     notes: ["_All figures are simulated demo data._"],
     cards: [],
+    citations: [],
     tools: [],
     status: "done",
     error: null,

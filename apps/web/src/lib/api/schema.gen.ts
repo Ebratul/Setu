@@ -1025,7 +1025,12 @@ export interface components {
              * Cards
              * @description Result cards, in tool order.
              */
-            cards?: (components["schemas"]["LandedCostCard"] | components["schemas"]["CashflowCard"] | components["schemas"]["AlertsCard"] | components["schemas"]["FinancingComparisonCard"] | components["schemas"]["FxCompareCard"] | components["schemas"]["MonthlySummaryCard"] | components["schemas"]["ScorecardCard"])[];
+            cards?: (components["schemas"]["CitationsCard"] | components["schemas"]["LandedCostCard"] | components["schemas"]["CashflowCard"] | components["schemas"]["AlertsCard"] | components["schemas"]["FinancingComparisonCard"] | components["schemas"]["FxCompareCard"] | components["schemas"]["MonthlySummaryCard"] | components["schemas"]["ScorecardCard"])[];
+            /**
+             * Citations
+             * @description Knowledge-base sources cited in the answer ([S1]…).
+             */
+            citations?: components["schemas"]["Citation"][];
         };
         /** CheckOut */
         CheckOut: {
@@ -1041,6 +1046,86 @@ export interface components {
             params: {
                 [key: string]: string;
             };
+        };
+        /** Citation */
+        Citation: {
+            /** Cite Id */
+            cite_id: string;
+            /** Source Id */
+            source_id: string;
+            /** Title */
+            title: string;
+            /** Heading Path */
+            heading_path: string;
+            /** Source Type */
+            source_type: string;
+            /** Original Reference */
+            original_reference: string;
+            /** Last Reviewed */
+            last_reviewed: string;
+            /** Disclaimer */
+            disclaimer: string;
+        };
+        /** CitationSnippet */
+        CitationSnippet: {
+            /** Cite Id */
+            cite_id: string;
+            /** Source Id */
+            source_id: string;
+            /** Title */
+            title: string;
+            /** Heading Path */
+            heading_path: string;
+            /** Content */
+            content: string;
+            /** Language */
+            language: string;
+            /** Source Type */
+            source_type: string;
+            /** Original Reference */
+            original_reference: string;
+            /** Last Reviewed */
+            last_reviewed: string;
+            /** Disclaimer */
+            disclaimer: string;
+            /** Score */
+            score: number;
+        };
+        /** CitationsCard */
+        CitationsCard: {
+            /** Explanation Codes */
+            explanation_codes: string[];
+            /** Explanation En */
+            explanation_en: string;
+            /** Explanation Bn */
+            explanation_bn: string;
+            /**
+             * Simulated
+             * @default true
+             * @constant
+             */
+            simulated: true;
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            card_type: "citations";
+            data: components["schemas"]["CitationsData"];
+        };
+        /** CitationsData */
+        CitationsData: {
+            /** Snippets */
+            snippets: components["schemas"]["CitationSnippet"][];
+            /**
+             * Withheld
+             * @default []
+             */
+            withheld: components["schemas"]["Withheld"][];
+            /**
+             * Security Flags
+             * @description Injection codes of withheld passages (flags the turn).
+             */
+            security_flags?: string[];
         };
         /** CostDriverOut */
         CostDriverOut: {
@@ -2070,7 +2155,7 @@ export interface components {
              * Card
              * @description For tool messages that produced a card.
              */
-            card?: (components["schemas"]["LandedCostCard"] | components["schemas"]["CashflowCard"] | components["schemas"]["AlertsCard"] | components["schemas"]["FinancingComparisonCard"] | components["schemas"]["FxCompareCard"] | components["schemas"]["MonthlySummaryCard"] | components["schemas"]["ScorecardCard"]) | null;
+            card?: (components["schemas"]["CitationsCard"] | components["schemas"]["LandedCostCard"] | components["schemas"]["CashflowCard"] | components["schemas"]["AlertsCard"] | components["schemas"]["FinancingComparisonCard"] | components["schemas"]["FxCompareCard"] | components["schemas"]["MonthlySummaryCard"] | components["schemas"]["ScorecardCard"]) | null;
         };
         /** MonthPoint */
         MonthPoint: {
@@ -2831,6 +2916,13 @@ export interface components {
              * @example 11200.00
              */
             lowest: string;
+        };
+        /** Withheld */
+        Withheld: {
+            /** Source Id */
+            source_id: string;
+            /** Codes */
+            codes: string[];
         };
     };
     responses: never;

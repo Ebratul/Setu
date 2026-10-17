@@ -1,0 +1,109 @@
+{
+ "simulated": true,
+ "thread_id": "46d08470-ef9f-48eb-9d75-b2adc7253fae",
+ "answer": "Under FOB, the seller delivers the goods on board the vessel at the named Chinese port, for example Shanghai or Ningbo. The seller handles export clearance. [S1] This is a simplified summary; verify with the official source.\n\nWhy: Based on 4 passages from Setu's knowledge base (simplified summaries; verify with the official sources listed).",
+ "intent": "how_it_works",
+ "model_used": "mock-fast",
+ "language": "en",
+ "tool_calls": [
+  {
+   "name": "search_knowledge",
+   "args_summary": "language=en, query=What does FOB mean?",
+   "ok": true
+  }
+ ],
+ "usage": {
+  "input_tokens": 3499,
+  "output_tokens": 76,
+  "total_tokens": 3575,
+  "thread_total": 3575,
+  "thread_budget": 60000
+ },
+ "stopped": null,
+ "trace_url": null,
+ "message_id": "b22f6cb7-b6f6-4329-9939-ba9334d33a6e",
+ "why": "Why: Based on 4 passages from Setu's knowledge base (simplified summaries; verify with the official sources listed).",
+ "notes": [],
+ "cards": [
+  {
+   "explanation_codes": [
+    "KB_PASSAGES"
+   ],
+   "explanation_en": "Based on 4 passages from Setu's knowledge base (simplified summaries; verify with the official sources listed).",
+   "explanation_bn": "Setu-র knowledge base-এর 4টি অংশ থেকে (সহজ করা সারসংক্ষেপ; তালিকার সরকারি উৎসে যাচাই করুন)।",
+   "simulated": true,
+   "card_type": "citations",
+   "data": {
+    "query": "What does FOB mean?",
+    "snippets": [
+     {
+      "cite_id": "S1",
+      "source_id": "incoterms-basics",
+      "title": "Incoterms basics for Bangladesh importers (informal summary)",
+      "heading_path": "Incoterms basics for Bangladesh importers (informal summary) > FOB (Free On Board)",
+      "content": "FOB (Free On Board)\nUnder FOB, the seller delivers the goods on board the vessel at the named Chinese port, for example Shanghai or Ningbo. The seller handles export clearance. The buyer arranges and pays main sea freight and insurance. Risk passes when the goods are on board. FOB is very common for Bangladesh importers because they can choose their freight forwarder.",
+      "language": "en",
+      "source_type": "glossary",
+      "original_reference": "ICC Incoterms 2020 rules; see official ICC publication. Incoterms® is a trademark of the International Chamber of Commerce (ICC).",
+      "last_reviewed": "2026-10-17",
+      "disclaimer": "Incoterms® is a trademark of the International Chamber of Commerce (ICC); this is an informal summary, not the official rules. Simplified summary for demo — verify with the official source.",
+      "score": 0.040653
+     },
+     {
+      "cite_id": "S2",
+      "source_id": "bb-advance-payment",
+      "title": "Bangladesh Bank — import advance payment (summary)",
+      "heading_path": "Bangladesh Bank — import advance payment (summary) > What this means for an importer",
+      "content": "What this means for an importer\n- Keep each advance at or below the limit unless your bank approves another route.\n- Plan for the bill of entry: keep the invoice, packing list and bill of lading ready.\n- Ask your AD bank about the matching period for each advance.\n- For larger orders, ask about an LC or a bank guarantee.\n- Use staged payments so you do not pay everything before shipment.\n- Treat this page as a starting point only. Verify with the official circular.",
+      "language": "en",
+      "source_type": "regulation_summary",
+      "original_reference": "Bangladesh Bank, Foreign Exchange Policy Department (FEPD) import circular dated 13 August 2026 and earlier September 2025 change; see official circular for number and exact text",
+      "last_reviewed": "2026-10-17",
+      "disclaimer": "Simplified summary for demo — verify with the official circular.",
+      "score": 0.019841
+     },
+     {
+      "cite_id": "S3",
+      "source_id": "financing-glossary",
+      "title": "Financing glossary and how Setu ranks options",
+      "heading_path": "Financing glossary and how Setu ranks options > Export-credit-insured supplier terms",
+      "content": "Export-credit-insured supplier terms\nHere the supplier ships on open account, meaning you pay later, and the supplier's export-credit insurance covers non-payment. The demo option from Silk Route Cover is 90 days with about 1.2% flat cost passed on. The minimum is USD 3,000. It requires at least two completed deals with the supplier and a verified supplier. Collateral is the supplier's insurance policy.",
+      "language": "en",
+      "source_type": "glossary",
+      "original_reference": "Setu mock financing catalogue (services/agent/seed/financing.py); all providers are fictional",
+      "last_reviewed": "2026-10-17",
+      "disclaimer": "Simplified summary for demo — verify with the official source. Providers and terms are fictional.",
+      "score": 0.019531
+     },
+     {
+      "cite_id": "S4",
+      "source_id": "financing-glossary",
+      "title": "Financing glossary and how Setu ranks options",
+      "heading_path": "Financing glossary and how Setu ranks options > Effective annual rate",
+      "content": "Effective annual rate\nEffective annual rate means the yearly cost of money so you can compare options. A flat fee or price markup is not a yearly rate. To compare, take the total extra cost, divide it by the amount financed, and scale it to a year by the number of days of credit. A shorter credit period makes the same flat percentage cost more per year. Setu calculates this in deterministic code and shows total cost in BDT as well.",
+      "language": "en",
+      "source_type": "glossary",
+      "original_reference": "Setu mock financing catalogue (services/agent/seed/financing.py); all providers are fictional",
+      "last_reviewed": "2026-10-17",
+      "disclaimer": "Simplified summary for demo — verify with the official source. Providers and terms are fictional.",
+      "score": 0.019231
+     }
+    ],
+    "withheld": [],
+    "security_flags": []
+   }
+  }
+ ],
+ "citations": [
+  {
+   "cite_id": "S1",
+   "source_id": "incoterms-basics",
+   "title": "Incoterms basics for Bangladesh importers (informal summary)",
+   "heading_path": "Incoterms basics for Bangladesh importers (informal summary) > FOB (Free On Board)",
+   "source_type": "glossary",
+   "original_reference": "ICC Incoterms 2020 rules; see official ICC publication. Incoterms® is a trademark of the International Chamber of Commerce (ICC).",
+   "last_reviewed": "2026-10-17",
+   "disclaimer": "Incoterms® is a trademark of the International Chamber of Commerce (ICC); this is an informal summary, not the official rules. Simplified summary for demo — verify with the official source."
+  }
+ ]
+}
