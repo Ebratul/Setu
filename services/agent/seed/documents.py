@@ -12,7 +12,8 @@ import hashlib
 from app.config import REPO_ROOT
 from app.db.enums import CheckStatus, DocStatus, DocType, Severity
 from app.db.models import Document, ForensicFinding, HashRegistry
-from app.security.audit import canonical_json, sha256_hex
+from app.forensics.canonical import canonical_invoice_hash
+from app.security.audit import sha256_hex
 from seed.common import SEED_VERSION, Ctx, Row, Rows, sid
 from seed.deals import DEALS_BY_REF, MAIN_DEAL, deal_id, milestone_id
 from seed.parties import LENDER_A, PARTY_NAMES
@@ -85,14 +86,24 @@ DOCS: tuple[
 
 CHECKS: dict[DocType, tuple[tuple[str, str], ...]] = {
     DocType.PROFORMA_INVOICE: (
-        ("KEY_FIELDS_MATCH_DEAL", "Seller, buyer, HS code, quantity and total match the deal"),
-        ("ARITHMETIC", "8,000 m x USD 1.20 = USD 9,600.00"),
-        ("HIDDEN_TEXT_SCAN", "No hidden or tiny text found"),
+        ("EXTRACTION_COMPLETE", "All required fields were read"),
+        ("QUANTITY_MATCH", "8,000 m matches the deal"),
+        ("VALUE_MATH", "8,000 m x USD 1.20 = USD 9,600.00"),
+        ("VALUE_MATCH", "Unit price and total match the deal"),
+        ("NAME_MATCH", "Seller name equals the supplier licence name"),
+        ("BENEFICIARY_MATCH", "Bank, holder and account equal the registered account"),
+        ("DATE_LOGIC", "Invoice date is before production completion and arrival"),
+        ("PORT_MATCH", "Ports and incoterm match the deal"),
+        ("HS_CODE_MATCH", "HS code 6006.22 matches the deal"),
+        ("PRICE_BAND", "Unit price is inside the HS band"),
+        ("HIDDEN_TEXT", "No hidden or tiny text found"),
         ("INSTRUCTION_SCAN", "No instruction-like text found"),
+        ("METADATA_ANOMALY", "File metadata looks unedited"),
+        ("DUPLICATE_HASH", "Not seen elsewhere"),
     ),
     DocType.PRODUCTION_PHOTO: (
-        ("PHOTO_MATCHES_SPEC", "Dyed cotton jersey visible; colour matches order swatch"),
-        ("PHOTO_DATE_PLAUSIBLE", "Capture date is after the PI date and before today"),
+        ("PHOTO_MATCH", "Dyed cotton jersey visible; colour matches the ordered Navy Blue"),
+        ("DUPLICATE_HASH", "Not seen elsewhere"),
     ),
 }
 
@@ -114,7 +125,13 @@ def pi_fields() -> Row:
 
 
 def canonical_hash(fields: Row) -> str:
-    return sha256_hex(canonical_json(fields))
+    """Invoice identity (seller, number, total, currency): a re-saved PDF keeps it."""
+    return canonical_invoice_hash(
+        str(fields["seller"]),
+        str(fields["invoice_no"]),
+        str(fields["total"]),
+        str(fields["currency"]),
+    )
 
 
 def file_sha256(rel_path: str, key: str) -> tuple[str, int | None]:

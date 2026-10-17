@@ -6,6 +6,7 @@ import type { ChatCardData } from "@/lib/api/chat";
 
 import alerts from "../fixtures/alerts.json";
 import cashflow from "../fixtures/cashflow.json";
+import documentCheck from "../fixtures/documentCheck.json";
 import financing from "../fixtures/financing.json";
 import fxCompare from "../fixtures/fxCompare.json";
 import kyb from "../fixtures/kyb.json";
@@ -158,7 +159,7 @@ describe("other cards", () => {
 
 describe("no approval controls", () => {
   it("never renders an approve or release control in any card", () => {
-    for (const c of [alerts, cashflow, financing, fxCompare, landedCost, monthly, scorecard]) {
+    for (const c of [alerts, cashflow, financing, fxCompare, landedCost, monthly, scorecard, documentCheck]) {
       const { unmount } = show(c);
       const controls = [
         ...screen.queryAllByRole("button"),
@@ -185,6 +186,35 @@ describe("KybCard", () => {
 
   it("drops a link that is not an internal /app route", () => {
     show({ ...kyb, data: { ...kyb.data, supplier_route: "https://evil.example/x" } });
+    expect(screen.queryByRole("link")).toBeNull();
+  });
+});
+
+describe("DocumentCheckCard", () => {
+  it("shows status, score, top reasons, the instruction notice and a safe document link", () => {
+    show(documentCheck);
+    expect(screen.getAllByTestId("doc-status")[0]).toHaveAttribute("data-status", "FAILED");
+    expect(screen.getByTestId("doc-card-score")).toHaveTextContent("100");
+    expect(screen.getByText("Hidden text was found in the document.")).toBeInTheDocument();
+    expect(screen.getByTestId("doc-card-instruction")).toHaveTextContent(
+      "This document contains a hidden instruction. Setu ignored it.",
+    );
+    expect(screen.getByRole("link", { name: /Open document/ })).toHaveAttribute(
+      "href",
+      "/app/documents/22222222-2222-4222-8222-222222222222",
+    );
+  });
+
+  it("drops links that are not /app routes", () => {
+    show({
+      ...documentCheck,
+      data: {
+        ...documentCheck.data,
+        focus: { ...documentCheck.data.focus, route: "https://evil.example/x" },
+        deal_route: "javascript:alert(1)",
+        documents: [],
+      },
+    });
     expect(screen.queryByRole("link")).toBeNull();
   });
 });

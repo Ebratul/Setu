@@ -55,6 +55,11 @@ allowed-confusables = ["−", "×", "–"]
 # Tokenizer punctuation classes include typographic quotes and dashes on purpose.
 "app/rag/embed.py" = ["RUF001"]
 "tests/rag/*.py" = ["RUF001"]
+# Obfuscated attack payloads (look-alike letters, full-width punctuation) and long fixture lines.
+"tests/forensics/test_instructions.py" = ["RUF001", "RUF003", "E501"]
+"tests/documents/*.py" = ["E501"]
+"tests/forensics/test_review_fixes.py" = ["RUF001", "E501"]
+"tests/forensics/*.py" = ["E501"]
 # Attack payloads are multilingual literals; demo.py holds long data strings.
 "synthetic/attacks.py" = ["RUF001", "E501"]
 "synthetic/demo.py" = ["E501"]

@@ -35,6 +35,16 @@ class Conflict(DomainError):
     title = "Conflict"
 
 
+class PayloadTooLarge(DomainError):
+    status = 413
+    title = "Payload too large"
+
+
+class UnsupportedMedia(DomainError):
+    status = 415
+    title = "Unsupported media type"
+
+
 class ServiceUnavailable(DomainError):
     status = 503
     title = "Service unavailable"

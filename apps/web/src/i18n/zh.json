@@ -122,6 +122,24 @@
     "milestones": "付款里程碑",
     "payments": "已收款项",
     "noPayments": "尚未收到款项。",
-    "details": "订单详情"
+    "details": "订单详情",
+    "documents": "单据",
+    "noDocuments": "尚未上传单据。"
+  },
+  "doc": {
+    "sup": {
+      "UPLOADED": "已上传",
+      "REVIEW": "审核中",
+      "ACCEPTED": "已接受",
+      "ATTENTION": "需处理"
+    },
+    "up": {
+      "title": "上传单据",
+      "choose": "选择文件",
+      "drop": "将文件拖放到此处，或",
+      "rules": "PDF、PNG 或 JPG，每个文件最大 {mb} MB。",
+      "type": "单据类型",
+      "go": "上传 {n} 个文件"
+    }
   }
 }

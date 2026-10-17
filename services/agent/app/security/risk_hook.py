@@ -67,6 +67,9 @@ class ReleaseContext(_Model):
     advance_over_20k: bool
     requested_by_user_id: uuid.UUID
     requested_by_role: str
+    # Document forensics (P14), deal-wide: any document, on any milestone or none.
+    document_instruction: bool = False
+    document_duplicate: bool = False
 
 
 class RiskResult(_Model):
@@ -97,6 +100,17 @@ def default_evaluate(action: RiskAction, context: ReleaseContext) -> RiskResult:
     if context.beneficiary_changed_recently:
         t3.append(
             RiskReason(code="NEW_BENEFICIARY", message="Receiving account was opened recently.")
+        )
+    if context.document_instruction:
+        t3.append(
+            RiskReason(
+                code="DOC_INSTRUCTION",
+                message="A document of this deal contained instruction-like text (ignored).",
+            )
+        )
+    if context.document_duplicate:
+        t3.append(
+            RiskReason(code="DUPLICATE_HASH", message="A document of this deal is a duplicate.")
         )
     if context.supplier_deal_count == 0:
         t2.append(RiskReason(code="FIRST_DEAL", message="First deal with this supplier."))

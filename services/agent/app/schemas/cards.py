@@ -25,6 +25,7 @@ CardType = Literal[
     "monthly_summary",
     "scorecard",
     "kyb",
+    "document_check",
 ]
 
 
@@ -322,6 +323,55 @@ class KybCard(_Card):
     data: KybData
 
 
+# --- document_check -----------------------------------------------------------------------
+
+
+class DocumentReason(_M):
+    code: str
+    status: Literal["WARN", "FAIL"]
+    detail_en: str
+    detail_bn: str
+
+
+class DocumentCheckItem(_M):
+    """One document by role label and codes. File names and document text never appear here."""
+
+    document_id: uuid.UUID
+    doc_type: str
+    doc_label_en: str
+    doc_label_bn: str
+    status: Literal["PASSED", "WARNING", "FAILED", "PENDING", "NOT_RUN"]
+    score: int | None
+    reasons: list[DocumentReason] = Field(description="Top 3 non-passing checks, worst first.")
+    instruction_from_document: bool
+    hidden_text_found: bool
+    route: AppRoute
+
+
+class DocumentCheckData(_M):
+    deal_ref: str
+    defaulted_deal: bool = False
+    status: Literal["PASSED", "WARNING", "FAILED", "PENDING", "NOT_RUN", "NONE"]
+    score: int | None
+    focus: DocumentCheckItem | None = Field(description="The requested or worst document.")
+    documents: list[DocumentCheckItem]
+    checks_total: int
+    passed: int
+    warning: int
+    failed: int
+    instruction_from_document: bool
+    hidden_text_found: bool
+    security_flags: list[str] = Field(
+        default_factory=list, description="Codes that flag the turn (hidden text, instructions)."
+    )
+    deal_route: AppRoute
+
+
+class DocumentCheckCard(_Card):
+    card_type: Literal["document_check"] = "document_check"
+    data: DocumentCheckData
+
+
 # --- citations (RAG) ------------------------------------------------------------------------
 
 
@@ -368,7 +418,8 @@ Card = Annotated[
     | FxCompareCard
     | MonthlySummaryCard
     | ScorecardCard
-    | KybCard,
+    | KybCard
+    | DocumentCheckCard,
     Field(discriminator="card_type"),
 ]
 CARD_TYPES = frozenset(
@@ -382,5 +433,6 @@ CARD_TYPES = frozenset(
         "monthly_summary",
         "scorecard",
         "kyb",
+        "document_check",
     }
 )

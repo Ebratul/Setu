@@ -11,9 +11,12 @@ the LLM cache (Phase 3.1 plan) is not wired yet.
 """
 
 import re
+from typing import Any
 
 from langchain_anthropic import ChatAnthropic
 from langchain_core.language_models import BaseChatModel
+from langchain_core.messages import HumanMessage, SystemMessage
+from pydantic import BaseModel
 
 from app.config import get_settings
 
@@ -58,3 +61,43 @@ def anthropic_chat_model(model: str) -> BaseChatModel:
             **common,
         )
     raise RuntimeError("no LLM key set (ANTHROPIC_API_KEY or OPENROUTER_API_KEY); use mock mode")
+
+
+def structured_call[T: BaseModel](
+    schema: type[T],
+    *,
+    system: str,
+    user: str,
+    model: str | None = None,
+    tags: list[str] | None = None,
+) -> T:
+    """One structured-output call (`json_schema`) to a real model; never used in mock mode.
+    The caller wraps untrusted text in <untrusted_document> tags and validates the result.
+    Inputs go through the Privacy Gateway (identity stub until P18) and string values of the
+    answer are unmasked with the same vault, like the chat path."""
+    from app.security import privacy_gateway
+
+    settings = get_settings()
+    masked_system, masked_user = privacy_gateway.mask(system), privacy_gateway.mask(user)
+    vault = {**masked_system.vault, **masked_user.vault}
+    chat = anthropic_chat_model(model or settings.model_smart)
+    runnable = chat.with_structured_output(schema, method="json_schema")
+    out = runnable.invoke(
+        [SystemMessage(masked_system.text), HumanMessage(masked_user.text)],
+        config={"tags": ["setu", *(tags or [])]},
+    )
+    result = schema.model_validate(out)
+    data = _unmask_strings(result.model_dump(), vault)
+    return schema.model_validate(data)
+
+
+def _unmask_strings(value: Any, vault: dict[str, str]) -> Any:
+    from app.security import privacy_gateway
+
+    if isinstance(value, str):
+        return privacy_gateway.unmask(value, vault)
+    if isinstance(value, dict):
+        return {k: _unmask_strings(v, vault) for k, v in value.items()}
+    if isinstance(value, list):
+        return [_unmask_strings(v, vault) for v in value]
+    return value

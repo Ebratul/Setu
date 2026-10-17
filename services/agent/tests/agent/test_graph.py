@@ -365,7 +365,7 @@ def test_registered_tools_are_tier0_except_the_two_human_only_escrow_actions() -
     from app.agent.registry import INTENT_TOOLS, default_registry
 
     reg = default_registry()
-    assert len(reg.names) == 17
+    assert len(reg.names) == 18
     for name in reg.names:
         expected = HUMAN_ONLY.get(name, Tier.T0)
         assert reg.get(name).max_tier == expected  # type: ignore[union-attr]
