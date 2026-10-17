@@ -1,3 +1,5 @@
+export const instant = false;
+
 import { redirect } from "next/navigation";
 
 export default async function Page({ params }: PageProps<"/app/orders/[id]">) {

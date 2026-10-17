@@ -1,3 +1,5 @@
+export const instant = false;
+
 import { SupplierOrderPage } from "@/components/supplier/SupplierOrderPage";
 
 export default async function Page({ params }: PageProps<"/supplier/[id]">) {

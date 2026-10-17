@@ -1,3 +1,5 @@
+export const instant = false;
+
 import { Suspense } from "react";
 
 import { AnalysisTabs } from "@/components/analysis/AnalysisTabs";

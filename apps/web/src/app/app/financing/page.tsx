@@ -1,3 +1,5 @@
+export const instant = false;
+
 import { Suspense } from "react";
 
 import { FinancingPage } from "@/components/financing/FinancingPage";

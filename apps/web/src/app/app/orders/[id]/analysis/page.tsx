@@ -1,3 +1,5 @@
+export const instant = false;
+
 import { OrderAnalysisPage } from "@/components/analysis/OrderAnalysisPage";
 
 export default async function Page({

@@ -1,3 +1,5 @@
+export const instant = false;
+
 import { Suspense } from "react";
 
 import { CashflowPage } from "@/components/cashflow/CashflowPage";

@@ -1,3 +1,5 @@
+export const instant = false;
+
 import { DashboardPage } from "@/components/cashflow/DashboardPage";
 
 export default function AppIndex() {

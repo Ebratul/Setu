@@ -1,3 +1,5 @@
+export const instant = false;
+
 import { Suspense } from "react";
 
 import { ChatPage } from "@/components/chat/ChatPage";

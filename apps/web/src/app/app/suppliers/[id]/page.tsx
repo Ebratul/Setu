@@ -1,3 +1,5 @@
+export const instant = false;
+
 import { SupplierProfilePage } from "@/components/kyb/SupplierProfilePage";
 
 export default async function Page({

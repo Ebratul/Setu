@@ -1,3 +1,5 @@
+export const instant = false;
+
 import { DealDetailPage } from "@/components/deals/DealDetailPage";
 
 export default async function Page({ params }: PageProps<"/app/deals/[id]">) {
