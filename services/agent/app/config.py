@@ -26,6 +26,11 @@ class Settings(BaseSettings):
     allowed_origins: str = "http://localhost:3000"
 
     anthropic_api_key: SecretStr | None = None
+    # OpenRouter's Anthropic-compatible endpoint (same Claude models, routed via openrouter.ai).
+    openrouter_api_key: SecretStr | None = None
+    openrouter_base_url: str = "https://openrouter.ai/api"
+    # auto: Anthropic if ANTHROPIC_API_KEY is set, else OpenRouter if OPENROUTER_API_KEY is set.
+    llm_provider: Literal["auto", "anthropic", "openrouter"] = "auto"
     langsmith_api_key: SecretStr | None = None
     langsmith_tracing: bool = False
     langsmith_project: str = "setu"
@@ -47,7 +52,7 @@ class Settings(BaseSettings):
     llm_max_retries: int = 2
     thread_token_budget: int = 60_000
     agent_max_tool_steps: int = 6
-    # true, or no ANTHROPIC_API_KEY, -> deterministic offline model (dev, tests, demo).
+    # true, or no usable LLM key, -> deterministic offline model (dev, tests, demo).
     agent_mock_mode: bool = False
 
     audit_signing_key: SecretStr | None = None
@@ -59,14 +64,32 @@ class Settings(BaseSettings):
     demo_session_secret: SecretStr | None = None
     demo_cookie_secure: bool = False
 
-    @property
-    def has_anthropic_key(self) -> bool:
-        key = self.anthropic_api_key
+    @staticmethod
+    def _usable(key: SecretStr | None) -> bool:
         return key is not None and bool(key.get_secret_value().strip())
 
     @property
+    def has_anthropic_key(self) -> bool:
+        return self._usable(self.anthropic_api_key)
+
+    @property
+    def has_openrouter_key(self) -> bool:
+        return self._usable(self.openrouter_api_key)
+
+    @property
+    def active_llm_provider(self) -> Literal["anthropic", "openrouter"] | None:
+        """The provider real model calls go to, or None (then mock mode)."""
+        if self.llm_provider == "anthropic":
+            return "anthropic" if self.has_anthropic_key else None
+        if self.llm_provider == "openrouter":
+            return "openrouter" if self.has_openrouter_key else None
+        if self.has_anthropic_key:
+            return "anthropic"
+        return "openrouter" if self.has_openrouter_key else None
+
+    @property
     def use_mock_llm(self) -> bool:
-        return self.agent_mock_mode or not self.has_anthropic_key
+        return self.agent_mock_mode or self.active_llm_provider is None
 
     @property
     def cors_origins(self) -> list[str]:

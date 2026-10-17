@@ -7,7 +7,7 @@ from langchain_core.language_models import BaseChatModel
 from app.agent.mock_llm import MockChatModel
 from app.agent.state import ModelTier
 from app.config import get_settings
-from app.llm.client import anthropic_chat_model
+from app.llm.client import anthropic_chat_model, provider_model_id
 
 
 @dataclass(frozen=True, slots=True)
@@ -44,4 +44,9 @@ def get_models() -> ModelSet:
         return ModelSet(
             mock_model("mock-fast"), mock_model("mock-smart"), "mock-fast", "mock-smart"
         )
-    return ModelSet(get_fast_model(), get_smart_model(), s.model_fast, s.model_smart)
+    return ModelSet(
+        get_fast_model(),
+        get_smart_model(),
+        provider_model_id(s.model_fast),
+        provider_model_id(s.model_smart),
+    )
