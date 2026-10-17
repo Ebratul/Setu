@@ -1,5 +1,3 @@
-export const instant = false;
-
 import { NewDealPage } from "@/components/deals/NewDealPage";
 
 export default function Page() {
