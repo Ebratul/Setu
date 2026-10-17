@@ -2,9 +2,9 @@
 
 Single owner: SQLAlchemy 2 models in `services/agent/app/db/models/` + Alembic
 (`services/agent/alembic/versions/`). The web app never touches the DB; it uses the generated API types.
-All 26 tables were created up front in migration `60340801e54e_initial_schema`, so later phases should not
-need migrations. If one does, it is the only phase allowed to add a migration at that time, and it records
-that in PROGRESS.md.
+All 26 tables were created up front in migration `60340801e54e_initial_schema`. Phase P07 (FR-1) added
+`financing_applications` in `70bf00166094`. A phase that needs a schema change is the only phase allowed
+to add a migration at that time, and it records that in PROGRESS.md.
 
 ## Conventions
 - **Money:** `NUMERIC(20,4)` (`Amount`), currency in a separate `CHAR(3)`. FX rates: `NUMERIC(20,8)`.
@@ -38,6 +38,7 @@ that in PROGRESS.md.
 | `fx_rates` | Mock rates, 1 base = rate quote | uq(`base`,`quote`,`as_of`,`kind`), `kind` HISTORY/FORECAST, `source` MOCK |
 | `fx_locks` | FR-7 mock rate lock | `deal_id`, `party_id`, pair, `rate`, `amount`, `locked_at`, `expires_at`, `status` |
 | `financing_options` | Financing catalogue | `code` uq, `kind`, `provider_party_id`, `annual_rate`, `flat_cost_rate`, `price_uplift_rate`, `fee_rate`, `fee_fixed`, `tenor_days_min/max`, `tenor_rule` (e.g. UNTIL_MILESTONE_3), `min/max_amount`, `collateral`, `conditions`, `eligibility` JSONB, `active` |
+| `financing_applications` | FR-1 simulated applications (migration `70bf00166094`) | `reference` uq `FA-YYYY-NNNN`, `party_id`, `deal_id`, `option_id`, `mode` shortfall/order, `amount`, `tenor_days`, `start_on`, `maturity_on`, `total_cost`, `schedule` JSONB, `status` SUBMITTED/APPROVED/REJECTED/CANCELLED, `simulated` |
 | `alerts` | Pre-computed alerts | `key` uq, `party_id`, `deal_id`, `milestone_id`, `type` SHORTFALL/DEADLINE/FX_OPPORTUNITY/KYB_WARNING/FRAUD/INFO, `severity`, `status`, `title_en/bn`, `message_en/bn`, `amount`, `due_on`, `facts` JSONB |
 | `approval_requests` | Pending human approval (Tier 2/3) | `key` uq, `deal_id`, `milestone_id`, `bank_account_id`, `action`, `tier`, `params` JSONB, `params_hash` = sha256(canonical_json(params)), `reasons` JSONB, `status`, `requested_by`, `otp_required`, `cooling_off_until`, `decided_at/by` |
 | `documents` | Trade-document metadata | `key` uq, `deal_id`, `milestone_id`, `doc_type`, `file_name`, `storage_path`, `sha256` uq (file bytes), `canonical_hash` (key fields), `status` UPLOADED/PLACEHOLDER/REJECTED, `check_status`, `variant` CLEAN/FORGED, `extracted_json` |

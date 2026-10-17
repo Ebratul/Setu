@@ -52,12 +52,20 @@ export function OrderDetail({ reference }: { reference: string }) {
           ))}
         </dl>
       </Card>
-      <Link
-        href={`/app/orders/${deal.reference}/analysis`}
-        className="inline-block rounded-xl bg-brand-700 px-5 py-3 font-semibold text-white hover:bg-brand-800 focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2 focus-visible:outline-none"
-      >
-        {t("orders.viewAnalysis")} →
-      </Link>
+      <div className="flex flex-wrap gap-3">
+        <Link
+          href={`/app/orders/${deal.reference}/analysis`}
+          className="inline-block rounded-xl bg-brand-700 px-5 py-3 font-semibold text-white hover:bg-brand-800 focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2 focus-visible:outline-none"
+        >
+          {t("orders.viewAnalysis")} →
+        </Link>
+        <Link
+          href={`/app/financing?deal=${encodeURIComponent(deal.reference)}&mode=order`}
+          className="inline-block rounded-xl border border-brand-700 bg-surface px-5 py-3 font-semibold text-brand-700 hover:bg-brand-50 focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2 focus-visible:outline-none"
+        >
+          {t("orders.financing")} →
+        </Link>
+      </div>
     </div>
   );
 }

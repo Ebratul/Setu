@@ -23,7 +23,9 @@ from app.db.enums import (
     AlertStatus,
     AlertType,
     CashflowKind,
+    FinancingApplicationStatus,
     FinancingKind,
+    FinancingMode,
     FlowDirection,
     FxKind,
     FxLockStatus,
@@ -147,3 +149,34 @@ class Alert(Base):
     due_on: Mapped[date | None] = mapped_column(Date)
     facts: Mapped[dict[str, Any]] = mapped_column(JSONB, default=dict)
     created_at: Mapped[Created]
+
+
+class FinancingApplication(Base):
+    """Simulated financing application (FR-1). Approval is simulated; on APPROVED the service adds
+    the disbursement inflow and the repayment outflow as cashflow_items (keys `fin:<id>:...`)."""
+
+    __tablename__ = "financing_applications"
+    __table_args__ = (
+        CheckConstraint("amount > 0", name="amount_positive"),
+        CheckConstraint("total_cost >= 0", name="total_cost_non_negative"),
+    )
+
+    id: Mapped[UUIDPk]
+    reference: Mapped[str] = mapped_column(String(32), unique=True)
+    party_id: Mapped[uuid.UUID] = mapped_column(Uuid, ForeignKey("parties.id"), index=True)
+    deal_id: Mapped[uuid.UUID] = mapped_column(Uuid, ForeignKey("deals.id", ondelete="CASCADE"))
+    option_id: Mapped[uuid.UUID] = mapped_column(Uuid, ForeignKey("financing_options.id"))
+    mode: Mapped[FinancingMode] = mapped_column(str_enum(FinancingMode, "financing_mode"))
+    amount: Mapped[Amount]
+    currency: Mapped[CurrencyCode]
+    tenor_days: Mapped[int] = mapped_column(Integer)
+    start_on: Mapped[date] = mapped_column(Date)
+    maturity_on: Mapped[date] = mapped_column(Date)
+    total_cost: Mapped[Amount]
+    schedule: Mapped[list[dict[str, Any]]] = mapped_column(JSONB, default=list)
+    status: Mapped[FinancingApplicationStatus] = mapped_column(
+        str_enum(FinancingApplicationStatus, "financing_application_status"), index=True
+    )
+    simulated: Mapped[bool] = mapped_column(Boolean, default=True)
+    submitted_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    decided_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))

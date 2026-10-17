@@ -5,7 +5,7 @@ Times are Dhaka (UTC+6). Deadline: 20 Oct 2026 21:59 Dhaka. Must-have cut line: 
 
 ## Phase checklist
 - [x] 0.1 · [x] 1.1 · [x] 1.2 · [ ] 1.3
-- [x] 2.1 · [ ] 2.2 · [x] 2.3 (FR-2; FR-7 route compare open) · [~] 2.4 (i18n, fonts, shell, client only) · [x] 2.5 · [~] 2.6 (analysis half done; financing open)
+- [x] 2.1 · [x] 2.2 · [x] 2.3 (FR-2; FR-7 route compare open) · [~] 2.4 (i18n, fonts, shell, client only) · [x] 2.5 · [x] 2.6
 - [~] 3.1 (LLM client, tracing, tier-gated registry; no cache, no FR tools) · [ ] 3.2 · [~] 3.3 (P08 skeleton; FR tools + citations in P09/P10) · [ ] 3.4
 - [ ] 4.1 · [ ] 4.2 · [ ] 4.3 · [ ] 4.4 · [ ] 4.5
 - [ ] 5.1 · [ ] 5.2 · [ ] 5.3 · [ ] 5.4 · [ ] 5.5
@@ -23,6 +23,7 @@ Times are Dhaka (UTC+6). Deadline: 20 Oct 2026 21:59 Dhaka. Must-have cut line: 
 | 1.1+1.2 | 2026-10-17 03:35 | done | All 26 tables + initial Alembic migration; Money helpers; audit-chain primitives; deterministic P03 demo seed (Rahima/SETU-2026-0001), reset-demo, verify_seed. | pytest 45 passed (incl. 7 db) · vitest 2 · ruff clean · verify_seed 18/18 · security review: pass with fixes (highs fixed) | Read data/demo/README.md + docs/data-model.md. Read endpoints deferred to next phase. |
 | 2.1+2.6a (P05) | 2026-10-17 04:07 | done | FR-3 domain lib + 5 analysis endpoints, demo-login stub, /app shell, EN/BN i18n, order analysis, calculator, monthly summary, supplier scorecard pages. | pytest 105 passed · vitest 13 passed · Playwright smoke 1 passed · lint/tsc/ruff clean · next build ok · security review: pass with fixes (fixed) | Financing UI (2.6) + FR-1 engine (2.2) next. Margin is 18.01, not 18.00. |
 | 2.3+2.5 (P06) | 2026-10-17 04:44 | done | FR-2 90-day forecaster, what-if scenarios, idempotent alert engine (shortfall/deadline/FX), alert + dashboard endpoints; Dashboard, Cash Flow, financing/approvals placeholders. | pytest 159 passed · vitest 25 passed · Playwright 2 passed · lint/tsc/ruff clean · build ok · verify_seed 17/17 · security review: pass with fixes (fixed) | Next P07 financing (FR-1) replaces /app/financing placeholder. |
+| 2.2+2.6b (P07) | 2026-10-17 05:21 | done | FR-1 gap (shortfall/order), option matching with eligibility + ranking, schedule, cash-flow impact, simulated applications (+ migration); /app/financing comparison UI. | pytest 189 passed · vitest 33 passed · Playwright 3 passed (serial, E2E_RESET_DEMO) · lint/tsc/ruff clean · build ok · verify_seed 17/17 · security review: pass with fixes (fixed) | TC-09 holds via two product rules; approvals must move behind ACCEPT_FINANCING tiers in 5.x. |
 | 3.3 (P08) | 2026-10-17 05:40 | done (real-model check open) | LangGraph agent: router → agent ⇄ tier-guarded tools → respond; 3 Tier 0 tools; Postgres checkpointer; chat threads; /chat + SSE; LangSmith; offline mock model. | pytest 233 passed (incl. db) · ruff clean · web tsc ok · security review: pass with fixes (1 medium + 6 low fixed; 1 medium privacy gap open → P18) | Real Claude run blocked: ANTHROPIC_API_KEY in .env is empty. P09 adds finance tools + chat UI. |
 
 ## Handoff notes
@@ -255,11 +256,84 @@ Times are Dhaka (UTC+6). Deadline: 20 Oct 2026 21:59 Dhaka. Must-have cut line: 
 - **Next phase reads:** this block, `docs/finance-formulas.md` (FR-2 section),
   `app/services/cashflow.py::load_book`, `components/cashflow/AlertPanel.tsx`.
 
+### 2.2 + 2.6 financing half (from the user's "P07 FR-1 financing-option matching" prompt)
+- **Domain:** `app/domain/financing.py`
+  - Gap: `shortfall_gap`, `order_gap`.
+  - Costing: `Terms`, `option_tenor`, `option_cost`.
+  - Eligibility: `evaluate_rules`, `code_rules`.
+  - Ranking and output: `rank`, `schedule`, `why_codes`, `pick_sentences`, `risk_notes`.
+  - Formulas and tables are in `docs/finance-formulas.md` (FR-1 section).
+- **Service:** `app/services/financing.py`. Models are in `app/schemas/financing.py` and the router in
+  `app/api/financing.py`.
+- **Migration** `70bf00166094` (the only one this phase) adds `financing_applications`. It is applied to
+  the local and test DBs. **Run `pnpm run db:migrate` on the hosted DB** before pointing the dev agent at
+  it. `reset-demo` wipes the table.
+- **Endpoints:**
+  - `GET /financing/gap?mode=shortfall|order&deal_id=`
+  - `POST /financing/match`
+  - `GET /financing/options/{code|id}/schedule?amount=&start=&deal_id=`
+  - `POST /financing/impact`
+  - `POST /financing/applications`: SUBMITTED. Idempotent per deal + option + mode while active, 409 if
+    the amount differs; eligible options only.
+  - `POST /financing/applications/{id}/simulate-approval`: re-checks eligibility, terms and dates at
+    execution, otherwise REJECTED and 409. On success: APPROVED, `cashflow_items` `fin:<ref>:in` and
+    `fin:<ref>:repay`, and an alert recompute.
+  - `GET /financing/applications`
+- **Ranking rules:** eligible first → total cost → shorter tenor → fewer conditions → code.
+- **Eligibility:** the JSON rule tree (facts from `seed/financing.py`) plus `MIN_AMOUNT`, `MAX_AMOUNT`,
+  `TENOR_FITS` and `NOT_WITH_FUNDED_ESCROW`.
+- **Product rules chosen with the user to keep TC-09:**
+  - (1) Insured open-account terms are not offered once a deal's escrow is funded.
+  - (2) Ranged-tenor lines are priced at their maximum tenor (NBFI 120 days).
+  - Also: `UNTIL_MILESTONE_3` = start → arrival + 5 days clearance (45 days from today for SETU-2026-0001).
+- **TC-09:** `docs/SRS.md` does not exist, so TC-08/TC-09 are recorded in `docs/REQUIREMENTS.md` (new
+  "Test cases" section).
+  - **Order mode:** 5,200.00. Escrow-backed loan 97.70 (45 d), supplier credit 104.00, bank import loan
+    173.45, NBFI line 239.34; insured terms are ineligible (escrow funded). The old 3,600 figure is
+    replaced.
+  - **Shortfall mode:** 1,560.00 needed by 2026-11-07, recovering 2026-11-19 (12 d), peak 2,160.00.
+    Supplier credit 31.20, escrow loan 50.39, NBFI line 71.80; bank and insured are ineligible (minimum
+    amount, plus escrow for insured).
+- **Demo story caveat:**
+  - Applying the 1,560 pick resolves the 2026-11-07 SHORTFALL alert, as the e2e test checks.
+  - Rahima's 90-day forecast stays structurally negative (outflows 23.7k vs inflows 16.4k; the seed has
+    no sale proceeds for the imported fabric). So a later, smaller shortfall alert (e.g. 600 on 11-08
+    from freight) appears.
+  - Adding projected sale receipts for SETU-2026-0001 to the seed would fix the story. Not done here;
+    it changes the P03/P06 numbers.
+- **Web:**
+  - `/app/financing` (`components/financing/*`): mode switch, deal picker, gap card, ranked option cards
+    with recommended highlight and why-not, schedule and impact dialogs, apply dialog that auto-approves
+    after 1.5 s (simulated), applications list.
+  - Shared `components/ui/Modal.tsx` (focus trap, Esc, focus return). Deal detail links to
+    `?deal=&mode=order`.
+  - The option name, collateral and conditions come from the catalogue and stay English in bn.
+- **e2e:** specs now run serially (`workers: 1`). `e2e/global-setup.ts` runs `seed.cli reset-demo` when
+  `E2E_RESET_DEMO=1`, with `DATABASE_URL` pointing at the local DB (reset refuses non-local DBs).
+  Command: `DATABASE_URL=postgresql://setu:setu@localhost:5435/setu E2E_RESET_DEMO=1
+  E2E_BASE_URL=http://localhost:3100 pnpm --dir apps/web e2e`, against a build whose
+  `AGENT_URL` points at an agent using the local DB.
+- **Security review: PASS WITH FIXES, fixed.**
+  - Fixed: execution-time re-check and REJECTED, 409 for non-active apps, row lock on approval, 409 on
+    re-POST with a different amount, 400 for zero amounts, references from max+1, EAR capped at 999,900%.
+  - **Open, for 5.x:**
+    - (a) simulate-approval / acceptance must go through `PendingApproval(ACCEPT_FINANCING)`: Tier 2 by
+      default; Tier 3 above USD 20,000 or for ESCROW_BACKED_LOAN (it assigns escrow tranches), with a
+      `params_hash` over app, option, amount, tenor, dates and schedule. It must never be an LLM tool.
+    - (b) No audit entries for apply/approve (5.4).
+    - (c) `code_rules` compares amount vs min/max in the buyer currency without checking the option
+      currency (latent; all USD).
+    - (d) The idempotency check is not atomic under concurrency (no partial unique index).
+    - (e) Another buyer's deal gives 403 vs 404 for a missing one (kept consistent with P05).
+- **Next phase reads:** this block, `docs/finance-formulas.md` (FR-1), `app/services/financing.py`
+  (`quote_all`, `simulate_approval`), `components/financing/OptionCard.tsx`.
+
 ### 3.3 (from the user's "P08 LangGraph agent skeleton" prompt)
 - **Branch / worktree:** `phase/3.3-agent-skeleton`, built in the worktree `/data/setu-3.3`, because another
   session was editing phase 2.2 (financing) in `/data/Setu` at the same time. **Merge order:** both branches add
   an Alembic revision on top of `60340801e54e` (mine: `b7c1a9e4d2f0`; 2.2's financing migration: `70bf00166094`).
   Whichever merges second must set its `down_revision` to the other one (or add a merge revision).
+  **Done in P09:** 2.2 reached `main` first, so `b7c1a9e4d2f0` now revises `70bf00166094`.
 - **Layout (from the prompt; it overrides PLAN's `app/graph`/`app/tools` names):** `app/agent/{state,intents,
   prompts,registry,mock_llm,models,nodes,graph,persistence,runner}.py`, `app/agent/tools/readonly.py`. The router
   is `app/api/chat.py` (the existing `app/api` convention, not `app/routers`). Models: `app/llm/client.py` is

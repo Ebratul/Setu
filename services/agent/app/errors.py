@@ -29,6 +29,11 @@ class NotFound(DomainError):
     title = "Not found"
 
 
+class Conflict(DomainError):
+    status = 409
+    title = "Conflict"
+
+
 class ServiceUnavailable(DomainError):
     status = 503
     title = "Service unavailable"

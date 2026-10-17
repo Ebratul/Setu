@@ -1,7 +1,7 @@
 """chat agent: tool role, message meta, thread budget, LangGraph checkpoint tables
 
 Revision ID: b7c1a9e4d2f0
-Revises: 60340801e54e
+Revises: 70bf00166094
 Create Date: 2026-10-17 12:00:00
 
 The LangGraph checkpoint tables are created here (not by `PostgresSaver.setup()`) so Alembic
@@ -18,7 +18,7 @@ from sqlalchemy.dialects import postgresql
 from alembic import op
 
 revision: str = "b7c1a9e4d2f0"
-down_revision: str | Sequence[str] | None = "60340801e54e"
+down_revision: str | Sequence[str] | None = "70bf00166094"
 branch_labels: str | Sequence[str] | None = None
 depends_on: str | Sequence[str] | None = None
 
