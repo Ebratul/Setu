@@ -18,6 +18,7 @@ from langchain_core.tracers import LangChainTracer
 from langgraph.graph.state import CompiledStateGraph
 from sqlalchemy.orm import Session, sessionmaker
 
+from app.agent.cards import card_of, cards_of
 from app.agent.graph import build_graph
 from app.agent.intents import detect_language
 from app.agent.nodes import AgentDeps
@@ -128,7 +129,7 @@ def finish_turn(db: Session, user: CurrentUser, turn: Turn, values: dict[str, An
         )
     answer = state.answer or ""
     usage = state.token_usage
-    append_message(
+    assistant = append_message(
         db,
         turn.thread,
         ChatRole.ASSISTANT,
@@ -141,6 +142,8 @@ def finish_turn(db: Session, user: CurrentUser, turn: Turn, values: dict[str, An
             "stopped": state.stop_reason,
             "injection_flags": state.injection_flags,
             "run_id": str(turn.run_id),
+            "why": state.why,
+            "notes": state.notes,
         },
     )
     add_tokens(db, turn.thread, usage["total_tokens"])
@@ -176,6 +179,10 @@ def finish_turn(db: Session, user: CurrentUser, turn: Turn, values: dict[str, An
         ),
         stopped=state.stop_reason,
         trace_url=trace_url,
+        message_id=assistant.id,
+        why=state.why,
+        notes=state.notes,
+        cards=cards_of(state.tool_results),
     )
 
 
@@ -307,8 +314,11 @@ def _graph_events(turn: Turn, graph: CompiledStateGraph, streamed: list[str]) ->
                         for call in m.tool_calls:
                             yield sse("tool_start", {"name": call["name"], "id": call.get("id")})
             elif node == "tools":
-                done = update.get("tool_calls_made", [])[-len(update.get("messages", [])) or 0 :]
-                for rec in done:
+                n = len(update.get("messages", []))
+                done = update.get("tool_calls_made", [])[-n:] if n else []
+                results = update.get("tool_results", [])[-n:] if n else []
+                for rec, res in zip(done, results, strict=False):
+                    card = card_of(res)
                     yield sse(
                         "tool_end",
                         {
@@ -317,5 +327,6 @@ def _graph_events(turn: Turn, graph: CompiledStateGraph, streamed: list[str]) ->
                             "ok": rec["ok"],
                             "args_summary": rec["args_summary"],
                             "error_code": rec["error_code"],
+                            "card": card.model_dump(mode="json") if card else None,
                         },
                     )

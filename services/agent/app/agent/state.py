@@ -58,6 +58,7 @@ class ToolResult(TypedDict):
     name: str
     ok: bool
     payload: str  # JSON of data or error, rendered into prompts as untrusted data
+    flags: list[str]  # injection finding codes for this result (empty = clean)
 
 
 class Usage(TypedDict):
@@ -103,5 +104,7 @@ class AgentState(BaseModel):
     citations: list[str] = Field(default_factory=list)  # RAG chunk ids (P10)
     stop_reason: StopReason | None = None
     answer: str | None = None
+    why: str | None = None  # the "Why:" line of the answer
+    notes: list[str] = Field(default_factory=list)  # code-appended notes (simulated, injection…)
     trace_id: str | None = None
     run_url: str | None = None

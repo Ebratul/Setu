@@ -5,6 +5,7 @@ travel in `config["configurable"]["deps"]`; they are never checkpointed. Models,
 registry and limits are bound when the graph is built.
 """
 
+import json
 import re
 from collections.abc import Callable
 from dataclasses import dataclass
@@ -57,6 +58,7 @@ RESPOND_CONTEXT_MESSAGES = 6
 MONEY_CLAIM = re.compile(
     r"\b(I|we|Setu)\s+(have\s+|has\s+|just\s+)?(released|transferred|paid|sent|approved)\b", re.I
 )
+WHY_LINE = re.compile(r"^(\*\*|_)?(why|কারণ|原因)\s*[:\uff1a]", re.I)
 SIMULATED_MARKERS = ("simulated", "সিমুলেটেড", "模拟")
 
 
@@ -101,7 +103,7 @@ def escape_prose(text: str) -> str:
 
 def render_tool_result(outcome: ToolOutcome) -> str:
     # "<" is escaped so data can never close the wrapper tag.
-    payload = outcome.payload().replace("<", "\\u003c")
+    payload = outcome.model_payload().replace("<", "\\u003c")
     ok = "true" if outcome.ok else "false"
     return (
         f'<tool_result name="{outcome.name}" ok="{ok}" untrusted="true">\n{payload}\n</tool_result>'
@@ -172,6 +174,8 @@ class Nodes:
             "citations": [],
             "stop_reason": "budget" if state.thread_tokens_before >= self.token_budget else None,
             "answer": None,
+            "why": None,
+            "notes": [],
         }
 
     def privacy_gateway(self, state: AgentState) -> dict[str, Any]:
@@ -220,12 +224,13 @@ class Nodes:
         }
 
     def _agent_history(self, state: AgentState) -> list[AnyMessage]:
-        prior = [
-            m
-            for m in state.messages[: state.turn_start]
-            if isinstance(m, HumanMessage)
-            or (isinstance(m, AIMessage) and not m.tool_calls and text_of(m).strip())
-        ]
+        # Earlier answers may quote tool data: re-send them escaped, never as markup.
+        prior: list[AnyMessage] = []
+        for m in state.messages[: state.turn_start]:
+            if isinstance(m, HumanMessage):
+                prior.append(m)
+            elif isinstance(m, AIMessage) and not m.tool_calls and text_of(m).strip():
+                prior.append(AIMessage(content=escape_prose(text_of(m)), id=m.id))
         return [*prior[-PRIOR_TURN_MESSAGES:], *state.messages[state.turn_start :]]
 
     def agent(self, state: AgentState, config: RunnableConfig) -> dict[str, Any]:
@@ -264,7 +269,9 @@ class Nodes:
         d = deps_of(config)
         ai = state.messages[-1]
         calls = ai.tool_calls if isinstance(ai, AIMessage) else []
-        ctx = ToolContext(caller="llm", user=d.user, db=d.db, thread_id=d.thread_id)
+        ctx = ToolContext(
+            caller="llm", user=d.user, db=d.db, thread_id=d.thread_id, deal_ref=state.deal_id
+        )
         allowed = self.allowlist(state.intent)
         steps = state.tool_steps
         out: list[ToolMessage] = []
@@ -300,7 +307,14 @@ class Nodes:
                     "error_code": (outcome.error or {}).get("code"),
                 }
             )
-            results.append({"name": outcome.name, "ok": outcome.ok, "payload": outcome.payload()})
+            results.append(
+                {
+                    "name": outcome.name,
+                    "ok": outcome.ok,
+                    "payload": outcome.payload(),
+                    "flags": list(outcome.injection),
+                }
+            )
             flags.extend(c for c in outcome.injection if c not in flags)
         stop = state.stop_reason
         if flags:
@@ -346,25 +360,56 @@ class Nodes:
         parts.append("User's message:\n" + (escape_prose(text_of(human)) if human else ""))
         return "\n\n".join(parts)
 
-    def _finalize(self, text: str, state: AgentState, lang: Lang) -> str:
-        parts = [text.strip()]
-        if any(r["ok"] for r in state.tool_results) and not any(
-            m in text.lower() for m in SIMULATED_MARKERS
-        ):
-            parts.append(prompts.STATIC["simulated"][lang])
+    @staticmethod
+    def _card_explanation(state: AgentState, lang: Lang) -> str | None:
+        if state.injection_flags:
+            return None  # never copy text from a turn with flagged data into the answer
+        for r in state.tool_results:
+            if not r["ok"] or r.get("flags"):
+                continue
+            try:
+                data = json.loads(r["payload"])
+            except ValueError:
+                continue
+            text = data.get("explanation_bn" if lang == "bn" else "explanation_en")
+            if isinstance(text, str) and text.strip():
+                return text.strip()
+        return None
+
+    def _finalize(
+        self, text: str, state: AgentState, lang: Lang
+    ) -> tuple[str, str | None, list[str]]:
+        """(answer, why, notes). The model's text is kept verbatim (streamed tokens stay a prefix
+        of the answer); a missing "Why:" line is added from the tools' deterministic explanation."""
+        text = text.strip()
+        label = prompts.WHY_LABEL[lang]
+        why = next((ln.strip() for ln in text.splitlines() if WHY_LINE.match(ln.strip())), None)
+        parts = [text]
+        tools_ok = [r["name"] for r in state.tool_results if r["ok"]]
+        if why is None and tools_ok:
+            explanation = self._card_explanation(state, lang)
+            why = f"{label} " + (
+                explanation or prompts.WHY_FALLBACK[lang].format(tools=", ".join(tools_ok))
+            )
+            parts.append(why)
+        notes: list[str] = []
+        if tools_ok and not any(m in text.lower() for m in SIMULATED_MARKERS):
+            notes.append(prompts.STATIC["simulated"][lang])
         if state.injection_flags:
             codes = ", ".join(state.injection_flags)
-            parts.append(prompts.STATIC["injection"][lang].format(codes=codes))
+            notes.append(prompts.STATIC["injection"][lang].format(codes=codes))
         if state.stop_reason == "tool_cap":
-            parts.append(prompts.STATIC["tool_cap"][lang])
+            notes.append(prompts.STATIC["tool_cap"][lang])
         if MONEY_CLAIM.search(text):
-            parts.append(prompts.STATIC["no_money_moved"][lang])
-        return "\n\n".join(p for p in parts if p)
+            notes.append(prompts.STATIC["no_money_moved"][lang])
+        return "\n\n".join(p for p in [*parts, *notes] if p), why, notes
 
     def respond(self, state: AgentState, config: RunnableConfig) -> dict[str, Any]:
         lang = cast(Lang, state.language or "en")
         usage = state.token_usage
         stop = state.stop_reason
+        why: str | None = None
+        notes: list[str] = []
         if stop == "budget":
             answer = prompts.STATIC["budget"][lang]
         elif state.intent == "out_of_scope":
@@ -385,10 +430,12 @@ class Nodes:
             except Exception as exc:
                 log.warning("respond_model_failed", error=type(exc).__name__)
                 text, stop = prompts.STATIC["model_error"][lang], "model_error"
-            answer = self._finalize(text, state, lang)
+            answer, why, notes = self._finalize(text, state, lang)
         return {
             "messages": [AIMessage(content=answer)],
             "answer": answer,
+            "why": why,
+            "notes": notes,
             "token_usage": usage,
             "stop_reason": stop,
         }

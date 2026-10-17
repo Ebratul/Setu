@@ -39,6 +39,7 @@ class ToolContext:
     user: CurrentUser
     db: Session | None
     thread_id: str | None = None
+    deal_ref: str | None = None  # deal the chat is scoped to ("About deal"), if any
 
 
 class ToolError(Exception):
@@ -83,6 +84,22 @@ class ToolOutcome(BaseModel):
     def payload(self) -> str:
         body = self.data if self.ok else {"error": self.error}
         return json.dumps(body, ensure_ascii=False, sort_keys=True, default=str)
+
+    def model_payload(self) -> str:
+        """What the model sees: chart series are left out (the UI card still gets them)."""
+        body = _strip(self.data) if self.ok else {"error": self.error}
+        return json.dumps(body, ensure_ascii=False, sort_keys=True, default=str)
+
+
+MODEL_HIDDEN_KEYS = frozenset({"series", "history"})
+
+
+def _strip(value: Any) -> Any:
+    if isinstance(value, dict):
+        return {k: _strip(v) for k, v in value.items() if k not in MODEL_HIDDEN_KEYS}
+    if isinstance(value, list):
+        return [_strip(v) for v in value]
+    return value
 
 
 def args_summary(args: dict[str, Any]) -> str:
@@ -295,16 +312,29 @@ class ToolRegistry:
 READONLY: frozenset[str] = frozenset(
     {"get_dashboard_snapshot", "get_deal_summary", "explain_how_setu_works"}
 )
-# Per-intent allow-lists (SR-3). greeting and out_of_scope never reach the agent node.
+ANALYSIS = frozenset(
+    {
+        "analyze_order",
+        "landed_cost_what_if",
+        "compare_fx_route",
+        "get_monthly_summary",
+        "get_supplier_scorecard",
+    }
+)
+CASHFLOW = frozenset({"forecast_cashflow", "simulate_cashflow_scenario", "get_alerts"})
+FINANCING = frozenset({"match_financing", "financing_impact"})
+# Per-intent allow-lists (SR-3): the tools each intent is likely to need, all Tier 0.
+# greeting and out_of_scope never reach the agent node.
 INTENT_TOOLS: dict[Intent, frozenset[str]] = {
     "greeting": frozenset(),
     "out_of_scope": frozenset(),
-    "analysis": READONLY,
-    "cashflow": READONLY,
-    "financing": READONLY,
-    "deal_status": READONLY,
+    "analysis": READONLY | ANALYSIS | {"forecast_cashflow"},
+    "cashflow": READONLY | CASHFLOW | FINANCING,
+    "financing": READONLY | FINANCING | {"forecast_cashflow", "analyze_order", "compare_fx_route"},
+    "deal_status": READONLY | {"analyze_order", "get_alerts", "compare_fx_route"},
+    # documents → smart model; document forensics tools arrive in P14.
     "documents": frozenset({"get_deal_summary", "explain_how_setu_works"}),
-    "how_it_works": READONLY,
+    "how_it_works": frozenset({"explain_how_setu_works", "get_deal_summary"}),
 }
 
 
@@ -321,7 +351,7 @@ _default: ToolRegistry | None = None
 def default_registry() -> ToolRegistry:
     global _default
     if _default is None:
-        from app.agent.tools import readonly
+        from app.agent.tools import finance  # registers the finance tools on the same registry
 
-        _default = readonly.REGISTRY
+        _default = finance.REGISTRY
     return _default

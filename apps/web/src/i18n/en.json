@@ -34,7 +34,8 @@
     "orders": "Deals",
     "dashboard": "Dashboard",
     "cashflow": "Cash Flow",
-    "financing": "Financing"
+    "financing": "Financing",
+    "chat": "Chat"
   },
   "role": {
     "BUYER": "Buyer",
@@ -485,5 +486,140 @@
   "approvals": {
     "title": "Approvals",
     "soon": "Approvals inbox arrives in P17."
+  },
+  "chat": {
+    "title": "Ask Setu",
+    "conversation": "Conversation",
+    "empty": "Ask about your cash flow, landed cost, financing or suppliers. Setu explains numbers calculated by the system.",
+    "typing": "Setu is thinking…",
+    "send": "Send",
+    "stop": "Stop",
+    "copy": "Copy",
+    "copied": "Copied",
+    "error": "Something went wrong with this reply.",
+    "interrupted": "This reply was interrupted.",
+    "stoppedByUser": "Stopped.",
+    "new": "New chat",
+    "disclaimer": "Setu gives options, not licensed financial advice. All data simulated.",
+    "input": {
+      "label": "Message to Setu",
+      "placeholder": "Type your question…",
+      "hint": "Press Enter to send, Shift+Enter for a new line."
+    },
+    "search": {
+      "label": "Search conversations",
+      "placeholder": "Search chats"
+    },
+    "threads": {
+      "label": "Conversations",
+      "empty": "No conversations yet."
+    },
+    "rename": {
+      "label": "Conversation title",
+      "button": "Rename {title}"
+    },
+    "delete": {
+      "button": "Delete {title}",
+      "title": "Delete conversation?",
+      "body": "“{title}” and its messages will be removed.",
+      "confirm": "Delete"
+    },
+    "deal": {
+      "label": "About deal:",
+      "none": "No specific deal"
+    },
+    "feedback": {
+      "up": "Helpful answer",
+      "down": "Not helpful"
+    },
+    "stopped": {
+      "budget": "This conversation reached its size limit. Start a new chat to continue.",
+      "tool_cap": "Setu stopped after using too many tools for one question.",
+      "model_error": "The assistant could not finish this answer."
+    },
+    "suggest": {
+      "title": "Try asking",
+      "cash": "Will I run short of cash this month?",
+      "landed": "What is the landed cost of order SETU-2026-0001?",
+      "financing": "Which financing option is cheapest?",
+      "fx": "How much would I save paying in CNY instead of USD?",
+      "alerts": "Show my alerts",
+      "suppliers": "How are my suppliers doing?"
+    },
+    "tool": {
+      "label": "Steps Setu took",
+      "generic": "Working on it…",
+      "failed": "(failed)",
+      "get_dashboard_snapshot": "Loading your dashboard…",
+      "get_deal_summary": "Looking up the deal…",
+      "explain_how_setu_works": "Checking how Setu works…",
+      "analyze_order": "Analysing the order costs…",
+      "landed_cost_what_if": "Running the landed-cost what-if…",
+      "forecast_cashflow": "Checking your cash flow…",
+      "simulate_cashflow_scenario": "Simulating the cash-flow scenario…",
+      "get_alerts": "Fetching your alerts…",
+      "match_financing": "Comparing financing options…",
+      "financing_impact": "Measuring the financing impact…",
+      "compare_fx_route": "Comparing USD and CNY payment routes…",
+      "get_monthly_summary": "Preparing the monthly summary…",
+      "get_supplier_scorecard": "Reviewing supplier scorecards…"
+    },
+    "drawer": {
+      "open": "Ask Setu",
+      "title": "Ask Setu",
+      "full": "Open full chat"
+    },
+    "card": {
+      "landed_cost": "Landed cost {deal}",
+      "openAnalysis": "Open analysis",
+      "cashflow": "Cash-flow forecast",
+      "openCashflow": "Open cash flow",
+      "alerts": "Alerts ({n})",
+      "financing": "Financing options",
+      "fx": "USD vs CNY payment",
+      "monthly": "Summary for {month}",
+      "scorecard": "Supplier scorecard"
+    },
+    "landed": {
+      "perUnit": "Cost per {unit}",
+      "marginPct": "Gross margin",
+      "breakEven": "Break-even price per {unit}"
+    },
+    "cf": {
+      "summaryShortfall": "Cash first falls short on {date} by {amount}.",
+      "summaryOk": "No shortfall. Lowest balance {lowest} on {date}.",
+      "firstShortfall": "First shortfall",
+      "noShortfall": "None",
+      "lowest": "Lowest balance",
+      "afterShortfall": "Shortfall after scenario",
+      "afterLowest": "Lowest after scenario",
+      "scenario": "Scenario: {label}",
+      "before": "Before",
+      "after": "After scenario",
+      "belowBuffer": "Below the {amount} buffer",
+      "upcoming": "Upcoming payments"
+    },
+    "alerts": {
+      "none": "No open alerts.",
+      "open": "Open"
+    },
+    "fin": {
+      "need": "{amount} needed by {date} for {days} days"
+    },
+    "fx": {
+      "invoice": "Invoice {amount} · {basis}",
+      "route": "Pay in {cur}",
+      "cheaper": "Cheaper",
+      "sent": "Sent",
+      "rate": "Rate used",
+      "conversion": "Conversion",
+      "fees": "Fees",
+      "saving": "Paying in {cur} saves {amount} ({pct}).",
+      "mock": "Rates are MOCK demo rates as of {date}.",
+      "assumptions": "Assumptions"
+    },
+    "monthly": {
+      "history": "Landed cost, last 6 months"
+    }
   }
 }

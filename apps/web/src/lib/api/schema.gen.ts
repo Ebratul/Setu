@@ -496,11 +496,55 @@ export interface paths {
         };
         /**
          * Threads
-         * @description The caller's own chat threads, newest first.
+         * @description The caller's own chat threads, newest first; `q` searches titles.
          */
         get: operations["threads_chat_threads_get"];
         put?: never;
         post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/chat/threads/{thread_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /**
+         * Delete
+         * @description Delete one of the caller's threads with its messages and agent checkpoints.
+         */
+        delete: operations["delete_chat_threads__thread_id__delete"];
+        options?: never;
+        head?: never;
+        /**
+         * Rename
+         * @description Rename one of the caller's threads.
+         */
+        patch: operations["rename_chat_threads__thread_id__patch"];
+        trace?: never;
+    };
+    "/chat/messages/{message_id}/feedback": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Feedback
+         * @description 👍/👎 on an assistant message of the caller's own thread.
+         */
+        post: operations["feedback_chat_messages__message_id__feedback_post"];
         delete?: never;
         options?: never;
         head?: never;
@@ -545,6 +589,32 @@ export interface components {
             query: {
                 [key: string]: string;
             };
+        };
+        /** AlertItem */
+        AlertItem: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Type */
+            type: string;
+            /** Severity */
+            severity: string;
+            /** Title En */
+            title_en: string;
+            /** Title Bn */
+            title_bn: string;
+            /** Amount */
+            amount: string | null;
+            /** Currency */
+            currency: string | null;
+            /** Due On */
+            due_on: string | null;
+            /** Deal Ref */
+            deal_ref: string | null;
+            /** Route */
+            route: string | null;
         };
         /** AlertList */
         AlertList: {
@@ -652,6 +722,36 @@ export interface components {
             facts: {
                 [key: string]: unknown;
             };
+        };
+        /** AlertsCard */
+        AlertsCard: {
+            /** Explanation Codes */
+            explanation_codes: string[];
+            /** Explanation En */
+            explanation_en: string;
+            /** Explanation Bn */
+            explanation_bn: string;
+            /**
+             * Simulated
+             * @default true
+             * @constant
+             */
+            simulated: true;
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            card_type: "alerts";
+            data: components["schemas"]["AlertsData"];
+        };
+        /** AlertsData */
+        AlertsData: {
+            /** Status */
+            status: string;
+            /** Count */
+            count: number;
+            /** Alerts */
+            alerts: components["schemas"]["AlertItem"][];
         };
         /** Amounts */
         Amounts: {
@@ -778,6 +878,88 @@ export interface components {
             application: components["schemas"]["ApplicationOut"];
             alerts: components["schemas"]["RecomputeOut"];
         };
+        /** Bilingual */
+        Bilingual: {
+            /** Code */
+            code: string;
+            /** En */
+            en: string;
+            /** Bn */
+            bn: string;
+        };
+        /** CashflowCard */
+        CashflowCard: {
+            /** Explanation Codes */
+            explanation_codes: string[];
+            /** Explanation En */
+            explanation_en: string;
+            /** Explanation Bn */
+            explanation_bn: string;
+            /**
+             * Simulated
+             * @default true
+             * @constant
+             */
+            simulated: true;
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            card_type: "cashflow";
+            data: components["schemas"]["CashflowData"];
+        };
+        /** CashflowData */
+        CashflowData: {
+            /** Currency */
+            currency: string;
+            /**
+             * Start
+             * Format: date
+             */
+            start: string;
+            /**
+             * End
+             * Format: date
+             */
+            end: string;
+            /**
+             * Opening Balance
+             * @example 11200.00
+             */
+            opening_balance: string;
+            /**
+             * Min Buffer
+             * @example 11200.00
+             */
+            min_buffer: string;
+            before: components["schemas"]["CashflowSide"];
+            after?: components["schemas"]["CashflowSide"] | null;
+            /** Scenario Label */
+            scenario_label?: string | null;
+            /** Upcoming */
+            upcoming: components["schemas"]["Payment"][];
+            /**
+             * Cashflow Route
+             * @default /app/cashflow
+             */
+            cashflow_route: string;
+        };
+        /** CashflowSide */
+        CashflowSide: {
+            /** Series */
+            series: components["schemas"]["Point"][];
+            first_shortfall: components["schemas"]["Shortfall"] | null;
+            /**
+             * Lowest Balance
+             * @example 11200.00
+             */
+            lowest_balance: string;
+            /**
+             * Lowest On
+             * Format: date
+             */
+            lowest_on: string;
+        };
         /** ChatRequest */
         ChatRequest: {
             /** Thread Id */
@@ -823,6 +1005,27 @@ export interface components {
              * @description LangSmith run URL; admin and judge only.
              */
             trace_url?: string | null;
+            /**
+             * Message Id
+             * Format: uuid
+             * @description The assistant message (for feedback).
+             */
+            message_id: string;
+            /**
+             * Why
+             * @description The "Why:" line of the answer.
+             */
+            why?: string | null;
+            /**
+             * Notes
+             * @description Code-added notes (simulated…).
+             */
+            notes?: string[];
+            /**
+             * Cards
+             * @description Result cards, in tool order.
+             */
+            cards?: (components["schemas"]["LandedCostCard"] | components["schemas"]["CashflowCard"] | components["schemas"]["AlertsCard"] | components["schemas"]["FinancingComparisonCard"] | components["schemas"]["FxCompareCard"] | components["schemas"]["MonthlySummaryCard"] | components["schemas"]["ScorecardCard"])[];
         };
         /** CheckOut */
         CheckOut: {
@@ -847,6 +1050,23 @@ export interface components {
              */
             kind: "FREIGHT" | "INSURANCE" | "DUTY" | "BANK_CHARGES" | "OTHER";
             amount: components["schemas"]["Amounts"];
+            /**
+             * Share Pct
+             * @example 11200.00
+             */
+            share_pct: string;
+        };
+        /** CostLine */
+        CostLine: {
+            /** Kind */
+            kind: string;
+            /** Label */
+            label: string | null;
+            /**
+             * Amount
+             * @example 11200.00
+             */
+            amount: string;
             /**
              * Share Pct
              * @example 11200.00
@@ -1139,6 +1359,124 @@ export interface components {
             /** Bn */
             bn: string;
         };
+        /** FeedbackIn */
+        FeedbackIn: {
+            /**
+             * Rating
+             * @enum {string}
+             */
+            rating: "up" | "down";
+            /** Comment */
+            comment?: string | null;
+        };
+        /** FeedbackOut */
+        FeedbackOut: {
+            /**
+             * Message Id
+             * Format: uuid
+             */
+            message_id: string;
+            /**
+             * Rating
+             * @enum {string}
+             */
+            rating: "up" | "down";
+        };
+        /** FinancingComparisonCard */
+        FinancingComparisonCard: {
+            /** Explanation Codes */
+            explanation_codes: string[];
+            /** Explanation En */
+            explanation_en: string;
+            /** Explanation Bn */
+            explanation_bn: string;
+            /**
+             * Simulated
+             * @default true
+             * @constant
+             */
+            simulated: true;
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            card_type: "financing_comparison";
+            data: components["schemas"]["FinancingComparisonData"];
+        };
+        /** FinancingComparisonData */
+        FinancingComparisonData: {
+            /**
+             * Mode
+             * @enum {string}
+             */
+            mode: "shortfall" | "order";
+            /** Deal Ref */
+            deal_ref: string;
+            /**
+             * Defaulted Deal
+             * @default false
+             */
+            defaulted_deal: boolean;
+            /** Currency */
+            currency: string;
+            /**
+             * Amount
+             * @example 11200.00
+             */
+            amount: string;
+            /**
+             * Needed By
+             * Format: date
+             */
+            needed_by: string;
+            /** Needed For Days */
+            needed_for_days: number;
+            /** No Financing Needed */
+            no_financing_needed: boolean;
+            /** Options */
+            options: components["schemas"]["FinancingOptionItem"][];
+            recommended: components["schemas"]["Recommendation"] | null;
+            /** Apply Route */
+            apply_route: string;
+        };
+        /** FinancingOptionItem */
+        FinancingOptionItem: {
+            /**
+             * Option Id
+             * Format: uuid
+             */
+            option_id: string;
+            /** Code */
+            code: string;
+            /** Name */
+            name: string;
+            /** Kind */
+            kind: string;
+            /** Rank */
+            rank: number;
+            /** Recommended */
+            recommended: boolean;
+            /** Eligible */
+            eligible: boolean;
+            /** Tenor Days */
+            tenor_days: number;
+            /**
+             * Total Cost
+             * @example 11200.00
+             */
+            total_cost: string;
+            /**
+             * Effective Annual Rate Pct
+             * @example 11200.00
+             */
+            effective_annual_rate_pct: string;
+            /** Collateral */
+            collateral: string;
+            /** Conditions */
+            conditions: string;
+            /** Why Not */
+            why_not: components["schemas"]["Bilingual"][];
+        };
         /** FlowOut */
         FlowOut: {
             /** Ref */
@@ -1241,6 +1579,73 @@ export interface components {
             weekly: components["schemas"]["WeekOut"][];
             /** Facts */
             facts: string[];
+        };
+        /** FxCompareCard */
+        FxCompareCard: {
+            /** Explanation Codes */
+            explanation_codes: string[];
+            /** Explanation En */
+            explanation_en: string;
+            /** Explanation Bn */
+            explanation_bn: string;
+            /**
+             * Simulated
+             * @default true
+             * @constant
+             */
+            simulated: true;
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            card_type: "fx_compare";
+            data: components["schemas"]["FxCompareData"];
+        };
+        /** FxCompareData */
+        FxCompareData: {
+            /** Basis */
+            basis: string;
+            /**
+             * Invoice Amount
+             * @example 11200.00
+             */
+            invoice_amount: string;
+            /**
+             * Invoice Currency
+             * @enum {string}
+             */
+            invoice_currency: "USD" | "CNY";
+            /** Payer Currency */
+            payer_currency: string;
+            /**
+             * Supplier Receives Cny
+             * @example 11200.00
+             */
+            supplier_receives_cny: string;
+            usd_route: components["schemas"]["Route"];
+            cny_route: components["schemas"]["Route"];
+            /**
+             * Cheaper
+             * @enum {string}
+             */
+            cheaper: "USD" | "CNY";
+            /**
+             * Saving
+             * @example 11200.00
+             */
+            saving: string;
+            /**
+             * Saving Pct
+             * @example 11200.00
+             */
+            saving_pct: string;
+            /**
+             * As Of
+             * Format: date
+             */
+            as_of: string;
+            /** Assumptions */
+            assumptions: string[];
         };
         /** FxRateOut */
         FxRateOut: {
@@ -1430,6 +1835,92 @@ export interface components {
             cost: components["schemas"]["Amounts"];
             total: components["schemas"]["Amounts"];
         };
+        /** LandedCostCard */
+        LandedCostCard: {
+            /** Explanation Codes */
+            explanation_codes: string[];
+            /** Explanation En */
+            explanation_en: string;
+            /** Explanation Bn */
+            explanation_bn: string;
+            /**
+             * Simulated
+             * @default true
+             * @constant
+             */
+            simulated: true;
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            card_type: "landed_cost";
+            data: components["schemas"]["LandedCostData"];
+        };
+        /** LandedCostData */
+        LandedCostData: {
+            /** Deal Ref */
+            deal_ref: string | null;
+            /** Title */
+            title: string | null;
+            /**
+             * Defaulted Deal
+             * @default false
+             */
+            defaulted_deal: boolean;
+            /** Currency */
+            currency: string;
+            /**
+             * Quantity
+             * @example 11200.00
+             */
+            quantity: string;
+            /** Unit */
+            unit: string;
+            /** Lines */
+            lines: components["schemas"]["CostLine"][];
+            /**
+             * Goods Value
+             * @example 11200.00
+             */
+            goods_value: string;
+            /**
+             * Extra Costs
+             * @example 11200.00
+             */
+            extra_costs: string;
+            /**
+             * Landed Cost
+             * @example 11200.00
+             */
+            landed_cost: string;
+            /**
+             * Landed Cost Bdt
+             * @example 11200.00
+             */
+            landed_cost_bdt: string;
+            /**
+             * Cost Per Unit
+             * @example 11200.00
+             */
+            cost_per_unit: string;
+            /** Selling Price Per Unit */
+            selling_price_per_unit: string | null;
+            /** Expected Revenue */
+            expected_revenue: string | null;
+            /** Gross Margin */
+            gross_margin: string | null;
+            /** Gross Margin Pct */
+            gross_margin_pct: string | null;
+            /** Margin Band */
+            margin_band: string | null;
+            /**
+             * Break Even Price Per Unit
+             * @example 11200.00
+             */
+            break_even_price_per_unit: string;
+            /** Analysis Route */
+            analysis_route: string | null;
+        };
         /**
          * LandedCostRequest
          * @description What-if calculator input. Nothing is saved.
@@ -1552,6 +2043,11 @@ export interface components {
         };
         /** MessageOut */
         MessageOut: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
             /** Seq */
             seq: number;
             /**
@@ -1570,6 +2066,21 @@ export interface components {
             meta: {
                 [key: string]: unknown;
             } | null;
+            /**
+             * Card
+             * @description For tool messages that produced a card.
+             */
+            card?: (components["schemas"]["LandedCostCard"] | components["schemas"]["CashflowCard"] | components["schemas"]["AlertsCard"] | components["schemas"]["FinancingComparisonCard"] | components["schemas"]["FxCompareCard"] | components["schemas"]["MonthlySummaryCard"] | components["schemas"]["ScorecardCard"]) | null;
+        };
+        /** MonthPoint */
+        MonthPoint: {
+            /** Month */
+            month: string;
+            /**
+             * Total Landed Cost
+             * @example 11200.00
+             */
+            total_landed_cost: string;
         };
         /** MonthTotalsOut */
         MonthTotalsOut: {
@@ -1609,6 +2120,67 @@ export interface components {
             landed_cost: components["schemas"]["Amounts"];
             /** Gross Margin Pct */
             gross_margin_pct: string | null;
+        };
+        /** MonthlySummaryCard */
+        MonthlySummaryCard: {
+            /** Explanation Codes */
+            explanation_codes: string[];
+            /** Explanation En */
+            explanation_en: string;
+            /** Explanation Bn */
+            explanation_bn: string;
+            /**
+             * Simulated
+             * @default true
+             * @constant
+             */
+            simulated: true;
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            card_type: "monthly_summary";
+            data: components["schemas"]["MonthlySummaryData"];
+        };
+        /** MonthlySummaryData */
+        MonthlySummaryData: {
+            /** Month */
+            month: string;
+            /** Currency */
+            currency: string;
+            /** Deals Count */
+            deals_count: number;
+            /**
+             * Total Purchases
+             * @example 11200.00
+             */
+            total_purchases: string;
+            /**
+             * Total Landed Cost
+             * @example 11200.00
+             */
+            total_landed_cost: string;
+            /**
+             * Expected Revenue
+             * @example 11200.00
+             */
+            expected_revenue: string;
+            /** Average Margin Pct */
+            average_margin_pct: string | null;
+            top_cost_driver: components["schemas"]["CostLine"] | null;
+            /**
+             * Purchases Delta
+             * @example 11200.00
+             */
+            purchases_delta: string;
+            /** Purchases Pct */
+            purchases_pct: string | null;
+            /** Margin Delta Pts */
+            margin_delta_pts: string | null;
+            /** History */
+            history: components["schemas"]["MonthPoint"][];
+            /** Insights */
+            insights: components["schemas"]["Bilingual"][];
         };
         /** MonthlySummaryOut */
         MonthlySummaryOut: {
@@ -1787,6 +2359,56 @@ export interface components {
             /** Orders */
             orders: components["schemas"]["DealSummary"][];
         };
+        /** Payment */
+        Payment: {
+            /**
+             * On
+             * Format: date
+             */
+            on: string;
+            /** Label */
+            label: string;
+            /** Kind */
+            kind: string;
+            /**
+             * Amount
+             * @example 11200.00
+             */
+            amount: string;
+            /** Deal Ref */
+            deal_ref: string | null;
+        };
+        /** Point */
+        Point: {
+            /**
+             * On
+             * Format: date
+             */
+            on: string;
+            /**
+             * Closing
+             * @example 11200.00
+             */
+            closing: string;
+        };
+        /** Recommendation */
+        Recommendation: {
+            /** Code */
+            code: string;
+            /** Name */
+            name: string;
+            /**
+             * Total Cost
+             * @example 11200.00
+             */
+            total_cost: string;
+            /** Saving Vs Next */
+            saving_vs_next: string | null;
+            /** Why Codes */
+            why_codes: string[];
+            /** Reasons */
+            reasons: components["schemas"]["Bilingual"][];
+        };
         /** RecomputeOut */
         RecomputeOut: {
             /**
@@ -1810,6 +2432,44 @@ export interface components {
             resolved: number;
             /** Open */
             open: number;
+        };
+        /** Route */
+        Route: {
+            /**
+             * Route
+             * @enum {string}
+             */
+            route: "USD" | "CNY";
+            /**
+             * Sent
+             * @example 11200.00
+             */
+            sent: string;
+            /**
+             * Sent Currency
+             * @enum {string}
+             */
+            sent_currency: "USD" | "CNY";
+            /**
+             * Rate Used
+             * @example 11200.00
+             */
+            rate_used: string;
+            /**
+             * Conversion
+             * @example 11200.00
+             */
+            conversion: string;
+            /**
+             * Fees
+             * @example 11200.00
+             */
+            fees: string;
+            /**
+             * Total
+             * @example 11200.00
+             */
+            total: string;
         };
         /** ScenarioOut */
         ScenarioOut: {
@@ -1898,6 +2558,47 @@ export interface components {
              */
             score: string;
         };
+        /** ScorecardCard */
+        ScorecardCard: {
+            /** Explanation Codes */
+            explanation_codes: string[];
+            /** Explanation En */
+            explanation_en: string;
+            /** Explanation Bn */
+            explanation_bn: string;
+            /**
+             * Simulated
+             * @default true
+             * @constant
+             */
+            simulated: true;
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            card_type: "scorecard";
+            data: components["schemas"]["ScorecardData"];
+        };
+        /** ScorecardData */
+        ScorecardData: {
+            /** Window Months */
+            window_months: number;
+            /** Suppliers */
+            suppliers: components["schemas"]["SupplierItem"][];
+        };
+        /** Shortfall */
+        Shortfall: {
+            /**
+             * On
+             * Format: date
+             */
+            on: string;
+            /**
+             * Amount
+             * @example 11200.00
+             */
+            amount: string;
+        };
         /** ShortfallOut */
         ShortfallOut: {
             /**
@@ -1910,6 +2611,33 @@ export interface components {
              * @example 11200.00
              */
             amount: string;
+        };
+        /** SupplierItem */
+        SupplierItem: {
+            /** Code */
+            code: string;
+            /** Name */
+            name: string;
+            /** Country */
+            country: string;
+            /** Kyb Status */
+            kyb_status: string;
+            /** Score */
+            score: string | null;
+            /** On Time Rate Pct */
+            on_time_rate_pct: string | null;
+            /** Dispute Rate Pct */
+            dispute_rate_pct: string | null;
+            /** Defect Rate Pct */
+            defect_rate_pct: string | null;
+            /** Doc Mismatch Count */
+            doc_mismatch_count: number;
+            /** Your Deals Count */
+            your_deals_count: number;
+            /** Weak */
+            weak: boolean;
+            /** Flags */
+            flags: string[];
         };
         /** SupplierScoreOut */
         SupplierScoreOut: {
@@ -2012,6 +2740,11 @@ export interface components {
             created_at: string;
             /** Updated At */
             updated_at: string | null;
+        };
+        /** ThreadPatch */
+        ThreadPatch: {
+            /** Title */
+            title: string;
         };
         /** ToolCallOut */
         ToolCallOut: {
@@ -2891,6 +3624,7 @@ export interface operations {
         parameters: {
             query?: {
                 user_id?: string | null;
+                q?: string | null;
             };
             header?: never;
             path?: never;
@@ -2905,6 +3639,105 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ThreadList"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_chat_threads__thread_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                thread_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    rename_chat_threads__thread_id__patch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                thread_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ThreadPatch"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ThreadOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    feedback_chat_messages__message_id__feedback_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                message_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["FeedbackIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FeedbackOut"];
                 };
             };
             /** @description Validation Error */

@@ -69,14 +69,50 @@ def create_thread(
     return thread
 
 
-def list_threads(db: Session, user: CurrentUser) -> list[ChatThread]:
+def list_threads(db: Session, user: CurrentUser, q: str | None = None) -> list[ChatThread]:
+    stmt = select(ChatThread).where(ChatThread.user_id == user.id)
+    if q:
+        escaped = q.replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_")
+        stmt = stmt.where(ChatThread.title.ilike(f"%{escaped}%", escape="\\"))
     return list(
         db.scalars(
-            select(ChatThread)
-            .where(ChatThread.user_id == user.id)
-            .order_by(func.coalesce(ChatThread.updated_at, ChatThread.created_at).desc())
+            stmt.order_by(func.coalesce(ChatThread.updated_at, ChatThread.created_at).desc())
         ).all()
     )
+
+
+def rename_thread(db: Session, user: CurrentUser, thread_id: uuid.UUID, title: str) -> ChatThread:
+    thread = get_thread(db, user, thread_id)
+    thread.title = title
+    thread.updated_at = now()
+    db.commit()
+    return thread
+
+
+def delete_thread(db: Session, user: CurrentUser, thread_id: uuid.UUID) -> None:
+    """Deletes the thread, its messages (FK cascade) and its LangGraph checkpoints."""
+    thread = get_thread(db, user, thread_id)
+    # Checkpoints (raw conversation state) go first, so a failure never leaves them orphaned.
+    get_checkpointer().delete_thread(str(thread_id))
+    db.delete(thread)
+    db.commit()
+
+
+def set_feedback(
+    db: Session, user: CurrentUser, message_id: uuid.UUID, rating: str, comment: str | None
+) -> ChatMessage:
+    """👍/👎 on one of the caller's assistant messages (stored in meta.feedback)."""
+    msg = db.get(ChatMessage, message_id)
+    thread = db.get(ChatThread, msg.thread_id) if msg is not None else None
+    # One answer for missing, someone else's, and non-assistant messages (no existence oracle).
+    if msg is None or thread is None or thread.user_id != user.id or msg.role != ChatRole.ASSISTANT:
+        raise NotFound("message not found")
+    msg.meta = {
+        **(msg.meta or {}),
+        "feedback": {"rating": rating, "comment": comment, "at": now().isoformat()},
+    }
+    db.commit()
+    return msg
 
 
 def list_messages(db: Session, thread: ChatThread) -> list[ChatMessage]:

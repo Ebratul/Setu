@@ -23,9 +23,17 @@ _PATTERNS: tuple[tuple[str, re.Pattern[str]], ...] = (
     (
         "MONEY_TO_ACCOUNT",
         re.compile(
-            r"\b(wire|transfer|send|remit|pay)\b.{0,40}"
-            r"(\b(usd|cny|rmb|bdt)\b|[$¥৳]|\baccount\b|\biban\b|\bbeneficiary\b)",
-            re.I,
+            # A payment request: the verb starts a sentence or follows a request word, and an
+            # amount/currency/account follows ("Pay USD 48,000 …", "Kindly pay ¥320,000 …").
+            r"(^|[.!?\n]\s*|\b(please|kindly|urgent(ly)?|immediately|asap)\b\W{0,3}(\w+\s+){0,2})"
+            r"(wire|transfer|send|remit|pay)\b.{0,40}"
+            r"(\b(usd|cny|rmb|bdt)\b|[$¥৳]|\baccount\b|\bbeneficiary\b)"
+            # … to/into/via a new or named destination
+            r"|\b(wire|transfer|send|remit|pay)\b.{0,40}\b(to|into|via)\b.{0,40}"
+            r"\b(account|a/c|beneficiary|iban|swift|wallet|new bank|account details)\b"
+            # … or an account number (spaces and dashes allowed)
+            r"|\b(wire|transfer|send|remit|pay)\b.{0,60}\d[\d \-]{6,}\d",
+            re.I | re.M,
         ),
     ),
     (

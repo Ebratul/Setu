@@ -6,6 +6,8 @@ from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
+from app.schemas.cards import Card
+
 ChatLanguage = Literal["en", "bn", "zh"]
 MAX_MESSAGE_CHARS = 4000
 
@@ -56,6 +58,10 @@ class ChatResponse(BaseModel):
     usage: UsageOut
     stopped: Literal["budget", "tool_cap", "injection", "model_error"] | None = None
     trace_url: str | None = Field(None, description="LangSmith run URL; admin and judge only.")
+    message_id: uuid.UUID = Field(description="The assistant message (for feedback).")
+    why: str | None = Field(None, description='The "Why:" line of the answer.')
+    notes: list[str] = Field(default_factory=list, description="Code-added notes (simulated…).")
+    cards: list[Card] = Field(default_factory=list, description="Result cards, in tool order.")
 
 
 class ThreadOut(BaseModel):
@@ -73,11 +79,37 @@ class ThreadList(BaseModel):
 
 
 class MessageOut(BaseModel):
+    id: uuid.UUID
     seq: int
     role: Literal["user", "assistant", "tool"]
     content: str
     created_at: datetime
     meta: dict[str, Any] | None
+    card: Card | None = Field(None, description="For tool messages that produced a card.")
+
+
+class ThreadPatch(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    title: str = Field(min_length=1, max_length=120)
+
+    @field_validator("title")
+    @classmethod
+    def _strip(cls, v: str) -> str:
+        v = " ".join(v.split())
+        if not v:
+            raise ValueError("title must not be blank")
+        return v
+
+
+class FeedbackIn(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    rating: Literal["up", "down"]
+    comment: str | None = Field(None, max_length=500)
+
+
+class FeedbackOut(BaseModel):
+    message_id: uuid.UUID
+    rating: Literal["up", "down"]
 
 
 class MessageList(BaseModel):

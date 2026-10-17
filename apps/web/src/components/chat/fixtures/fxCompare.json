@@ -1,0 +1,46 @@
+{
+ "explanation_codes": [
+  "CHEAPER_CNY",
+  "SPREADS_AND_FEES"
+ ],
+ "explanation_en": "Paying in CNY costs BDT 356,883.07 vs BDT 361,256.94 via USD, saving BDT 4,373.88 (1.21%) after spreads and fees.",
+ "explanation_bn": "CNY-তে pay করলে খরচ BDT 356,883.07, USD route-এ BDT 361,256.94; spread ও fee ধরে সাশ্রয় BDT 4,373.88 (1.21%)।",
+ "simulated": true,
+ "card_type": "fx_compare",
+ "data": {
+  "basis": "milestone 1 of SETU-2026-0001",
+  "invoice_amount": "2880.00",
+  "invoice_currency": "USD",
+  "payer_currency": "BDT",
+  "supplier_receives_cny": "20445.12",
+  "usd_route": {
+   "route": "USD",
+   "sent": "2897.38",
+   "sent_currency": "USD",
+   "rate_used": "123.2030",
+   "conversion": "356966.29",
+   "fees": "4290.65",
+   "total": "361256.94"
+  },
+  "cny_route": {
+   "route": "CNY",
+   "sent": "20445.12",
+   "sent_currency": "CNY",
+   "rate_used": "17.4067",
+   "conversion": "355883.07",
+   "fees": "1000.00",
+   "total": "356883.07"
+  },
+  "cheaper": "CNY",
+  "saving": "4373.88",
+  "saving_pct": "1.21",
+  "as_of": "2026-10-20",
+  "assumptions": [
+   "Bank sells USD at mid + 0.5000%",
+   "Supplier's bank converts USD to CNY at mid − 0.6000%",
+   "USD transfer fees: SWIFT USD 20 + correspondent USD 15",
+   "Bank sells CNY at mid + 0.8000%",
+   "CNY transfer fee: BDT 1000"
+  ]
+ }
+}

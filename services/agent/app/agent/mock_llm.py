@@ -111,15 +111,154 @@ def _how_sentences(d: dict[str, Any], lang: Lang) -> list[str]:
     return list(facts)
 
 
+def _landed_sentences(d: dict[str, Any], lang: Lang) -> list[str]:
+    c, unit = d["currency"], d["unit"]
+    ref = d.get("deal_ref") or ("এই হিসাব" if lang == "bn" else "this calculation")
+    margin = d.get("gross_margin_pct")
+    if lang == "bn":
+        out = [
+            f"{ref}-এর landed cost {c} {_money(d['landed_cost'])} (প্রতি {unit} {c} "
+            f"{_money(d['cost_per_unit'])})।"
+        ]
+        if margin is not None:
+            out.append(
+                f"Gross margin {margin}%, break-even দাম প্রতি {unit} {c} "
+                f"{_money(d['break_even_price_per_unit'])}।"
+            )
+        if d.get("defaulted_deal"):
+            out.append(f"আপনার সাম্প্রতিক সক্রিয় ডিল {ref} ধরে হিসাব করেছি।")
+        return out
+    out = [
+        f"The landed cost of {ref} is {c} {_money(d['landed_cost'])} "
+        f"({c} {_money(d['cost_per_unit'])} per {unit})."
+    ]
+    if margin is not None:
+        out.append(
+            f"Gross margin is {margin}%, and break-even is {c} "
+            f"{_money(d['break_even_price_per_unit'])} per {unit}."
+        )
+    if d.get("defaulted_deal"):
+        out.append(f"I used your most recent active deal, {ref}.")
+    return out
+
+
+def _cashflow_sentences(d: dict[str, Any], lang: Lang) -> list[str]:
+    c = d["currency"]
+    before, after = d["before"], d.get("after")
+    sf = (after or before).get("first_shortfall")
+    was = before.get("first_shortfall")
+    out: list[str] = []
+    if lang == "bn":
+        if after and was and not sf:
+            out.append(f"এই পরিবর্তনে {was['on']} তারিখের {c} {_money(was['amount'])} ঘাটতি থাকে না।")
+        elif sf:
+            out.append(f"হ্যাঁ, {sf['on']} তারিখে cash কম পড়বে — ঘাটতি {c} {_money(sf['amount'])}।")
+        else:
+            out.append("না, এই সময়ে cash কম পড়বে না।")
+        low = after or before
+        out.append(f"সর্বনিম্ন ব্যালেন্স {c} {_money(low['lowest_balance'])}, {low['lowest_on']} তারিখে।")
+        return out
+    if after and was and not sf:
+        out.append(
+            f"With this change the {c} {_money(was['amount'])} shortfall on {was['on']} goes away."
+        )
+    elif sf:
+        out.append(f"Yes — you are short by {c} {_money(sf['amount'])} on {sf['on']}.")
+    else:
+        out.append("No, your cash stays above the buffer in this window.")
+    low = after or before
+    out.append(f"The lowest balance is {c} {_money(low['lowest_balance'])} on {low['lowest_on']}.")
+    return out
+
+
+def _alerts_sentences(d: dict[str, Any], lang: Lang) -> list[str]:
+    alerts = d.get("alerts", [])
+    top = alerts[0] if alerts else None
+    if lang == "bn":
+        return [f"আপনার {d['count']}টি সতর্কতা আছে।"] + (
+            [f"সবচেয়ে জরুরি: {top['title_bn']}।"] if top else []
+        )
+    return [f"You have {d['count']} alerts."] + (
+        [f"Most urgent: {top['title_en']}."] if top else []
+    )
+
+
+def _financing_sentences(d: dict[str, Any], lang: Lang) -> list[str]:
+    c, rec = d["currency"], d.get("recommended")
+    if d.get("no_financing_needed") or not rec:
+        return ["এই ডিলের জন্য অর্থায়নের দরকার নেই।" if lang == "bn" else "No financing is needed."]
+    opts = [o for o in d.get("options", []) if o["eligible"]]
+    nxt = opts[1] if len(opts) > 1 else None
+    if lang == "bn":
+        out = [
+            f"{c} {_money(d['amount'])}-এর জন্য সবচেয়ে সস্তা: {rec['name']}, মোট খরচ {c} "
+            f"{_money(rec['total_cost'])}।"
+        ]
+        if nxt:
+            out.append(f"পরেরটি {nxt['name']}: {c} {_money(nxt['total_cost'])}।")
+        out.append("Apply করতে Financing পেজে যান।")
+        return out
+    out = [
+        f"For {c} {_money(d['amount'])}, the cheapest option is {rec['name']} at a total cost "
+        f"of {c} {_money(rec['total_cost'])}."
+    ]
+    if nxt:
+        out.append(f"Next is {nxt['name']} at {c} {_money(nxt['total_cost'])}.")
+    out.append("You can apply from the Financing page.")
+    return out
+
+
+def _fx_sentences(d: dict[str, Any], lang: Lang) -> list[str]:
+    cheap = d["cheaper"]
+    if lang == "bn":
+        return [
+            f"{d['basis']}-এ {cheap}-তে pay করলে BDT {_money(d['saving'])} "
+            f"({d['saving_pct']}%) বাঁচবে।"
+        ]
+    return [
+        f"For {d['basis']}, paying in {cheap} saves BDT {_money(d['saving'])} ({d['saving_pct']}%)."
+    ]
+
+
+def _monthly_sentences(d: dict[str, Any], lang: Lang) -> list[str]:
+    c, m = d["currency"], d.get("average_margin_pct")
+    if lang == "bn":
+        return [
+            f"{d['month']}-এ {d['deals_count']}টি ডিল, landed cost {c} "
+            f"{_money(d['total_landed_cost'])}" + (f", গড় margin {m}%।" if m else "।")
+        ]
+    return [
+        f"In {d['month']} you had {d['deals_count']} deals with a landed cost of {c} "
+        f"{_money(d['total_landed_cost'])}" + (f" and an average margin of {m}%." if m else ".")
+    ]
+
+
+def _scorecard_sentences(d: dict[str, Any], lang: Lang) -> list[str]:
+    sups = d.get("suppliers", [])
+    best = next((s for s in sups if not s["weak"] and s["score"]), None)
+    weak = [s["name"] for s in sups if s["weak"]]
+    if lang == "bn":
+        return ([f"সেরা সাপ্লায়ার {best['name']} (স্কোর {best['score']})।"] if best else []) + (
+            [f"সতর্ক থাকুন: {', '.join(weak)}।"] if weak else []
+        )
+    return (
+        [f"Your strongest supplier is {best['name']} (score {best['score']})."] if best else []
+    ) + ([f"Be careful with {', '.join(weak)}."] if weak else [])
+
+
 _FORMATTERS = {
     "get_dashboard_snapshot": _dashboard_sentences,
     "get_deal_summary": _deal_sentences,
     "explain_how_setu_works": _how_sentences,
 }
-_WHY = {
-    "en": "Why: these figures come from Setu's {tools} results.",
-    "bn": "কারণ: এই তথ্য Setu-র {tools} থেকে এসেছে।",
-    "zh": "原因：这些数据来自 Setu 的 {tools} 结果。",
+_CARD_FORMATTERS = {
+    "landed_cost": _landed_sentences,
+    "cashflow": _cashflow_sentences,
+    "alerts": _alerts_sentences,
+    "financing_comparison": _financing_sentences,
+    "fx_compare": _fx_sentences,
+    "monthly_summary": _monthly_sentences,
+    "scorecard": _scorecard_sentences,
 }
 _GREETING = {
     "en": "Hello! I'm Setu, your import-finance copilot. Ask me about your cash flow, a deal, "
@@ -127,8 +266,6 @@ _GREETING = {
     "bn": "হ্যালো! আমি Setu, আপনার আমদানি-অর্থায়ন সহকারী। ক্যাশ ফ্লো, ডিল, অর্থায়ন বা এসক্রো নিয়ে জিজ্ঞেস করুন।",
     "zh": "您好！我是 Setu，您的进口融资助手。可以问我现金流、交易、融资或托管的问题。",
 }
-
-
 _UNAVAILABLE = {
     "en": "I couldn't get that data right now, so I won't guess any numbers.",
     "bn": "এই মুহূর্তে তথ্যটি পাওয়া যায়নি, তাই আমি কোনো সংখ্যা অনুমান করব না।",
@@ -137,24 +274,47 @@ _UNAVAILABLE = {
 
 
 def compose_answer(messages: Sequence[BaseMessage]) -> str:
+    """Short answer from tool JSON. The "Why:" line is added by the respond node."""
     lang = _language(messages)
     prompt = "\n".join(_text(m) for m in messages if not isinstance(m, SystemMessage))
     sentences: list[str] = []
-    used: list[str] = []
     failed = 0
     for name, ok, payload in _TOOL_BLOCK.findall(prompt):
-        if ok != "true" or name not in _FORMATTERS:
-            failed += 1
-            continue
         try:
-            data = json.loads(payload)
+            data = json.loads(payload) if ok == "true" else None
         except json.JSONDecodeError:
-            continue
-        sentences.extend(_FORMATTERS[name](data, lang))
-        used.append(name)
-    if not used:
+            data = None
+        fmt = _CARD_FORMATTERS.get(data.get("card_type", "")) if isinstance(data, dict) else None
+        if data is not None and fmt is not None:
+            sentences.extend(fmt(data["data"], lang))
+        elif data is not None and name in _FORMATTERS:
+            sentences.extend(_FORMATTERS[name](data, lang))
+        else:
+            failed += 1
+    if not sentences:
         return _UNAVAILABLE[lang] if failed else _GREETING[lang]
-    return " ".join(sentences) + "\n\n" + _WHY[lang].format(tools=", ".join(used))
+    return " ".join(sentences)
+
+
+_ALERTS = ("alert", "সতর্ক", "অ্যালার্ট")
+_LANDED = ("landed", "margin", "break-even", "break even", "ল্যান্ডেড", "মার্জিন", "লাভ")
+_FX = ("usd", "cny", "rmb", "currency", "exchange", "fx", "বাঁচবে")
+_FINANCING = (
+    "financ",
+    "loan",
+    "credit",
+    "cheapest",
+    "lender",
+    "ঋণ",
+    "লোন",
+    "অর্থায়ন",
+    "ফাইন্যান্সিং",
+    "সস্তা",
+)
+_SUPPLIERS = ("scorecard", "supplier", "সাপ্লায়ার")
+_CASH = ("cash", "shortfall", "short", "balance", "forecast", "কম পড়বে", "ক্যাশ", "নগদ", "现金")
+_MONTHLY = ("monthly", "summary", "month summary", "মাসিক", "সারাংশ", "সারসংক্ষেপ")
+_DASH_ONLY = ("dashboard", "ড্যাশবোর্ড")
 
 
 def _pick_tool(
@@ -163,19 +323,45 @@ def _pick_tool(
     human = next((m for m in reversed(messages) if isinstance(m, HumanMessage)), None)
     q = _text(human).lower() if human else ""
     system = " ".join(_text(m) for m in messages if isinstance(m, SystemMessage))
-    ref = DEAL_REF.search(q) or DEAL_REF.search(system)
-    if any(k in q for k in _DASHBOARD) and "get_dashboard_snapshot" in tools:
-        return "get_dashboard_snapshot", {}
-    if (DEAL_REF.search(q) or any(k in q for k in _DEAL)) and ref and "get_deal_summary" in tools:
-        return "get_deal_summary", {"deal_id": ref.group(0).upper()}
-    if any(k in q for k in _HOW) and "explain_how_setu_works" in tools:
-        return "explain_how_setu_works", {}
-    if "get_dashboard_snapshot" in tools and keyword_intent(q) in (
-        "cashflow",
-        "financing",
-        "analysis",
-    ):
-        return "get_dashboard_snapshot", {}
+    in_q = DEAL_REF.search(q)
+    ref = in_q or DEAL_REF.search(system)
+    deal = {"deal_id": in_q.group(0).upper()} if in_q else {}
+
+    def has(keys: tuple[str, ...]) -> bool:
+        return any(k in q for k in keys)
+
+    rules: list[tuple[bool, str, dict[str, Any]]] = [
+        (has(_DASH_ONLY), "get_dashboard_snapshot", {}),
+        (has(_ALERTS), "get_alerts", {}),
+        (has(_LANDED), "analyze_order", deal),
+        (has(_FX), "compare_fx_route", deal),
+        (
+            has(_FINANCING),
+            "match_financing",
+            {**deal, "mode": "order" if in_q or "order" in q else "shortfall"},
+        ),
+        (has(_SUPPLIERS), "get_supplier_scorecard", {}),
+        (has(_CASH), "forecast_cashflow", {}),
+        (has(_MONTHLY), "get_monthly_summary", {}),
+        (has(_CASH), "get_dashboard_snapshot", {}),
+        (
+            (in_q is not None or has(_DEAL)) and ref is not None,
+            "get_deal_summary",
+            {"deal_id": ref.group(0).upper()} if ref else {},
+        ),
+        (has(_HOW), "explain_how_setu_works", {}),
+    ]
+    for hit, name, args in rules:
+        if hit and name in tools:
+            return name, args
+    fallback = {
+        "cashflow": "forecast_cashflow",
+        "financing": "match_financing",
+        "analysis": "analyze_order",
+    }.get(keyword_intent(q))
+    for name in (fallback, "get_dashboard_snapshot"):
+        if name and name in tools:
+            return name, {}
     return None
 
 

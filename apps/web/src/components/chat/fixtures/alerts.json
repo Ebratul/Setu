@@ -1,0 +1,76 @@
+{
+ "explanation_codes": [
+  "ALERT_COUNT",
+  "TOP_DEADLINE"
+ ],
+ "explanation_en": "5 open alerts, 0 critical; most urgent: Loan instalment USD 450.00 due 2026-10-25.",
+ "explanation_bn": "5টি সতর্কতা, 0টি জরুরি; সবচেয়ে জরুরি: ঋণের কিস্তি USD ৪৫০.০০ পরিশোধ ২০২৬-১০-২৫।",
+ "simulated": true,
+ "card_type": "alerts",
+ "data": {
+  "status": "OPEN",
+  "count": 5,
+  "alerts": [
+   {
+    "id": "cbd33e35-07ba-5fff-bd9d-0478a73ef302",
+    "type": "DEADLINE",
+    "severity": "WARNING",
+    "title_en": "Loan instalment USD 450.00 due 2026-10-25",
+    "title_bn": "ঋণের কিস্তি USD ৪৫০.০০ পরিশোধ ২০২৬-১০-২৫",
+    "amount": "450.00",
+    "currency": "USD",
+    "due_on": "2026-10-25",
+    "deal_ref": null,
+    "route": "/app/cashflow?date=2026-10-25"
+   },
+   {
+    "id": "ebb019f3-360d-5402-8a37-fcd1274eedc3",
+    "type": "SHORTFALL",
+    "severity": "WARNING",
+    "title_en": "Cash shortfall of USD 1,560.00 on 2026-11-07",
+    "title_bn": "২০২৬-১১-০৭ তারিখে USD ১,৫৬০.০০ নগদ ঘাটতি",
+    "amount": "1560.00",
+    "currency": "USD",
+    "due_on": "2026-11-07",
+    "deal_ref": "SETU-2026-0001",
+    "route": "/app/financing?date=2026-11-07&deal=SETU-2026-0001&amount=1560.00&currency=USD"
+   },
+   {
+    "id": "5da1c8a0-98f2-56e0-b70b-3004877e4770",
+    "type": "FX_OPPORTUNITY",
+    "severity": "INFO",
+    "title_en": "Good day to buy CNY: 2026-10-22",
+    "title_bn": "CNY কেনার ভালো দিন: ২০২৬-১০-২২",
+    "amount": "13014.68",
+    "currency": "BDT",
+    "due_on": "2026-10-22",
+    "deal_ref": "SETU-2026-0001",
+    "route": "/app/cashflow?date=2026-10-22"
+   },
+   {
+    "id": "b41c7321-82cf-5dc7-86ed-7e6efbd39c8f",
+    "type": "DEADLINE",
+    "severity": "INFO",
+    "title_en": "File the bill of entry by 2026-11-30",
+    "title_bn": "২০২৬-১১-৩০-এর মধ্যে বিল অব এন্ট্রি জমা দিন",
+    "amount": null,
+    "currency": null,
+    "due_on": "2026-11-30",
+    "deal_ref": "SETU-2026-0001",
+    "route": "/app/orders/SETU-2026-0001"
+   },
+   {
+    "id": "703a3f08-fefa-541f-8b19-e528de43852f",
+    "type": "DEADLINE",
+    "severity": "INFO",
+    "title_en": "Customs duty USD 800.00 due 2026-12-04",
+    "title_bn": "শুল্ক USD ৮০০.০০ পরিশোধের শেষ তারিখ ২০২৬-১২-০৪",
+    "amount": "800.00",
+    "currency": "USD",
+    "due_on": "2026-12-04",
+    "deal_ref": "SETU-2026-0001",
+    "route": "/app/cashflow?date=2026-12-04"
+   }
+  ]
+ }
+}

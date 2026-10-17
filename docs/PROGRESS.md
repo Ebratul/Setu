@@ -6,7 +6,7 @@ Times are Dhaka (UTC+6). Deadline: 20 Oct 2026 21:59 Dhaka. Must-have cut line: 
 ## Phase checklist
 - [x] 0.1 · [x] 1.1 · [x] 1.2 · [ ] 1.3
 - [x] 2.1 · [x] 2.2 · [x] 2.3 (FR-2; FR-7 route compare open) · [~] 2.4 (i18n, fonts, shell, client only) · [x] 2.5 · [x] 2.6
-- [~] 3.1 (LLM client, tracing, tier-gated registry; no cache, no FR tools) · [ ] 3.2 · [~] 3.3 (P08 skeleton; FR tools + citations in P09/P10) · [ ] 3.4
+- [~] 3.1 (LLM client, tracing, tier-gated registry, FR tools; no LLM cache) · [ ] 3.2 · [~] 3.3 (agent + FR tools; citations in P10) · [x] 3.4 (P09 chat UI)
 - [ ] 4.1 · [ ] 4.2 · [ ] 4.3 · [ ] 4.4 · [ ] 4.5
 - [ ] 5.1 · [ ] 5.2 · [ ] 5.3 · [ ] 5.4 · [ ] 5.5
 - [ ] 6.1 · [ ] 6.2
@@ -25,6 +25,7 @@ Times are Dhaka (UTC+6). Deadline: 20 Oct 2026 21:59 Dhaka. Must-have cut line: 
 | 2.3+2.5 (P06) | 2026-10-17 04:44 | done | FR-2 90-day forecaster, what-if scenarios, idempotent alert engine (shortfall/deadline/FX), alert + dashboard endpoints; Dashboard, Cash Flow, financing/approvals placeholders. | pytest 159 passed · vitest 25 passed · Playwright 2 passed · lint/tsc/ruff clean · build ok · verify_seed 17/17 · security review: pass with fixes (fixed) | Next P07 financing (FR-1) replaces /app/financing placeholder. |
 | 2.2+2.6b (P07) | 2026-10-17 05:21 | done | FR-1 gap (shortfall/order), option matching with eligibility + ranking, schedule, cash-flow impact, simulated applications (+ migration); /app/financing comparison UI. | pytest 189 passed · vitest 33 passed · Playwright 3 passed (serial, E2E_RESET_DEMO) · lint/tsc/ruff clean · build ok · verify_seed 17/17 · security review: pass with fixes (fixed) | TC-09 holds via two product rules; approvals must move behind ACCEPT_FINANCING tiers in 5.x. |
 | 3.3 (P08) | 2026-10-17 05:40 | done (real-model check open) | LangGraph agent: router → agent ⇄ tier-guarded tools → respond; 3 Tier 0 tools; Postgres checkpointer; chat threads; /chat + SSE; LangSmith; offline mock model. | pytest 233 passed (incl. db) · ruff clean · web tsc ok · security review: pass with fixes (1 medium + 6 low fixed; 1 medium privacy gap open → P18) | Real Claude run blocked: ANTHROPIC_API_KEY in .env is empty. P09 adds finance tools + chat UI. |
+| 3.4 (P09) | 2026-10-17 07:24 | done (real-model check open) | 10 Tier 0 finance tools returning cards (landed cost, cash flow, alerts, financing, FX route, monthly, scorecard), FR-7 FX route, Why-line guarantee; /app/chat + drawer with rich cards, threads, feedback. | pytest 322 passed (incl. db) · vitest 80 passed · Playwright 4 passed · lint/tsc/ruff clean · build ok · security review backend + UI: pass with fixes (fixed) | ANTHROPIC_API_KEY still empty: real-model run open. Next P10 RAG + citations. |
 
 ## Handoff notes
 
@@ -460,6 +461,108 @@ Times are Dhaka (UTC+6). Deadline: 20 Oct 2026 21:59 Dhaka. Must-have cut line: 
   - Chat history is not shown to ADMIN/JUDGE (by design: own threads only).
 - **Next phase reads:** this block, `app/agent/registry.py` (how to add a tool: `@REGISTRY.tool(...)` + an
   `INTENT_TOOLS` entry), `app/agent/nodes.py` (respond input format), `app/schemas/chat.py` (SSE payloads).
+
+### 3.4 (from the user's "P09 Core finance tools + Chat UI" prompt)
+- **Branch:** `phase/3.4-chat-tools` (worktree `/data/setu-3.3`), branched from `phase/3.3-agent-skeleton` with
+  `main` (2.2 financing) merged in. That merge re-parented `b7c1a9e4d2f0` onto `70bf00166094` (one Alembic head).
+  **P08 and P09 reach `main` together when this branch merges.** `docs/SRS.md` still does not exist, so the
+  prompt's SRS 5.2 / FR-9 references map to `docs/REQUIREMENTS.md`.
+- **Tools** (`app/agent/tools/finance.py`, all `max_tier=0`, registered on the P08 registry; 13 tools in
+  total, and a test asserts every one is Tier 0 and allow-listed). Each returns a card
+  `{card_type, data, explanation_codes, explanation_en, explanation_bn, simulated}` (`app/schemas/cards.py`):
+  | tool | card | service |
+  |---|---|---|
+  | `analyze_order(deal_id?)` | landed_cost | `analysis.order_analysis` |
+  | `landed_cost_what_if(goods_value, quantity, unit, currency, cost_lines, selling_price?)` | landed_cost | `analysis.what_if` |
+  | `forecast_cashflow(days=90)` | cashflow (series, first shortfall, lowest, 5 biggest payments in 30 d) | `cashflow.get_forecast` |
+  | `simulate_cashflow_scenario(moves, removes, loans, days)` | cashflow before/after | `scenario.run` |
+  | `get_alerts(status=OPEN)` | alerts (severity-sorted, safe routes) | `alerts.list_alerts` |
+  | `match_financing(deal_id?, mode)` | financing_comparison (ranked, recommended + reasons, why_not, apply_route) | `financing.match` |
+  | `financing_impact(option_id, amount, deal_id?, mode)` | cashflow before/after | `financing.impact` |
+  | `compare_fx_route(amount?, from_currency=BDT, to_currency?, deal_id?)` | fx_compare | `services/fx_route.compare` → `domain/fx_route.py` |
+  | `get_monthly_summary(month?)` | monthly_summary | `analysis.monthly` |
+  | `get_supplier_scorecard()` | scorecard | `analysis.suppliers` |
+  - **Deal resolution:** the explicit `deal_id`, else the chat's "About deal" scope (`ToolContext.deal_ref`),
+    else the most recent in-flight deal, with drafts last (`defaulted_deal=true`, and the answer says which).
+    Shortfall-mode financing without a deal leaves the choice to the service, which takes the deal behind
+    the first shortfall.
+  - **Isolation:** another buyer's deal gives `not_found` (explicit, scoped or impact). Admin and judge get a
+    clean `bad_request` from buyer-scoped tools. A test shows the 10 tools write nothing (row counts are
+    unchanged).
+  - **No action tools:** `apply_financing` and rate lock are not tools. A model call to them is refused
+    (`unknown_tool`). The Apply button only links to `/app/financing`.
+- **FR-7 (new):** `domain/fx_route.compare_routes` covers the USD route (bank USD spread, supplier-side
+  USD→CNY spread, SWIFT and correspondent fees) and the direct CNY route (CNY spread, flat fee). Mid rates come
+  from `fx_rates`. The spreads and fees are **MOCK** constants and are labelled `MOCK:` in `assumptions`.
+  Golden example: USD 5,760 → USD route BDT 718,223.24 vs CNY route 712,766.14, saving 5,457.10 (0.76 %). The
+  rate lock is still not built (Tier 2, Phase 5).
+- **Agent behaviour:**
+  - The agent prompt maps question types to tools and covers the default-deal and clarifying-question rules
+    (`agent@2`).
+  - The respond prompt asks for 2–5 sentences plus a "Why:" line from the explanation fields, and natural
+    Bangla that keeps common English finance terms (`respond@2`).
+  - Code guarantees the Why line: the model's text is kept verbatim, and a missing line is appended from
+    the card explanation, in the turn language. It is **never** taken from a flagged result (then a generic
+    fallback is used).
+  - The model sees cards without `series`/`history` (`ToolOutcome.model_payload`), but the UI gets the full
+    card. Earlier answers are escaped in the agent's history.
+  - Keyword router and mock: analysis before deal status; FX, alert, Bangla financing and summary keywords.
+    The mock picks all the new tools and writes card summaries in EN and BN.
+- **API changes** (`make types` was run):
+  - `ChatResponse` gains `message_id`, `why`, `notes`, `cards[]`. The SSE `tool_end` event carries `card`.
+  - `MessageOut` gains `id` and `card` (for tool rows).
+  - New endpoints: `GET /chat/threads?q=` (ILIKE, escaped), `PATCH /chat/threads/{id}` `{title}`,
+    `DELETE /chat/threads/{id}` (checkpoints first, then the thread and its messages), and
+    `POST /chat/messages/{id}/feedback` `{rating: up|down, comment?}`. Feedback is stored in `meta.feedback`;
+    missing, someone else's and non-assistant messages all give 404.
+- **Web** (`apps/web`, built by the frontend-builder agent):
+  - `/app/chat` has a thread list (new, rename, delete, search) and a message stream. Streaming uses
+    `src/lib/sse.ts` with `src/lib/api/chat.ts`, with typing indicator, tool chips, stop and retry.
+  - Messages have a body (markdown-lite, no raw HTML), the Why line, notes, a Simulated tag, copy, and 👍/👎.
+  - Suggested EN/BN chips, the existing language toggle, an "About deal" selector, and the footer disclaimer.
+  - `ChatDrawer` is on every `/app` page except the chat. It is scoped to the deal on `/app/orders/[id]` and
+    on `/app/financing?deal=`, and has an "Open full chat" link.
+  - Cards are in `components/chat/cards/`: LandedCost, Cashflow (Recharts, shortfall zone, before/after),
+    Alerts, FinancingComparison, FxCompare, MonthlySummary, Scorecard.
+  - Links render only for internal `/app` routes (`safeAppHref`), and the Apply link only for `/app/financing`.
+  - The nav has a Chat item, and the `chat.*` i18n strings keep en/bn parity.
+- **Verified (mock mode):**
+  - All four suggested questions (EN and BN) route to the right tool and card with a Why line:
+    - cash-flow card: shortfall 1,560.00 on 2026-11-07;
+    - landed cost: 11,200.00, margin 18.01 %;
+    - cheapest financing: supplier credit 31.20 for the shortfall; for the order, the escrow loan 97.70 →
+      supplier credit 104.00 → bank loan 173.45;
+    - FX: CNY is cheaper for M1 of SETU-2026-0001.
+  - Playwright `chat.spec.ts` asks in Bangla, sees the CashflowCard with 1,560, and opens the drawer from the
+    dashboard. There is no horizontal scroll at 360 px (en and bn).
+  - **Not verified:** a real Claude run and LangSmith tool-call traces for these questions.
+    `ANTHROPIC_API_KEY` in `.env` is still empty, so the agent runs in mock mode. Set it, then ask the four
+    questions in EN and BN.
+- **Security reviews (security-reviewer):**
+  - **Backend: PASS WITH FIXES, fixed.**
+    - (H) The narrowed `MONEY_TO_ACCOUNT` missed fake-supplier payment requests. It now has three branches:
+      a request or sentence-start verb plus an amount, verb → to/into/via a destination, and verb plus an
+      account number (spaces and dashes allowed). Seven attack phrases are caught, and our own card text and
+      the seeded text are not flagged.
+    - (M) Flagged results never feed the Why line, and prior answers are escaped in the agent history.
+    - (L) Feedback 404s are uniform, checkpoints are deleted first, and the FX assumptions say MOCK.
+    - Open: privacy masking (P18). Tool runs and cards now carry supplier names and amounts to LangSmith
+      and the model.
+  - **UI: PASS WITH FIXES, fixed.** Fixes: the Apply route is restricted to `/app/financing`, thread ids are
+    UUID-checked and encoded, the SSE event parser and card shapes are hardened, the SSE buffer and answer
+    length are capped, and the drawer's percent-decoding is safe.
+- **Known gaps:**
+  - The chat threads in the seed have `meta: null`, so they show no separate Why or notes.
+  - At 360 px the scorecard table's last column scrolls inside the card.
+  - The `useChatSession` hook has no direct unit test; the stream path is covered by the parser tests and e2e.
+  - No LLM cache.
+  - FX route spreads and fees are mock constants.
+  - The forecast stays structurally negative (lowest −3,835.00), as noted in P07.
+  - Financing option names and conditions stay English in Bangla answers (catalogue text).
+- **Next phase reads:** this block, `app/schemas/cards.py` (add a card type: the model, the `Card` union,
+  `CARD_TYPES`, the UI dispatcher `components/chat/cards/ChatCard.tsx`), `app/agent/registry.py`
+  (`INTENT_TOOLS`), `app/agent/nodes.py` (`_respond_input`, `_finalize`), `app/agent/state.py`
+  (`citations`).
 
 ## Known issues / risks
 - 1.2: the local `.env` / `.env.example` `DATABASE_URL` points at a hosted Postgres, so `db:migrate`/`db:seed` without

@@ -1,0 +1,62 @@
+{
+ "explanation_codes": [
+  "BEST_SUPPLIER",
+  "WEAK_SUPPLIER"
+ ],
+ "explanation_en": "Best: Shaoxing Huaxin Textile Co., Ltd. (96.25). Watch: Guangzhou Huameng Trading Co., Ltd..",
+ "explanation_bn": "সেরা: Shaoxing Huaxin Textile Co., Ltd. (96.25)। সতর্ক থাকুন: Guangzhou Huameng Trading Co., Ltd.।",
+ "simulated": true,
+ "card_type": "scorecard",
+ "data": {
+  "window_months": 6,
+  "suppliers": [
+   {
+    "code": "shaoxing-huaxin",
+    "name": "Shaoxing Huaxin Textile Co., Ltd.",
+    "country": "CN",
+    "kyb_status": "VERIFIED",
+    "score": "96.25",
+    "on_time_rate_pct": "99.08",
+    "dispute_rate_pct": "0.00",
+    "defect_rate_pct": "1.13",
+    "doc_mismatch_count": 0,
+    "your_deals_count": 3,
+    "weak": false,
+    "flags": []
+   },
+   {
+    "code": "ningbo-brightline",
+    "name": "Ningbo Brightline Accessories Co., Ltd.",
+    "country": "CN",
+    "kyb_status": "VERIFIED",
+    "score": "89.14",
+    "on_time_rate_pct": "90.14",
+    "dispute_rate_pct": "5.88",
+    "defect_rate_pct": "2.95",
+    "doc_mismatch_count": 2,
+    "your_deals_count": 1,
+    "weak": false,
+    "flags": []
+   },
+   {
+    "code": "guangzhou-huameng",
+    "name": "Guangzhou Huameng Trading Co., Ltd.",
+    "country": "CN",
+    "kyb_status": "WARNING",
+    "score": "57.79",
+    "on_time_rate_pct": "65.46",
+    "dispute_rate_pct": "33.33",
+    "defect_rate_pct": "9.10",
+    "doc_mismatch_count": 15,
+    "your_deals_count": 0,
+    "weak": true,
+    "flags": [
+     "KYB_NOT_VERIFIED",
+     "LOW_SCORE",
+     "HIGH_DISPUTE_RATE",
+     "LOW_ON_TIME"
+    ]
+   }
+  ]
+ }
+}
