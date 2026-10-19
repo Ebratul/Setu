@@ -755,6 +755,47 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/deals/{deal_id}/fx-lock": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Lock Fx
+         * @description Lock today's simulated FX rate (Tier 2: a person's own request is the one-tap).
+         */
+        post: operations["lock_fx_deals__deal_id__fx_lock_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/deals/{deal_id}/beneficiary": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Change Beneficiary
+         * @description Ask to change the receiving account. Always Tier 3 (OTP + cooling-off): this only creates
+         *     the approval request; nothing changes until a person approves it.
+         */
+        post: operations["change_beneficiary_deals__deal_id__beneficiary_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/deals/{deal_id}/ledger": {
         parameters: {
             query?: never;
@@ -1103,6 +1144,63 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/risk/evaluate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Dry Run
+         * @description What-if on the real engine. Nothing is read from or written to the database.
+         */
+        post: operations["dry_run_risk_evaluate_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/risk/policy": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Policy
+         * @description config/risk.yaml and the rules it drives, as a table (EN/BN).
+         */
+        get: operations["policy_risk_policy_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/risk/overview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Overview */
+        get: operations["overview_risk_overview_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -1144,6 +1242,11 @@ export interface components {
             /** Verified */
             verified: boolean;
         };
+        /**
+         * Action
+         * @enum {string}
+         */
+        Action: "RELEASE_TRANCHE" | "LOCK_FX" | "CONFIRM_MILESTONES" | "PROPOSE_MILESTONES" | "CHANGE_BENEFICIARY" | "FUND_ESCROW" | "ANALYSIS";
         /** ActionFlag */
         ActionFlag: {
             /** Allowed */
@@ -1622,6 +1725,31 @@ export interface components {
              */
             lowest_on: string;
         };
+        /** ChangeBeneficiaryRequest */
+        ChangeBeneficiaryRequest: {
+            /**
+             * Bank Account Id
+             * Format: uuid
+             */
+            bank_account_id: string;
+        };
+        /** ChangeBeneficiaryResult */
+        ChangeBeneficiaryResult: {
+            /**
+             * Simulated
+             * @default true
+             * @constant
+             */
+            simulated: true;
+            /**
+             * Outcome
+             * @enum {string}
+             */
+            outcome: "CHANGED" | "PENDING_APPROVAL";
+            approval: components["schemas"]["ApprovalRef"] | null;
+            risk: components["schemas"]["RiskOut"];
+            deal: components["schemas"]["DealDetail"];
+        };
         /** ChatRequest */
         ChatRequest: {
             /** Thread Id */
@@ -1896,6 +2024,17 @@ export interface components {
              */
             share_pct: string;
         };
+        /** Counters */
+        Counters: {
+            /** Auto Released */
+            auto_released: number;
+            /** One Tap */
+            one_tap: number;
+            /** Otp Required */
+            otp_required: number;
+            /** Blocked */
+            blocked: number;
+        };
         /** CreateDealRequest */
         CreateDealRequest: {
             /**
@@ -2079,6 +2218,19 @@ export interface components {
             below_buffer: boolean;
             /** Items */
             items: components["schemas"]["FlowOut"][];
+        };
+        /** DayPoint */
+        DayPoint: {
+            /** Day */
+            day: string;
+            /** Auto */
+            auto: number;
+            /** One Tap */
+            one_tap: number;
+            /** Otp */
+            otp: number;
+            /** Blocked */
+            blocked: number;
         };
         /** DealActions */
         DealActions: {
@@ -2684,6 +2836,128 @@ export interface components {
             /** Seen Count */
             seen_count?: number | null;
         };
+        /** DryRunOut */
+        DryRunOut: {
+            /**
+             * Decision
+             * @enum {string}
+             */
+            decision: "ALLOW" | "REQUIRE_APPROVAL" | "BLOCK";
+            /** Tier */
+            tier: number;
+            /** Reasons */
+            reasons: string[];
+            /**
+             * Explanation En
+             * @default
+             */
+            explanation_en: string;
+            /**
+             * Explanation Bn
+             * @default
+             */
+            explanation_bn: string;
+            /**
+             * Context Hash
+             * @default
+             */
+            context_hash: string;
+            /** Decided By */
+            decided_by?: string[];
+            /** Trace */
+            trace?: components["schemas"]["TraceItemOut"][];
+            /** Hints */
+            hints?: components["schemas"]["HintOut"][];
+            /**
+             * Dry Run
+             * @default true
+             * @constant
+             */
+            dry_run: true;
+            /**
+             * Saved
+             * @default false
+             * @constant
+             */
+            saved: false;
+        };
+        /**
+         * DryRunRequest
+         * @description Facts for a what-if. Unknown fields are rejected: there is no way to pass a tier.
+         */
+        DryRunRequest: {
+            /** @default RELEASE_TRANCHE */
+            action: components["schemas"]["Action"];
+            /** @default USER_UI */
+            origin: components["schemas"]["Origin"];
+            /**
+             * Amount Usd
+             * @default 5760
+             * @example 9600.00
+             */
+            amount_usd: string;
+            /**
+             * First Deal
+             * @default false
+             */
+            first_deal: boolean;
+            /**
+             * Beneficiary Change
+             * @default false
+             */
+            beneficiary_change: boolean;
+            /**
+             * Beneficiary Changed Recently
+             * @default false
+             */
+            beneficiary_changed_recently: boolean;
+            /**
+             * Kyb Status
+             * @default VERIFIED
+             * @enum {string}
+             */
+            kyb_status: "VERIFIED" | "WARNING" | "BLOCKED";
+            /**
+             * Kyb Account Warning
+             * @default false
+             */
+            kyb_account_warning: boolean;
+            /**
+             * Fraud Score
+             * @default 0
+             */
+            fraud_score: number;
+            /**
+             * Document Warning
+             * @default false
+             */
+            document_warning: boolean;
+            /**
+             * Document Failed
+             * @default false
+             */
+            document_failed: boolean;
+            /**
+             * Duplicate Hash
+             * @default false
+             */
+            duplicate_hash: boolean;
+            /**
+             * Hidden Instruction
+             * @default false
+             */
+            hidden_instruction: boolean;
+            /**
+             * Sanctions Hit
+             * @default false
+             */
+            sanctions_hit: boolean;
+            /**
+             * Fx Lock Missing
+             * @default false
+             */
+            fx_lock_missing: boolean;
+        };
         /** EscrowCard */
         EscrowCard: {
             /**
@@ -2737,6 +3011,36 @@ export interface components {
             advance_over_20k: boolean;
             /** Invariant Ok */
             invariant_ok: boolean;
+        };
+        /** EventRow */
+        EventRow: {
+            /** Id */
+            id: string;
+            /**
+             * Ts
+             * Format: date-time
+             */
+            ts: string;
+            /** Deal Ref */
+            deal_ref: string | null;
+            /** Action */
+            action: string;
+            /** Origin */
+            origin: string;
+            /** Decision */
+            decision: string;
+            /** Tier */
+            tier: number;
+            /** Reason Codes */
+            reason_codes: string[];
+            /** Explanation En */
+            explanation_en: string;
+            /** Explanation Bn */
+            explanation_bn: string;
+            /** Trace */
+            trace: components["schemas"]["TraceItemOut"][];
+            /** Hints */
+            hints: components["schemas"]["HintOut"][];
         };
         /** EvidenceItem */
         EvidenceItem: {
@@ -3110,6 +3414,40 @@ export interface components {
             /** Assumptions */
             assumptions: string[];
         };
+        /** FxLockRequest */
+        FxLockRequest: {
+            /**
+             * Amount
+             * @description Amount in the deal currency. Omit for what is not yet released.
+             */
+            amount?: string | null;
+        };
+        /** FxLockResult */
+        FxLockResult: {
+            /**
+             * Simulated
+             * @default true
+             * @constant
+             */
+            simulated: true;
+            /**
+             * Outcome
+             * @enum {string}
+             */
+            outcome: "LOCKED" | "PENDING_APPROVAL";
+            /** Base */
+            base: ("USD" | "BDT" | "CNY") | null;
+            /** Quote */
+            quote: ("USD" | "BDT" | "CNY") | null;
+            /** Rate */
+            rate: string | null;
+            /** Amount */
+            amount: string | null;
+            /** Expires At */
+            expires_at: string | null;
+            approval: components["schemas"]["ApprovalRef"] | null;
+            risk: components["schemas"]["RiskOut"];
+        };
         /** FxRateOut */
         FxRateOut: {
             /**
@@ -3241,6 +3579,17 @@ export interface components {
             };
             /** Notice */
             notice: string;
+        };
+        /** HintOut */
+        HintOut: {
+            /** Code */
+            code: string;
+            /** To Tier */
+            to_tier: number | null;
+            /** Text En */
+            text_en: string;
+            /** Text Bn */
+            text_bn: string;
         };
         /** ImpactOut */
         ImpactOut: {
@@ -4251,6 +4600,27 @@ export interface components {
             /** Orders */
             orders: components["schemas"]["DealSummary"][];
         };
+        /**
+         * Origin
+         * @enum {string}
+         */
+        Origin: "USER_UI" | "AGENT" | "SYSTEM";
+        /** OverviewOut */
+        OverviewOut: {
+            /**
+             * Simulated
+             * @default true
+             * @constant
+             */
+            simulated: true;
+            counters: components["schemas"]["Counters"];
+            /** Series */
+            series: components["schemas"]["DayPoint"][];
+            /** Latest Blocked */
+            latest_blocked: components["schemas"]["EventRow"][];
+            /** Recent */
+            recent: components["schemas"]["EventRow"][];
+        };
         /** Payment */
         Payment: {
             /**
@@ -4301,6 +4671,43 @@ export interface components {
              * @example 11200.00
              */
             closing: string;
+        };
+        /** PolicyOut */
+        PolicyOut: {
+            /** Source */
+            source: string;
+            /** Yaml */
+            yaml: string;
+            /** Tier1 Max Usd */
+            tier1_max_usd: string;
+            /** Fraud Score Tier3 Above */
+            fraud_score_tier3_above: number;
+            /** New Beneficiary Days */
+            new_beneficiary_days: number;
+            /** Cooling Off Minutes */
+            cooling_off_minutes: number;
+            /** Rules */
+            rules: components["schemas"]["PolicyRule"][];
+        };
+        /** PolicyRule */
+        PolicyRule: {
+            /** Code */
+            code: string;
+            /**
+             * Kind
+             * @enum {string}
+             */
+            kind: "BLOCK" | "TIER3" | "TIER2";
+            /** Applies To */
+            applies_to: string[];
+            /** Label En */
+            label_en: string;
+            /** Label Bn */
+            label_bn: string;
+            /** Condition En */
+            condition_en: string;
+            /** Condition Bn */
+            condition_bn: string;
         };
         /** ProposeRequest */
         ProposeRequest: {
@@ -4591,7 +4998,10 @@ export interface components {
             notice: string | null;
             deal: components["schemas"]["DealDetail"];
         };
-        /** RiskOut */
+        /**
+         * RiskOut
+         * @description The engine's answer plus its rule trace. Decided by code, never by a model.
+         */
         RiskOut: {
             /**
              * Decision
@@ -4602,6 +5012,27 @@ export interface components {
             tier: number;
             /** Reasons */
             reasons: string[];
+            /**
+             * Explanation En
+             * @default
+             */
+            explanation_en: string;
+            /**
+             * Explanation Bn
+             * @default
+             */
+            explanation_bn: string;
+            /**
+             * Context Hash
+             * @default
+             */
+            context_hash: string;
+            /** Decided By */
+            decided_by?: string[];
+            /** Trace */
+            trace?: components["schemas"]["TraceItemOut"][];
+            /** Hints */
+            hints?: components["schemas"]["HintOut"][];
         };
         /** Route */
         Route: {
@@ -5136,6 +5567,28 @@ export interface components {
             issue_en: string;
             /** Issue Bn */
             issue_bn: string;
+        };
+        /** TraceItemOut */
+        TraceItemOut: {
+            /** Code */
+            code: string;
+            /**
+             * Kind
+             * @enum {string}
+             */
+            kind: "BLOCK" | "TIER3" | "TIER2";
+            /** Fired */
+            fired: boolean;
+            /** Deciding */
+            deciding: boolean;
+            /** Label En */
+            label_en: string;
+            /** Label Bn */
+            label_bn: string;
+            /** Value En */
+            value_en: string;
+            /** Value Bn */
+            value_bn: string;
         };
         /** UploadResult */
         UploadResult: {
@@ -6599,6 +7052,94 @@ export interface operations {
             };
         };
     };
+    lock_fx_deals__deal_id__fx_lock_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                deal_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["FxLockRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FxLockResult"];
+                };
+            };
+            /** @description Waiting for human approval */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FxLockResult"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    change_beneficiary_deals__deal_id__beneficiary_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                deal_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ChangeBeneficiaryRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ChangeBeneficiaryResult"];
+                };
+            };
+            /** @description Waiting for approval */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ChangeBeneficiaryResult"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     deal_ledger_deals__deal_id__ledger_get: {
         parameters: {
             query?: never;
@@ -7186,6 +7727,79 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    dry_run_risk_evaluate_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DryRunRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DryRunOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    policy_risk_policy_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PolicyOut"];
+                };
+            };
+        };
+    };
+    overview_risk_overview_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OverviewOut"];
                 };
             };
         };

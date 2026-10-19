@@ -358,31 +358,29 @@ def test_apply_financing_is_not_a_tool(run_turn: Runner) -> None:
     assert rec["ok"] is False and rec["error_code"] == "unknown_tool"
 
 
-HUMAN_ONLY = {"propose_milestones": Tier.T2, "release_tranche": Tier.T3}
+PROPOSE_TOOLS = {
+    "propose_release_tranche",
+    "propose_milestones",
+    "propose_confirm_milestones",
+    "propose_fund_escrow",
+    "propose_fx_lock",
+    "propose_change_beneficiary",
+}
 
 
-def test_registered_tools_are_tier0_except_the_two_human_only_escrow_actions() -> None:
+def test_every_registered_tool_is_tier0_and_money_tools_are_propose_only() -> None:
     from app.agent.registry import INTENT_TOOLS, default_registry
 
     reg = default_registry()
-    assert len(reg.names) == 19
+    assert len(reg.names) == 23
     for name in reg.names:
-        expected = HUMAN_ONLY.get(name, Tier.T0)
-        assert reg.get(name).max_tier == expected  # type: ignore[union-attr]
-    # The human-only actions are in no intent allow-list, so they are never offered to the model.
+        assert reg.get(name).max_tier == Tier.T0  # type: ignore[union-attr]
+    assert set(reg.names) >= PROPOSE_TOOLS
+    # No tool is named like a direct money action: the agent can only "propose".
+    assert not {n for n in reg.names if n in ("release_tranche", "lock_fx", "fund_escrow")}
+    assert {n for n in reg.names if "propose" in n} == PROPOSE_TOOLS
     listed = set().union(*INTENT_TOOLS.values())
     assert listed <= set(reg.names)
-    assert set(reg.names) - listed == set(HUMAN_ONLY)
-
-
-def test_tier_filtered_offers_hide_the_escrow_actions_even_if_allow_listed() -> None:
-    from app.agent.registry import default_registry
-
-    reg = default_registry()
-    everything = frozenset(reg.names)
-    offered = reg.llm_tools(everything)
-    assert not set(HUMAN_ONLY) & set(offered)
-    assert set(offered) == set(reg.names) - set(HUMAN_ONLY)
 
 
 def test_flagged_card_text_never_reaches_the_answer(run_turn: Runner) -> None:

@@ -19,12 +19,15 @@ const ITEMS = [
 
 const REGISTRY = { href: "/app/admin/registry", key: "nav.registry", exact: false } as const;
 
+const RISK = { href: "/app/admin/risk", key: "nav.risk", exact: false } as const;
+const PLAYGROUND = { href: "/demo/risk-playground", key: "nav.playground", exact: false } as const;
+
 export function AppNav() {
   const t = useT();
   const pathname = usePathname();
   const me = useApi((s) => getMe(s), "me");
   const staff = me.data?.role === "ADMIN" || me.data?.role === "JUDGE";
-  const items = staff ? [...ITEMS, REGISTRY] : ITEMS;
+  const items = staff ? [...ITEMS, REGISTRY, RISK, PLAYGROUND] : ITEMS;
   return (
     <nav aria-label={t("nav.label")}>
       <ul className="flex flex-wrap gap-1 md:flex-col">

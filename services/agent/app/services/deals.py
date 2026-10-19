@@ -16,6 +16,7 @@ from sqlalchemy.orm import Session
 
 from app.auth.deps import CurrentUser
 from app.db.enums import (
+    ApprovalAction,
     ApprovalStatus,
     CheckStatus,
     ConfirmRole,
@@ -59,6 +60,7 @@ from app.schemas.deals import (
     DealListItem,
     EscrowCard,
     EvidenceItem,
+    HintOut,
     KybSummary,
     LedgerOut,
     LedgerRow,
@@ -70,12 +72,16 @@ from app.schemas.deals import (
     ReleaseResult,
     RiskOut,
     SettlementOut,
+    TraceItemOut,
 )
 from app.security.risk_hook import RiskResult
 from app.services import escrow as escrow_service
 from app.services import kyb as kyb_service
 from app.services.analysis import fmt
 from app.services.escrow import Refusal
+from app.services.risk import context as risk_context
+from app.services.risk import gate as risk_gate
+from app.services.risk.engine import Action, Origin
 from app.services.scope import demo_today
 
 REF_LOCK_KEY = 5_400_002  # pg_advisory_xact_lock: one reference allocator at a time
@@ -238,11 +244,18 @@ def create_deal(db: Session, user: CurrentUser, req: CreateDealRequest) -> Deal:
 
 
 def propose_milestones(
-    db: Session, user: CurrentUser, deal_id: uuid.UUID, req: ProposeRequest
+    db: Session,
+    user: CurrentUser,
+    deal_id: uuid.UUID,
+    req: ProposeRequest,
+    *,
+    origin: Origin = Origin.USER_UI,
+    approval_id: uuid.UUID | None = None,
 ) -> Deal:
     """Create or replace the milestone schedule (DRAFT/PROPOSED/CONFIRMED, nothing deposited yet).
-    Replacing resets both confirmations. SR-1 lists schedule creation/change as Tier 2; this HTTP
-    endpoint is the human action, and both parties must still confirm."""
+    Replacing resets both confirmations. SR-1 lists schedule creation/change as Tier 2: a person's
+    own request here is the one-tap (audited as a RISK_DECISION); from the agent it only creates an
+    ApprovalRequest (`ApprovalPending`). Both parties must still confirm."""
     probe = db.get(Deal, deal_id)
     if probe is None:
         raise NotFound("deal not found")
@@ -267,6 +280,29 @@ def propose_milestones(
         percents = list(rules.TEMPLATES[req.template])
     plan = rules.plan_milestones(Money(deal.goods_value, cast(Currency, deal.currency)), percents)
     today = demo_today(db)
+    gate = risk_gate.run_gate(
+        db,
+        user=user,
+        deal=deal,
+        ctx=risk_context.deal_context(
+            db,
+            deal,
+            Action.PROPOSE_MILESTONES,
+            origin,
+            amount=deal.goods_value,
+            currency=deal.currency,
+        ),
+        approval_action=ApprovalAction.CHANGE_MILESTONE_SCHEDULE,
+        params={
+            "deal_ref": deal.reference,
+            "template": req.template,
+            "percents": [str(p) for p in percents],
+        },
+        approval_id=approval_id,
+    )
+    if not gate.proceed:
+        assert gate.approval is not None
+        raise risk_gate.ApprovalPending(gate.approval, gate.decision)
 
     existing = {m.seq: m for m in escrow_service.milestones_of(db, deal.id, lock=True)}
     for item in plan:
@@ -296,6 +332,8 @@ def propose_milestones(
     ).all():
         db.delete(c)
     escrow_service.set_deal_status(deal, DealStatus.PROPOSED)
+    if gate.approval is not None:
+        gate.approval.status = ApprovalStatus.EXECUTED
     db.flush()
     escrow_service.audit(
         db,
@@ -328,7 +366,13 @@ def _confirm_role(user: CurrentUser, deal: Deal, requested: str | None) -> Confi
 
 
 def confirm_milestones(
-    db: Session, user: CurrentUser, deal_id: uuid.UUID, party_role: str | None
+    db: Session,
+    user: CurrentUser,
+    deal_id: uuid.UUID,
+    party_role: str | None,
+    *,
+    origin: Origin = Origin.USER_UI,
+    approval_id: uuid.UUID | None = None,
 ) -> Deal:
     """Record this party's confirmation of the current schedule (idempotent per party). When both
     BUYER and SUPPLIER have confirmed the deal becomes CONFIRMED and the tranches are locked."""
@@ -360,6 +404,28 @@ def confirm_milestones(
     if role in rows:  # idempotent
         return deal
     now = escrow_service.utcnow()
+    gate = risk_gate.run_gate(
+        db,
+        user=user,
+        deal=deal,
+        ctx=risk_context.deal_context(
+            db,
+            deal,
+            Action.CONFIRM_MILESTONES,
+            origin,
+            amount=deal.goods_value,
+            currency=deal.currency,
+        ),
+        approval_action=ApprovalAction.CONFIRM_MILESTONES,
+        params={"deal_ref": deal.reference, "party_role": role.value},
+        approval_id=approval_id,
+        now=now,
+    )
+    if not gate.proceed:
+        assert gate.approval is not None
+        raise risk_gate.ApprovalPending(gate.approval, gate.decision)
+    if gate.approval is not None:
+        gate.approval.status = ApprovalStatus.EXECUTED
     db.add(
         MilestoneConfirmation(
             id=uuid.uuid4(), deal_id=deal.id, party_role=role, user_id=user.id, confirmed_at=now
@@ -881,6 +947,20 @@ def activity(db: Session, user: CurrentUser, deal: Deal) -> ActivityOut:
     )
 
 
+def risk_out(risk: RiskResult) -> RiskOut:
+    return RiskOut(
+        decision=risk.decision.value,  # type: ignore[arg-type]
+        tier=risk.tier,
+        reasons=[r.message for r in risk.reasons],
+        explanation_en=risk.explanation_en,
+        explanation_bn=risk.explanation_bn,
+        context_hash=risk.context_hash,
+        decided_by=risk.decided_by,
+        trace=[TraceItemOut.model_validate(t) for t in risk.trace],
+        hints=[HintOut.model_validate(h) for h in risk.hints],
+    )
+
+
 def release_result(
     db: Session, user: CurrentUser, out: escrow_service.ReleaseOutcome
 ) -> ReleaseResult:
@@ -897,13 +977,7 @@ def release_result(
         milestone=ms,
         ledger=[ledger_row(r, seqs) for r in out.ledger],
         approval=approval_ref(out.approval) if out.approval and out.outcome != "RELEASED" else None,
-        risk=RiskOut(
-            decision=risk.decision.value,  # type: ignore[arg-type]
-            tier=risk.tier,
-            reasons=[r.message for r in risk.reasons],
-        )
-        if risk
-        else None,
+        risk=risk_out(risk) if risk else None,
         notice=notice,
         deal=d,
     )

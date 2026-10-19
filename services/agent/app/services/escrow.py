@@ -37,6 +37,7 @@ from app.db.enums import (
     DealStatus,
     EscrowStatus,
     EvidenceStatus,
+    FxLockStatus,
     KybStatus,
     LedgerDirection,
     LedgerKind,
@@ -48,6 +49,7 @@ from app.db.models import (
     BankAccount,
     Deal,
     EscrowAccount,
+    FxLock,
     LedgerEntry,
     Milestone,
     Party,
@@ -59,19 +61,24 @@ from app.errors import Conflict, DomainError, Forbidden, NotFound, ServiceUnavai
 from app.security import risk_hook
 from app.security.approvals import approval_binding_hash
 from app.security.audit import sha256_hex, write_audit
-from app.security.policy import COOLING_OFF_MINUTES, TIER1_MAX_USD
+from app.security.policy import COOLING_OFF_MINUTES, TIER1_MAX_USD, load_policy
 from app.security.risk_hook import ReleaseContext, RiskAction, RiskDecision, RiskHook, RiskResult
 from app.services import alerts as alert_service
 from app.services import hash_registry
 from app.services import kyb as kyb_service
 from app.services.analysis import fx_table
 from app.services.cashflow import load_book
+from app.services.risk import adapter as risk_adapter
+from app.services.risk import context as risk_context
+from app.services.risk import gate as risk_gate
+from app.services.risk.context import ACCOUNT_KYB_CHECKS, prior_deal_count
+from app.services.risk.engine import Action, Origin
 from app.services.scope import demo_today
 
 log = structlog.get_logger("setu.escrow")
 
 PARTNER = "Simulated Escrow Partner"
-NEW_ACCOUNT_DAYS = 30
+NEW_ACCOUNT_DAYS = load_policy().new_beneficiary_days
 Clock = Callable[[], datetime]
 OPEN_APPROVAL = (ApprovalStatus.PENDING, ApprovalStatus.APPROVED)
 
@@ -339,6 +346,8 @@ def fund_escrow(
     deal_id: uuid.UUID,
     amount: Decimal | None = None,
     *,
+    origin: Origin = Origin.USER_UI,
+    approval_id: uuid.UUID | None = None,
     now: datetime | None = None,
 ) -> FundOutcome:
     """Buyer deposits `amount` (deal currency) into the deal's simulated escrow.
@@ -377,6 +386,26 @@ def fund_escrow(
             f"the deposit exceeds the goods value still to be funded ({q2(remaining)})",
             "AMOUNT_EXCEEDS_GOODS_VALUE",
         )
+
+    gate = risk_gate.run_gate(
+        db,
+        user=user,
+        deal=deal,
+        ctx=risk_context.deal_context(
+            db, deal, Action.FUND_ESCROW, origin, amount=deposit, currency=deal.currency
+        ),
+        approval_action=ApprovalAction.FUND_ESCROW,
+        params={
+            "deal_ref": deal.reference,
+            "amount": str(q2(deposit)),
+            "currency": deal.currency,
+        },
+        approval_id=approval_id,
+        now=now,
+    )
+    if not gate.proceed:
+        assert gate.approval is not None
+        raise risk_gate.ApprovalPending(gate.approval, gate.decision)
 
     buyer = lock_party(db, deal.buyer_id)
     fx = fx_table(db, demo_today(db))
@@ -417,6 +446,8 @@ def fund_escrow(
     refresh_ready(ms, escrow)
     verify_invariant(escrow)
     recompute_alerts(db, deal)
+    if gate.approval is not None:
+        gate.approval.status = ApprovalStatus.EXECUTED
     audit(
         db,
         deal,
@@ -497,6 +528,8 @@ class Beneficiary:
     currency: Currency
     kyb_status: str
     recently_opened: bool
+    kyb_account_warning: bool = False
+    sanctions_hit: bool = False
 
 
 @dataclass(slots=True)
@@ -559,11 +592,31 @@ def find_beneficiary(db: Session, deal: Deal, supplier: Party, today_: date) -> 
         raise _Reject("KYB_BLOCKED", "the supplier is blocked by the KYB checks")
     if acct.currency not in CURRENCIES:
         raise _Reject("BENEFICIARY_CURRENCY", f"cannot settle in {acct.currency}")
+    failing = {c.code for c in kyb.checks if c.status != "PASS"}
     return Beneficiary(
         acct,
         cast(Currency, acct.currency),
         kyb.status,
         (today_ - acct.first_seen_on).days < NEW_ACCOUNT_DAYS,
+        kyb_account_warning=bool(failing & ACCOUNT_KYB_CHECKS),
+        sanctions_hit="SANCTIONS_SCREEN" in failing,
+    )
+
+
+def _active_fx_lock(db: Session, deal: Deal, now: datetime, quote: str, amount: Decimal) -> bool:
+    return (
+        db.scalar(
+            select(FxLock.id)
+            .where(
+                FxLock.deal_id == deal.id,
+                FxLock.status == FxLockStatus.ACTIVE,
+                FxLock.expires_at > now,
+                FxLock.quote == quote,
+                FxLock.amount >= amount,
+            )
+            .limit(1)
+        )
+        is not None
     )
 
 
@@ -639,12 +692,17 @@ def release_tranche(
     *,
     approval_id: uuid.UUID | None = None,
     hook: RiskHook | None = None,
+    origin: Origin = Origin.USER_UI,
     now: datetime | None = None,
 ) -> ReleaseOutcome:
     """Release one tranche from escrow to the supplier (simulated). See the module docstring for
     the check order. `approval_id` is for Phase 5.5's execution endpoint only: it carries an
-    APPROVED `ApprovalRequest` whose binding hash and tier are re-verified here."""
+    APPROVED `ApprovalRequest` whose binding hash and tier are re-verified here. `origin` says who
+    asked (the HTTP endpoints leave it USER_UI; the agent tools pass AGENT): an agent request can
+    only ever create an ApprovalRequest, and an approval can only be executed by a person."""
     now = now or utcnow()
+    if approval_id is not None and origin != Origin.USER_UI:
+        raise Forbidden("only a person can execute an approval", "APPROVAL_NOT_HUMAN")
     probe = db.get(Milestone, milestone_id)
     if probe is None:
         raise NotFound("milestone not found")
@@ -761,26 +819,10 @@ def release_tranche(
         settlement = rules.settle(amount, ben.currency, fx)
     except FxRateMissing as exc:
         raise ServiceUnavailable(f"no FX rate for {ms.currency}/{ben.currency}") from exc
-    prior = (
-        db.scalar(
-            select(func.count())
-            .select_from(Deal)
-            .where(
-                Deal.buyer_id == deal.buyer_id,
-                Deal.supplier_id == deal.supplier_id,
-                Deal.id != deal.id,
-                Deal.status.in_(
-                    (
-                        DealStatus.FUNDED,
-                        DealStatus.IN_PRODUCTION,
-                        DealStatus.SHIPPED,
-                        DealStatus.ARRIVED,
-                        DealStatus.COMPLETED,
-                    )
-                ),
-            )
-        )
-        or 0
+    prior = prior_deal_count(db, deal)
+
+    fx_lock_missing = settlement.currency != ms.currency and not _active_fx_lock(
+        db, deal, now, settlement.currency, ms.amount
     )
 
     # d. risk hook
@@ -807,12 +849,38 @@ def release_tranche(
         requested_by_role=requested_by.role.value,
         document_instruction=doc_facts.instruction,
         document_duplicate=doc_facts.duplicate,
+        origin=origin.value,
+        buyer_id=str(deal.buyer_id),
+        supplier_id=str(deal.supplier_id),
+        max_document_fraud_score=doc_facts.max_score,
+        any_document_warning=doc_facts.warning,
+        any_document_failed=doc_facts.failed,
+        sanctions_hit=ben.sanctions_hit,
+        kyb_account_warning=ben.kyb_account_warning,
+        fx_lock_missing=fx_lock_missing,
     )
-    evaluate = hook or risk_hook.evaluate
+    evaluate = hook or risk_hook.get_hook() or risk_adapter.evaluate_release
     result = risk_hook.normalise(evaluate(RiskAction.RELEASE_TRANCHE, context))
+    if (
+        origin != Origin.USER_UI and approval_id is None and result.decision == RiskDecision.ALLOW
+    ):  # belt and braces: whatever the hook said, a non-human origin never auto-executes
+        result = result.model_copy(
+            update={"decision": RiskDecision.REQUIRE_APPROVAL, "tier": max(result.tier, 2)}
+        )
+    decision = risk_adapter.to_decision(result, context)
+    risk_gate.record(
+        db,
+        ctx=risk_adapter.release_risk_context(context),
+        decision=decision,
+        user=requested_by,
+        deal=deal,
+        milestone_id=ms.id,
+        now=now,
+    )
     params = release_params(deal, ms, ben.account, ben.currency)
 
     if result.decision == RiskDecision.BLOCK:
+        risk_gate.block_alert(db, deal, decision, ms.id)
         raise _refuse(
             db,
             deal,
@@ -829,7 +897,7 @@ def release_tranche(
         approval = _verify_approval(db, approval_id, deal, ms, ben.account, params, result, now)
     elif result.decision == RiskDecision.REQUIRE_APPROVAL:
         return _request_approval(
-            db, deal, ms, escrow, ben.account, params, result, requested_by, now
+            db, deal, ms, escrow, ben.account, params, result, requested_by, now, origin
         )
     else:
         pending = _pending_approval(db, ms)
@@ -905,6 +973,7 @@ def _request_approval(
     result: RiskResult,
     user: CurrentUser,
     now: datetime,
+    origin: Origin = Origin.USER_UI,
 ) -> ReleaseOutcome:
     """Park the tranche: milestone PENDING_APPROVAL plus an ApprovalRequest bound to the exact
     release. No ledger entry. A tier 3 request freezes the escrow until it is decided."""
@@ -932,7 +1001,7 @@ def _request_approval(
             params_hash=binding,
             reasons=[r.model_dump() for r in result.reasons],
             status=ApprovalStatus.PENDING,
-            requested_by=Actor.USER,
+            requested_by=Actor.LLM if origin == Origin.AGENT else Actor.USER,
             otp_required=tier == 3,
             cooling_off_until=now + timedelta(minutes=COOLING_OFF_MINUTES) if tier == 3 else None,
             created_at=now,
@@ -1041,6 +1110,11 @@ def _post_release(
         if all_settled and escrow.balance == ZERO
         else EscrowStatus.TRANCHE_RELEASED
     )
+    if approval is None and result.tier <= 1:
+        risk_gate.tier1_notice(
+            db, deal, milestone_id=ms.id, amount=q2(ms.amount), currency=ms.currency,
+            to=supplier.legal_name,
+        )  # fmt: skip
     refresh_ready(ms_all, escrow)
     verify_invariant(escrow)
     recompute_alerts(db, deal)

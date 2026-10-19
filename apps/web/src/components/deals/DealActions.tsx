@@ -6,6 +6,7 @@ import { useState, type ReactNode } from "react";
 import { Button } from "@/components/ui/Button";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { FormField, inputClass } from "@/components/ui/FormField";
+import { RiskDecisionCard } from "@/components/risk/RiskDecisionCard";
 import { useToast } from "@/components/ui/Toast";
 import { useLang, useT } from "@/i18n";
 import { dealErrorText } from "@/lib/api/dealErrors";
@@ -19,6 +20,7 @@ import {
   type DealDetail,
   type Milestone,
 } from "@/lib/api/deals";
+import type { RiskOut } from "@/lib/api/risk";
 import { isDecimal, isZero, sumDecimals } from "@/lib/decimal";
 import { formatMoney } from "@/lib/format";
 
@@ -298,6 +300,7 @@ export function ReleaseDialog({ deal, milestone, onClose, onDone }: ReleaseProps
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
+  const [risk, setRisk] = useState<RiskOut | null>(null);
 
   async function go() {
     setBusy(true);
@@ -305,10 +308,14 @@ export function ReleaseDialog({ deal, milestone, onClose, onDone }: ReleaseProps
     try {
       const res = await releaseMilestone(milestone.id, key);
       onDone();
-      if (res.outcome === "PENDING_APPROVAL") {
+      if (res.outcome === "PENDING_APPROVAL" || res.risk?.decision === "BLOCK") {
+        setRisk(res.risk);
         setPending(true);
         setBusy(false);
-        toast(t("ms.waitingApproval"), "info");
+        toast(
+          res.risk?.decision === "BLOCK" ? t("risk.card.blockedTitle") : t("ms.waitingApproval"),
+          "info",
+        );
       } else {
         toast(t("ms.released"), "success");
         onClose();
@@ -323,14 +330,18 @@ export function ReleaseDialog({ deal, milestone, onClose, onDone }: ReleaseProps
   if (pending) {
     return (
       <ConfirmDialog
-        title={t("ms.waitingTitle")}
+        title={risk?.decision === "BLOCK" ? t("risk.card.blockedTitle") : t("ms.waitingTitle")}
         confirmLabel={t("ms.openApprovals")}
         onClose={onClose}
         onConfirm={() => {
           router.push("/app/approvals");
         }}
       >
-        <p data-testid="pending-approval-note">{t("ms.waitingApproval")}</p>
+        {risk ? (
+          <RiskDecisionCard risk={risk} showApprovalLink />
+        ) : (
+          <p data-testid="pending-approval-note">{t("ms.waitingApproval")}</p>
+        )}
       </ConfirmDialog>
     );
   }

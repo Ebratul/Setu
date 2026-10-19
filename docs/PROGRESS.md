@@ -8,7 +8,7 @@ Times are Dhaka (UTC+6). Deadline: 20 Oct 2026 21:59 Dhaka. Must-have cut line: 
 - [x] 2.1 · [x] 2.2 · [x] 2.3 (FR-2; FR-7 route compare open) · [~] 2.4 (i18n, fonts, shell, client only) · [x] 2.5 · [x] 2.6
 - [~] 3.1 (LLM client, tracing, tier-gated registry, FR tools; no LLM cache) · [x] 3.2 (P10 RAG + citations) · [x] 3.3 (agent, FR tools, citations) · [x] 3.4 (P09 chat UI)
 - [x] 4.1 · [x] 4.2 · [x] 4.3 · [ ] 4.4 · [ ] 4.5
-- [ ] 5.1 · [ ] 5.2 · [ ] 5.3 · [ ] 5.4 · [ ] 5.5
+- [x] 5.1 · [ ] 5.2 · [ ] 5.3 · [ ] 5.4 · [ ] 5.5
 - [ ] 6.1 · [ ] 6.2
 - [ ] 7.1 · [ ] 7.2
 - [ ] 8.1
@@ -32,6 +32,7 @@ Times are Dhaka (UTC+6). Deadline: 20 Oct 2026 21:59 Dhaka. Must-have cut line: 
 | 4.2 (P12) | 2026-10-17 11:33 | done | Deterministic supplier KYB engine (8 checks, EN/BN reasons, per-account + per-deal results), signed audit append, KYB alerts, verify_party tool, Suppliers pages, deal KYB panel, chat card. | pytest 465 passed (incl. db) · vitest 99 passed · Playwright suppliers 2 passed · lint/tsc/ruff clean · next build ok · verify_seed 19/19 · security review: pass with fixes (1 high + 4 medium + 4 low fixed) | Next P13 escrow + Deals UI; reuse KybBadge, write_audit, KybResult. |
 | 4.1 (P13) | 2026-10-17 12:16 | done | Simulated milestone escrow: state machines, double-entry ledger, evidence-gated idempotent release behind a risk hook, refunds, Deals list/new/detail UI, supplier portal (EN + 中文). | pytest 639 passed (incl. db) · vitest 128 passed · Playwright 8/9 (chat citation test unrelated) · lint/tsc/ruff clean · next build ok · verify_seed 19/19 · security review: pass with fixes (1 high + 4 medium + 6 low fixed) | Next P14 forensics sets evidence_status via set_evidence_status; Phase 5.1 replaces risk_hook.default_evaluate. |
 | 4.3 (P14) | 2026-10-17 13:51 | done | Document forensics: safe upload, text/hidden-span extraction, parser + guarded LLM fallback, 11 cross-checks, fraud score, evidence automation, viewer with hidden-text reveal, supplier upload, check_documents tool. | pytest 831 passed (incl. db) · vitest 163 passed · Playwright documents spec passed · lint/tsc/ruff clean · next build ok · verify_seed 19/19 · dev split P/R 1.00 on all checks · security review: pass with fixes (2 high + 8 medium + 8 low fixed) | Next P15 hash registry via hash_registry.set_checker; P24 reports on the TEST split only. |
+| 5.1 (P16) | 2026-10-19 | done (OTP/approval endpoints are P17) | Deterministic risk-tier engine (rules in config/risk.yaml) enforced inside release, fund, propose/confirm schedule, FX lock, beneficiary change; agent propose-only tools; rule trace, hints, dry-run playground, policy + admin views. | pytest 878 passed, 27 registry tests deselected (they need a DB on :5435 and fail the same without this change) · ruff clean · vitest 194 passed | P17 builds the human approval endpoints (OTP, cooling-off, cancel/expiry) on `gate.verify_approval`. |
 
 ## Handoff notes
 
@@ -845,6 +846,19 @@ Times are Dhaka (UTC+6). Deadline: 20 Oct 2026 21:59 Dhaka. Must-have cut line: 
 - **Security review: BLOCK -> fixed:** (H) financing race (registry lock across gate + register), apply before any invoice, approval did not re-check; (M) failed doc released its entry (now fail closed), PI/CI relabel bypass, lender-check open to every buyer and misses unaudited, no backfill. **Not fixed, by the brief:** release on COMPLETED lets a finished deal's invoice/B/L be reused (reviewer High); no repayment flow, no rate limit on the file endpoint, JUDGE checks write counters/alerts, downgrade drops evidence rows.
 - **Verified:** pytest 858 passed, ruff clean, web lint clean, vitest 182 passed.
 - **Next phase reads:** this block, `docs/registry.md`, `app/security/risk_hook.py` (duplicate_hash -> Tier 3), `app/services/hash_registry.py`.
+
+### 5.1 (from the user's "P16 Deterministic risk-tier engine" prompt)
+- **Branch:** `phase/5.1-risk-engine`. Reference: **`docs/risk.md`** (rules table, enforcement points, endpoints). No `docs/SRS.md`.
+- **Engine:** `app/services/risk/engine.py` (pure), thresholds `services/agent/config/risk.yaml` via `app/security/policy.py`. Output has reason codes, EN/BN text, `context_hash`, rule `trace`, `decided_by`, `hints` (counterfactuals). Release uses it through `risk/adapter.py` (the `risk_hook` contract kept; injected test hooks still work, `default_evaluate` removed).
+- **Enforcement:** `risk/gate.py::run_gate` for fund, propose/confirm schedule, `fx_lock.lock_fx` (new, creates `FxLock`), `beneficiary.change_beneficiary` (new, always Tier 3); release keeps its own path. `origin` (USER_UI/AGENT/SYSTEM) is a Python argument; `approval_id` is refused unless USER_UI. Bodies use `ActionIn` (unknown fields such as tier/approved are dropped).
+- **Decision to review:** a person's own click on confirm / propose schedule / lock FX (`inline_tier2_actions`) is the Tier 2 one-tap and runs inline (recorded as a decision); the agent only gets an ApprovalRequest. Release, deposit and account change always use an ApprovalRequest at Tier 2/3. FUND_ESCROW only applies BLOCK + agent rules.
+- **Storage:** migration `e8b4c1d7a2f6`: `risk_events` (readable decision + trace) and approval actions FUND_ESCROW / CONFIRM_MILESTONES; each decision also writes a signed `RISK_DECISION` audit row. INFO alert on Tier 1 release, FRAUD alert on BLOCK.
+- **Agent:** six Tier 0 `propose_*` tools (deal_status intent), prompts agent@7 / respond@5. Registry has 23 tools.
+- **API/web:** `POST /deals/{id}/fx-lock`, `POST /deals/{id}/beneficiary`, `POST /risk/evaluate` (dry run), `GET /risk/policy`, `GET /risk/overview` (admin/judge); `/demo/risk-playground`, `/app/admin/risk`, `RiskDecisionCard` in the release dialog, landing security section.
+- **Security review: PASS WITH FIXES.** Fixed: beneficiary change no longer retires the supplier's other accounts; FX lock must match quote currency and cover the tranche amount. **Open / for P17:** (H) any buyer's open Tier 3 account request freezes every release to that supplier (P13 design; needs cancel + expiry, or scope to the buyer); (M) approval execution does not yet check OTP verified / `decided_by_user_id` (add `otp_verified_at`); (M) an agent proposal parks a clean tranche in PENDING_APPROVAL until cancelled; (M) FAILED/WARNING/score look at documents of the tranche only (milestone-less FAILED docs are caught only through instruction/duplicate flags); (M) fraud score uses `> 60` as specified in the prompt (SR-1 says 0.6 or more); (L) `origin` defaults to USER_UI, FX lock is not consumed at settlement, inline one-tap has no dedicated audit marker.
+- **Web gaps:** a blocked release returns HTTP 409 (problem JSON), so the blocked card is not shown from that path yet; landing page thresholds are static text; not browser-checked.
+- **Tests:** tests/risk (engine), tests/api/test_risk_enforcement.py, test_risk_api.py; DB tests need `TEST_DATABASE_URL` (a throwaway pgvector container was used).
+- **Next phase reads:** this block, `docs/risk.md`, `app/services/risk/gate.py`, `app/db/models/trust.py::ApprovalRequest`.
 
 ## Known issues / risks
 - 1.2: the local `.env` / `.env.example` `DATABASE_URL` points at a hosted Postgres, so `db:migrate`/`db:seed` without

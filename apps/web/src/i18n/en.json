@@ -38,7 +38,9 @@
     "financing": "Financing",
     "chat": "Chat",
     "suppliers": "Suppliers",
-    "registry": "Registry"
+    "registry": "Registry",
+    "risk": "Risk engine",
+    "playground": "Risk playground"
   },
   "role": {
     "BUYER": "Buyer",
@@ -1277,6 +1279,134 @@
       "prev": "Previous",
       "next": "Next",
       "pagination": "Pagination"
+    }
+  },
+  "risk": {
+    "tier": {
+      "0": "Tier 0 · Informational",
+      "1": "Tier 1 · Auto-release",
+      "2": "Tier 2 · One-tap approval",
+      "3": "Tier 3 · OTP + cooling-off",
+      "blocked": "Blocked"
+    },
+    "decision": {
+      "ALLOW": "Allowed",
+      "REQUIRE_APPROVAL": "Approval required",
+      "BLOCK": "Blocked"
+    },
+    "kind": {
+      "BLOCK": "Block",
+      "TIER3": "Tier 3",
+      "TIER2": "Tier 2"
+    },
+    "card": {
+      "title": "Risk decision",
+      "why": "Why this decision",
+      "waiting": "Waiting for your approval (Tier {tier}): {reasons}",
+      "openApprovals": "Open approvals",
+      "blockedTitle": "This action is blocked",
+      "noReasons": "no extra checks fired"
+    },
+    "trace": {
+      "title": "Rule trace",
+      "fired": "Fired",
+      "notFired": "Did not fire",
+      "deciding": "Set the final tier",
+      "decidingBlock": "Decided the outcome",
+      "showNot": "Show {n} rules that did not fire",
+      "hideNot": "Hide {n} rules that did not fire",
+      "none": "No rule trace is available for this decision."
+    },
+    "hints": {
+      "title": "What would lower the risk?",
+      "toTier": "→ Tier {tier}",
+      "blocked": "Cannot be lowered here",
+      "none": "Nothing to change: this is already the lowest tier for these facts."
+    },
+    "code": {
+      "badge": "Decided by code, not by AI",
+      "help": "About this decision",
+      "body": "The AI only explains. Tiers and approvals are computed by deterministic code from database facts, and cannot be changed by prompts, documents or the client."
+    },
+    "pg": {
+      "title": "Risk playground",
+      "intro": "Change the facts and watch the permission tier react. The same rules run on every real payment.",
+      "dryRun": "Dry run — nothing is saved",
+      "facts": "Facts",
+      "amount": "Amount (USD)",
+      "amountNum": "Amount in USD (number)",
+      "limit": "Tier 1 limit",
+      "firstDeal": "First deal with this supplier",
+      "beneficiaryChange": "Beneficiary account is being changed",
+      "recentAccount": "Beneficiary account opened recently",
+      "fraud": "Document fraud score (0-100)",
+      "fraudNum": "Fraud score (number)",
+      "duplicate": "Duplicate document hash",
+      "hidden": "Hidden instruction found in a document",
+      "sanctions": "Sanctions hit",
+      "docWarning": "Document warning",
+      "docFailed": "Document failed verification",
+      "result": "Result",
+      "updating": "Updating…",
+      "reset": "Reset"
+    },
+    "policy": {
+      "title": "Risk policy",
+      "intro": "Every threshold and rule the engine uses. Loaded from the server configuration.",
+      "thresholds": "Thresholds",
+      "tier1Max": "Tier 1 maximum amount",
+      "fraudAbove": "Fraud score above (Tier 3)",
+      "newDays": "New beneficiary window (days)",
+      "cooling": "Cooling-off (minutes)",
+      "rules": "Rules",
+      "rule": "Rule",
+      "kind": "Kind",
+      "appliesTo": "Applies to",
+      "condition": "Condition",
+      "group": {
+        "BLOCK": "Block (nothing can proceed)",
+        "TIER3": "Tier 3 (OTP + cooling-off)",
+        "TIER2": "Tier 2 (one-tap approval)"
+      },
+      "yaml": "Show raw config/risk.yaml",
+      "yamlHide": "Hide raw config/risk.yaml",
+      "source": "Source: {source}"
+    },
+    "admin": {
+      "title": "Risk engine",
+      "intro": "Every payment decision made by the rules, in one place.",
+      "autoReleased": "Auto-released",
+      "oneTap": "One-tap approvals",
+      "otp": "OTP-required",
+      "blocked": "Blocked",
+      "chart": "Decisions per day",
+      "chartTable": "Show chart data as a table",
+      "chartTableHide": "Hide chart data table",
+      "day": "Day",
+      "noSeries": "No decisions recorded yet.",
+      "latest": "Latest blocked attempts",
+      "noBlocked": "No blocked attempts.",
+      "recent": "Recent decisions",
+      "noRecent": "No decisions recorded yet.",
+      "when": "When",
+      "action": "Action",
+      "tier": "Tier",
+      "decision": "Decision",
+      "reasons": "Reasons",
+      "origin": "Origin",
+      "deal": "Deal",
+      "expand": "Show rule trace",
+      "collapse": "Hide rule trace",
+      "playground": "Try the risk playground"
+    },
+    "land": {
+      "title": "Permission tiers, enforced in code",
+      "intro": "Every payment is classified by deterministic rules. The AI never decides, approves or moves money.",
+      "t1": "Tier 1: verified, unchanged and up to USD 20,000 — released automatically with a notice.",
+      "t2": "Tier 2: first deal, a document warning or anything an agent proposes — one tap from you.",
+      "t3": "Tier 3: above USD 20,000, a changed or new beneficiary, a high fraud score, a duplicate document or a hidden instruction — OTP and a 10-minute cooling-off.",
+      "block": "Blocked: sanctions hit, failed KYB or a failed document.",
+      "link": "Try the risk playground"
     }
   }
 }

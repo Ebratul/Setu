@@ -1,4 +1,4 @@
-"""The plug point between the escrow service and the risk-tier engine (Phase 5.1).
+"""The contract between the escrow service and the risk-tier engine (Phase 5.1).
 
 The escrow service calls `evaluate(action, context)` AFTER its own hard checks (evidence VERIFIED,
 funds, ACTIVE beneficiary) and obeys the answer:
@@ -10,8 +10,8 @@ funds, ACTIVE beneficiary) and obeys the answer:
 - BLOCK: the release is refused (409 RELEASE_BLOCKED).
 
 Fail closed: an ALLOW that carries tier >= 2 is treated as REQUIRE_APPROVAL, and a REQUIRE_APPROVAL
-below tier 2 is raised to tier 2. Tests inject a fake hook through `set_hook` / the `risk_hook=`
-argument of the service.
+below tier 2 is raised to tier 2. Tests inject a fake hook through `use_hook` / the `hook=`
+argument of the service; production always uses `app.services.risk.adapter.evaluate_release`.
 """
 
 import uuid
@@ -19,6 +19,7 @@ from collections.abc import Callable, Iterator
 from contextlib import contextmanager
 from decimal import Decimal
 from enum import StrEnum
+from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -70,75 +71,45 @@ class ReleaseContext(_Model):
     # Document forensics (P14), deal-wide: any document, on any milestone or none.
     document_instruction: bool = False
     document_duplicate: bool = False
+    # Phase 5.1: facts for the tier engine. Built by code from the DB, never from request fields.
+    origin: str = "USER_UI"  # USER_UI | AGENT | SYSTEM
+    buyer_id: str = ""
+    supplier_id: str = ""
+    max_document_fraud_score: int = Field(default=0, ge=0, le=100)  # this tranche's documents
+    any_document_warning: bool = False
+    any_document_failed: bool = False
+    sanctions_hit: bool = False
+    kyb_account_warning: bool = False
+    fx_lock_missing: bool = False
 
 
 class RiskResult(_Model):
     decision: RiskDecision
     tier: int = Field(ge=0, le=3)
     reasons: list[RiskReason] = []
+    context_hash: str = ""
+    decided_by: list[str] = []
+    trace: list[dict[str, Any]] = []
+    hints: list[dict[str, Any]] = []
+    explanation_en: str = ""
+    explanation_bn: str = ""
 
 
 RiskHook = Callable[[RiskAction, ReleaseContext], RiskResult]
 
 
-def default_evaluate(action: RiskAction, context: ReleaseContext) -> RiskResult:
-    """Interim fail-closed policy until Phase 5.1 replaces it with `tiers.classify`.
-
-    Tier 3: amount above USD 20,000 (strict, on the UNROUNDED USD amount), money held ahead of
-    release above USD 20,000, or a receiving account opened in the last 30 days.
-    Tier 2: first deal with this supplier, or a conversion to another currency (needs an FX lock).
-    Otherwise ALLOW at tier 1 (auto + notice). Highest tier wins.
-    TODO(5.1): replace with app.security.tiers.classify(...) and its full trigger set."""
-    from app.security.policy import TIER1_MAX_USD
-
-    t3: list[RiskReason] = []
-    t2: list[RiskReason] = []
-    if context.amount_usd > TIER1_MAX_USD:
-        t3.append(RiskReason(code="AMOUNT_OVER_20K", message="Amount is above USD 20,000."))
-    if context.advance_over_20k:
-        t3.append(RiskReason(code="ADVANCE_OVER_20K", message="Advance held is above USD 20,000."))
-    if context.beneficiary_changed_recently:
-        t3.append(
-            RiskReason(code="NEW_BENEFICIARY", message="Receiving account was opened recently.")
-        )
-    if context.document_instruction:
-        t3.append(
-            RiskReason(
-                code="DOC_INSTRUCTION",
-                message="A document of this deal contained instruction-like text (ignored).",
-            )
-        )
-    if context.document_duplicate:
-        t3.append(
-            RiskReason(code="DUPLICATE_HASH", message="A document of this deal is a duplicate.")
-        )
-    if context.supplier_deal_count == 0:
-        t2.append(RiskReason(code="FIRST_DEAL", message="First deal with this supplier."))
-    if context.settlement_currency != context.currency:
-        t2.append(
-            RiskReason(
-                code="FX_RATE_LOCK",
-                message=f"Release converts {context.currency} to {context.settlement_currency}; "
-                "the rate must be locked.",
-            )
-        )
-    if t3:
-        return RiskResult(decision=RiskDecision.REQUIRE_APPROVAL, tier=3, reasons=t3 + t2)
-    if t2:
-        return RiskResult(decision=RiskDecision.REQUIRE_APPROVAL, tier=2, reasons=t2)
-    return RiskResult(decision=RiskDecision.ALLOW, tier=1, reasons=[])
+_hook: RiskHook | None = None
 
 
-_hook: RiskHook = default_evaluate
-
-
-def evaluate(action: RiskAction, context: ReleaseContext) -> RiskResult:
-    return _hook(action, context)
+def get_hook() -> RiskHook | None:
+    """The injected test hook, if any. The service falls back to the real engine
+    (`app.services.risk.adapter.evaluate_release`); security never imports services."""
+    return _hook
 
 
 def set_hook(hook: RiskHook | None) -> None:
     global _hook
-    _hook = hook or default_evaluate
+    _hook = hook
 
 
 @contextmanager

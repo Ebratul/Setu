@@ -1,5 +1,6 @@
 import uuid
 from datetime import datetime
+from decimal import Decimal
 from typing import Any
 
 from sqlalchemy import (
@@ -10,6 +11,7 @@ from sqlalchemy import (
     DateTime,
     ForeignKey,
     Integer,
+    Numeric,
     SmallInteger,
     String,
     UniqueConstraint,
@@ -172,3 +174,33 @@ class AuditLog(Base):
     key_id: Mapped[str] = mapped_column(String(32))
     deal_id: Mapped[uuid.UUID | None] = mapped_column(Uuid, index=True)  # unsigned, for listings
     created_at: Mapped[Created]
+
+
+class RiskEvent(Base):
+    """One row per risk-engine decision (Phase 5.1), readable by the admin console and the
+    evaluation harness. The signed audit log holds only a hash of the same decision
+    (`audit_seq`), so this table is the readable copy."""
+
+    __tablename__ = "risk_events"
+
+    id: Mapped[UUIDPk]
+    ts: Mapped[datetime] = mapped_column(DateTime(timezone=True), index=True)
+    deal_id: Mapped[uuid.UUID | None] = mapped_column(
+        Uuid, ForeignKey("deals.id", ondelete="SET NULL"), index=True
+    )
+    milestone_id: Mapped[uuid.UUID | None] = mapped_column(
+        Uuid, ForeignKey("milestones.id", ondelete="SET NULL")
+    )
+    actor_user_id: Mapped[uuid.UUID | None] = mapped_column(Uuid, ForeignKey("users.id"))
+    action: Mapped[str] = mapped_column(String(32))
+    origin: Mapped[str] = mapped_column(String(16))
+    decision: Mapped[str] = mapped_column(String(20))
+    tier: Mapped[int] = mapped_column(SmallInteger)
+    reason_codes: Mapped[list[str]] = mapped_column(JSONB, default=list)
+    explanation_en: Mapped[str] = mapped_column(String(600))
+    explanation_bn: Mapped[str] = mapped_column(String(900))
+    context_hash: Mapped[str] = mapped_column(CHAR(64))
+    trace: Mapped[list[dict[str, Any]]] = mapped_column(JSONB, default=list)
+    hints: Mapped[list[dict[str, Any]]] = mapped_column(JSONB, default=list)
+    amount_usd: Mapped[Decimal | None] = mapped_column(Numeric(20, 4))
+    audit_seq: Mapped[int | None] = mapped_column(BigInteger)

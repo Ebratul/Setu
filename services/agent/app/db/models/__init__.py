@@ -24,6 +24,7 @@ from app.db.models.trust import (
     Document,
     ForensicFinding,
     HashRegistry,
+    RiskEvent,
 )
 
 __all__ = [
@@ -54,6 +55,7 @@ __all__ = [
     "Milestone",
     "MilestoneConfirmation",
     "Party",
+    "RiskEvent",
     "SupplierScore",
     "User",
 ]

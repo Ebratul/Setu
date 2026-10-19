@@ -4,12 +4,14 @@ whichever milestone it belongs to or none."""
 
 import uuid
 from dataclasses import dataclass
+from typing import Any
 
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.db.enums import CheckStatus, DocStatus
 from app.db.models import Document, ForensicFinding
+from app.services.documents.checks import FORENSICS_KEY
 
 
 @dataclass(frozen=True, slots=True)
@@ -17,6 +19,10 @@ class DocumentFacts:
     pending: bool = False
     instruction: bool = False
     duplicate: bool = False
+    # This tranche's uploaded documents (risk engine inputs).
+    max_score: int = 0
+    warning: bool = False
+    failed: bool = False
 
 
 def facts(db: Session, deal_id: uuid.UUID, milestone_id: uuid.UUID) -> DocumentFacts:
@@ -41,8 +47,24 @@ def facts(db: Session, deal_id: uuid.UUID, milestone_id: uuid.UUID) -> DocumentF
             )
         ).all()
     )
+    docs = db.execute(
+        select(Document.check_status, Document.extracted_json).where(
+            Document.milestone_id == milestone_id,
+            Document.status == DocStatus.UPLOADED,
+        )
+    ).all()
+    scores = [_score(extracted) for _, extracted in docs]
     return DocumentFacts(
         pending=pending is not None,
         instruction="INSTRUCTION_SCAN" in failed,
         duplicate="DUPLICATE_HASH" in failed,
+        max_score=max(scores, default=0),
+        warning=any(status == CheckStatus.WARNING for status, _ in docs),
+        failed=any(status == CheckStatus.FAILED for status, _ in docs),
     )
+
+
+def _score(extracted: dict[str, Any] | None) -> int:
+    verdict = ((extracted or {}).get(FORENSICS_KEY) or {}).get("verdict") or {}
+    score = verdict.get("score")
+    return score if isinstance(score, int) and 0 <= score <= 100 else 0

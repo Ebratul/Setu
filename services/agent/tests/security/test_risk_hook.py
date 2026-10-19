@@ -1,4 +1,5 @@
-"""The risk-hook contract between the escrow service and Phase 5.1."""
+"""The risk-hook contract between the escrow service and the engine (the rules themselves are in
+tests/risk/test_engine.py)."""
 
 import uuid
 from decimal import Decimal
@@ -7,7 +8,6 @@ import pytest
 from pydantic import ValidationError
 
 from app.security import risk_hook
-from app.security.policy import TIER1_MAX_USD
 from app.security.risk_hook import (
     ReleaseContext,
     RiskAction,
@@ -15,6 +15,7 @@ from app.security.risk_hook import (
     RiskReason,
     RiskResult,
 )
+from app.services.risk import adapter
 
 
 def context(**over: object) -> ReleaseContext:
@@ -26,8 +27,8 @@ def context(**over: object) -> ReleaseContext:
         amount=Decimal("2880.00"),
         currency="USD",
         amount_usd=Decimal("2880.00"),
-        settlement_currency="CNY",
-        fx_rate=Decimal("7.099"),
+        settlement_currency="USD",
+        fx_rate=None,
         beneficiary_account_id=uuid.uuid4(),
         beneficiary_status="ACTIVE",
         beneficiary_verified=True,
@@ -43,99 +44,44 @@ def context(**over: object) -> ReleaseContext:
     return ReleaseContext(**{**base, **over})
 
 
-USD_SAME = {"settlement_currency": "USD", "fx_rate": None}
-
-
-def decide(**over: object) -> RiskResult:
-    return risk_hook.default_evaluate(RiskAction.RELEASE_TRANCHE, context(**over))
-
-
-def test_interim_policy_allows_a_clean_release_at_tier_one() -> None:
-    # TODO(5.1): replaced by classify(); this pins the interim fail-closed policy.
-    res = decide(**USD_SAME)
-    assert (res.decision, res.tier, res.reasons) == (RiskDecision.ALLOW, 1, [])
-
-
-def test_interim_policy_tier_two_triggers() -> None:
-    fx = decide()  # CNY settlement of a USD deal: needs a rate lock
-    assert (fx.decision, fx.tier) == (RiskDecision.REQUIRE_APPROVAL, 2)
-    assert [r.code for r in fx.reasons] == ["FX_RATE_LOCK"]
-    first = decide(**USD_SAME, supplier_deal_count=0)
-    assert (first.decision, first.tier) == (RiskDecision.REQUIRE_APPROVAL, 2)
-    assert [r.code for r in first.reasons] == ["FIRST_DEAL"]
-    both = decide(supplier_deal_count=0)
-    assert both.tier == 2 and {r.code for r in both.reasons} == {"FIRST_DEAL", "FX_RATE_LOCK"}
-
-
-@pytest.mark.parametrize(
-    ("amount_usd", "tier"),
-    [
-        ("20000.00", 1),  # the limit itself is Tier 1
-        ("20000.0000", 1),
-        ("20000.01", 3),
-        ("20000.0014", 3),  # rounds to 20000.00 but is above the limit: never round it away
-        ("19999.9999", 1),
-    ],
-)
-def test_amount_limit_boundary_is_strict_on_the_unrounded_value(amount_usd: str, tier: int) -> None:
-    res = decide(**USD_SAME, amount_usd=Decimal(amount_usd), amount=Decimal(amount_usd))
-    assert res.tier == tier
-    assert res.decision == (RiskDecision.ALLOW if tier == 1 else RiskDecision.REQUIRE_APPROVAL)
-
-
-def test_interim_policy_tier_three_triggers_win_over_tier_two() -> None:
-    adv = decide(advance_over_20k=True)
-    assert adv.tier == 3 and {r.code for r in adv.reasons} == {"ADVANCE_OVER_20K", "FX_RATE_LOCK"}
-    new = decide(**USD_SAME, beneficiary_changed_recently=True, supplier_deal_count=0)
-    assert new.tier == 3 and new.reasons[0].code == "NEW_BENEFICIARY"
-    assert decide(**USD_SAME, advance_over_20k=True).decision == RiskDecision.REQUIRE_APPROVAL
-
-
-def test_models_are_strict_and_frozen() -> None:
-    ctx = context()
+def test_context_is_frozen_and_rejects_unknown_fields() -> None:
+    c = context()
     with pytest.raises(ValidationError):
-        ReleaseContext(**{**ctx.model_dump(), "extra_field": 1})
+        c.amount = Decimal("1")  # type: ignore[misc]
     with pytest.raises(ValidationError):
-        ctx.amount = Decimal("1")  # type: ignore[misc]
+        context(tier=0)
     with pytest.raises(ValidationError):
-        RiskResult(decision=RiskDecision.ALLOW, tier=4)
-    with pytest.raises(ValidationError):
-        RiskReason(code="", message="x")
+        context(approved=True)
 
 
-@pytest.mark.parametrize(
-    ("given", "expected"),
-    [
-        ((RiskDecision.ALLOW, 0), (RiskDecision.ALLOW, 0)),
-        ((RiskDecision.ALLOW, 1), (RiskDecision.ALLOW, 1)),
-        ((RiskDecision.ALLOW, 2), (RiskDecision.REQUIRE_APPROVAL, 2)),
-        ((RiskDecision.ALLOW, 3), (RiskDecision.REQUIRE_APPROVAL, 3)),
-        ((RiskDecision.REQUIRE_APPROVAL, 0), (RiskDecision.REQUIRE_APPROVAL, 2)),
-        ((RiskDecision.REQUIRE_APPROVAL, 1), (RiskDecision.REQUIRE_APPROVAL, 2)),
-        ((RiskDecision.REQUIRE_APPROVAL, 3), (RiskDecision.REQUIRE_APPROVAL, 3)),
-        ((RiskDecision.BLOCK, 3), (RiskDecision.BLOCK, 3)),
-    ],
-)
-def test_normalise_fails_closed(
-    given: tuple[RiskDecision, int], expected: tuple[RiskDecision, int]
-) -> None:
-    out = risk_hook.normalise(RiskResult(decision=given[0], tier=given[1]))
-    assert (out.decision, out.tier) == expected
+def test_no_default_hook_lives_in_security() -> None:
+    assert risk_hook.get_hook() is None
 
 
-def test_set_hook_and_use_hook_swap_and_restore() -> None:
+def test_normalise_fails_closed() -> None:
+    allow_t3 = RiskResult(decision=RiskDecision.ALLOW, tier=3)
+    assert risk_hook.normalise(allow_t3).decision == RiskDecision.REQUIRE_APPROVAL
+    approve_t1 = RiskResult(decision=RiskDecision.REQUIRE_APPROVAL, tier=1)
+    assert risk_hook.normalise(approve_t1).tier == 2
     block = RiskResult(decision=RiskDecision.BLOCK, tier=3)
-    with risk_hook.use_hook(lambda a, c: block):
-        assert risk_hook.evaluate(RiskAction.RELEASE_TRANCHE, context()) == block
-    default = risk_hook.default_evaluate(RiskAction.RELEASE_TRANCHE, context())
-    assert risk_hook.evaluate(RiskAction.RELEASE_TRANCHE, context()) == default
-    risk_hook.set_hook(lambda a, c: block)
-    try:
-        assert risk_hook.evaluate(RiskAction.RELEASE_TRANCHE, context()) == block
-    finally:
-        risk_hook.set_hook(None)
-    assert risk_hook.evaluate(RiskAction.RELEASE_TRANCHE, context()) == default
+    assert risk_hook.normalise(block) == block
 
 
-def test_tier1_limit_constant() -> None:
-    assert Decimal("20000") == TIER1_MAX_USD
+def test_use_hook_restores_the_previous_hook() -> None:
+    def fake(action: RiskAction, c: ReleaseContext) -> RiskResult:
+        return RiskResult(
+            decision=RiskDecision.BLOCK, tier=3, reasons=[RiskReason(code="X", message="x")]
+        )
+
+    with risk_hook.use_hook(fake):
+        assert risk_hook.get_hook() is fake
+    assert risk_hook.get_hook() is None
+
+
+def test_the_adapter_maps_the_context_and_is_deterministic() -> None:
+    c = context()
+    first = adapter.evaluate_release(RiskAction.RELEASE_TRANCHE, c)
+    second = adapter.evaluate_release(RiskAction.RELEASE_TRANCHE, c)
+    assert first == second
+    assert (first.decision, first.tier) == (RiskDecision.ALLOW, 1)
+    assert len(first.context_hash) == 64

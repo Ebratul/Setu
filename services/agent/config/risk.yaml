@@ -1,0 +1,19 @@
+# Risk-tier thresholds (SR-1). Read once by app/security/policy.py; the engine
+# (app/services/risk/engine.py) has no numbers of its own. Money values are strings (Decimal).
+#
+# Tier 3 (OTP + cooling-off) if ANY of:
+#   amount above tier1_max_usd; beneficiary change or an account newer than new_beneficiary_days;
+#   document fraud score above fraud_score_tier3_above; duplicate hash; instruction found in a
+#   document; KYB WARNING with an account-related reason.
+# Tier 2 (one tap): first deal with the supplier, a document WARNING, LOCK_FX, CONFIRM_MILESTONES,
+#   schedule changes, and anything proposed by the agent.
+# Tier 1 (auto + notice): everything verified and unchanged, at or below tier1_max_usd.
+# BLOCK: sanctions hit, KYB BLOCKED, blocked beneficiary, a FAILED document on the milestone.
+# The highest matching tier wins; BLOCK beats every tier.
+tier1_max_usd: "20000"          # strict: 20,000.00 is Tier 1, 20,000.01 is Tier 3
+fraud_score_tier3_above: 60     # strict: 60 is not Tier 3, 61 is (scale 0-100)
+new_beneficiary_days: 30        # receiving account first seen less than this many days ago
+cooling_off_minutes: 10         # Tier 3 execution is refused before this elapses
+# A person's own click in the app is the "one tap" for these Tier 2 actions, so they run inline
+# (still audited as a RISK_DECISION). The agent can only PROPOSE them: an ApprovalRequest.
+inline_tier2_actions: [CONFIRM_MILESTONES, PROPOSE_MILESTONES, LOCK_FX]

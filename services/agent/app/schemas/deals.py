@@ -50,6 +50,14 @@ class Out(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
 
+class ActionIn(BaseModel):
+    """Body of a money action. Unknown fields are DROPPED, not rejected: a client-supplied `tier`
+    or `approved` is ignored because the tier is decided in code from the database (SR-1), never
+    read from a request."""
+
+    model_config = ConfigDict(extra="ignore")
+
+
 # --- requests ---------------------------------------------------------------------------------
 
 
@@ -86,7 +94,7 @@ class CreateDealRequest(In):
         return self
 
 
-class ProposeRequest(In):
+class ProposeRequest(ActionIn):
     template: Literal["30/60/10", "custom"] = "30/60/10"
     percents: list[Annotated[str, Field(pattern=r"^\d{1,3}(\.\d{1,2})?$")]] | None = Field(
         default=None, max_length=5, description='Percentages, e.g. ["40", "40", "20"]; custom only.'
@@ -101,20 +109,20 @@ class ProposeRequest(In):
         return self
 
 
-class ConfirmRequest(In):
+class ConfirmRequest(ActionIn):
     party_role: PartyRoleOut | None = Field(
         default=None, description="Derived from the signed-in user; admins must say which side."
     )
 
 
-class FundRequest(In):
+class FundRequest(ActionIn):
     amount: InDec | None = Field(
         default=None,
         description="Deposit in the deal currency. Omit for the next uncovered tranche.",
     )
 
 
-class ReleaseRequest(In):
+class ReleaseRequest(ActionIn):
     idempotency_key: IdempotencyKey
 
 
@@ -350,10 +358,36 @@ class ActivityOut(Out):
     rows: list[ActivityRow]
 
 
+class TraceItemOut(Out):
+    code: str
+    kind: Literal["BLOCK", "TIER3", "TIER2"]
+    fired: bool
+    deciding: bool
+    label_en: str
+    label_bn: str
+    value_en: str
+    value_bn: str
+
+
+class HintOut(Out):
+    code: str
+    to_tier: int | None
+    text_en: str
+    text_bn: str
+
+
 class RiskOut(Out):
+    """The engine's answer plus its rule trace. Decided by code, never by a model."""
+
     decision: Literal["ALLOW", "REQUIRE_APPROVAL", "BLOCK"]
     tier: int
     reasons: list[str]
+    explanation_en: str = ""
+    explanation_bn: str = ""
+    context_hash: str = ""
+    decided_by: list[str] = Field(default_factory=list)
+    trace: list[TraceItemOut] = Field(default_factory=list)
+    hints: list[HintOut] = Field(default_factory=list)
 
 
 class ReleaseResult(Out):
@@ -379,3 +413,33 @@ class RefundResult(Out):
 class EvidenceResult(Out):
     simulated: Literal[True] = True
     milestone: MilestoneOut
+
+
+class FxLockRequest(ActionIn):
+    amount: InDec | None = Field(
+        default=None, description="Amount in the deal currency. Omit for what is not yet released."
+    )
+
+
+class FxLockResult(Out):
+    simulated: Literal[True] = True
+    outcome: Literal["LOCKED", "PENDING_APPROVAL"]
+    base: CurrencyCode | None
+    quote: CurrencyCode | None
+    rate: DecStr | None
+    amount: DecStr | None
+    expires_at: datetime | None
+    approval: ApprovalRef | None
+    risk: RiskOut
+
+
+class ChangeBeneficiaryRequest(ActionIn):
+    bank_account_id: uuid.UUID
+
+
+class ChangeBeneficiaryResult(Out):
+    simulated: Literal[True] = True
+    outcome: Literal["CHANGED", "PENDING_APPROVAL"]
+    approval: ApprovalRef | None
+    risk: RiskOut
+    deal: DealDetail

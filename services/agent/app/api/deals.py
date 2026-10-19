@@ -16,6 +16,8 @@ from app.db.session import get_db
 from app.errors import NotFound
 from app.schemas.deals import (
     ActivityOut,
+    ChangeBeneficiaryRequest,
+    ChangeBeneficiaryResult,
     ConfirmRequest,
     CreateDealRequest,
     DealDetail,
@@ -23,14 +25,20 @@ from app.schemas.deals import (
     EvidenceRequest,
     EvidenceResult,
     FundRequest,
+    FxLockRequest,
+    FxLockResult,
+    HintOut,
     LedgerOut,
     ProposeRequest,
     RefundRequest,
     RefundResult,
     ReleaseRequest,
     ReleaseResult,
+    RiskOut,
+    TraceItemOut,
 )
-from app.services import deals, escrow
+from app.services import beneficiary, deals, escrow, fx_lock
+from app.services.risk.engine import TEXT, RiskDecision
 
 router = APIRouter(tags=["deals"])
 
@@ -81,6 +89,68 @@ def fund(deal_id: str, body: FundRequest, db: Db, user: User) -> DealDetail:
     amount = None if body.amount is None else Decimal(body.amount)
     escrow.fund_escrow(db, user, deal.id, amount)
     return deals.detail(db, user, deal)
+
+
+def _risk(d: RiskDecision) -> RiskOut:
+    return RiskOut(
+        decision=d.decision.value,  # type: ignore[arg-type]
+        tier=d.tier,
+        reasons=[TEXT[c][0] for c in d.reason_codes],
+        explanation_en=d.explanation_en,
+        explanation_bn=d.explanation_bn,
+        context_hash=d.context_hash,
+        decided_by=d.decided_by,
+        trace=[TraceItemOut.model_validate(t.model_dump()) for t in d.trace],
+        hints=[HintOut.model_validate(h.model_dump()) for h in d.hints],
+    )
+
+
+@router.post(
+    "/deals/{deal_id}/fx-lock",
+    response_model=FxLockResult,
+    responses={202: {"model": FxLockResult, "description": "Waiting for human approval"}},
+)
+def lock_fx(
+    deal_id: str, body: FxLockRequest, response: Response, db: Db, user: User
+) -> FxLockResult:
+    """Lock today's simulated FX rate (Tier 2: a person's own request is the one-tap)."""
+    deal = deals.find_deal(db, user, deal_id)
+    out = fx_lock.lock_fx(db, user, deal.id, None if body.amount is None else Decimal(body.amount))
+    if out.outcome == "PENDING_APPROVAL":
+        response.status_code = 202
+    lock = out.lock
+    return FxLockResult(
+        outcome=out.outcome,  # type: ignore[arg-type]
+        base=lock.base if lock else None,  # type: ignore[arg-type]
+        quote=lock.quote if lock else None,  # type: ignore[arg-type]
+        rate=str(lock.rate) if lock else None,
+        amount=str(lock.amount) if lock else None,
+        expires_at=lock.expires_at if lock else None,
+        approval=deals.approval_ref(out.approval) if out.approval else None,
+        risk=_risk(out.decision),
+    )
+
+
+@router.post(
+    "/deals/{deal_id}/beneficiary",
+    response_model=ChangeBeneficiaryResult,
+    responses={202: {"model": ChangeBeneficiaryResult, "description": "Waiting for approval"}},
+)
+def change_beneficiary(
+    deal_id: str, body: ChangeBeneficiaryRequest, response: Response, db: Db, user: User
+) -> ChangeBeneficiaryResult:
+    """Ask to change the receiving account. Always Tier 3 (OTP + cooling-off): this only creates
+    the approval request; nothing changes until a person approves it."""
+    deal = deals.find_deal(db, user, deal_id)
+    out = beneficiary.change_beneficiary(db, user, deal.id, body.bank_account_id)
+    if out.outcome == "PENDING_APPROVAL":
+        response.status_code = 202
+    return ChangeBeneficiaryResult(
+        outcome=out.outcome,  # type: ignore[arg-type]
+        approval=deals.approval_ref(out.approval) if out.approval else None,
+        risk=_risk(out.decision),
+        deal=deals.detail(db, user, deal),
+    )
 
 
 @router.get("/deals/{deal_id}/ledger", response_model=LedgerOut)

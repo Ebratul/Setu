@@ -139,7 +139,7 @@ def test_demo_deal_cny_release_is_tier_two_and_reuses_the_seeded_approval() -> N
     m1 = rahima.get(f"/deals/{MAIN}").json()["milestones"][0]["id"]
     status, body = release(rahima, m1)
     assert status == 202 and body["risk"]["tier"] == 2
-    assert body["risk"]["reasons"] and "CNY" in body["risk"]["reasons"][0]
+    assert body["risk"]["reasons"] and "no rate is locked" in body["risk"]["reasons"][0]
     assert body["approval"]["key"] == SEEDED_T2
     assert release_rows(body["deal"]["id"]) == 0
 

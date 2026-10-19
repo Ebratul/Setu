@@ -337,6 +337,17 @@ CASHFLOW = frozenset({"forecast_cashflow", "simulate_cashflow_scenario", "get_al
 FINANCING = frozenset({"match_financing", "financing_impact"})
 KYB = frozenset({"verify_party"})
 DOCS = frozenset({"check_documents", "registry_status"})
+# Money "propose" tools: Tier 0 because they only queue an ApprovalRequest for a person.
+PROPOSE = frozenset(
+    {
+        "propose_release_tranche",
+        "propose_milestones",
+        "propose_confirm_milestones",
+        "propose_fund_escrow",
+        "propose_fx_lock",
+        "propose_change_beneficiary",
+    }
+)
 # Per-intent allow-lists (SR-3): the tools each intent is likely to need, all Tier 0.
 # greeting and out_of_scope never reach the agent node.
 INTENT_TOOLS: dict[Intent, frozenset[str]] = {
@@ -345,7 +356,11 @@ INTENT_TOOLS: dict[Intent, frozenset[str]] = {
     "analysis": READONLY | ANALYSIS | KYB | {"forecast_cashflow"},
     "cashflow": READONLY | CASHFLOW | FINANCING,
     "financing": READONLY | FINANCING | {"forecast_cashflow", "analyze_order", "compare_fx_route"},
-    "deal_status": READONLY | KYB | DOCS | {"analyze_order", "get_alerts", "compare_fx_route"},
+    "deal_status": READONLY
+    | KYB
+    | DOCS
+    | PROPOSE
+    | {"analyze_order", "get_alerts", "compare_fx_route"},
     # documents → smart model.
     "documents": DOCS | frozenset({"get_deal_summary", "explain_how_setu_works", "verify_party"}),
     "how_it_works": frozenset({"explain_how_setu_works", "get_deal_summary"}),
@@ -371,7 +386,7 @@ def default_registry() -> ToolRegistry:
     global _default
     if _default is None:
         # Importing registers the finance, knowledge, KYB, document and escrow tools (one registry).
-        # The escrow tools are Tier 2/3 and exist only so the guard can refuse them.
+        # The escrow tools are Tier 0 "propose" tools: they can only create an ApprovalRequest.
         from app.agent.tools import documents, escrow, finance, knowledge, kyb  # noqa: F401
 
         _default = finance.REGISTRY

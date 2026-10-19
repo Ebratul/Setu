@@ -5,6 +5,7 @@ import { ToastProvider } from "@/components/ui/Toast";
 import { I18nProvider } from "@/i18n";
 import { ApiError } from "@/lib/api/client";
 
+import { risk } from "@/components/risk/fixtures";
 import { ReleaseDialog } from "./DealActions";
 import { deal, milestone } from "./fixtures";
 
@@ -66,6 +67,22 @@ describe("ReleaseDialog", () => {
     expect(await screen.findByTestId("pending-approval-note")).toHaveTextContent("Waiting for your approval");
     expect(onDone).toHaveBeenCalled();
     expect(screen.getByRole("button", { name: "Open approvals" })).toBeInTheDocument();
+  });
+
+  it("shows the approval card with tier and reasons when risk requires approval", async () => {
+    release.mockResolvedValue({ outcome: "PENDING_APPROVAL", risk: risk() });
+    open();
+    fireEvent.click(screen.getByRole("button", { name: "Release payment" }));
+    const waiting = await screen.findByTestId("risk-waiting");
+    expect(waiting).toHaveTextContent("Waiting for your approval (Tier 3): Amount above the Tier 1 limit");
+    expect(screen.getByRole("link", { name: "Open approvals" })).toHaveAttribute("href", "/app/approvals");
+  });
+
+  it("shows the blocked card on a BLOCK decision", async () => {
+    release.mockResolvedValue({ outcome: "PENDING_APPROVAL", risk: risk({ decision: "BLOCK" }) });
+    open();
+    fireEvent.click(screen.getByRole("button", { name: "Release payment" }));
+    expect(await screen.findByTestId("risk-decision")).toHaveTextContent("Blocked");
   });
 
   it("toasts and closes on RELEASED", async () => {
