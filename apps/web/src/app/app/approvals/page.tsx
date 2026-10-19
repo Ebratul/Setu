@@ -1,9 +1,14 @@
 export const instant = false;
 
-import { PlaceholderPage } from "@/components/shell/PlaceholderPage";
+import { Suspense } from "react";
+
+import { ApprovalsPage } from "@/components/approvals/ApprovalsPage";
+import { Skeleton } from "@/components/ui/Skeleton";
 
 export default function Page() {
   return (
-    <PlaceholderPage titleKey="approvals.title" bodyKey="approvals.soon" />
+    <Suspense fallback={<Skeleton className="h-96" />}>
+      <ApprovalsPage />
+    </Suspense>
   );
 }

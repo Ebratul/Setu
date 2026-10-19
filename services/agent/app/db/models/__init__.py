@@ -19,8 +19,10 @@ from app.db.models.finance import (
 )
 from app.db.models.identity import BankAccount, KybCheck, KybRun, Party, User
 from app.db.models.trust import (
+    ApprovalEvent,
     ApprovalRequest,
     AuditLog,
+    DemoPhoneMessage,
     Document,
     ForensicFinding,
     HashRegistry,
@@ -29,6 +31,7 @@ from app.db.models.trust import (
 
 __all__ = [
     "Alert",
+    "ApprovalEvent",
     "ApprovalRequest",
     "AuditLog",
     "BankAccount",
@@ -38,6 +41,7 @@ __all__ = [
     "CreditRecord",
     "Deal",
     "DealCost",
+    "DemoPhoneMessage",
     "DemoState",
     "Document",
     "EscrowAccount",

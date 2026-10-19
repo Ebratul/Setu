@@ -20,7 +20,7 @@ Idempotency: the key is stored on the released milestone. The same key replays t
 import uuid
 from collections.abc import Callable
 from dataclasses import dataclass, field
-from datetime import UTC, date, datetime, timedelta
+from datetime import UTC, date, datetime
 from decimal import Decimal
 from typing import Any, cast
 
@@ -61,10 +61,10 @@ from app.errors import Conflict, DomainError, Forbidden, NotFound, ServiceUnavai
 from app.security import risk_hook
 from app.security.approvals import approval_binding_hash
 from app.security.audit import sha256_hex, write_audit
-from app.security.policy import COOLING_OFF_MINUTES, TIER1_MAX_USD, load_policy
+from app.security.policy import TIER1_MAX_USD, load_policy
 from app.security.risk_hook import ReleaseContext, RiskAction, RiskDecision, RiskHook, RiskResult
 from app.services import alerts as alert_service
-from app.services import hash_registry
+from app.services import approval_otp, hash_registry
 from app.services import kyb as kyb_service
 from app.services.analysis import fx_table
 from app.services.cashflow import load_book
@@ -665,7 +665,9 @@ def open_tier3(db: Session, deal: Deal, supplier: Party) -> ApprovalRequest | No
     accounts = select(BankAccount.id).where(BankAccount.party_id == supplier.id)
     return db.scalars(
         select(ApprovalRequest)
+        .join(Deal, Deal.id == ApprovalRequest.deal_id)
         .where(
+            Deal.buyer_id == deal.buyer_id,  # another buyer's request must not freeze this one
             ApprovalRequest.tier == 3,
             ApprovalRequest.status.in_(OPEN_APPROVAL),
             or_(ApprovalRequest.deal_id == deal.id, ApprovalRequest.bank_account_id.in_(accounts)),
@@ -894,6 +896,13 @@ def release_tranche(
 
     approval: ApprovalRequest | None = None
     if approval_id is not None:
+        other = open_tier3(db, deal, supplier)
+        if other is not None and other.id != approval_id:
+            raise _refuse(
+                db, deal, ms, requested_by, "TIER3_APPROVAL_PENDING",
+                "another Tier 3 approval is open for this deal or supplier; money cannot move yet",
+                now,
+            )  # fmt: skip
         approval = _verify_approval(db, approval_id, deal, ms, ben.account, params, result, now)
     elif result.decision == RiskDecision.REQUIRE_APPROVAL:
         return _request_approval(
@@ -1003,7 +1012,7 @@ def _request_approval(
             status=ApprovalStatus.PENDING,
             requested_by=Actor.LLM if origin == Origin.AGENT else Actor.USER,
             otp_required=tier == 3,
-            cooling_off_until=now + timedelta(minutes=COOLING_OFF_MINUTES) if tier == 3 else None,
+            cooling_off_until=approval_otp.cooling_off_until(now, tier),
             created_at=now,
         )
         db.add(existing)
@@ -1012,7 +1021,7 @@ def _request_approval(
     if tier == 3:
         escrow.status = EscrowStatus.FROZEN
     db.flush()
-    audit(
+    seq = audit(
         db,
         deal,
         "RELEASE_APPROVAL_REQUESTED",
@@ -1028,6 +1037,17 @@ def _request_approval(
         f"PENDING_APPROVAL:T{tier}",
         ts=now,
     )
+    if existing.context_hash is None and existing.otp_hash is None and existing.expires_at is None:
+        approval_otp.on_created(
+            db,
+            existing,
+            deal,
+            context_hash=result.context_hash,
+            now=now,
+            actor="llm" if origin == Origin.AGENT else "user",
+            audit_seq=seq,
+            summary=(result.explanation_en, result.explanation_bn),
+        )
     db.commit()
     return ReleaseOutcome(deal, ms, "PENDING_APPROVAL", False, [], existing, result)
 

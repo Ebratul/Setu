@@ -860,6 +860,18 @@ Times are Dhaka (UTC+6). Deadline: 20 Oct 2026 21:59 Dhaka. Must-have cut line: 
 - **Tests:** tests/risk (engine), tests/api/test_risk_enforcement.py, test_risk_api.py; DB tests need `TEST_DATABASE_URL` (a throwaway pgvector container was used).
 - **Next phase reads:** this block, `docs/risk.md`, `app/services/risk/gate.py`, `app/db/models/trust.py::ApprovalRequest`.
 
+### 5.2 (from the user's "P17 Approval inbox, OTP, cooling-off, in-app beneficiary change" prompt)
+- **Branch:** `phase/5.1-risk-engine` (work not yet committed). Reference: **`docs/approvals.md`** (lifecycle, OTP, endpoints, storage, decisions). No `docs/SRS.md`.
+- **Backend:** `app/services/approvals.py` (approve / reject / cancel / resend, expiry, evidence snapshot, notifications, timeline), `approval_otp.py` (HMAC OTP, demo phone, events), `supplier_accounts.py`, `inbox.py`, `simulator.py`, `app/security/email_guard.py`, routers `api/approvals.py` + `api/inbox.py`, migration `f1c7a3b9d204`. Request creators (gate, release) now set context hash, expiry, OTP and a feed event.
+- **Rules held:** approve body = `{otp?}` only; the creating service re-runs the risk engine and executes the stored params; higher tier at execution -> old request cancelled and a stricter one opened (`RE_ESCALATED`); Tier 3 = cooling-off first, then 6-digit code (5 min, 3 wrong = LOCKED); only buyer/admin decide (403 otherwise); OTP only in the demo-phone table when `DEMO_MODE=true` (404 otherwise).
+- **Beneficiary:** supplier portal request -> PENDING_CHANGE -> KYB re-run -> Tier 3 for the buyer. E-mail never changes anything: `POST /inbox/email-check` BLOCKS (alert + signed audit, no account touched); accounts with `change_requested_via='email'` cannot be proposed or approved (the seeded HK request can only be rejected, which retires the account).
+- **Fixed from the P16 review:** an open Tier 3 request now freezes only the same buyer's releases (was every buyer).
+- **Config:** `DEMO_MODE`, `COOLING_OFF_SECONDS` (600; demo 30), `APPROVAL_EXPIRY_MINUTES` 1440, `OTP_TTL_SECONDS` 300, `OTP_MAX_ATTEMPTS` 3, `OTP_SECRET_SEED`.
+- **Web:** `/app/approvals` (tabs, evidence snapshot, Tier 2 / Tier 3 dialogs, OTP boxes, cooling-off ring), Demo phone panel, notification bell, `/app/inbox/email-check`, `/demo/scam-simulator`, supplier "Change payout account" + 4-step tracker (EN/中文), deal "Approval trail".
+- **Verified:** pytest 940 passed (needs a local pgvector DB; `tests/registry` also needs `DATABASE_URL` pointing at a migrated, seeded DB); web lint + tsc clean, vitest 210 passed; Playwright `e2e/approvals.spec.ts` 5/5 (reset DB first, agent with `DEMO_MODE=true COOLING_OFF_SECONDS=30`, Next started separately).
+- **Known gaps:** Bengali/Chinese strings not reviewed by a native speaker; 360 px and keyboard-only not hand-checked; demo phone is outside the Tier 3 modal's focus trap; seeded approval reasons have no Bengali text; large-advance simulator is a dry run; `ACCEPT_FINANCING` approvals are not executable here.
+- **Next phase reads:** this block, `docs/approvals.md`, `app/services/approvals.py`.
+
 ## Known issues / risks
 - 1.2: the local `.env` / `.env.example` `DATABASE_URL` points at a hosted Postgres, so `db:migrate`/`db:seed` without
   an override write there. Local verification used `DATABASE_URL=postgresql://setu:setu@localhost:5435/setu`.

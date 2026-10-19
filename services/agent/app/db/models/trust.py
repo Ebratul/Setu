@@ -154,6 +154,61 @@ class ApprovalRequest(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
     decided_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     decided_by_user_id: Mapped[uuid.UUID | None] = mapped_column(Uuid, ForeignKey("users.id"))
+    # Phase 17: the risk context the request was decided on, expiry, the simulated OTP (hash only).
+    context_hash: Mapped[str | None] = mapped_column(CHAR(64))
+    expires_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    otp_hash: Mapped[str | None] = mapped_column(CHAR(64))
+    otp_expires_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    otp_attempts: Mapped[int] = mapped_column(SmallInteger, default=0, server_default="0")
+    otp_verified_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    decision_note: Mapped[str | None] = mapped_column(String(300))
+    superseded_by: Mapped[uuid.UUID | None] = mapped_column(Uuid)
+
+
+class ApprovalEvent(Base):
+    """Readable activity per approval (the deal timeline and the notification bell). One row per
+    party that should see it; `audit_seq` links to the signed audit row of the same step."""
+
+    __tablename__ = "approval_events"
+
+    id: Mapped[UUIDPk]
+    ts: Mapped[datetime] = mapped_column(DateTime(timezone=True), index=True)
+    party_id: Mapped[uuid.UUID | None] = mapped_column(
+        Uuid, ForeignKey("parties.id", ondelete="CASCADE"), index=True
+    )
+    deal_id: Mapped[uuid.UUID | None] = mapped_column(
+        Uuid, ForeignKey("deals.id", ondelete="CASCADE"), index=True
+    )
+    approval_id: Mapped[uuid.UUID | None] = mapped_column(
+        Uuid, ForeignKey("approval_requests.id", ondelete="CASCADE"), index=True
+    )
+    kind: Mapped[str] = mapped_column(String(24))
+    tier: Mapped[int] = mapped_column(SmallInteger, default=0)
+    actor: Mapped[str] = mapped_column(String(8), default="system")
+    title_en: Mapped[str] = mapped_column(String(200))
+    title_bn: Mapped[str] = mapped_column(String(200))
+    detail_en: Mapped[str] = mapped_column(String(600), default="")
+    detail_bn: Mapped[str] = mapped_column(String(900), default="")
+    audit_seq: Mapped[int | None] = mapped_column(BigInteger)
+    read_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+
+
+class DemoPhoneMessage(Base):
+    """The simulated SMS inbox of the buyer ("Demo phone"). Holds the one-time code in clear on
+    purpose (it IS the simulated SMS); only served by the demo endpoint when DEMO_MODE is on."""
+
+    __tablename__ = "demo_phone_messages"
+
+    id: Mapped[UUIDPk]
+    party_id: Mapped[uuid.UUID] = mapped_column(
+        Uuid, ForeignKey("parties.id", ondelete="CASCADE"), index=True
+    )
+    approval_id: Mapped[uuid.UUID | None] = mapped_column(
+        Uuid, ForeignKey("approval_requests.id", ondelete="CASCADE"), index=True
+    )
+    body: Mapped[str] = mapped_column(String(300))
+    code: Mapped[str] = mapped_column(String(6))
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
 
 
 class AuditLog(Base):

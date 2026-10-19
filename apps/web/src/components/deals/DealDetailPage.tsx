@@ -25,6 +25,7 @@ import { formatDate, formatMoney } from "@/lib/format";
 import { useApi } from "@/lib/useApi";
 
 import { ActivityList } from "./ActivityList";
+import { ApprovalTrail } from "./ApprovalTrail";
 import { DealActions, ReleaseDialog } from "./DealActions";
 import { DevEvidenceControl } from "./DevEvidenceControl";
 import { EscrowPanel } from "./EscrowPanel";
@@ -141,6 +142,9 @@ function Overview({ deal, reload }: { deal: DealDetail; reload: () => void }) {
             )}
           </section>
           <Confirmations deal={deal} />
+          {deal.viewer_role !== "SUPPLIER" ? (
+            <ApprovalTrail reference={deal.reference} signature={sig} />
+          ) : null}
           <LenderCheckDemo deal={deal} />
         </div>
         <div className="space-y-6">

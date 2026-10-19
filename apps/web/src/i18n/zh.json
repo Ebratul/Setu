@@ -272,6 +272,59 @@
   },
   "nav": {
     "risk": "Risk engine",
-    "playground": "Risk playground"
+    "playground": "Risk playground",
+    "approvals": "审批"
+  },
+  "chg": {
+    "title": "更改收款账户",
+    "intro": "请填写新的银行账户。买方必须核实（第3级），在此之前款项仍付至您当前的账户。",
+    "deal": "订单",
+    "bankName": "银行名称",
+    "country": "银行所在国家（2个字母）",
+    "number": "账号",
+    "holder": "账户持有人姓名",
+    "type": "账户类型",
+    "CORPORATE": "对公",
+    "PERSONAL": "个人",
+    "currency": "币种",
+    "submit": "提交变更申请",
+    "submitting": "提交中…",
+    "required": "此项必填。",
+    "sent": "申请已发送给买方。",
+    "trackerTitle": "账户变更进度",
+    "waiting": "等待买方核实 — 第3级",
+    "step": {
+      "SUBMITTED": "申请已提交",
+      "KYB": "供应商审核",
+      "BUYER": "买方核实",
+      "DONE": "新账户生效"
+    },
+    "stage": {
+      "WAITING_BUYER": "等待买方核实 — 第3级",
+      "APPROVED": "已批准：新账户生效",
+      "REJECTED": "买方已拒绝",
+      "EXPIRED": "已过期",
+      "LOCKED": "已锁定",
+      "CANCELLED": "已取消"
+    },
+    "state": {
+      "DONE": "完成",
+      "CURRENT": "进行中",
+      "UPCOMING": "待办",
+      "FAILED": "失败"
+    },
+    "none": "暂无账户变更申请。",
+    "tier": "第3级"
+  },
+  "bell": {
+    "label": "通知",
+    "unread": "{n} 条未读",
+    "none": "暂无最新动态。",
+    "title": "最新动态",
+    "all": "查看",
+    "unreadItem": "未读"
+  },
+  "appr": {
+    "pendingCount": "{n} 待处理"
   }
 }

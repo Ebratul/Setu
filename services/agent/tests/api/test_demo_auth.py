@@ -73,6 +73,15 @@ def test_prod_requires_real_secret_and_secure_cookie(monkeypatch: pytest.MonkeyP
             create_app()
         monkeypatch.setenv("DEMO_COOKIE_SECURE", "true")
         get_settings.cache_clear()
+        with pytest.raises(RuntimeError, match="DEMO_MODE=false"):
+            create_app()  # the clear-text demo OTP must not exist in prod
+        monkeypatch.setenv("DEMO_MODE", "false")
+        monkeypatch.setenv("COOLING_OFF_SECONDS", "30")
+        get_settings.cache_clear()
+        with pytest.raises(RuntimeError, match="COOLING_OFF_SECONDS"):
+            create_app()  # SR-9: at least 10 minutes in prod
+        monkeypatch.setenv("COOLING_OFF_SECONDS", "600")
+        get_settings.cache_clear()
         create_app()
     finally:
         get_settings.cache_clear()

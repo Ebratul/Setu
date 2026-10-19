@@ -12,7 +12,7 @@ export type Instalment = S["InstalmentOut"];
 export type Impact = S["ImpactOut"];
 export type Application = S["ApplicationOut"];
 export type ApplicationList = S["ApplicationList"];
-export type Approval = S["ApprovalOut"];
+export type Approval = S["app__schemas__financing__ApprovalOut"];
 export type FinMode = Gap["mode"];
 
 const opts = (signal?: AbortSignal) => ({ signal, cache: "no-store" as const });

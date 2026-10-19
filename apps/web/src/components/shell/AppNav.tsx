@@ -3,9 +3,13 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
+import { useCallback, useEffect } from "react";
+
 import { useT } from "@/i18n";
+import { APPROVALS_CHANGED, listApprovals } from "@/lib/api/approvals";
 import { getMe } from "@/lib/api/auth";
 import { useApi } from "@/lib/useApi";
+import { usePoll } from "@/lib/usePoll";
 
 const ITEMS = [
   { href: "/app", key: "nav.dashboard", exact: true },
@@ -14,6 +18,8 @@ const ITEMS = [
   { href: "/app/financing", key: "nav.financing", exact: false },
   { href: "/app/suppliers", key: "nav.suppliers", exact: false },
   { href: "/app/analysis", key: "nav.analysis", exact: false },
+  { href: "/app/approvals", key: "nav.approvals", exact: false },
+  { href: "/app/inbox/email-check", key: "nav.emailCheck", exact: false },
   { href: "/app/chat", key: "nav.chat", exact: false },
 ] as const;
 
@@ -21,13 +27,28 @@ const REGISTRY = { href: "/app/admin/registry", key: "nav.registry", exact: fals
 
 const RISK = { href: "/app/admin/risk", key: "nav.risk", exact: false } as const;
 const PLAYGROUND = { href: "/demo/risk-playground", key: "nav.playground", exact: false } as const;
+const SIMULATOR = { href: "/demo/scam-simulator", key: "nav.simulator", exact: false } as const;
 
 export function AppNav() {
   const t = useT();
   const pathname = usePathname();
   const me = useApi((s) => getMe(s), "me");
   const staff = me.data?.role === "ADMIN" || me.data?.role === "JUDGE";
-  const items = staff ? [...ITEMS, REGISTRY, RISK, PLAYGROUND] : ITEMS;
+  const buyerLike = me.data?.role === "BUYER" || staff;
+  const items = staff
+    ? [...ITEMS, REGISTRY, RISK, PLAYGROUND, SIMULATOR]
+    : buyerLike
+      ? [...ITEMS, SIMULATOR]
+      : ITEMS;
+  const pending = useApi((s) => listApprovals("pending", s), "nav-pending", Boolean(me.data));
+  const { reload } = pending;
+  const refresh = useCallback(() => reload(), [reload]);
+  useEffect(() => {
+    window.addEventListener(APPROVALS_CHANGED, refresh);
+    return () => window.removeEventListener(APPROVALS_CHANGED, refresh);
+  }, [refresh]);
+  usePoll(refresh, 20000, Boolean(me.data));
+  const count = pending.data?.pending_count ?? 0;
   return (
     <nav aria-label={t("nav.label")}>
       <ul className="flex flex-wrap gap-1 md:flex-col">
@@ -47,6 +68,15 @@ export function AppNav() {
                 }`}
               >
                 {t(item.key)}
+                {item.href === "/app/approvals" && count > 0 ? (
+                  <span
+                    data-testid="nav-pending-count"
+                    aria-label={t("appr.pendingCount", { n: count })}
+                    className="ml-2 rounded-full bg-danger px-1.5 text-xs font-bold text-white"
+                  >
+                    {count}
+                  </span>
+                ) : null}
               </Link>
             </li>
           );

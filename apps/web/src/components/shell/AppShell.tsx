@@ -13,7 +13,9 @@ import { getMe } from "@/lib/api/auth";
 import { useApi } from "@/lib/useApi";
 
 import { AppNav } from "./AppNav";
+import { DemoPhone } from "./DemoPhone";
 import { LanguageToggle } from "./LanguageToggle";
+import { NotificationBell } from "./NotificationBell";
 import { UserMenu } from "./UserMenu";
 
 export function AppShell({ children }: { children: ReactNode }) {
@@ -45,6 +47,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           </div>
           <div className="flex flex-wrap items-center gap-3">
             <LanguageToggle />
+            {me.data && !isSupplier ? <NotificationBell /> : null}
             <UserMenu />
           </div>
         </div>
@@ -62,6 +65,7 @@ export function AppShell({ children }: { children: ReactNode }) {
       <Suspense fallback={null}>
         <ChatDrawer />
       </Suspense>
+      <DemoPhone />
       <footer className="px-4 py-6 text-center text-sm text-muted">
         {t("common.footer")}
       </footer>

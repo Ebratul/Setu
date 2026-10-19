@@ -16,7 +16,7 @@ deal row. Nothing here reads a tier or an "approved" flag from a request.
 
 import uuid
 from dataclasses import dataclass
-from datetime import UTC, datetime, timedelta
+from datetime import UTC, datetime
 from decimal import Decimal
 from typing import Any
 
@@ -37,8 +37,9 @@ from app.db.models import Alert, ApprovalRequest, Deal, RiskEvent
 from app.errors import Conflict
 from app.security.approvals import approval_binding_hash
 from app.security.audit import write_audit
-from app.security.policy import COOLING_OFF_MINUTES, load_policy
+from app.security.policy import load_policy
 from app.security.risk_hook import RiskDecision as Verdict
+from app.services import approval_otp
 from app.services.risk import engine
 from app.services.risk.engine import Action, Origin, RiskContext
 
@@ -406,12 +407,12 @@ def _request(
         status=ApprovalStatus.PENDING,
         requested_by=Actor.LLM if ctx.origin == Origin.AGENT else Actor.USER,
         otp_required=tier == 3,
-        cooling_off_until=now + timedelta(minutes=COOLING_OFF_MINUTES) if tier == 3 else None,
+        cooling_off_until=approval_otp.cooling_off_until(now, tier),
         created_at=now,
     )
     db.add(appr)
     db.flush()
-    write_audit(
+    seq = write_audit(
         db,
         actor=actor_of(ctx.origin),
         action="APPROVAL_REQUESTED",
@@ -427,6 +428,16 @@ def _request(
         result=f"PENDING_APPROVAL:T{tier}",
         ts=now,
         deal_id=deal.id,
+    )
+    approval_otp.on_created(
+        db,
+        appr,
+        deal,
+        context_hash=decision.context_hash,
+        now=now,
+        actor=actor_of(ctx.origin),
+        audit_seq=seq,
+        summary=(decision.explanation_en, decision.explanation_bn),
     )
     log.info("approval_requested", deal=deal.reference, action=action.value, tier=tier)
     return appr

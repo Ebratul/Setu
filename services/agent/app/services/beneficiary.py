@@ -11,9 +11,9 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.auth.deps import CurrentUser
-from app.db.enums import AccountStatus, ApprovalAction, ApprovalStatus
+from app.db.enums import AccountStatus, ApprovalAction, ApprovalStatus, Role
 from app.db.models import ApprovalRequest, BankAccount, Deal
-from app.errors import NotFound
+from app.errors import Forbidden, NotFound
 from app.services import escrow as escrow_service
 from app.services.escrow import Refusal
 from app.services.risk import context as risk_context
@@ -40,13 +40,22 @@ def change_beneficiary(
     *,
     origin: Origin = Origin.USER_UI,
     approval_id: uuid.UUID | None = None,
+    supplier_request: bool = False,
     now: datetime | None = None,
 ) -> BeneficiaryOutcome:
+    """`supplier_request`: the supplier asked for the new account through its portal; the caller is
+    that supplier, who may only open the request (a human buyer must still approve it)."""
     now = now or escrow_service.utcnow()
     probe = db.get(Deal, deal_id)
     if probe is None:
         raise NotFound("deal not found")
-    escrow_service.authorize(db, user, probe, "CHANGE_BENEFICIARY")
+    if supplier_request:
+        if user.role != Role.SUPPLIER or user.party_id != probe.supplier_id:
+            raise NotFound("deal not found")
+        if approval_id is not None:
+            raise Forbidden("a supplier cannot execute an approval", "APPROVAL_NOT_HUMAN")
+    else:
+        escrow_service.authorize(db, user, probe, "CHANGE_BENEFICIARY")
     deal = escrow_service.lock_deal(db, deal_id)
     if deal.status.value in CLOSED_DEALS:
         raise Refusal(f"a deal in status {deal.status.value} cannot change account", "DEAL_CLOSED")
@@ -55,6 +64,12 @@ def change_beneficiary(
         raise NotFound("account not found")  # not the supplier's: looks missing
     if new.id == deal.beneficiary_account_id:
         raise Refusal("this is already the receiving account", "BENEFICIARY_UNCHANGED")
+    if new.change_requested_via == "email":
+        raise Refusal(
+            "Setu never changes a payment account because of an email. Ask the supplier to "
+            "request it in the supplier portal and verify by video call.",
+            "BENEFICIARY_VIA_EMAIL",
+        )
 
     ctx = risk_context.deal_context(
         db,
@@ -76,11 +91,15 @@ def change_beneficiary(
             "deal_ref": deal.reference,
             "from_account_id": str(deal.beneficiary_account_id),
             "to_account_id": str(new.id),
+            "requested_via": new.change_requested_via or "buyer",
         },
         bank_account_id=new.id,
         approval_id=approval_id,
         now=now,
     )
+    if supplier_request and gate.proceed:
+        db.rollback()
+        raise Forbidden("a supplier cannot change the paid account by itself")
     if not gate.proceed:
         return BeneficiaryOutcome(deal, "PENDING_APPROVAL", gate.approval, gate.decision)
 

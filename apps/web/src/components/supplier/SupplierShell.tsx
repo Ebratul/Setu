@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, type ReactNode } from "react";
 
+import { NotificationBell } from "@/components/shell/NotificationBell";
 import { LanguageToggle } from "@/components/shell/LanguageToggle";
 import { UserMenu } from "@/components/shell/UserMenu";
 import { QueryError } from "@/components/ui/QueryError";
@@ -46,6 +47,7 @@ export function SupplierShell({ children }: { children: ReactNode }) {
           </div>
           <div className="flex flex-wrap items-center gap-3">
             <LanguageToggle withZh />
+            {me.data?.role === "SUPPLIER" ? <NotificationBell supplier /> : null}
             <UserMenu />
           </div>
         </div>

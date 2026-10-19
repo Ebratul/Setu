@@ -3,6 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.api import (
     analysis,
+    approvals,
     auth,
     cashflow,
     chat,
@@ -10,6 +11,7 @@ from app.api import (
     documents,
     financing,
     health,
+    inbox,
     kyb,
     registry,
     risk,
@@ -29,6 +31,10 @@ def check_prod_settings(settings: Settings) -> None:
         raise RuntimeError("DEMO_SESSION_SECRET (>= 32 chars) is required when APP_ENV=prod")
     if not settings.demo_cookie_secure:
         raise RuntimeError("DEMO_COOKIE_SECURE=true is required when APP_ENV=prod")
+    if settings.demo_mode:
+        raise RuntimeError("DEMO_MODE=false is required when APP_ENV=prod (no OTP in clear)")
+    if settings.cooling_off_seconds < 600:
+        raise RuntimeError("COOLING_OFF_SECONDS must be >= 600 when APP_ENV=prod (SR-9)")
     if "*" in settings.cors_origins:
         raise RuntimeError("ALLOWED_ORIGINS must not contain '*' (credentials are allowed)")
 
@@ -62,6 +68,8 @@ def create_app() -> FastAPI:
     app.include_router(documents.router)
     app.include_router(registry.router)
     app.include_router(risk.router)
+    app.include_router(approvals.router)
+    app.include_router(inbox.router)
     return app
 
 

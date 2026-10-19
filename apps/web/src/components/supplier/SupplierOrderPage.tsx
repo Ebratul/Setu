@@ -15,7 +15,9 @@ import { getDeal, getLedger, type DealDetail } from "@/lib/api/deals";
 import { formatDate, formatMoney } from "@/lib/format";
 import { useApi } from "@/lib/useApi";
 
+import { AccountChangeTracker } from "./AccountChangeTracker";
 import { Bi } from "./Bi";
+import { ChangeAccountForm } from "./ChangeAccountForm";
 import { SupplierDocuments } from "./SupplierDocuments";
 
 export function SupplierOrderPage({ reference }: { reference: string }) {
@@ -30,6 +32,7 @@ function Body({ deal, reload, back }: { deal: DealDetail; reload: () => void; ba
   const t = useT();
   const { lang } = useLang();
   const [confirming, setConfirming] = useState(false);
+  const [changeTick, setChangeTick] = useState(0);
   const sig = `${deal.status}|${deal.escrow.released}`;
   const ledger = useApi((s) => getLedger(deal.id, s), `sp-ledger|${deal.id}|${sig}`);
   const c = deal.escrow.currency;
@@ -161,6 +164,13 @@ function Body({ deal, reload, back }: { deal: DealDetail; reload: () => void; ba
           </div>
         )}
       </Card>
+
+      {deal.status !== "CANCELLED" ? (
+        <>
+          <AccountChangeTracker dealId={deal.id} refreshKey={changeTick} />
+          <ChangeAccountForm dealId={deal.id} onSent={() => setChangeTick((n) => n + 1)} />
+        </>
+      ) : null}
 
       <Card as="section" labelledBy="sp-det-h">
         <h2 id="sp-det-h" className="mb-3 text-lg font-bold text-ink">

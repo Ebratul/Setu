@@ -116,8 +116,8 @@ def test_seeded_tier3_beneficiary_change_freezes_every_huaxin_release() -> None:
     d = funded_deal(karim)
     ms = d["milestones"][0]["id"]
     verify_evidence(admin, ms)
-    status, body = release(karim, ms)
-    assert status == 409 and body["code"] == "TIER3_APPROVAL_PENDING"
+    # the open request belongs to Rahima's deal: it must not freeze another buyer's money
+    assert release(karim, ms)[1].get("code") != "TIER3_APPROVAL_PENDING"
     assert release_rows(d["id"]) == 0
     main_m1 = as_user(RAHIMA).get(f"/deals/{MAIN}").json()["milestones"][0]
     assert release(as_user(RAHIMA), main_m1["id"])[1]["code"] == "TIER3_APPROVAL_PENDING"
@@ -128,7 +128,7 @@ def test_seeded_tier3_beneficiary_change_freezes_every_huaxin_release() -> None:
             .where(ApprovalRequest.key == SEEDED_T3)
             .values(status=ApprovalStatus.APPROVED)
         )
-    assert release(karim, ms)[1]["code"] == "TIER3_APPROVAL_PENDING"
+    assert release(as_user(RAHIMA), main_m1["id"])[1]["code"] == "TIER3_APPROVAL_PENDING"
     decide_tier3()
     assert release(karim, ms)[0] == 202
 

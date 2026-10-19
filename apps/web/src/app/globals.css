@@ -60,3 +60,37 @@ body {
     transition-duration: 0.01ms !important;
   }
 }
+
+@keyframes sms-in {
+  from {
+    opacity: 0;
+    transform: translateY(16px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes sms-buzz {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  20%,
+  60% {
+    transform: translateX(-4px);
+  }
+  40%,
+  80% {
+    transform: translateX(4px);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .sms-new {
+    animation:
+      sms-in 0.35s ease-out,
+      sms-buzz 0.45s 0.35s ease-in-out;
+  }
+}

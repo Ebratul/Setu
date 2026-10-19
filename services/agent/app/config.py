@@ -85,6 +85,15 @@ class Settings(BaseSettings):
     forensics_llm_extraction: bool = True  # still skipped in mock mode (no network)
     forensics_vision: bool = False  # optional vision model for photo checks (off by default)
 
+    # Approvals (app/services/approvals.py). DEMO_MODE shows the simulated "Demo phone" inbox; with
+    # DEMO_MODE=false no OTP ever leaves the server. COOLING_OFF_SECONDS: 600, 30 for demos.
+    demo_mode: bool = True
+    cooling_off_seconds: int = Field(600, ge=0, le=86_400)
+    approval_expiry_minutes: int = Field(1440, gt=0)
+    otp_ttl_seconds: int = Field(300, gt=0)
+    otp_max_attempts: int = Field(3, gt=0, le=10)
+    otp_secret_seed: SecretStr | None = None  # falls back to the demo session secret / dev value
+
     # Demo "login as" stub (app/auth/demo.py). Replace with real auth before any non-demo use.
     demo_session_secret: SecretStr | None = None
     demo_cookie_secure: bool = False

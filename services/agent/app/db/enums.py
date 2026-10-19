@@ -179,6 +179,7 @@ class ApprovalStatus(StrEnum):
     EXECUTED = "EXECUTED"
     CANCELLED = "CANCELLED"
     EXPIRED = "EXPIRED"
+    LOCKED = "LOCKED"  # three wrong OTPs
 
 
 class Actor(StrEnum):

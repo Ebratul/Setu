@@ -20,3 +20,13 @@ export function Bi({ k, vars }: Props) {
     </>
   );
 }
+
+/** String form of `Bi` for form labels: English followed by the Chinese label. */
+export function useBi() {
+  const t = useT();
+  const { lang } = useLang();
+  return (k: string, vars?: Record<string, string | number>) => {
+    const zh = messages.zh[k];
+    return lang === "en" && zh ? `${t(k, vars)} ${translate("zh", k, vars)}` : t(k, vars);
+  };
+}

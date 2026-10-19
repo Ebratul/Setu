@@ -1201,10 +1201,376 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/approvals": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Approvals
+         * @description `status=pending` (open), `status=history` (decided/ended) or one exact status.
+         */
+        get: operations["list_approvals_approvals_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/approvals/{approval_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Approval
+         * @description One request with its evidence snapshot (KYB, documents, registry, FX, rule trace).
+         */
+        get: operations["get_approval_approvals__approval_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/approvals/{approval_id}/approve": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Approve
+         * @description Tier 2: one tap. Tier 3: needs the 6-digit code and the end of the cooling-off. Executes the
+         *     stored action only; re-escalates instead if conditions got worse since the request was made.
+         */
+        post: operations["approve_approvals__approval_id__approve_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/approvals/{approval_id}/reject": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Reject */
+        post: operations["reject_approvals__approval_id__reject_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/approvals/{approval_id}/cancel": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Cancel
+         * @description Withdraw an open Tier 3 request (also during its cooling-off).
+         */
+        post: operations["cancel_approvals__approval_id__cancel_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/approvals/{approval_id}/resend-otp": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Resend Otp
+         * @description New code to the buyer's simulated phone. The code is never in this response.
+         */
+        post: operations["resend_otp_approvals__approval_id__resend_otp_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/demo/phone": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Demo Phone
+         * @description The simulated SMS inbox. 404 unless DEMO_MODE is on; buyer (or admin) only.
+         */
+        get: operations["demo_phone_demo_phone_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/demo/simulate/{scenario}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Simulate
+         * @description Judge-mode scam simulator (demo only): runs the real flow and explains the response.
+         */
+        post: operations["simulate_demo_simulate__scenario__post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/notifications": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Notifications */
+        get: operations["notifications_notifications_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/notifications/read": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Mark Read */
+        post: operations["mark_read_notifications_read_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/deals/{deal_id}/timeline": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Deal Timeline
+         * @description Agent proposed -> risk engine decided -> human approved -> executed, with audit links.
+         */
+        get: operations["deal_timeline_deals__deal_id__timeline_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/inbox/email-check": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Email Check
+         * @description Read a pasted e-mail as data. A request to pay another account is BLOCKED, never applied.
+         */
+        post: operations["email_check_inbox_email_check_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/inbox/demo-email": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Demo Email
+         * @description The fictional redirection e-mail of the demo (404 unless DEMO_MODE is on).
+         */
+        get: operations["demo_email_inbox_demo_email_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/supplier/accounts/change-request": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Request Change
+         * @description Supplier portal only. Parks the account as PENDING_CHANGE, re-runs KYB and opens a Tier 3
+         *     request for the buyer. Nothing is paid to it until the buyer approves.
+         */
+        post: operations["request_change_supplier_accounts_change_request_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/supplier/accounts/change-requests": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Change Requests */
+        get: operations["change_requests_supplier_accounts_change_requests_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        /** AccountChangeIn */
+        AccountChangeIn: {
+            /**
+             * Deal Id
+             * Format: uuid
+             */
+            deal_id: string;
+            /** Bank Name */
+            bank_name: string;
+            /** Bank Country */
+            bank_country: string;
+            /** Account Number */
+            account_number: string;
+            /** Holder Name */
+            holder_name: string;
+            /**
+             * Account Type
+             * @default CORPORATE
+             * @enum {string}
+             */
+            account_type: "CORPORATE" | "PERSONAL";
+            /**
+             * Currency
+             * @default USD
+             * @enum {string}
+             */
+            currency: "USD" | "CNY" | "BDT";
+        };
+        /** AccountChangeList */
+        AccountChangeList: {
+            /** Items */
+            items: components["schemas"]["AccountChangeRequestOut"][];
+        };
+        /** AccountChangeRequestOut */
+        AccountChangeRequestOut: {
+            /**
+             * Account Id
+             * Format: uuid
+             */
+            account_id: string;
+            /**
+             * Deal Id
+             * Format: uuid
+             */
+            deal_id: string;
+            /** Deal Reference */
+            deal_reference: string;
+            /** Buyer Name */
+            buyer_name: string;
+            /** Account Label */
+            account_label: string;
+            /**
+             * Account Status
+             * @enum {string}
+             */
+            account_status: "PENDING_CHANGE" | "ACTIVE" | "RETIRED";
+            /**
+             * Stage
+             * @enum {string}
+             */
+            stage: "WAITING_BUYER" | "APPROVED" | "REJECTED" | "EXPIRED" | "LOCKED" | "CANCELLED";
+            /** Tier */
+            tier: number;
+            /** Requested At */
+            requested_at: string | null;
+            /** Decided At */
+            decided_at: string | null;
+            /** Steps */
+            steps: components["schemas"]["ChangeStep"][];
+            /**
+             * Simulated
+             * @default true
+             * @constant
+             */
+            simulated: true;
+        };
         /** AccountSummary */
         AccountSummary: {
             /**
@@ -1592,16 +1958,12 @@ export interface components {
              */
             mode: "shortfall" | "order";
         };
-        /** ApprovalOut */
-        ApprovalOut: {
-            /**
-             * Simulated
-             * @default true
-             * @constant
-             */
-            simulated: true;
-            application: components["schemas"]["ApplicationOut"];
-            alerts: components["schemas"]["RecomputeOut"];
+        /** ApprovalList */
+        ApprovalList: {
+            /** Items */
+            items: components["schemas"]["app__schemas__approvals__ApprovalOut"][];
+            /** Pending Count */
+            pending_count: number;
         };
         /** ApprovalRef */
         ApprovalRef: {
@@ -1622,6 +1984,44 @@ export interface components {
             otp_required: boolean;
             /** Cooling Off Until */
             cooling_off_until: string | null;
+        };
+        /** ApproveIn */
+        ApproveIn: {
+            /**
+             * Otp
+             * @description Tier 3 only
+             */
+            otp?: string | null;
+        };
+        /** ApproveResult */
+        ApproveResult: {
+            /**
+             * Outcome
+             * @enum {string}
+             */
+            outcome: "EXECUTED" | "RE_ESCALATED" | "APPROVED_NOT_EXECUTED";
+            /**
+             * Idempotent Replay
+             * @default false
+             */
+            idempotent_replay: boolean;
+            approval: components["schemas"]["app__schemas__approvals__ApprovalOut"];
+            new_approval?: components["schemas"]["app__schemas__approvals__ApprovalOut"] | null;
+            /** Message En */
+            message_en: string;
+            /** Message Bn */
+            message_bn: string;
+            /**
+             * Context Changed
+             * @default false
+             */
+            context_changed: boolean;
+            /**
+             * Simulated
+             * @default true
+             * @constant
+             */
+            simulated: true;
         };
         /** Bilingual */
         Bilingual: {
@@ -1749,6 +2149,19 @@ export interface components {
             approval: components["schemas"]["ApprovalRef"] | null;
             risk: components["schemas"]["RiskOut"];
             deal: components["schemas"]["DealDetail"];
+        };
+        /** ChangeStep */
+        ChangeStep: {
+            /**
+             * Key
+             * @enum {string}
+             */
+            key: "SUBMITTED" | "KYB" | "BUYER" | "DONE";
+            /**
+             * State
+             * @enum {string}
+             */
+            state: "DONE" | "CURRENT" | "UPCOMING" | "FAILED";
         };
         /** ChatRequest */
         ChatRequest: {
@@ -2503,10 +2916,26 @@ export interface components {
              */
             opened_on: string;
         };
+        /** DemoEmail */
+        DemoEmail: {
+            /** Text */
+            text: string;
+        };
         /** DemoLoginIn */
         DemoLoginIn: {
             /** Email */
             email: string;
+        };
+        /** DemoPhoneOut */
+        DemoPhoneOut: {
+            /**
+             * Simulated
+             * @default true
+             * @constant
+             */
+            simulated: true;
+            /** Messages */
+            messages: components["schemas"]["PhoneMessage"][];
         };
         /** DemoUserOut */
         DemoUserOut: {
@@ -2738,6 +3167,34 @@ export interface components {
              */
             simulated: true;
         };
+        /** DocumentEvidence */
+        DocumentEvidence: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Doc Type */
+            doc_type: string;
+            /** File Name */
+            file_name: string;
+            /** Status */
+            status: string;
+            /** Check Status */
+            check_status: string;
+            /**
+             * Issues
+             * @description Codes of checks that did not pass
+             */
+            issues: string[];
+            /**
+             * Registry
+             * @enum {string}
+             */
+            registry: "NEW" | "REGISTERED" | "DUPLICATE" | "UNKNOWN";
+            /** Sha Short */
+            sha_short: string | null;
+        };
         /** DocumentList */
         DocumentList: {
             /** Documents */
@@ -2958,6 +3415,59 @@ export interface components {
              */
             fx_lock_missing: boolean;
         };
+        /** EmailCheckIn */
+        EmailCheckIn: {
+            /** Text */
+            text: string;
+            /** Deal Reference */
+            deal_reference?: string | null;
+        };
+        /** EmailCheckOut */
+        EmailCheckOut: {
+            /**
+             * Verdict
+             * @enum {string}
+             */
+            verdict: "BLOCKED" | "SUSPICIOUS" | "NO_PAYMENT_CHANGE_FOUND";
+            /** Blocked */
+            blocked: boolean;
+            /**
+             * Account Changed
+             * @default false
+             * @constant
+             */
+            account_changed: false;
+            /** Title En */
+            title_en: string;
+            /** Title Bn */
+            title_bn: string;
+            /** Message En */
+            message_en: string;
+            /** Message Bn */
+            message_bn: string;
+            /** Next Steps En */
+            next_steps_en: string[];
+            /** Next Steps Bn */
+            next_steps_bn: string[];
+            /** Signals */
+            signals: components["schemas"]["SignalOut"][];
+            /** Deal Reference */
+            deal_reference: string | null;
+            /** Alert Id */
+            alert_id: string | null;
+            /** Audit Seq */
+            audit_seq: number | null;
+            /** Related Approval Id */
+            related_approval_id: string | null;
+            /** Text Sha256 */
+            text_sha256: string;
+            /**
+             * Simulated
+             * @default true
+             * @constant
+             */
+            simulated: true;
+        };
         /** EscrowCard */
         EscrowCard: {
             /**
@@ -3011,6 +3521,43 @@ export interface components {
             advance_over_20k: boolean;
             /** Invariant Ok */
             invariant_ok: boolean;
+        };
+        /** EventOut */
+        EventOut: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Ts
+             * Format: date-time
+             */
+            ts: string;
+            /** Kind */
+            kind: string;
+            /** Tier */
+            tier: number;
+            /** Actor */
+            actor: string;
+            /** Title En */
+            title_en: string;
+            /** Title Bn */
+            title_bn: string;
+            /** Detail En */
+            detail_en: string;
+            /** Detail Bn */
+            detail_bn: string;
+            /** Approval Id */
+            approval_id: string | null;
+            /** Deal Id */
+            deal_id: string | null;
+            /** Deal Reference */
+            deal_reference: string | null;
+            /** Audit Seq */
+            audit_seq: number | null;
+            /** Unread */
+            unread: boolean;
         };
         /** EventRow */
         EventRow: {
@@ -3074,6 +3621,27 @@ export interface components {
              */
             simulated: true;
             milestone: components["schemas"]["MilestoneOut"];
+        };
+        /**
+         * EvidenceSnapshot
+         * @description Everything an approver needs on one card (read-only, built from the database).
+         */
+        EvidenceSnapshot: {
+            supplier: components["schemas"]["SupplierEvidence"] | null;
+            /** Documents */
+            documents: components["schemas"]["DocumentEvidence"][];
+            /**
+             * Registry Status
+             * @enum {string}
+             */
+            registry_status: "CLEAR" | "DUPLICATE_FOUND" | "NOT_APPLICABLE";
+            fx: components["schemas"]["FxEvidence"] | null;
+            /** Trace */
+            trace: components["schemas"]["TraceItemOut"][];
+            /** Risk Event Id */
+            risk_event_id: string | null;
+            /** Audit Seq */
+            audit_seq: number | null;
         };
         /** Explanation */
         Explanation: {
@@ -3413,6 +3981,19 @@ export interface components {
             as_of: string;
             /** Assumptions */
             assumptions: string[];
+        };
+        /** FxEvidence */
+        FxEvidence: {
+            /** Pair */
+            pair: string;
+            /** Rate */
+            rate: string | null;
+            /** Amount */
+            amount: string | null;
+            /** Locked */
+            locked: boolean;
+            /** Lock Expires At */
+            lock_expires_at: string | null;
         };
         /** FxLockRequest */
         FxLockRequest: {
@@ -4493,6 +5074,13 @@ export interface components {
              */
             on: string;
         };
+        /** NotificationsOut */
+        NotificationsOut: {
+            /** Unread */
+            unread: number;
+            /** Items */
+            items: components["schemas"]["EventOut"][];
+        };
         /** OptionQuote */
         OptionQuote: {
             /**
@@ -4659,6 +5247,25 @@ export interface components {
             explanation_bn: string;
             account: components["schemas"]["AccountSummary"];
         };
+        /** PhoneMessage */
+        PhoneMessage: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Approval Id */
+            approval_id: string | null;
+            /** Body */
+            body: string;
+            /** Code */
+            code: string;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+        };
         /** Point */
         Point: {
             /**
@@ -4722,6 +5329,15 @@ export interface components {
              * @description Percentages, e.g. ["40", "40", "20"]; custom only.
              */
             percents?: string[] | null;
+        };
+        /** ReasonOut */
+        ReasonOut: {
+            /** Code */
+            code: string;
+            /** Message */
+            message: string;
+            /** Message Bn */
+            message_bn: string;
         };
         /** Recommendation */
         Recommendation: {
@@ -4962,6 +5578,15 @@ export interface components {
          * @enum {string}
          */
         RegistryStatus: "ACTIVE" | "RELEASED";
+        /** RejectIn */
+        RejectIn: {
+            /** Reason */
+            reason?: string | null;
+        };
+        /** RejectResult */
+        RejectResult: {
+            approval: components["schemas"]["app__schemas__approvals__ApprovalOut"];
+        };
         /** ReleaseRequest */
         ReleaseRequest: {
             /**
@@ -4997,6 +5622,12 @@ export interface components {
              */
             notice: string | null;
             deal: components["schemas"]["DealDetail"];
+        };
+        /** ResendResult */
+        ResendResult: {
+            approval: components["schemas"]["app__schemas__approvals__ApprovalOut"];
+            /** Delivered To Demo Phone */
+            delivered_to_demo_phone: boolean;
         };
         /**
          * RiskOut
@@ -5246,6 +5877,50 @@ export interface components {
              */
             amount: string;
         };
+        /** SignalOut */
+        SignalOut: {
+            /** Code */
+            code: string;
+            /** Label En */
+            label_en: string;
+            /** Label Bn */
+            label_bn: string;
+        };
+        /** SimulateOut */
+        SimulateOut: {
+            /**
+             * Scenario
+             * @enum {string}
+             */
+            scenario: "redirect-email" | "supplier-account-change" | "large-advance";
+            /** Title En */
+            title_en: string;
+            /** Title Bn */
+            title_bn: string;
+            /** What We Did En */
+            what_we_did_en: string;
+            /** What We Did Bn */
+            what_we_did_bn: string;
+            /** How Setu Responded En */
+            how_setu_responded_en: string;
+            /** How Setu Responded Bn */
+            how_setu_responded_bn: string;
+            /** Outcome */
+            outcome: string;
+            /** Tier */
+            tier: number | null;
+            /** Reasons */
+            reasons: string[];
+            /** Approval Id */
+            approval_id: string | null;
+            email?: components["schemas"]["EmailCheckOut"] | null;
+            /**
+             * Simulated
+             * @default true
+             * @constant
+             */
+            simulated: true;
+        };
         /** SupplierCompany */
         SupplierCompany: {
             /** Legal Name */
@@ -5293,6 +5968,29 @@ export interface components {
             on_time: boolean | null;
             /** Dispute Count */
             dispute_count: number;
+        };
+        /** SupplierEvidence */
+        SupplierEvidence: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Name */
+            name: string;
+            /** Kyb Status */
+            kyb_status: string;
+            /** Kyb Score */
+            kyb_score: number | null;
+            /**
+             * Account Label
+             * @description Bank, masked number and currency
+             */
+            account_label: string | null;
+            /** Account Status */
+            account_status: string | null;
+            /** Account Age Days */
+            account_age_days: number | null;
         };
         /** SupplierItem */
         SupplierItem: {
@@ -5523,6 +6221,42 @@ export interface components {
             /** Title */
             title: string;
         };
+        /** TimelineOut */
+        TimelineOut: {
+            /** Approval Id */
+            approval_id: string | null;
+            /**
+             * Deal Id
+             * Format: uuid
+             */
+            deal_id: string;
+            /** Steps */
+            steps: components["schemas"]["TimelineStep"][];
+            /** Events */
+            events: components["schemas"]["EventOut"][];
+        };
+        /** TimelineStep */
+        TimelineStep: {
+            /** Key */
+            key: string;
+            /** Ts */
+            ts: string | null;
+            /**
+             * State
+             * @enum {string}
+             */
+            state: "DONE" | "CURRENT" | "UPCOMING" | "FAILED";
+            /** Label En */
+            label_en: string;
+            /** Label Bn */
+            label_bn: string;
+            /** Detail En */
+            detail_en: string;
+            /** Detail Bn */
+            detail_bn: string;
+            /** Audit Seq */
+            audit_seq: number | null;
+        };
         /** ToolCallOut */
         ToolCallOut: {
             /** Name */
@@ -5687,6 +6421,94 @@ export interface components {
             /** Codes */
             codes: string[];
         };
+        /** ApprovalOut */
+        app__schemas__approvals__ApprovalOut: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Action */
+            action: string;
+            /** Action Label En */
+            action_label_en: string;
+            /** Action Label Bn */
+            action_label_bn: string;
+            /** What Happens En */
+            what_happens_en: string;
+            /** What Happens Bn */
+            what_happens_bn: string;
+            /** Tier */
+            tier: number;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "PENDING" | "APPROVED" | "REJECTED" | "EXECUTED" | "CANCELLED" | "EXPIRED" | "LOCKED";
+            /** Deal Id */
+            deal_id: string | null;
+            /** Deal Reference */
+            deal_reference: string | null;
+            /** Supplier Name */
+            supplier_name: string | null;
+            /** Milestone Seq */
+            milestone_seq: number | null;
+            /** Amount */
+            amount: string | null;
+            /** Currency */
+            currency: string | null;
+            /** Reasons */
+            reasons: components["schemas"]["ReasonOut"][];
+            /** Requested By */
+            requested_by: string;
+            /** Requested Via */
+            requested_via: string | null;
+            /** Otp Required */
+            otp_required: boolean;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /** Expires At */
+            expires_at: string | null;
+            /** Cooling Off Until */
+            cooling_off_until: string | null;
+            /** Seconds To Cooling Off End */
+            seconds_to_cooling_off_end: number | null;
+            /** Cooling Off Total Seconds */
+            cooling_off_total_seconds: number | null;
+            /** Otp Attempts Left */
+            otp_attempts_left: number | null;
+            /** Otp Sent */
+            otp_sent: boolean;
+            /** Decided At */
+            decided_at: string | null;
+            /** Decision Note */
+            decision_note: string | null;
+            /** Can Approve */
+            can_approve: boolean;
+            /** Can Reject */
+            can_reject: boolean;
+            /** Can Cancel */
+            can_cancel: boolean;
+            /**
+             * Blocked Reason
+             * @description Why approve is unavailable, if it is
+             */
+            blocked_reason: string | null;
+            /** Why Pause En */
+            why_pause_en: string | null;
+            /** Why Pause Bn */
+            why_pause_bn: string | null;
+            evidence?: components["schemas"]["EvidenceSnapshot"] | null;
+            /**
+             * Simulated
+             * @default true
+             * @constant
+             */
+            simulated: true;
+        };
         /** NextMilestone */
         app__schemas__cashflow__NextMilestone: {
             /** Seq */
@@ -5758,6 +6580,17 @@ export interface components {
              * @enum {string}
              */
             trigger: "PRODUCTION_START" | "SHIPMENT" | "ARRIVAL";
+        };
+        /** ApprovalOut */
+        app__schemas__financing__ApprovalOut: {
+            /**
+             * Simulated
+             * @default true
+             * @constant
+             */
+            simulated: true;
+            application: components["schemas"]["ApplicationOut"];
+            alerts: components["schemas"]["RecomputeOut"];
         };
         /** CostOut */
         app__schemas__financing__CostOut: {
@@ -6481,7 +7314,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["ApprovalOut"];
+                    "application/json": components["schemas"]["app__schemas__financing__ApprovalOut"];
                 };
             };
             /** @description Validation Error */
@@ -7800,6 +8633,443 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["OverviewOut"];
+                };
+            };
+        };
+    };
+    list_approvals_approvals_get: {
+        parameters: {
+            query?: {
+                status?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApprovalList"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_approval_approvals__approval_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                approval_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["app__schemas__approvals__ApprovalOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    approve_approvals__approval_id__approve_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                approval_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ApproveIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApproveResult"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    reject_approvals__approval_id__reject_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                approval_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RejectIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RejectResult"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    cancel_approvals__approval_id__cancel_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                approval_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RejectResult"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    resend_otp_approvals__approval_id__resend_otp_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                approval_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResendResult"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    demo_phone_demo_phone_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DemoPhoneOut"];
+                };
+            };
+        };
+    };
+    simulate_demo_simulate__scenario__post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                scenario: "redirect-email" | "supplier-account-change" | "large-advance";
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SimulateOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    notifications_notifications_get: {
+        parameters: {
+            query?: {
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["NotificationsOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    mark_read_notifications_read_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: number;
+                    };
+                };
+            };
+        };
+    };
+    deal_timeline_deals__deal_id__timeline_get: {
+        parameters: {
+            query?: {
+                approval_id?: string | null;
+            };
+            header?: never;
+            path: {
+                deal_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TimelineOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    email_check_inbox_email_check_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["EmailCheckIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EmailCheckOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    demo_email_inbox_demo_email_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DemoEmail"];
+                };
+            };
+        };
+    };
+    request_change_supplier_accounts_change_request_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AccountChangeIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AccountChangeRequestOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    change_requests_supplier_accounts_change_requests_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AccountChangeList"];
                 };
             };
         };

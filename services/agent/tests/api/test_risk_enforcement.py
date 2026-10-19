@@ -524,6 +524,10 @@ def test_a_beneficiary_change_is_tier3_and_runs_only_after_approval_and_cooling_
     karim = as_user(KARIM)
     d = create(karim, HUAXIN)
     new = pending_account(HUAXIN)
+    with batch_session() as s:  # the seeded account came by e-mail, which is always refused
+        s.execute(
+            update(BankAccount).where(BankAccount.id == new).values(change_requested_via="portal")
+        )
     res = karim.post(f"/deals/{d['id']}/beneficiary", json={"bank_account_id": str(new)})
     assert res.status_code == 202, res.text
     body = res.json()
@@ -565,7 +569,7 @@ def test_a_beneficiary_change_is_tier3_and_runs_only_after_approval_and_cooling_
         s.execute(
             update(BankAccount)
             .where(BankAccount.id == new)
-            .values(status=AccountStatus.PENDING_CHANGE)
+            .values(status=AccountStatus.PENDING_CHANGE, change_requested_via="email")
         )
 
 
