@@ -1,5 +1,6 @@
 "use client";
 
+import { HighlightedText, RuleChips } from "@/components/security/HighlightedText";
 import { useT } from "@/i18n";
 import type { HiddenTextOut } from "@/lib/api/documents";
 
@@ -43,6 +44,19 @@ export function HiddenTextPanel({ hidden }: { hidden: HiddenTextOut }) {
           ))}
         </ul>
       )}
+      {(hidden.injection ?? []).map((f, i) => (
+        <div key={i} data-testid="injection-block" className="space-y-2 rounded-xl border border-danger bg-surface p-3">
+          <p className="text-sm font-bold text-danger">
+            <span aria-hidden="true">⚠ </span>
+            {t("sec.doc.detected", { rules: f.rules.join(", ") })}
+          </p>
+          <p className="text-xs text-muted">
+            {t("sec.doc.where", { source: t(`sec.source.${f.source}`), score: f.score })}
+          </p>
+          <RuleChips rules={f.rules} />
+          <HighlightedText text={f.text} highlights={f.highlights} />
+        </div>
+      ))}
       {sources.length > 0 ? (
         <p className="text-xs text-ink">
           {t("doc.hidden.sources", {

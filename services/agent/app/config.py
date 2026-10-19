@@ -42,6 +42,12 @@ class Settings(BaseSettings):
     privacy_enabled: bool = True
     privacy_mask_amounts: bool = True
 
+    # Prompt-injection defences (app/security/injection). INJECTION_DEFENCES=off disables layers
+    # 2 (detector), 4 (tool gating) and 5 (output guard) for the evaluation only: layer 3 (money
+    # safety: propose-only tools, Tier 3 on document-borne instructions) is never switchable.
+    injection_defences: Literal["on", "off"] = "on"
+    injection_llm_check: bool = False  # optional fast-model second opinion; rules win on conflict
+
     # Knowledge base (app/rag). Local multilingual model, Apache-2.0; "hash" = offline test stub.
     kb_embedder: Literal["fastembed", "hash"] = "fastembed"
     kb_embedding_model: str = "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2"

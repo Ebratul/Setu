@@ -45,7 +45,9 @@
     "emailCheck": "Check an email",
     "simulator": "Scam simulator",
     "privacy": "Privacy",
-    "privacyPlayground": "Privacy playground"
+    "privacyPlayground": "Privacy playground",
+    "security": "Security",
+    "attackConsole": "Attack console"
   },
   "role": {
     "BUYER": "Buyer",
@@ -1799,6 +1801,172 @@
       "before": "Before",
       "after": "What the AI sees",
       "link": "Try it in the privacy playground"
+    }
+  },
+  "sec": {
+    "hl": {
+      "start": "Matched rule {rule}:",
+      "end": "(end of match)"
+    },
+    "pipe": {
+      "label": "Defence pipeline",
+      "ok": "Handled safely",
+      "fail": "Not stopped here",
+      "layer": "Layer {n}",
+      "status": {
+        "done": "done",
+        "caught": "caught",
+        "clear": "clear",
+        "off": "off",
+        "missed": "missed",
+        "idle": "not needed"
+      }
+    },
+    "chip": {
+      "title": "Security check",
+      "checked": "Checked: {list}",
+      "checkedNone": "Nothing from documents or other sources needed checking.",
+      "off": "Defences were switched off for this answer.",
+      "blocked": "Blocked: {name}",
+      "guard": "Answer guard removed: {list}",
+      "flagged": "Deal flagged for extra verification (Tier 3)",
+      "tool": {
+        "docs": "documents",
+        "kb": "knowledge base",
+        "party": "party checks",
+        "registry": "registry",
+        "other": "other tool results"
+      },
+      "ignored": {
+        "hidden_text": "Ignored a hidden instruction in a document",
+        "visible_text": "Ignored an instruction written in a document",
+        "metadata": "Ignored an instruction in document metadata",
+        "email": "Ignored an instruction in an email",
+        "kb": "Ignored an instruction in a knowledge-base passage",
+        "tool_result": "Ignored an instruction in a tool result",
+        "other": "Ignored an instruction in untrusted content"
+      }
+    },
+    "sb": {
+      "title": "Attack success rate",
+      "off": "Defences OFF",
+      "on": "Defences ON",
+      "noDetector": "ON without detector (layers 4+5 only)",
+      "running": "Running the suite…",
+      "rerun": "Re-run suite",
+      "run": "Run the suite",
+      "empty": "No results yet. Run the attack suite to fill the scoreboard (takes about 15 seconds).",
+      "meta": "{n} attacks · {split} split · generated {at}",
+      "asr": "Attack success rate (lower is better)",
+      "moneyNote": "Money moved in every mode: never. Only simulated side effects are counted.",
+      "detection": "Detector quality",
+      "recall": "Detection recall",
+      "fpr": "False-positive rate",
+      "clean": "{n} clean documents, {fp} falsely flagged.",
+      "split": "Dev split. Test-split numbers are reported separately.",
+      "col": {
+        "mode": "Mode",
+        "n": "Cases"
+      }
+    },
+    "source": {
+      "hidden_text": "Hidden white text",
+      "visible_text": "Visible text",
+      "metadata": "Metadata",
+      "email": "Email"
+    },
+    "console": {
+      "title": "Prompt-injection attack console",
+      "intro": "Pick an attack or write your own, then watch each defence layer handle it. Everything here is simulated; money can never move from document text.",
+      "gallery": "Attack gallery",
+      "own": "Your attack text",
+      "text": "Attack text",
+      "placement": "Placement",
+      "defences": "Defences",
+      "on": "ON",
+      "off": "OFF",
+      "run": "Run attack",
+      "running": "Running…",
+      "offBanner": "Only the detector, tool gating and output guard are off. Money safety (propose-only tools, the risk engine, Tier 3 on document instructions) stays ON — money can never move from document text.",
+      "pipeline": "What each layer did",
+      "detection": "Submitted text and detection",
+      "score": "Detector score",
+      "injection": "Injection detected",
+      "clean": "No injection detected",
+      "noDetection": "The detector did not run (defences off).",
+      "result": "Result",
+      "outcome": {
+        "blocked": "Attack blocked",
+        "stopped_by_risk_engine": "Stopped by the risk engine",
+        "no_effect": "No effect",
+        "attack_succeeded": "Attack succeeded"
+      },
+      "stoppedRisk": "The model tried to call {tool} — stopped by the risk engine (money never moved).",
+      "moneyNever": "Money moved: never (simulated sandbox).",
+      "attempts": "Tool-call attempts",
+      "noAttempts": "The model tried no tool calls.",
+      "attempt": {
+        "dropped": "dropped by the gate (layer 4)",
+        "reached": "reached the service, then the risk engine: Tier {tier}, {decision} (money never moved)",
+        "executed": "executed"
+      },
+      "answer": "Final answer (shown as plain text)",
+      "noAnswer": "(no answer)"
+    },
+    "admin": {
+      "title": "Prompt-injection security",
+      "intro": "Measured attack results and every injection attempt the system has seen, each linked to its signed audit entry.",
+      "console": "Open the live attack console",
+      "events": "Injection events",
+      "filterStyle": "Attack style",
+      "filterSource": "Source",
+      "all": "All",
+      "empty": "No injection events match.",
+      "col": {
+        "time": "Time",
+        "source": "Source",
+        "rules": "Rules",
+        "deal": "Deal",
+        "tool": "Tool",
+        "action": "Action taken",
+        "layer": "Layer",
+        "origin": "Origin",
+        "audit": "Audit",
+        "resolve": "Resolve"
+      },
+      "tier3": "Tier 3 flag",
+      "audit": "Audit #{seq}",
+      "auditHint": "Signed, hash-chained audit entry (no separate audit page yet)",
+      "resolve": "Resolve",
+      "resolved": "Resolved"
+    },
+    "doc": {
+      "detected": "Injection detected — rules matched: {rules}",
+      "where": "Found in: {source} · score {score}"
+    },
+    "land": {
+      "line": "Prompt-injection defence in five layers",
+      "link": "Try the live attack console",
+      "separate": {
+        "name": "Separate",
+        "desc": "Untrusted text goes in marked blocks"
+      },
+      "detect": {
+        "name": "Detect",
+        "desc": "English, বাংলা and 中文 rules"
+      },
+      "contain": {
+        "name": "Contain",
+        "desc": "The agent can only propose; Tier 3 for document instructions"
+      },
+      "gate": {
+        "name": "Gate",
+        "desc": "Tool calls are checked against your request"
+      },
+      "guard": {
+        "name": "Guard",
+        "desc": "The answer is checked before you see it"
+      }
     }
   }
 }

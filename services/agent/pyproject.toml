@@ -64,6 +64,10 @@ allowed-confusables = ["−", "×", "–"]
 "synthetic/attacks.py" = ["RUF001", "E501"]
 "synthetic/demo.py" = ["E501"]
 
+# Multilingual detection rules and notices use full-width punctuation and look-alike marks on purpose.
+"app/security/injection/*.py" = ["RUF001", "RUF003", "E501"]
+"tests/injection/*.py" = ["RUF001", "RUF003", "E501"]
+
 [tool.ruff.format]
 quote-style = "double"
 

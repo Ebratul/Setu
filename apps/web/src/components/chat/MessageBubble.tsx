@@ -5,6 +5,7 @@ import { useEffect, useRef, useState } from "react";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { XrayButton } from "@/components/privacy/XrayButton";
+import { SecurityCheckChip } from "@/components/security/SecurityCheckChip";
 import { useT } from "@/i18n";
 
 import { ChatCard } from "./cards/ChatCard";
@@ -150,6 +151,7 @@ function AssistantBubble({
             ))}
           </div>
         ) : null}
+        {!streaming ? <SecurityCheckChip security={m.security} /> : null}
         {parts.simulated && !streaming ? (
           <Badge tone="warning" icon="◇">
             {t("common.simulatedData")}

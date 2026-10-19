@@ -27,6 +27,7 @@ from app.db.models.trust import (
     Document,
     ForensicFinding,
     HashRegistry,
+    InjectionEvent,
     RiskEvent,
 )
 
@@ -52,6 +53,7 @@ __all__ = [
     "FxLock",
     "FxRate",
     "HashRegistry",
+    "InjectionEvent",
     "KbChunk",
     "KybCheck",
     "KybRun",

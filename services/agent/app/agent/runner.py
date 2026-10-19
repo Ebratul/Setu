@@ -40,7 +40,16 @@ from app.errors import DomainError, ServiceUnavailable
 from app.llm import tracing
 from app.privacy.gateway import PrivacyGateway, StreamUnmasker
 from app.privacy.records import new_gateway, persist_calls
-from app.schemas.chat import ChatRequest, ChatResponse, Citation, ToolCallOut, UsageOut
+from app.schemas.chat import (
+    BlockedTool,
+    ChatRequest,
+    ChatResponse,
+    Citation,
+    IgnoredInstruction,
+    SecurityCheckOut,
+    ToolCallOut,
+    UsageOut,
+)
 
 log = structlog.get_logger("setu.chat")
 
@@ -153,6 +162,7 @@ def finish_turn(db: Session, user: CurrentUser, turn: Turn, values: dict[str, An
     answer = state.answer or ""
     usage = state.token_usage
     citations = citations_of(state)
+    security = security_of(state)
     assistant = append_message(
         db,
         turn.thread,
@@ -169,6 +179,7 @@ def finish_turn(db: Session, user: CurrentUser, turn: Turn, values: dict[str, An
             "why": state.why,
             "notes": state.notes,
             "citations": [c.model_dump() for c in citations],
+            "security": security.model_dump() if security else None,
         },
     )
     add_tokens(db, turn.thread, usage["total_tokens"])
@@ -218,6 +229,32 @@ def finish_turn(db: Session, user: CurrentUser, turn: Turn, values: dict[str, An
         notes=state.notes,
         cards=cards_of(state.tool_results),
         citations=citations,
+        security=security,
+    )
+
+
+def security_of(state: AgentState) -> SecurityCheckOut | None:
+    """The answer's \"Security check\" chip data; None when no untrusted content was involved."""
+    sec = state.security
+    detections = sec.get("detections", [])
+    blocked = sec.get("blocked_tools", [])
+    checked = sec.get("checked", [])
+    if not (checked or detections or blocked):
+        return None
+    return SecurityCheckOut(
+        defences=bool(sec.get("defences", True)),
+        checked=list(checked),
+        ignored=[
+            IgnoredInstruction(
+                source=str(d.get("source", "tool_result")),
+                rules=[str(r) for r in d.get("rules", [])],  # type: ignore[attr-defined]
+                score=int(d.get("score", 0)),  # type: ignore[call-overload]
+            )
+            for d in detections
+        ],
+        blocked_tools=[BlockedTool(name=b["name"], code=b["code"]) for b in blocked],
+        deal_flagged=bool(sec.get("deal_flagged", False)),
+        guard=list(sec.get("guard", [])),
     )
 
 

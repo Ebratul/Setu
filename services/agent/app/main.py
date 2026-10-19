@@ -12,6 +12,7 @@ from app.api import (
     financing,
     health,
     inbox,
+    injection,
     kyb,
     privacy,
     registry,
@@ -72,6 +73,7 @@ def create_app() -> FastAPI:
     app.include_router(approvals.router)
     app.include_router(inbox.router)
     app.include_router(privacy.router)
+    app.include_router(injection.router)
     return app
 
 

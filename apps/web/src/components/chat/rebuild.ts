@@ -1,9 +1,15 @@
 import { sanitizeCitations, type ChatCardData, type ChatMessage } from "@/lib/api/chat";
 
+import type { SecurityCheck } from "@/lib/api/security";
+
 import type { UiMessage } from "./types";
 
 function isCard(v: unknown): v is ChatCardData {
   return typeof v === "object" && v !== null && "card_type" in v;
+}
+
+function isSecurity(v: unknown): v is SecurityCheck {
+  return typeof v === "object" && v !== null && Array.isArray((v as { checked?: unknown }).checked);
 }
 
 /** Rebuild the transcript from persisted rows: tool cards attach to the assistant answer that follows. */
@@ -40,6 +46,7 @@ export function rebuildMessages(rows: readonly ChatMessage[]): UiMessage[] {
         feedback: fb?.rating === "up" || fb?.rating === "down" ? fb.rating : null,
         stopped: null,
         retryText: aborted ? lastUser : null,
+        security: isSecurity(meta.security) ? meta.security : null,
       });
       pending = [];
     }

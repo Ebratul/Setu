@@ -8,6 +8,7 @@ registry and limits are bound when the graph is built.
 import html
 import json
 import re
+import uuid
 from collections.abc import Callable
 from dataclasses import dataclass, field
 from typing import Any, cast
@@ -24,6 +25,7 @@ from langchain_core.messages import (
 from langchain_core.runnables import RunnableConfig
 from langchain_core.runnables.config import merge_configs
 from pydantic import BaseModel, ConfigDict
+from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.agent import prompts
@@ -43,6 +45,7 @@ from app.agent.state import (
     AgentState,
     Intent,
     Lang,
+    SecurityCheck,
     ToolCallRecord,
     ToolResult,
     Usage,
@@ -50,7 +53,13 @@ from app.agent.state import (
     zero_usage,
 )
 from app.auth.deps import CurrentUser
+from app.db.models import Deal
 from app.privacy.gateway import PrivacyGateway
+from app.security.injection import events as injection_events
+from app.security.injection.gating import MONEY_TOOLS, gate_call
+from app.security.injection.guard import guard_answer
+from app.security.injection.switch import defences_on, layer_on
+from app.security.injection.wrap import new_boundary, wrap_untrusted
 from app.services.scope import party
 
 log = structlog.get_logger("setu.agent")
@@ -62,6 +71,10 @@ MONEY_CLAIM = re.compile(
 )
 WHY_LINE = re.compile(r"^(\*\*|_)?(why|কারণ|原因)\s*[:\uff1a]", re.I)
 SIMULATED_MARKERS = ("simulated", "সিমুলেটেড", "模拟")
+# Tools whose results can carry text that came from a document, an e-mail or the knowledge base.
+UNTRUSTED_TOOLS = frozenset(
+    {"check_documents", "registry_status", "search_knowledge", "verify_party"}
+)
 
 
 @dataclass(frozen=True, slots=True)
@@ -70,12 +83,19 @@ class AgentDeps:
     db: Session | None
     thread_id: str
     gateway: PrivacyGateway = field(default_factory=PrivacyGateway)  # per request, never stored
+    boundary: str = field(default_factory=new_boundary)  # layer 1: random per request
 
 
 class RouterDecision(BaseModel):
     model_config = ConfigDict(extra="forbid")
     intent: Intent
     needs_smart_model: bool
+
+
+def _deal_uuid(db: Session | None, reference: str | None) -> uuid.UUID | None:
+    if db is None or not reference:
+        return None
+    return db.scalar(select(Deal.id).where(Deal.reference == reference))
 
 
 def deps_of(config: RunnableConfig) -> AgentDeps:
@@ -117,13 +137,17 @@ def _output_text(res: Any) -> str:
     return str(parsed) if parsed is not None else ""
 
 
-def render_tool_result(outcome: ToolOutcome, gateway: PrivacyGateway | None = None) -> str:
-    """The tool result as the model gets it: untrusted wrapper, identifiers masked."""
+def render_tool_result(
+    outcome: ToolOutcome, gateway: PrivacyGateway | None = None, boundary: str | None = None
+) -> str:
+    """The tool result as the model gets it: identifiers masked, then wrapped as untrusted."""
     # "<" is escaped so data can never close the wrapper tag.
     gw = gateway or PrivacyGateway()
     ok = "true" if outcome.ok else "false"
     data = outcome.data or {}
+    src = f"tool:{outcome.name}"
     if outcome.ok and data.get("card_type") == "citations":
+        src = "kb"
         docs = [
             f'<retrieved_document cite_id="{html.escape(s["cite_id"], quote=True)}" '
             f'source_id="{html.escape(s["source_id"], quote=True)}">\n'
@@ -134,7 +158,10 @@ def render_tool_result(outcome: ToolOutcome, gateway: PrivacyGateway | None = No
         body = "\n".join(docs) or "(no matching passages)"
     else:
         body = gw.mask_payload(outcome.model_payload()).replace("<", "\\u003c")
-    return f'<tool_result name="{outcome.name}" ok="{ok}" untrusted="true">\n{body}\n</tool_result>'
+    block = (
+        f'<tool_result name="{outcome.name}" ok="{ok}" untrusted="true">\n{body}\n</tool_result>'
+    )
+    return wrap_untrusted(block, src, boundary)
 
 
 def renumber_citations(outcome: ToolOutcome, start: int) -> int:
@@ -160,6 +187,19 @@ def retrieved_ids(results: list[Any]) -> list[str]:
         if isinstance(data, dict) and data.get("card_type") == "citations":
             ids += [s["cite_id"] for s in data["data"]["snippets"]]
     return ids
+
+
+def _hidden_source(state: AgentState) -> bool:
+    sources = {str(d.get("source")) for d in state.security.get("detections", [])}
+    return "hidden_text" in sources or "HIDDEN_TEXT" in state.injection_flags
+
+
+def _flagged_snippets(state: AgentState) -> list[str]:
+    return [
+        " ".join(str(d.get("snippet", "")).lower().split())
+        for d in state.security.get("detections", [])
+        if d.get("snippet")
+    ]
 
 
 class Nodes:
@@ -222,6 +262,9 @@ class Nodes:
             "tool_calls_made": [],
             "tool_results": [],
             "injection_flags": [],
+            "security": SecurityCheck(
+                defences=defences_on(), checked=[], detections=[], blocked_tools=[], guard=[]
+            ),
             "token_usage": zero_usage(),
             "citations": [],
             "stop_reason": "budget" if state.thread_tokens_before >= self.token_budget else None,
@@ -335,34 +378,81 @@ class Nodes:
         ctx = ToolContext(
             caller="llm", user=d.user, db=d.db, thread_id=d.thread_id, deal_ref=state.deal_id
         )
+        on = layer_on(4)  # layer 4; layer 3 below never reads any switch
         allowed = self.allowlist(state.intent)
         steps = state.tool_steps
         out: list[ToolMessage] = []
         records: list[ToolCallRecord] = list(state.tool_calls_made)
         results: list[ToolResult] = list(state.tool_results)
         flags: list[str] = list(state.injection_flags)
+        security: SecurityCheck = cast(SecurityCheck, dict(state.security))
+        security["defences"] = on
+        checked = list(security.get("checked", []))
+        detections = list(security.get("detections", []))
+        blocked = list(security.get("blocked_tools", []))
+        user_text = text_of(last_human(state.messages)) if last_human(state.messages) else ""
+        deal_id = _deal_uuid(d.db, state.deal_id)
         cites = len(retrieved_ids(results))
         gw = d.gateway
+        linked_deal = False
         for call in calls:
             name, call_id = call["name"], call.get("id") or ""
             args = gw.unmask(
                 call.get("args") or {}, canonical=True
             )  # tools work on the real values
+            safe_name = name if TOOL_NAME.fullmatch(name or "") else INVALID_TOOL_NAME
+            gate = (
+                gate_call(
+                    safe_name,
+                    intent_allowed=allowed,
+                    user_text=user_text,
+                    untrusted_seen=bool(results) or bool(out),
+                    turn_flagged=bool(flags),
+                )
+                if on
+                else None
+            )
             if steps >= self.max_tool_steps:
                 outcome = ToolOutcome(
-                    name=name if TOOL_NAME.fullmatch(name or "") else INVALID_TOOL_NAME,
+                    name=safe_name,
                     ok=False,
                     args_summary="",
                     error={"code": "tool_step_limit", "message": "tool step limit reached"},
                 )
+            elif gate is not None and not gate.allowed:
+                # Layer 4: dropped before any service sees it; reported, logged, flagged.
+                steps += 1
+                outcome = ToolOutcome(
+                    name=safe_name,
+                    ok=False,
+                    args_summary=args_summary(gw.mask(args)),
+                    error={"code": "blocked_by_injection_gate", "message": gate.reason},
+                )
+                blocked.append({"name": safe_name, "code": gate.code})
+                injection_events.record(
+                    d.db,
+                    kind="BLOCKED_TOOL",
+                    source="tool_result" if results or out else "visible_text",
+                    rules=[gate.code],
+                    action_taken=injection_events.ACTION_BLOCKED_TOOL,
+                    layer=4,
+                    deal_id=deal_id,
+                    user_id=d.user.id,
+                    tool=safe_name,
+                    flags_deal=safe_name in MONEY_TOOLS and gate.code != "NOT_FOR_THIS_REQUEST",
+                    alert=False,
+                    durable=True,
+                )
+                if safe_name in MONEY_TOOLS and "BLOCKED_TOOL" not in flags:
+                    flags.append("BLOCKED_TOOL")
             else:
-                outcome = self.registry.guard(name, args, ctx, config, allowed)
+                outcome = self.registry.guard(name, args, ctx, config, allowed if on else None)
                 cites = renumber_citations(outcome, cites)
                 steps += 1
             raw_payload = outcome.payload()
             out.append(
                 ToolMessage(
-                    content=render_tool_result(outcome, gw),
+                    content=render_tool_result(outcome, gw, d.boundary),
                     tool_call_id=call_id,
                     name=outcome.name,
                     status="success" if outcome.ok else "error",
@@ -386,7 +476,59 @@ class Nodes:
                     "flags": list(outcome.injection),
                 }
             )
+            if outcome.ok and outcome.name in UNTRUSTED_TOOLS and outcome.name not in checked:
+                checked.append(outcome.name)
+            call_deal = _deal_uuid(d.db, str(args.get("deal_id") or "")) if outcome.ok else None
+            call_deal = call_deal or deal_id
+            if (call_deal or (d.db is None and state.deal_id)) and (
+                outcome.detections or outcome.injection
+            ):
+                linked_deal = True  # no database (evaluation harness): the chat's deal counts
+            for det in outcome.detections:
+                detections.append(
+                    {
+                        "source": det["source"],
+                        "rules": det["matched_rules"],
+                        "score": det["score"],
+                        "snippet": det["snippet"],
+                    }
+                )
+                injection_events.record(
+                    d.db,
+                    kind="DETECTED",
+                    source=str(det["source"]),
+                    rules=list(det["matched_rules"]),
+                    score=int(det["score"]),
+                    snippet=str(det["snippet"]),
+                    action_taken=injection_events.ACTION_FLAGGED
+                    if call_deal
+                    else injection_events.ACTION_IGNORED,
+                    layer=3 if call_deal else 2,
+                    deal_id=call_deal,
+                    user_id=d.user.id,
+                    tool=outcome.name,
+                    flags_deal=call_deal is not None,
+                    durable=True,
+                )
+            if outcome.injection and not outcome.detections:
+                # A tool that reports its own findings (check_documents: the upload pipeline
+                # already recorded the event and flagged the deal).
+                declared = list(outcome.injection)
+                detections.append(
+                    {
+                        "source": "hidden_text" if "HIDDEN_TEXT" in declared else "visible_text",
+                        "rules": declared,
+                        "score": 0,
+                        "snippet": "",
+                    }
+                )
             flags.extend(c for c in outcome.injection if c not in flags)
+        security.update(
+            checked=checked,
+            detections=detections,
+            blocked_tools=blocked,
+            deal_flagged=linked_deal or bool(security.get("deal_flagged", False)),
+        )
         stop = state.stop_reason
         if flags:
             stop = (
@@ -400,6 +542,7 @@ class Nodes:
             "tool_calls_made": records,
             "tool_results": results,
             "injection_flags": flags,
+            "security": security,
             "pending_tool_calls": False,
             "stop_reason": stop,
         }
@@ -453,6 +596,20 @@ class Nodes:
         """(answer, why, notes). The model's text is kept verbatim (streamed tokens stay a prefix
         of the answer); a missing "Why:" line is added from the tools' deterministic explanation."""
         text = text.strip()
+        claim = bool(MONEY_CLAIM.search(text))
+        if layer_on(5):  # layer 5
+            guarded = guard_answer(
+                text,
+                lang=lang,
+                detected=bool(state.injection_flags),
+                hidden=_hidden_source(state),
+                deal_linked=bool(state.security.get("deal_flagged")),
+                prompts=[prompts.SYSTEM_PROMPT, prompts.AGENT_PROMPT, prompts.ROUTER_PROMPT],
+                injected_snippets=_flagged_snippets(state),
+            )
+            if guarded.violations:
+                state.security["guard"] = sorted(set(guarded.violations))
+            text = guarded.text.strip()
         label = prompts.WHY_LABEL[lang]
         why = next((ln.strip() for ln in text.splitlines() if WHY_LINE.match(ln.strip())), None)
         parts = [text]
@@ -469,12 +626,12 @@ class Nodes:
         ]  # KB answers carry no Setu figures
         if figures and not any(m in text.lower() for m in SIMULATED_MARKERS):
             notes.append(prompts.STATIC["simulated"][lang])
-        if state.injection_flags:
+        if state.injection_flags and not layer_on(5):
             codes = ", ".join(state.injection_flags)
             notes.append(prompts.STATIC["injection"][lang].format(codes=codes))
         if state.stop_reason == "tool_cap":
             notes.append(prompts.STATIC["tool_cap"][lang])
-        if MONEY_CLAIM.search(text):
+        if claim:
             notes.append(prompts.STATIC["no_money_moved"][lang])
         return "\n\n".join(p for p in [*parts, *notes] if p), why, notes
 
@@ -503,9 +660,11 @@ class Nodes:
                 messages, call = deps_of(config).gateway.protect(
                     messages, node="respond", model=state.model_used
                 )
-                ai = self.models.for_tier(state.model_tier).invoke(
-                    messages, config=self._tagged(config, state, "respond")
-                )
+                tagged = self._tagged(config, state, "respond")
+                if layer_on(5) and (state.injection_flags or state.security.get("checked")):
+                    # Layer 5 needs the whole answer: hold the tokens back, the final text is sent
+                    tagged = merge_configs(tagged, {"tags": ["nostream"]})
+                ai = self.models.for_tier(state.model_tier).invoke(messages, config=tagged)
                 text = text_of(ai)
                 call.output = text
                 usage = add_usage(usage, usage_of(ai))
@@ -521,6 +680,7 @@ class Nodes:
             "answer": answer,
             "why": why,
             "notes": notes,
+            "security": state.security,
             "token_usage": usage,
             "stop_reason": stop,
         }

@@ -58,6 +58,32 @@ class Citation(BaseModel):
     disclaimer: str
 
 
+class IgnoredInstruction(BaseModel):
+    source: str = Field(
+        description="hidden_text | visible_text | metadata | email | kb | tool_result"
+    )
+    rules: list[str]
+    score: int = 0
+
+
+class BlockedTool(BaseModel):
+    name: str
+    code: str
+
+
+class SecurityCheckOut(BaseModel):
+    """What the prompt-injection defences did for this answer (the "Security check" chip)."""
+
+    defences: bool = True
+    checked: list[str] = Field(
+        description="Tools whose results (documents, KB, parties) were scanned."
+    )
+    ignored: list[IgnoredInstruction] = Field(default_factory=list)
+    blocked_tools: list[BlockedTool] = Field(default_factory=list)
+    deal_flagged: bool = False
+    guard: list[str] = Field(default_factory=list, description="Output-guard removals.")
+
+
 class ChatResponse(BaseModel):
     simulated: Literal[True] = True
     thread_id: uuid.UUID
@@ -75,6 +101,9 @@ class ChatResponse(BaseModel):
     cards: list[Card] = Field(default_factory=list, description="Result cards, in tool order.")
     citations: list[Citation] = Field(
         default_factory=list, description="Knowledge-base sources cited in the answer ([S1]…)."
+    )
+    security: SecurityCheckOut | None = Field(
+        None, description="Set when the answer involved untrusted content."
     )
 
 

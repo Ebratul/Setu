@@ -11,6 +11,7 @@ from sqlalchemy.orm import Session
 from app.db.enums import DealStatus, KybStatus
 from app.db.models import BankAccount, Deal, Party
 from app.domain.money import Money
+from app.security.injection.events import deal_flagged
 from app.security.policy import load_policy
 from app.services import kyb as kyb_service
 from app.services.analysis import fx_table
@@ -93,5 +94,6 @@ def deal_context(
         kyb_status=kyb_status,
         kyb_account_warning=bool(failing & ACCOUNT_KYB_CHECKS),
         sanctions_hit="SANCTIONS_SCREEN" in failing,
+        instruction_from_document=deal_flagged(db, deal.id),  # P19 layer 3: never switchable
         deal_ref=deal.reference,
     )

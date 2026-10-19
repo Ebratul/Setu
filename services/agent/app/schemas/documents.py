@@ -119,8 +119,26 @@ class UploadResult(Out):
     checking: Literal["QUEUED", "DONE"]
 
 
+class InjectionHighlight(Out):
+    start: int
+    end: int
+    rule: str
+
+
+class InjectionFindingOut(Out):
+    """Layer 2 on one placement of the document (P19). `text` is untrusted: show it inert."""
+
+    source: Literal["hidden_text", "visible_text", "metadata"]
+    rules: list[str]
+    score: int
+    snippet: str
+    text: str
+    highlights: list[InjectionHighlight]
+
+
 class HiddenTextOut(Out):
     document_id: uuid.UUID
     spans: list[HiddenSpanOut]
     instruction_codes: dict[str, list[str]]
+    injection: list[InjectionFindingOut] = []
     notice: str

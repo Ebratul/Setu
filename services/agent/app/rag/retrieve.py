@@ -16,6 +16,8 @@ from sqlalchemy.orm import Session
 from app.db.models import KbChunk
 from app.rag.embed import TOKEN, Embedder
 from app.security.injection import detect_instructions
+from app.security.injection.detector import scan
+from app.security.injection.switch import layer_on
 
 log = structlog.get_logger("setu.rag")
 
@@ -183,10 +185,15 @@ def search(
     out: list[Snippet] = []
     withheld: list[dict[str, Any]] = []
     for score, c, r in scored:
-        findings = detect_instructions(passage_text(c.title, c.heading_path, c.content, c.meta))
-        if findings:
+        body = passage_text(c.title, c.heading_path, c.content, c.meta)
+        codes = {f.code for f in detect_instructions(body)}
+        if layer_on(2):  # P19 detector (EN/BN/ZH, obfuscation); the legacy patterns always run
+            found = scan(body, "kb", use_llm=False)
+            if found.is_injection:
+                codes |= set(found.matched_rules)
+        if codes:
             # id and codes only: the withheld text is never shown, stored or sent anywhere
-            withheld.append({"source_id": c.source_id, "codes": sorted({f.code for f in findings})})
+            withheld.append({"source_id": c.source_id, "codes": sorted(codes)})
             continue
         out.append(
             Snippet(

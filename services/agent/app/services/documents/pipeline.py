@@ -30,6 +30,8 @@ from app.forensics.context import DealContext, DocView
 from app.forensics.fields import EXTRACTOR_VERSION, REQUIRED
 from app.forensics.names import LABELS
 from app.forensics.parse_fields import DateOrder
+from app.security.injection import events as injection_events
+from app.security.injection.detector import scan_document
 from app.services import alerts, hash_registry
 from app.services import escrow as escrow_service
 from app.services.documents import evidence, scoring
@@ -130,6 +132,15 @@ def ensure_extracted(
         )
         if parsed is not None:
             meta.update(date_order=parsed.date_order, date_order_assumed=parsed.date_order_assumed)
+        # P19: a readable event per placement; layer 3 then flags the deal (Tier 3, FRAUD alert)
+        injection_events.record_document(
+            db,
+            doc,
+            scan_document(
+                pdf.visible_text, [s.text for s in pdf.hidden_spans], pdf.metadata, use_llm=False
+            ),
+            alert=not view.instruction_codes,  # the document's own FRAUD alert covers those
+        )
         f = view.fields
         if (
             doc.doc_type in (DocType.PROFORMA_INVOICE, DocType.COMMERCIAL_INVOICE)

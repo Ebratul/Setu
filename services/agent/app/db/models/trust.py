@@ -259,3 +259,38 @@ class RiskEvent(Base):
     hints: Mapped[list[dict[str, Any]]] = mapped_column(JSONB, default=list)
     amount_usd: Mapped[Decimal | None] = mapped_column(Numeric(20, 4))
     audit_seq: Mapped[int | None] = mapped_column(BigInteger)
+
+
+class InjectionEvent(Base):
+    """One detection of instruction-like text in untrusted content, or one tool call dropped by
+    the gate (P19). Readable copy for /admin/security; the signed audit row is `audit_seq`.
+    `flags_deal` = layer 3: the deal's next money action is Tier 3 until an admin resolves it.
+    Only rule codes and a short safe snippet are kept, never the document."""
+
+    __tablename__ = "injection_events"
+
+    id: Mapped[UUIDPk]
+    ts: Mapped[datetime] = mapped_column(DateTime(timezone=True), index=True)
+    kind: Mapped[str] = mapped_column(String(16))  # DETECTED | BLOCKED_TOOL
+    source: Mapped[str] = mapped_column(String(16))
+    origin: Mapped[str] = mapped_column(String(16), default="live")  # live | console | suite
+    rules: Mapped[list[str]] = mapped_column(JSONB, default=list)
+    score: Mapped[int] = mapped_column(SmallInteger, default=0)
+    snippet: Mapped[str] = mapped_column(String(200), default="")
+    attack_style: Mapped[str | None] = mapped_column(String(32), index=True)
+    tool: Mapped[str | None] = mapped_column(String(64))
+    action_taken: Mapped[str] = mapped_column(String(32))
+    layer: Mapped[int | None] = mapped_column(SmallInteger)
+    defences_on: Mapped[bool] = mapped_column(Boolean, default=True)
+    flags_deal: Mapped[bool] = mapped_column(Boolean, default=False, index=True)
+    resolved_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    deal_id: Mapped[uuid.UUID | None] = mapped_column(
+        Uuid, ForeignKey("deals.id", ondelete="CASCADE"), index=True
+    )
+    document_id: Mapped[uuid.UUID | None] = mapped_column(
+        Uuid, ForeignKey("documents.id", ondelete="SET NULL")
+    )
+    user_id: Mapped[uuid.UUID | None] = mapped_column(
+        Uuid, ForeignKey("users.id", ondelete="SET NULL")
+    )
+    audit_seq: Mapped[int | None] = mapped_column(BigInteger)

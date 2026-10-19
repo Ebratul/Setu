@@ -1,4 +1,5 @@
 import type { ChatCardData, Citation } from "@/lib/api/chat";
+import type { SecurityCheck } from "@/lib/api/security";
 
 export type ToolStep = {
   id: string;
@@ -30,6 +31,7 @@ export type UiMessage =
       feedback: "up" | "down" | null;
       stopped: string | null;
       retryText: string | null;
+      security?: SecurityCheck | null;
     };
 
 export type AssistantMessage = Extract<UiMessage, { role: "assistant" }>;

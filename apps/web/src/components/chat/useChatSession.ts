@@ -141,6 +141,7 @@ export function useChatSession({ language, onThread, onTurnEnd }: Options) {
               citations: r.citations ?? [],
               messageId: r.message_id,
               stopped: r.stopped ?? null,
+              security: r.security ?? null,
               status: "done",
               tools: m.tools.map((s) =>
                 s.status === "running" ? { ...s, status: "ok" } : s,

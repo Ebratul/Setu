@@ -22,6 +22,8 @@ from app.schemas.documents import (
     FindingOut,
     HiddenSpanOut,
     HiddenTextOut,
+    InjectionFindingOut,
+    InjectionHighlight,
     TopReasonOut,
     VerdictOut,
 )
@@ -252,8 +254,40 @@ def hidden_text(db: Session, user: CurrentUser, doc: Document, deal: Deal) -> Hi
             for s in meta.get("hidden_spans", [])
         ],
         instruction_codes=dict(meta.get("instruction_codes", {})),
+        injection=_injection_findings(meta),
         notice=NOTICE,
     )
+
+
+MAX_REVEAL_CHARS = 2000
+
+
+def _injection_findings(meta: dict[str, Any]) -> list[InjectionFindingOut]:
+    """Which injection rules matched, and where, in the hidden text and the metadata."""
+    from app.security.injection.detector import scan
+
+    placements = (
+        ("hidden_text", "\n".join(str(s.get("text", "")) for s in meta.get("hidden_spans", []))),
+        ("metadata", "\n".join(str(v) for v in (meta.get("metadata") or {}).values())),
+    )
+    out: list[InjectionFindingOut] = []
+    for source, text in placements:
+        text = text[:MAX_REVEAL_CHARS]
+        d = scan(text, source, use_llm=False)  # type: ignore[arg-type]
+        if d.is_injection:
+            out.append(
+                InjectionFindingOut(
+                    source=source,  # type: ignore[arg-type]
+                    rules=list(d.matched_rules),
+                    score=d.score,
+                    snippet=d.snippet,
+                    text=text,
+                    highlights=[
+                        InjectionHighlight(start=a, end=b, rule=r) for a, b, r in d.highlights
+                    ],
+                )
+            )
+    return out
 
 
 def may_download(user: CurrentUser, deal: Deal, doc: Document) -> bool:

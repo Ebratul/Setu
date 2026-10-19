@@ -139,7 +139,7 @@ def test_injection_in_tool_result_stops_tool_calls_and_is_flagged(run_turn: Runn
     assert script.agent_calls == 1, "no agent step after the injected tool result"
     assert [r["name"] for r in state["tool_calls_made"]] == ["read_supplier_email"]
     assert state["injection_flags"] and state["stop_reason"] == "injection"
-    assert "instruction-like text" in state["answer"]
+    assert "contains an instruction" in state["answer"]
     assert "ignored" in state["answer"]
     [respond_prompt] = script.respond_prompts()
     assert "contained instruction-like text" in system_text(respond_prompt)

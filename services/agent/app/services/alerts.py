@@ -699,3 +699,70 @@ def raise_registry_alert(
             setattr(row, k, v)
     db.flush()
     return "updated"
+
+
+def injection_alert_key(deal_id: uuid.UUID, source: str) -> str:
+    return f"alert:fraud:injection:{deal_id}:{source}"[:80]
+
+
+def raise_injection_alert(db: Session, deal: Deal, *, source: str, rules: Sequence[str]) -> str:
+    """FRAUD alert: instruction-like text reached Setu from untrusted content linked to the deal.
+    One per deal and placement (idempotent, reopened by a repeat); rule codes only, no text.
+    Returns "created" | "updated". The caller commits."""
+    key = injection_alert_key(deal.id, source)
+    row = db.scalar(select(Alert).where(Alert.key == key))
+    where_en = {
+        "hidden_text": "hidden text in a document",
+        "metadata": "a document's metadata",
+        "email": "a pasted e-mail",
+        "kb": "a knowledge-base passage",
+    }.get(source, "untrusted content")
+    where_bn = {
+        "hidden_text": "নথির লুকানো লেখা",
+        "metadata": "নথির মেটাডেটা",
+        "email": "পেস্ট করা ইমেইল",
+        "kb": "জ্ঞানভান্ডারের একটি অংশ",
+    }.get(source, "অবিশ্বস্ত বিষয়বস্তু")
+    values: dict[str, Any] = {
+        "party_id": deal.buyer_id,
+        "deal_id": deal.id,
+        "milestone_id": None,
+        "type": AlertType.FRAUD,
+        "severity": Severity.CRITICAL,
+        "title_en": f"Hidden instruction ignored: {deal.reference}"[:200],
+        "title_bn": f"লুকানো নির্দেশ উপেক্ষা করা হয়েছে: {deal.reference}"[:200],
+        "message_en": f"Setu found an instruction in {where_en} linked to {deal.reference} and "
+        "ignored it. The deal's next money action needs extra verification (Tier 3).",
+        "message_bn": bn(
+            f"{deal.reference}-এর সাথে যুক্ত {where_bn}-এ Setu একটি নির্দেশ পেয়েছে এবং তা উপেক্ষা "
+            "করেছে। ডিলের পরবর্তী অর্থ-সংক্রান্ত কাজে অতিরিক্ত যাচাই (টিয়ার ৩) লাগবে।"
+        ),
+        "amount": None,
+        "currency": None,
+        "due_on": None,
+        "facts": {
+            "deal_ref": deal.reference,
+            "source": source,
+            "rules": list(rules)[:8],
+            "action": {"code": "REVIEW_DEAL", "route": f"/app/deals/{deal.id}", "query": {}},
+            "engine": "injection-v1",
+        },
+    }
+    if row is None:
+        db.add(
+            Alert(
+                id=uuid.uuid5(uuid.NAMESPACE_URL, f"setu:{key}"),
+                key=key,
+                status=AlertStatus.OPEN,
+                **values,
+            )
+        )
+        db.flush()
+        return "created"
+    if row.status == AlertStatus.RESOLVED:
+        row.status = AlertStatus.OPEN
+    for k, v in values.items():
+        if getattr(row, k) != v:
+            setattr(row, k, v)
+    db.flush()
+    return "updated"

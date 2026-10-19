@@ -61,6 +61,17 @@ class ToolResult(TypedDict):
     flags: list[str]  # injection finding codes for this result (empty = clean)
 
 
+class SecurityCheck(TypedDict, total=False):
+    """What the prompt-injection defences did this turn (P19), for the answer's security chip."""
+
+    defences: bool
+    checked: list[str]  # untrusted inputs that were wrapped and scanned (tool names / "kb")
+    detections: list[dict[str, object]]  # {source, rules, score}
+    blocked_tools: list[dict[str, str]]  # {name, code}
+    deal_flagged: bool
+    guard: list[str]  # output-guard violations removed from the answer
+
+
 class Usage(TypedDict):
     input_tokens: int
     output_tokens: int
@@ -99,6 +110,7 @@ class AgentState(BaseModel):
     tool_calls_made: list[ToolCallRecord] = Field(default_factory=list)
     tool_results: list[ToolResult] = Field(default_factory=list)
     injection_flags: list[str] = Field(default_factory=list)
+    security: SecurityCheck = Field(default_factory=lambda: SecurityCheck(defences=True))
     token_usage: Usage = Field(default_factory=zero_usage)
     thread_tokens_before: int = 0
     citations: list[str] = Field(default_factory=list)  # RAG chunk ids (P10)

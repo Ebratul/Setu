@@ -13,6 +13,7 @@ from app.rag.chunker import Chunk, chunk_source, read_source
 from app.rag.embed import Embedder
 from app.rag.retrieve import passage_text
 from app.security.injection import detect_instructions
+from app.security.injection.detector import scan
 
 
 @dataclass(frozen=True, slots=True)
@@ -37,7 +38,8 @@ def load_chunks(sources_dir: Path) -> list[Chunk]:
         seen.add(src.id)
         for c in chunk_source(src):
             # Refuse to index our own sources if they look like instructions (fix the text instead).
-            if detect_instructions(passage_text(c.title, c.heading_path, c.content, c.meta)):
+            text = passage_text(c.title, c.heading_path, c.content, c.meta)
+            if detect_instructions(text) or scan(text, "kb", use_llm=False).is_injection:
                 raise ValueError(f"{src.id}: chunk {c.seq} contains instruction-like text")
             chunks.append(c)
     return chunks

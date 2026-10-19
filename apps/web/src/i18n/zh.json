@@ -275,7 +275,9 @@
     "playground": "Risk playground",
     "approvals": "审批",
     "privacy": "隐私",
-    "privacyPlayground": "隐私演练场"
+    "privacyPlayground": "隐私演练场",
+    "security": "安全",
+    "attackConsole": "攻击控制台"
   },
   "chg": {
     "title": "更改收款账户",
@@ -473,6 +475,172 @@
       "before": "之前",
       "after": "AI 看到的",
       "link": "在隐私演练场亲自试试"
+    }
+  },
+  "sec": {
+    "hl": {
+      "start": "匹配规则 {rule}：",
+      "end": "（匹配结束）"
+    },
+    "pipe": {
+      "label": "防御流程",
+      "ok": "已安全处理",
+      "fail": "未在此处拦截",
+      "layer": "第 {n} 层",
+      "status": {
+        "done": "完成",
+        "caught": "已识别",
+        "clear": "无异常",
+        "off": "已关闭",
+        "missed": "漏检",
+        "idle": "无需处理"
+      }
+    },
+    "chip": {
+      "title": "安全检查",
+      "checked": "已检查：{list}",
+      "checkedNone": "没有来自文档或其他来源的内容需要检查。",
+      "off": "此回答已关闭防御。",
+      "blocked": "已拦截：{name}",
+      "guard": "回答防护已移除：{list}",
+      "flagged": "该交易已标记，需额外核验（第 3 级）",
+      "tool": {
+        "docs": "文档",
+        "kb": "知识库",
+        "party": "对方核验",
+        "registry": "登记库",
+        "other": "其他工具结果"
+      },
+      "ignored": {
+        "hidden_text": "已忽略文档中的一条隐藏指令",
+        "visible_text": "已忽略文档中写明的一条指令",
+        "metadata": "已忽略文档元数据中的一条指令",
+        "email": "已忽略邮件中的一条指令",
+        "kb": "已忽略知识库段落中的一条指令",
+        "tool_result": "已忽略工具结果中的一条指令",
+        "other": "已忽略不可信内容中的一条指令"
+      }
+    },
+    "sb": {
+      "title": "攻击成功率",
+      "off": "防御关闭",
+      "on": "防御开启",
+      "noDetector": "开启但无检测器（仅第 4+5 层）",
+      "running": "正在运行测试套件…",
+      "rerun": "重新运行套件",
+      "run": "运行套件",
+      "empty": "暂无结果。运行攻击套件以填充记分牌（约 15 秒）。",
+      "meta": "{n} 次攻击 · {split} 数据集 · 生成于 {at}",
+      "asr": "攻击成功率（越低越好）",
+      "moneyNote": "任何模式下资金均未转移。仅统计模拟的副作用。",
+      "detection": "检测质量",
+      "recall": "检测召回率",
+      "fpr": "误报率",
+      "clean": "{n} 份正常文档，其中 {fp} 份被误报。",
+      "split": "开发集。测试集结果另行报告。",
+      "col": {
+        "mode": "模式",
+        "n": "用例数"
+      }
+    },
+    "source": {
+      "hidden_text": "隐藏白色文字",
+      "visible_text": "可见文字",
+      "metadata": "元数据",
+      "email": "邮件"
+    },
+    "console": {
+      "title": "提示注入攻击控制台",
+      "intro": "选择一个攻击或自行编写，然后观察每一层防御如何处理。此处一切均为模拟；文档文字绝不可能转移资金。",
+      "gallery": "攻击图库",
+      "own": "你的攻击文本",
+      "text": "攻击文本",
+      "placement": "放置位置",
+      "defences": "防御",
+      "on": "开",
+      "off": "关",
+      "run": "运行攻击",
+      "running": "运行中…",
+      "offBanner": "仅检测器、工具门控和输出防护被关闭。资金安全（仅提议的工具、风险引擎、文档指令触发第 3 级）保持开启——文档文字绝不可能转移资金。",
+      "pipeline": "每一层做了什么",
+      "detection": "提交的文本与检测结果",
+      "score": "检测器得分",
+      "injection": "检测到注入",
+      "clean": "未检测到注入",
+      "noDetection": "检测器未运行（防御已关闭）。",
+      "result": "结果",
+      "outcome": {
+        "blocked": "攻击已拦截",
+        "stopped_by_risk_engine": "被风险引擎拦下",
+        "no_effect": "无影响",
+        "attack_succeeded": "攻击成功"
+      },
+      "stoppedRisk": "模型尝试调用 {tool}——被风险引擎拦下（资金未转移）。",
+      "moneyNever": "资金转移：从不（模拟沙盒）。",
+      "attempts": "工具调用尝试",
+      "noAttempts": "模型没有尝试调用任何工具。",
+      "attempt": {
+        "dropped": "被门控丢弃（第 4 层）",
+        "reached": "到达服务，随后由风险引擎处理：第 {tier} 级，{decision}（资金未转移）",
+        "executed": "已执行"
+      },
+      "answer": "最终回答（以纯文本显示）",
+      "noAnswer": "（无回答）"
+    },
+    "admin": {
+      "title": "提示注入安全",
+      "intro": "实测攻击结果，以及系统见过的每一次注入尝试，均链接到其签名审计记录。",
+      "console": "打开实时攻击控制台",
+      "events": "注入事件",
+      "filterStyle": "攻击类型",
+      "filterSource": "来源",
+      "all": "全部",
+      "empty": "没有匹配的注入事件。",
+      "col": {
+        "time": "时间",
+        "source": "来源",
+        "rules": "规则",
+        "deal": "交易",
+        "tool": "工具",
+        "action": "采取的措施",
+        "layer": "层",
+        "origin": "来源类型",
+        "audit": "审计",
+        "resolve": "处理"
+      },
+      "tier3": "第 3 级标记",
+      "audit": "审计 #{seq}",
+      "auditHint": "已签名、哈希链式审计记录（暂无独立审计页面）",
+      "resolve": "标记已处理",
+      "resolved": "已处理"
+    },
+    "doc": {
+      "detected": "检测到注入——匹配规则：{rules}",
+      "where": "发现于：{source} · 得分 {score}"
+    },
+    "land": {
+      "line": "五层提示注入防御",
+      "link": "试用实时攻击控制台",
+      "separate": {
+        "name": "隔离",
+        "desc": "不可信文本放入标记块"
+      },
+      "detect": {
+        "name": "检测",
+        "desc": "English、বাংলা 和中文规则"
+      },
+      "contain": {
+        "name": "限制",
+        "desc": "智能体只能提议；文档指令触发第 3 级"
+      },
+      "gate": {
+        "name": "门控",
+        "desc": "工具调用与你的请求核对"
+      },
+      "guard": {
+        "name": "防护",
+        "desc": "回答在你看到之前先被检查"
+      }
     }
   }
 }

@@ -1582,6 +1582,125 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/security/injection/gallery": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Gallery */
+        get: operations["gallery_security_injection_gallery_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/security/injection/run": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Run
+         * @description Run one attack through the layers. The only side effects are a console-tagged event and
+         *     its signed audit row.
+         */
+        post: operations["run_security_injection_run_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/security/injection/scoreboard": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Scoreboard
+         * @description The saved dev-split numbers (attack success OFF vs ON, detection recall, false positives).
+         *     The test split is never served from here: P24 reports it.
+         */
+        get: operations["scoreboard_security_injection_scoreboard_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/security/injection/scoreboard/rerun": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Rerun
+         * @description Re-run the dev-split suite now (about ten seconds) and save the result.
+         */
+        post: operations["rerun_security_injection_scoreboard_rerun_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/security/injection/events": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Events
+         * @description Injection events, newest first; each links to its signed audit entry (`audit_seq`).
+         */
+        get: operations["events_security_injection_events_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/security/injection/events/{event_id}/resolve": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Resolve
+         * @description An admin has reviewed the event: the deal's layer 3 flag from it is released.
+         */
+        post: operations["resolve_security_injection_events__event_id__resolve_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -2123,6 +2242,13 @@ export interface components {
             /** Bn */
             bn: string;
         };
+        /** BlockedTool */
+        BlockedTool: {
+            /** Name */
+            name: string;
+            /** Code */
+            code: string;
+        };
         /** Body_lender_check_file_registry_lender_check_file_post */
         Body_lender_check_file_registry_lender_check_file_post: {
             /** Lender Id */
@@ -2325,6 +2451,8 @@ export interface components {
              * @description Knowledge-base sources cited in the answer ([S1]…).
              */
             citations?: components["schemas"]["Citation"][];
+            /** @description Set when the answer involved untrusted content. */
+            security?: components["schemas"]["SecurityCheckOut"] | null;
         };
         /** CheckOut */
         CheckOut: {
@@ -2442,6 +2570,73 @@ export interface components {
             confirmed_at: string | null;
             /** Confirmed By */
             confirmed_by: string | null;
+        };
+        /**
+         * ConsoleRunIn
+         * @description One attack. Either a gallery id, or your own text and where it sits.
+         */
+        ConsoleRunIn: {
+            /** Attack Id */
+            attack_id?: string | null;
+            /** Text */
+            text?: string | null;
+            /**
+             * Source
+             * @default visible_text
+             * @enum {string}
+             */
+            source: "hidden_text" | "visible_text" | "metadata" | "email";
+            /**
+             * Defences
+             * @default true
+             */
+            defences: boolean;
+        };
+        /** ConsoleRunOut */
+        ConsoleRunOut: {
+            /**
+             * Simulated
+             * @default true
+             * @constant
+             */
+            simulated: true;
+            /** Defences */
+            defences: boolean;
+            /** Attack Id */
+            attack_id: string | null;
+            /**
+             * Source
+             * @enum {string}
+             */
+            source: "hidden_text" | "visible_text" | "metadata" | "email";
+            /** Text */
+            text: string;
+            /** Steps */
+            steps: components["schemas"]["Step"][];
+            detection: components["schemas"]["DetectionOut"] | null;
+            /** Attempts */
+            attempts: components["schemas"]["ToolAttempt"][];
+            /** Answer */
+            answer: string;
+            /** Blocked At Layer */
+            blocked_at_layer: number | null;
+            /**
+             * Outcome
+             * @enum {string}
+             */
+            outcome: "blocked" | "stopped_by_risk_engine" | "no_effect" | "attack_succeeded";
+            /** Result En */
+            result_en: string;
+            /** Result Bn */
+            result_bn: string;
+            /**
+             * Money Moved
+             * @default false
+             * @constant
+             */
+            money_moved: false;
+            /** Event Id */
+            event_id?: string | null;
         };
         /** CostDriverOut */
         CostDriverOut: {
@@ -3051,6 +3246,34 @@ export interface components {
             demo: true;
             /** Users */
             users: components["schemas"]["DemoUserOut"][];
+        };
+        /** DetectionOut */
+        DetectionOut: {
+            /** Is Injection */
+            is_injection: boolean;
+            /** Score */
+            score: number;
+            /** Matched Rules */
+            matched_rules: string[];
+            /** Source */
+            source: string;
+            /** Snippet */
+            snippet: string;
+            /** Highlights */
+            highlights: components["schemas"]["Highlight"][];
+        };
+        /** DetectionStats */
+        DetectionStats: {
+            /** Recall */
+            recall: number;
+            /** End To End Recall */
+            end_to_end_recall: number;
+            /** Clean Documents */
+            clean_documents: number;
+            /** False Positives */
+            false_positives: number;
+            /** False Positive Rate */
+            false_positive_rate: number;
         };
         /**
          * DocType
@@ -4132,6 +4355,35 @@ export interface components {
             /** Source */
             source: string;
         };
+        /** GalleryList */
+        GalleryList: {
+            /** Items */
+            items: components["schemas"]["GalleryOut"][];
+        };
+        /** GalleryOut */
+        GalleryOut: {
+            /** Id */
+            id: string;
+            /** Label En */
+            label_en: string;
+            /** Label Bn */
+            label_bn: string;
+            /** Style */
+            style: string;
+            /**
+             * Source
+             * @enum {string}
+             */
+            source: "hidden_text" | "visible_text" | "metadata" | "email";
+            /** Target */
+            target: string;
+            /** Language */
+            language: string;
+            /** Carrier En */
+            carrier_en: string;
+            /** Text */
+            text: string;
+        };
         /** GapOut */
         GapOut: {
             /**
@@ -4236,8 +4488,22 @@ export interface components {
             instruction_codes: {
                 [key: string]: string[];
             };
+            /**
+             * Injection
+             * @default []
+             */
+            injection: components["schemas"]["InjectionFindingOut"][];
             /** Notice */
             notice: string;
+        };
+        /** Highlight */
+        Highlight: {
+            /** Start */
+            start: number;
+            /** End */
+            end: number;
+            /** Rule */
+            rule: string;
         };
         /** HintOut */
         HintOut: {
@@ -4268,6 +4534,21 @@ export interface components {
             label_en: string;
             /** Label Bn */
             label_bn: string;
+        };
+        /** IgnoredInstruction */
+        IgnoredInstruction: {
+            /**
+             * Source
+             * @description hidden_text | visible_text | metadata | email | kb | tool_result
+             */
+            source: string;
+            /** Rules */
+            rules: string[];
+            /**
+             * Score
+             * @default 0
+             */
+            score: number;
         };
         /** ImpactOut */
         ImpactOut: {
@@ -4351,6 +4632,101 @@ export interface components {
              * Format: date
              */
             lowest_on: string;
+        };
+        /** InjectionEventList */
+        InjectionEventList: {
+            /** Items */
+            items: components["schemas"]["InjectionEventOut"][];
+            /** Total */
+            total: number;
+            /** By Style */
+            by_style: {
+                [key: string]: number;
+            };
+            /** By Source */
+            by_source: {
+                [key: string]: number;
+            };
+        };
+        /** InjectionEventOut */
+        InjectionEventOut: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Ts
+             * Format: date-time
+             */
+            ts: string;
+            /**
+             * Kind
+             * @enum {string}
+             */
+            kind: "DETECTED" | "BLOCKED_TOOL";
+            /** Source */
+            source: string;
+            /** Origin */
+            origin: string;
+            /** Rules */
+            rules: string[];
+            /** Score */
+            score: number;
+            /** Snippet */
+            snippet: string;
+            /** Attack Style */
+            attack_style: string | null;
+            /** Tool */
+            tool: string | null;
+            /** Action Taken */
+            action_taken: string;
+            /** Layer */
+            layer: number | null;
+            /** Defences On */
+            defences_on: boolean;
+            /** Flags Deal */
+            flags_deal: boolean;
+            /** Resolved */
+            resolved: boolean;
+            /** Deal Id */
+            deal_id: string | null;
+            /** Deal Reference */
+            deal_reference: string | null;
+            /** Document Id */
+            document_id: string | null;
+            /** Audit Seq */
+            audit_seq: number | null;
+        };
+        /**
+         * InjectionFindingOut
+         * @description Layer 2 on one placement of the document (P19). `text` is untrusted: show it inert.
+         */
+        InjectionFindingOut: {
+            /**
+             * Source
+             * @enum {string}
+             */
+            source: "hidden_text" | "visible_text" | "metadata";
+            /** Rules */
+            rules: string[];
+            /** Score */
+            score: number;
+            /** Snippet */
+            snippet: string;
+            /** Text */
+            text: string;
+            /** Highlights */
+            highlights: components["schemas"]["InjectionHighlight"][];
+        };
+        /** InjectionHighlight */
+        InjectionHighlight: {
+            /** Start */
+            start: number;
+            /** End */
+            end: number;
+            /** Rule */
+            rule: string;
         };
         /** InstalmentOut */
         InstalmentOut: {
@@ -5011,6 +5387,29 @@ export interface components {
             settlement: components["schemas"]["SettlementOut"] | null;
             approval: components["schemas"]["ApprovalRef"] | null;
             can: components["schemas"]["MilestoneActions"];
+        };
+        /** ModeStats */
+        ModeStats: {
+            /** N */
+            n: number;
+            /** Attack Success Rate */
+            attack_success_rate: number;
+            /** Forbidden Attempts */
+            forbidden_attempts: number;
+            /** Reached Services */
+            reached_services: number;
+            /** Answers That Followed */
+            answers_that_followed: number;
+            /** Detected */
+            detected: number;
+            /** Money Moved */
+            money_moved: number;
+            /** Per Style */
+            per_style: {
+                [key: string]: {
+                    [key: string]: unknown;
+                };
+            };
         };
         /** MonthPoint */
         MonthPoint: {
@@ -5991,6 +6390,43 @@ export interface components {
              */
             score: string;
         };
+        /** ScoreboardOut */
+        ScoreboardOut: {
+            /**
+             * Simulated
+             * @default true
+             * @constant
+             */
+            simulated: true;
+            /** Available */
+            available: boolean;
+            /**
+             * Split
+             * @default dev
+             */
+            split: string;
+            /** Generated At */
+            generated_at?: string | null;
+            /**
+             * Attacks
+             * @default 0
+             */
+            attacks: number;
+            /** Modes */
+            modes?: {
+                [key: string]: components["schemas"]["ModeStats"];
+            };
+            detection?: components["schemas"]["DetectionStats"] | null;
+            /** Layer Attribution */
+            layer_attribution?: {
+                [key: string]: number;
+            };
+            /**
+             * Notes
+             * @default
+             */
+            notes: string;
+        };
         /** ScorecardCard */
         ScorecardCard: {
             /** Explanation Codes */
@@ -6018,6 +6454,36 @@ export interface components {
             window_months: number;
             /** Suppliers */
             suppliers: components["schemas"]["SupplierItem"][];
+        };
+        /**
+         * SecurityCheckOut
+         * @description What the prompt-injection defences did for this answer (the "Security check" chip).
+         */
+        SecurityCheckOut: {
+            /**
+             * Defences
+             * @default true
+             */
+            defences: boolean;
+            /**
+             * Checked
+             * @description Tools whose results (documents, KB, parties) were scanned.
+             */
+            checked: string[];
+            /** Ignored */
+            ignored?: components["schemas"]["IgnoredInstruction"][];
+            /** Blocked Tools */
+            blocked_tools?: components["schemas"]["BlockedTool"][];
+            /**
+             * Deal Flagged
+             * @default false
+             */
+            deal_flagged: boolean;
+            /**
+             * Guard
+             * @description Output-guard removals.
+             */
+            guard?: string[];
         };
         /**
          * Segment
@@ -6155,6 +6621,41 @@ export interface components {
              * @default 0
              */
             chars_sent: number;
+        };
+        /** Step */
+        Step: {
+            /**
+             * Id
+             * @enum {string}
+             */
+            id: "privacy" | "wrap" | "detector" | "gating" | "risk" | "answer";
+            /**
+             * Layer
+             * @description 0 privacy, 1 wrap, 2 detector, 4 gating, 3 risk, 5 output guard
+             */
+            layer: number;
+            /**
+             * Ok
+             * @description True = shown as ✓ (handled safely), False = ✕
+             */
+            ok: boolean;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "done" | "caught" | "clear" | "off" | "missed" | "idle";
+            /** Title En */
+            title_en: string;
+            /** Title Bn */
+            title_bn: string;
+            /** Detail En */
+            detail_en: string;
+            /** Detail Bn */
+            detail_bn: string;
+            /** Data */
+            data?: {
+                [key: string]: unknown;
+            };
         };
         /** SummaryOut */
         SummaryOut: {
@@ -6504,6 +7005,22 @@ export interface components {
             detail_bn: string;
             /** Audit Seq */
             audit_seq: number | null;
+        };
+        /** ToolAttempt */
+        ToolAttempt: {
+            /** Name */
+            name: string;
+            /**
+             * Outcome
+             * @enum {string}
+             */
+            outcome: "dropped_by_gate" | "reached_service_then_risk_engine" | "executed";
+            /** Layer */
+            layer?: number | null;
+            /** Risk Tier */
+            risk_tier?: number | null;
+            /** Risk Decision */
+            risk_decision?: string | null;
         };
         /** ToolCallOut */
         ToolCallOut: {
@@ -9521,6 +10038,164 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["PrivacyOverviewOut"];
+                };
+            };
+        };
+    };
+    gallery_security_injection_gallery_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GalleryList"];
+                };
+            };
+        };
+    };
+    run_security_injection_run_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ConsoleRunIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ConsoleRunOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    scoreboard_security_injection_scoreboard_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ScoreboardOut"];
+                };
+            };
+        };
+    };
+    rerun_security_injection_scoreboard_rerun_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ScoreboardOut"];
+                };
+            };
+        };
+    };
+    events_security_injection_events_get: {
+        parameters: {
+            query?: {
+                style?: string | null;
+                source?: string | null;
+                origin?: string | null;
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InjectionEventList"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    resolve_security_injection_events__event_id__resolve_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                event_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InjectionEventOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
         };

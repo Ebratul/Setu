@@ -11,6 +11,7 @@ from sqlalchemy.orm import Session
 
 from app.db.enums import CheckStatus, DocStatus
 from app.db.models import Document, ForensicFinding
+from app.security.injection.events import deal_flagged
 from app.services.documents.checks import FORENSICS_KEY
 
 
@@ -56,7 +57,7 @@ def facts(db: Session, deal_id: uuid.UUID, milestone_id: uuid.UUID) -> DocumentF
     scores = [_score(extracted) for _, extracted in docs]
     return DocumentFacts(
         pending=pending is not None,
-        instruction="INSTRUCTION_SCAN" in failed,
+        instruction="INSTRUCTION_SCAN" in failed or deal_flagged(db, deal_id),
         duplicate="DUPLICATE_HASH" in failed,
         max_score=max(scores, default=0),
         warning=any(status == CheckStatus.WARNING for status, _ in docs),

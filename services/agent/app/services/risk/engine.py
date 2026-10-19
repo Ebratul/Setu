@@ -425,7 +425,7 @@ def _eval(ctx: RiskContext, p: RiskPolicy) -> list[_Eval]:
     rule(
         "DOC_INSTRUCTION",
         3,
-        RELEASE,
+        ALL_MONEY,
         ctx.instruction_from_document,
         flag(ctx.instruction_from_document),
     )
@@ -674,6 +674,7 @@ def rules_table(policy: RiskPolicy | None = None) -> list[RuleRow]:
     cond = _conditions(p)
     probe = {a: _eval(RiskContext(action=a), p) for a in MONEY_ACTIONS}
     rows: list[RuleRow] = []
+    seen: set[str] = set()
     for e in (
         probe[Action.RELEASE_TRANCHE]
         + [x for x in probe[Action.CHANGE_BENEFICIARY] if x.code == "BENEFICIARY_CHANGE"]
@@ -681,6 +682,9 @@ def rules_table(policy: RiskPolicy | None = None) -> list[RuleRow]:
         + [x for x in probe[Action.CONFIRM_MILESTONES] if x.code == "CONFIRM_MILESTONES"]
         + [x for x in probe[Action.PROPOSE_MILESTONES] if x.code == "PROPOSE_MILESTONES"]
     ):
+        if e.code in seen:
+            continue
+        seen.add(e.code)
         en, bn = TEXT[e.code]
         rows.append(
             RuleRow(

@@ -23,7 +23,8 @@ from app.agent.state import Intent
 from app.auth.deps import CurrentUser
 from app.errors import DomainError, Forbidden, NotFound
 from app.security.audit import record_event
-from app.security.injection import Finding, detect_instructions
+from app.security.injection.detector import Detection, scan
+from app.security.injection.switch import layer_on
 from app.security.tiers import MAX_LLM_TOOL_TIER, Tier
 
 log = structlog.get_logger("setu.agent.tools")
@@ -80,6 +81,7 @@ class ToolOutcome(BaseModel):
     data: dict[str, Any] | None = None
     error: dict[str, Any] | None = None
     injection: list[str] = []
+    detections: list[dict[str, Any]] = []  # layer 2 results (source, rules, score, snippet)
 
     def payload(self) -> str:
         body = self.data if self.ok else {"error": self.error}
@@ -135,12 +137,36 @@ def declared_flags(data: dict[str, Any]) -> set[str]:
     return {f for f in flags if isinstance(f, str) and FLAG_CODE.fullmatch(f)}
 
 
-def scan_result(data: dict[str, Any]) -> list[Finding]:
-    """Instruction-like text in any string value of a tool result (keys are ours, not scanned)."""
-    findings: list[Finding] = []
-    for text in _strings(data):
-        findings.extend(detect_instructions(text))
-    return findings
+KEY_SOURCES = {
+    "hidden_text": "hidden_text",
+    "metadata": "metadata",
+    "message_text": "email",
+    "visible_text": "visible_text",
+}
+
+
+def _keyed_strings(value: Any, key: str = "") -> Iterable[tuple[str, str]]:
+    if isinstance(value, str):
+        yield key, value
+    elif isinstance(value, dict):
+        for k, v in value.items():
+            yield from _keyed_strings(v, k if k in KEY_SOURCES else key)
+    elif isinstance(value, list):
+        for v in value:
+            yield from _keyed_strings(v, key)
+
+
+def scan_result(data: dict[str, Any]) -> list[Detection]:
+    """Layer 2 on a tool result: one detection per string value that carries an instruction
+    (keys are ours, not scanned). The source is the placement when the tool names it
+    (hidden_text, metadata, message_text, visible_text), else kb for passages, else tool_result."""
+    base = "kb" if data.get("card_type") == "citations" else "tool_result"
+    out: list[Detection] = []
+    for key, text in _keyed_strings(data):
+        d = scan(text, KEY_SOURCES.get(key, base))  # type: ignore[arg-type]
+        if d.is_injection:
+            out.append(d)
+    return out
 
 
 @dataclass
@@ -255,8 +281,11 @@ class ToolRegistry:
                 refs,
             )
 
-        findings = scan_result(data)
-        codes = sorted({f.code for f in findings} | declared_flags(data))
+        detections: list[Detection] = []
+        codes: list[str] = []
+        if layer_on(2):  # layer 2; with INJECTION_DEFENCES=off nothing is scanned or flagged
+            detections = scan_result(data)
+            codes = sorted({r for d in detections for r in d.matched_rules} | declared_flags(data))
         record_event(
             actor="llm",
             action=f"TOOL:{name}",
@@ -266,8 +295,8 @@ class ToolRegistry:
             refs=refs,
         )
         if codes:
-            # Instruction text in data is a Tier 3 trigger (DOC_INSTRUCTION). Phase 5 escalates it
-            # to an approval; here the turn stops calling tools and the answer flags it.
+            # Instruction text in data is a Tier 3 trigger (DOC_INSTRUCTION). The turn stops
+            # calling tools; the node records the event and flags the deal (layer 3).
             record_event(
                 actor="system",
                 action="INJECTION_DETECTED",
@@ -276,7 +305,14 @@ class ToolRegistry:
                 result="FLAGGED",
                 refs=refs,
             )
-        return ToolOutcome(name=name, ok=True, args_summary=summary, data=data, injection=codes)
+        return ToolOutcome(
+            name=name,
+            ok=True,
+            args_summary=summary,
+            data=data,
+            injection=codes,
+            detections=[d.as_dict() for d in detections],
+        )
 
     @staticmethod
     def _run(
