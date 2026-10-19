@@ -27,6 +27,8 @@ const REGISTRY = { href: "/app/admin/registry", key: "nav.registry", exact: fals
 
 const RISK = { href: "/app/admin/risk", key: "nav.risk", exact: false } as const;
 const PLAYGROUND = { href: "/demo/risk-playground", key: "nav.playground", exact: false } as const;
+const PRIVACY = { href: "/app/admin/privacy", key: "nav.privacy", exact: false } as const;
+const PRIVACY_PG = { href: "/demo/privacy-playground", key: "nav.privacyPlayground", exact: false } as const;
 const SIMULATOR = { href: "/demo/scam-simulator", key: "nav.simulator", exact: false } as const;
 
 export function AppNav() {
@@ -36,7 +38,7 @@ export function AppNav() {
   const staff = me.data?.role === "ADMIN" || me.data?.role === "JUDGE";
   const buyerLike = me.data?.role === "BUYER" || staff;
   const items = staff
-    ? [...ITEMS, REGISTRY, RISK, PLAYGROUND, SIMULATOR]
+    ? [...ITEMS, REGISTRY, RISK, PLAYGROUND, PRIVACY, PRIVACY_PG, SIMULATOR]
     : buyerLike
       ? [...ITEMS, SIMULATOR]
       : ITEMS;

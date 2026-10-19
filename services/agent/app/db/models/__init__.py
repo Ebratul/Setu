@@ -18,6 +18,7 @@ from app.db.models.finance import (
     FxRate,
 )
 from app.db.models.identity import BankAccount, KybCheck, KybRun, Party, User
+from app.db.models.privacy import PrivacyRecord
 from app.db.models.trust import (
     ApprovalEvent,
     ApprovalRequest,
@@ -59,6 +60,7 @@ __all__ = [
     "Milestone",
     "MilestoneConfirmation",
     "Party",
+    "PrivacyRecord",
     "RiskEvent",
     "SupplierScore",
     "User",

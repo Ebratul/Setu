@@ -6,7 +6,6 @@ import pytest
 from langchain_core.messages import HumanMessage, ToolMessage
 from pydantic import BaseModel, ConfigDict
 
-from app.agent import nodes as agent_nodes
 from app.agent.graph import NODE_ORDER, build_graph
 from app.agent.registry import ToolContext, ToolRegistry
 from app.agent.tools.readonly import DashboardSnapshotIn, DashboardSnapshotOut, Shortfall
@@ -87,20 +86,15 @@ def test_node_order_for_a_tool_question(run_turn: Runner) -> None:
     assert state["privacy_checked"] is True
 
 
-def test_privacy_gateway_runs_before_any_model_call(
-    run_turn: Runner, monkeypatch: pytest.MonkeyPatch
-) -> None:
-    seen: list[str] = []
+def test_privacy_gateway_runs_before_any_model_call(run_turn: Runner) -> None:
     script = Script()
-    real_mask = agent_nodes.privacy_gateway.mask
-
-    def spy(text: str):  # type: ignore[no-untyped-def]
-        seen.append(f"mask@{len(script.calls)}")
-        return real_mask(text)
-
-    monkeypatch.setattr(agent_nodes.privacy_gateway, "mask", spy)
-    run_turn("hello", script=script)
-    assert seen == ["mask@0"], "gateway must be called once, before the first LLM call"
+    order: list[str] = []
+    state = run_turn("pay 01711223344 now", script=script, order=order)
+    assert order.index("privacy_gateway") < order.index("router")
+    [respond_prompt] = script.respond_prompts()
+    assert "01711223344" not in "\n".join(str(m.content) for m in respond_prompt)
+    assert "⟦PHONE_1⟧" in "\n".join(str(m.content) for m in respond_prompt)
+    assert state["_gateway"].calls, "every model call is recorded by the gateway"
 
 
 def test_tool_loop_result_flows_into_answer(run_turn: Runner) -> None:
@@ -110,7 +104,8 @@ def test_tool_loop_result_flows_into_answer(run_turn: Runner) -> None:
     assert executed == ["get_dashboard_snapshot"]
     assert state["tool_calls_made"][0]["ok"] is True
     [respond_prompt] = script.respond_prompts()
-    assert "1560.00" in respond_prompt[-1].content
+    assert "1560.00" not in respond_prompt[-1].content  # amounts reach the model as tokens
+    assert "⟦AMT_" in respond_prompt[-1].content
     assert 'untrusted="true"' in respond_prompt[-1].content
     assert "1,560.00" in state["answer"]
     assert "simulated" in state["answer"].lower()

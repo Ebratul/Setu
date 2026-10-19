@@ -21,6 +21,7 @@ from app.agent.registry import ToolRegistry
 from app.auth.deps import CurrentUser
 from app.config import get_settings
 from app.db.enums import Role
+from app.privacy.gateway import PrivacyGateway
 
 
 @pytest.fixture(autouse=True)
@@ -137,16 +138,25 @@ def run_turn(buyer: CurrentUser) -> Runner:
             allowlist=(lambda _i: frozenset(registry.names)) if registry else None,
             token_budget=token_budget,
         )
-        cfg = {"configurable": {"thread_id": thread_id, "deps": AgentDeps(buyer, None, thread_id)}}
+        gw = PrivacyGateway()
+        deps = AgentDeps(buyer, None, thread_id, gw)
+        cfg = {"configurable": {"thread_id": thread_id, "deps": deps}}
         inp = {
-            "messages": [HumanMessage(text)],
+            "messages": [HumanMessage(gw.mask_text(text))],
             "language": language,
             "thread_tokens_before": thread_tokens_before,
         }
         for update in g.stream(inp, cfg, stream_mode="updates"):
             if order is not None:
                 order.extend(update)
-        return g.get_state(cfg).values
+        values = dict(g.get_state(cfg).values)
+        # Graph state is masked; the user-facing fields are restored the way the runner does.
+        for key in ("answer", "why"):
+            if values.get(key):
+                values[key] = gw.unmask(values[key], unresolved=True)
+        values["notes"] = [gw.unmask(n) for n in values.get("notes", [])]
+        values["_gateway"] = gw
+        return values
 
     return run
 

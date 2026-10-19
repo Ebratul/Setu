@@ -38,6 +38,10 @@ class Settings(BaseSettings):
     langsmith_tracing: bool = False
     langsmith_project: str = "setu"
 
+    # Privacy Gateway (app/privacy). Amounts in documents and tool outputs are masked by default.
+    privacy_enabled: bool = True
+    privacy_mask_amounts: bool = True
+
     # Knowledge base (app/rag). Local multilingual model, Apache-2.0; "hash" = offline test stub.
     kb_embedder: Literal["fastembed", "hash"] = "fastembed"
     kb_embedding_model: str = "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2"

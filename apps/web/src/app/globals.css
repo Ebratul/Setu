@@ -94,3 +94,46 @@ body {
       sms-buzz 0.45s 0.35s ease-in-out;
   }
 }
+
+@keyframes priv-blur {
+  0%,
+  35% {
+    filter: none;
+    opacity: 1;
+  }
+  55%,
+  85% {
+    filter: blur(3px);
+    opacity: 0.45;
+  }
+  100% {
+    filter: none;
+    opacity: 1;
+  }
+}
+
+@keyframes priv-pop {
+  0%,
+  35% {
+    opacity: 0.15;
+    transform: scale(0.96);
+  }
+  55%,
+  85% {
+    opacity: 1;
+    transform: none;
+  }
+  100% {
+    opacity: 0.15;
+    transform: scale(0.96);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .priv-before {
+    animation: priv-blur 5s ease-in-out infinite;
+  }
+  .priv-after {
+    animation: priv-pop 5s ease-in-out infinite;
+  }
+}

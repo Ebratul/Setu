@@ -6,6 +6,7 @@ is cached by (sha256, extractor version) so a file never costs two model calls. 
 
 import hashlib
 import unicodedata
+import uuid
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
@@ -22,11 +23,14 @@ from app.forensics.parse_fields import DateOrder, parse_document
 from app.forensics.pdf_text import PdfText
 from app.forensics.validate import sanitise
 from app.llm import client as llm
+from app.privacy.context import use_gateway
+from app.privacy.gateway import PrivacyGateway
+from app.privacy.records import new_gateway, persist_calls
 
 log = structlog.get_logger("setu.forensics.extract")
 
 PROMPT_PATH = Path(__file__).resolve().parents[2] / "llm" / "prompts" / "forensics_extract.md"
-PROMPT_ID = "forensics-extract@1"
+PROMPT_ID = "forensics-extract@2"
 MAX_PROMPT_CHARS = 20_000
 
 
@@ -53,14 +57,40 @@ def wrap_untrusted(text: str, doc_id: str, sha256: str) -> str:
     return f'<untrusted_document id="{doc_id}" sha256="{sha256}">\n{safe}\n</untrusted_document>'
 
 
+def _document_uuid(doc_id: str) -> uuid.UUID | None:
+    try:
+        return uuid.UUID(doc_id)
+    except ValueError:
+        return None
+
+
+def _persist(db: Session, gw: PrivacyGateway, doc_id: str) -> None:
+    """Keep the masked payload and counters of this check (batch = one run) for the X-ray."""
+    doc_uuid = _document_uuid(doc_id)
+    if doc_uuid is not None:
+        persist_calls(
+            db, gw, source="document", user_id=None, document_id=doc_uuid, run_id=str(uuid.uuid4())
+        )
+
+
+def _record_prepared(db: Session, gw: PrivacyGateway, text: str, doc_id: str) -> None:
+    """No model call this time (mock mode, nothing missing, instructions found): still record
+    what WOULD have been sent, masked, flagged as not sent, so the X-ray can show it."""
+    if not text.strip():
+        return
+    gw.protect_text(text, node="extract", model=None, sent=False)
+    _persist(db, gw, doc_id)
+
+
 def _system_prompt() -> str:
     body = PROMPT_PATH.read_text().split("\n", 2)[2].strip()
     return body
 
 
 def _fill_schema(doc_type: str, names: list[str]) -> type[Any]:
-    model = FIELD_MODELS[doc_type]
-    spec = {n: (model.model_fields[n].annotation, None) for n in names}
+    # Wire schema: every value is a string, so a masked value (⟦AMT_1⟧) can be returned and is
+    # restored by code before `sanitise` parses it into dates and decimals.
+    spec = {n: (str | None, None) for n in names}
     return create_model("FillFields", __config__=ConfigDict(extra="forbid"), **spec)  # type: ignore[call-overload]
 
 
@@ -81,10 +111,14 @@ def extract_fields(
     parsed = parse_document(pdf.visible_text, doc_type, date_order_hint=date_order_hint)
     analysis = build_view(pdf, parsed, doc_type)
     missing = [f for f in REQUIRED[doc_type] if getattr(parsed.fields, f, None) is None]
+    gw = new_gateway(db)
+    text = gw.defang(wrap_untrusted(pdf.visible_text, doc_id, sha256))
     if not missing or not _llm_enabled() or not pdf.visible_text.strip():
+        _record_prepared(db, gw, text, doc_id)
         return FieldExtraction(analysis)
     if analysis.view.instruction_codes:  # a document that carries instructions is not sent out
         analysis.warnings.append("LLM_SKIPPED_INSTRUCTIONS")
+        _record_prepared(db, gw, text, doc_id)
         return FieldExtraction(analysis)
     key = cache_key(sha256, doc_type)
     cached = db.get(LlmCache, key)
@@ -94,12 +128,14 @@ def extract_fields(
     else:
         schema = _fill_schema(doc_type, missing)
         try:
-            out = llm.structured_call(
-                schema,
-                system=_system_prompt(),
-                user=wrap_untrusted(pdf.visible_text, doc_id, sha256),
-                tags=["forensics", "extract"],
-            )
+            with use_gateway(gw):
+                out = llm.structured_call(
+                    schema,
+                    system=_system_prompt(),
+                    user=text,
+                    tags=["forensics", "extract"],
+                )
+            _persist(db, gw, doc_id)
         except Exception as exc:
             log.warning("llm_extraction_failed", error=type(exc).__name__, sha256=sha256)
             analysis.warnings.append("LLM_EXTRACTION_FAILED")

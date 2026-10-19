@@ -293,7 +293,10 @@ class ToolRegistry:
             tags=["setu", "tool", *spec.tags],
             metadata={"tool": spec.name, "tier": int(spec.max_tier)},
         )
-        return runnable.invoke(parsed.model_dump(mode="json"), config=config)
+        # Tool runs work on real values: keep them out of LangSmith (the graph's own node runs
+        # carry the masked view of the same data).
+        quiet = {**config, "callbacks": []} if config else config
+        return runnable.invoke(parsed.model_dump(mode="json"), config=quiet)
 
     @staticmethod
     def _refuse(

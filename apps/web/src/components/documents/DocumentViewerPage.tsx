@@ -8,6 +8,7 @@ import { Card } from "@/components/ui/Card";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { QueryError } from "@/components/ui/QueryError";
 import { SimulatedBadge } from "@/components/ui/SimulatedBadge";
+import { XrayButton } from "@/components/privacy/XrayButton";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { useT } from "@/i18n";
 import { ApiError } from "@/lib/api/client";
@@ -146,6 +147,7 @@ function Viewer({
           <h1 className="text-2xl font-bold text-ink">{t(`docType.${doc.doc_type}`)}</h1>
           <DocStatusBadge status={status} />
           <SimulatedBadge />
+          {buyerSide ? <XrayButton kind="document" id={doc.id} /> : null}
         </div>
         <p className="text-sm break-all text-muted" data-testid="doc-file-name">
           {doc.file_name}

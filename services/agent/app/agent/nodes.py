@@ -9,7 +9,7 @@ import html
 import json
 import re
 from collections.abc import Callable
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Any, cast
 
 import structlog
@@ -37,6 +37,7 @@ from app.agent.registry import (
     ToolContext,
     ToolOutcome,
     ToolRegistry,
+    args_summary,
 )
 from app.agent.state import (
     AgentState,
@@ -49,7 +50,7 @@ from app.agent.state import (
     zero_usage,
 )
 from app.auth.deps import CurrentUser
-from app.security import privacy_gateway
+from app.privacy.gateway import PrivacyGateway
 from app.services.scope import party
 
 log = structlog.get_logger("setu.agent")
@@ -68,6 +69,7 @@ class AgentDeps:
     user: CurrentUser
     db: Session | None
     thread_id: str
+    gateway: PrivacyGateway = field(default_factory=PrivacyGateway)  # per request, never stored
 
 
 class RouterDecision(BaseModel):
@@ -105,21 +107,33 @@ def escape_prose(text: str) -> str:
 CITE = re.compile(r"\[(S\d{1,3})\]")
 
 
-def render_tool_result(outcome: ToolOutcome) -> str:
+def _output_text(res: Any) -> str:
+    raw = res.get("raw") if isinstance(res, dict) else res
+    parsed = res.get("parsed") if isinstance(res, dict) else None
+    if isinstance(raw, BaseMessage):
+        content = text_of(raw)
+        if content:
+            return content
+    return str(parsed) if parsed is not None else ""
+
+
+def render_tool_result(outcome: ToolOutcome, gateway: PrivacyGateway | None = None) -> str:
+    """The tool result as the model gets it: untrusted wrapper, identifiers masked."""
     # "<" is escaped so data can never close the wrapper tag.
+    gw = gateway or PrivacyGateway()
     ok = "true" if outcome.ok else "false"
     data = outcome.data or {}
     if outcome.ok and data.get("card_type") == "citations":
         docs = [
             f'<retrieved_document cite_id="{html.escape(s["cite_id"], quote=True)}" '
             f'source_id="{html.escape(s["source_id"], quote=True)}">\n'
-            + escape_prose(f"{s['heading_path']}\n{s['content']}")
+            + escape_prose(gw.mask_text(f"{s['heading_path']}\n{s['content']}"))
             + "\n</retrieved_document>"
             for s in data["data"]["snippets"]
         ]
         body = "\n".join(docs) or "(no matching passages)"
     else:
-        body = outcome.model_payload().replace("<", "\\u003c")
+        body = gw.mask_payload(outcome.model_payload()).replace("<", "\\u003c")
     return f'<tool_result name="{outcome.name}" ok="{ok}" untrusted="true">\n{body}\n</tool_result>'
 
 
@@ -216,14 +230,18 @@ class Nodes:
             "notes": [],
         }
 
-    def privacy_gateway(self, state: AgentState) -> dict[str, Any]:
-        # TODO(P18): real masking. Wired here so no LLM call happens before the gateway.
+    def privacy_gateway(self, state: AgentState, config: RunnableConfig) -> dict[str, Any]:
+        """Masks the user's message before any model sees it (the runner already masked the graph
+        input, so this is idempotent) and keeps new tokens from reusing ones in earlier turns."""
+        gw = deps_of(config).gateway
+        for m in state.messages:
+            gw.vault.reserve_from(text_of(m))
         update: dict[str, Any] = {"privacy_checked": True}
         human = last_human(state.messages)
         if human is not None:
-            masked = privacy_gateway.mask(text_of(human))
-            if masked.changed:
-                update["messages"] = [HumanMessage(content=masked.text, id=human.id)]
+            masked = gw.mask_text(text_of(human))
+            if masked != text_of(human):
+                update["messages"] = [HumanMessage(content=masked, id=human.id)]
         return update
 
     def router(self, state: AgentState, config: RunnableConfig) -> dict[str, Any]:
@@ -236,10 +254,13 @@ class Nodes:
             structured = self.models.fast.with_structured_output(
                 RouterDecision, method="json_schema", include_raw=True
             )
-            res = structured.invoke(
+            sent, call = deps_of(config).gateway.protect(
                 [SystemMessage(prompts.ROUTER_PROMPT), HumanMessage(text)],
-                config=merge_configs(config, {"tags": ["node:router"]}),
+                node="router",
+                model=self.models.fast_id,
             )
+            res = structured.invoke(sent, config=merge_configs(config, {"tags": ["node:router"]}))
+            call.output = _output_text(res)
             parsed = res["parsed"] if isinstance(res, dict) else res
             if not isinstance(parsed, RouterDecision):
                 raise ValueError("router returned no decision")
@@ -294,7 +315,11 @@ class Nodes:
             *self._agent_history(state),
         ]
         try:
+            messages, call = deps_of(config).gateway.protect(
+                messages, node="agent", model=state.model_used
+            )
             ai = bound.invoke(messages, config=self._tagged(config, state, "agent"))
+            call.output = _output_text(ai)
         except Exception as exc:
             log.warning("agent_model_failed", error=type(exc).__name__)
             return {"stop_reason": "model_error", "pending_tool_calls": False}
@@ -317,8 +342,12 @@ class Nodes:
         results: list[ToolResult] = list(state.tool_results)
         flags: list[str] = list(state.injection_flags)
         cites = len(retrieved_ids(results))
+        gw = d.gateway
         for call in calls:
-            name, args, call_id = call["name"], call.get("args") or {}, call.get("id") or ""
+            name, call_id = call["name"], call.get("id") or ""
+            args = gw.unmask(
+                call.get("args") or {}, canonical=True
+            )  # tools work on the real values
             if steps >= self.max_tool_steps:
                 outcome = ToolOutcome(
                     name=name if TOOL_NAME.fullmatch(name or "") else INVALID_TOOL_NAME,
@@ -330,9 +359,10 @@ class Nodes:
                 outcome = self.registry.guard(name, args, ctx, config, allowed)
                 cites = renumber_citations(outcome, cites)
                 steps += 1
+            raw_payload = outcome.payload()
             out.append(
                 ToolMessage(
-                    content=render_tool_result(outcome),
+                    content=render_tool_result(outcome, gw),
                     tool_call_id=call_id,
                     name=outcome.name,
                     status="success" if outcome.ok else "error",
@@ -342,16 +372,17 @@ class Nodes:
                 {
                     "id": call_id,
                     "name": outcome.name,
-                    "args_summary": outcome.args_summary,
+                    "args_summary": gw.mask_text(args_summary(gw.mask(args))),
                     "ok": outcome.ok,
                     "error_code": (outcome.error or {}).get("code"),
                 }
             )
+            gw.raw_results.append(raw_payload)  # real values for the UI card only
             results.append(
                 {
                     "name": outcome.name,
                     "ok": outcome.ok,
-                    "payload": outcome.payload(),
+                    "payload": gw.mask_payload(raw_payload),
                     "flags": list(outcome.injection),
                 }
             )
@@ -469,10 +500,14 @@ class Nodes:
                 HumanMessage(self._respond_input(state)),
             ]
             try:
+                messages, call = deps_of(config).gateway.protect(
+                    messages, node="respond", model=state.model_used
+                )
                 ai = self.models.for_tier(state.model_tier).invoke(
                     messages, config=self._tagged(config, state, "respond")
                 )
                 text = text_of(ai)
+                call.output = text
                 usage = add_usage(usage, usage_of(ai))
             except Exception as exc:
                 log.warning("respond_model_failed", error=type(exc).__name__)

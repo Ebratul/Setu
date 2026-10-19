@@ -338,7 +338,7 @@ def test_llm_fills_only_what_the_parser_missed_and_is_cached_by_hash(
             s.scalar(
                 select(func.count())
                 .select_from(LlmCache)
-                .where(LlmCache.prompt_id == "forensics-extract@1")
+                .where(LlmCache.prompt_id == "forensics-extract@2")
             )
             >= 1
         )

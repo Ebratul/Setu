@@ -273,7 +273,9 @@
   "nav": {
     "risk": "Risk engine",
     "playground": "Risk playground",
-    "approvals": "审批"
+    "approvals": "审批",
+    "privacy": "隐私",
+    "privacyPlayground": "隐私演练场"
   },
   "chg": {
     "title": "更改收款账户",
@@ -326,5 +328,151 @@
   },
   "appr": {
     "pendingCount": "{n} 待处理"
+  },
+  "privacy": {
+    "type": {
+      "NID": {
+        "one": "身份证号",
+        "other": "身份证号"
+      },
+      "PASSPORT": {
+        "one": "护照号",
+        "other": "护照号"
+      },
+      "PHONE": {
+        "one": "手机号",
+        "other": "手机号"
+      },
+      "ACCT": {
+        "one": "账号",
+        "other": "账号"
+      },
+      "IBAN": {
+        "one": "IBAN",
+        "other": "IBAN"
+      },
+      "SWIFT": {
+        "one": "SWIFT 代码",
+        "other": "SWIFT 代码"
+      },
+      "EMAIL": {
+        "one": "邮箱",
+        "other": "邮箱"
+      },
+      "NAME": {
+        "one": "姓名",
+        "other": "姓名"
+      },
+      "AMT": {
+        "one": "金额",
+        "other": "金额"
+      }
+    },
+    "summary": {
+      "one": "已保护 1 项身份信息：{list}",
+      "other": "已保护 {n} 项身份信息：{list}",
+      "none": "这里没有需要保护的身份信息。"
+    },
+    "leaked": "泄露：{n}",
+    "leakedOk": "泄露：0 — 真实信息未到达 AI",
+    "protectedBadge": "已保护：{n}",
+    "notSent": "本次未发送",
+    "notSentHint": "已为 AI 准备好，但本次未发送（模拟模式或无需发送）。",
+    "sentTo": "已发送至 {node}",
+    "model": "模型：{model}",
+    "xray": {
+      "open": "查看 AI 看到了什么",
+      "title": "AI 看到了什么？",
+      "intro": "高亮的内容在到达 AI 之前已被替换为占位符，之后由我们的代码还原。",
+      "left": "您看到的内容",
+      "right": "发送给 AI 的内容",
+      "loading": "正在加载隐私记录…",
+      "unavailable": "该项目暂无隐私记录。",
+      "noCalls": "该项目没有向 AI 发送任何内容。",
+      "tokenOf": "已替换为 {token}"
+    },
+    "counter": {
+      "label": "隐私计数器",
+      "protected": "本次会话已保护的身份信息：{n}",
+      "leaked": "泄露：{n}",
+      "unavailable": "隐私计数器不可用"
+    },
+    "pg": {
+      "title": "隐私网关演练场",
+      "intro": "粘贴一段消息或文档文字。Setu 会找出身份信息，在 AI 看到之前替换为占位符，之后再用普通代码还原。",
+      "note": "模拟 · 不保存任何内容",
+      "input": "待保护的文字",
+      "maskAmounts": "遮蔽金额",
+      "showObf": "显示混淆处理",
+      "obfIntro": "试着把号码藏起来：Setu 依然能找到。",
+      "obfSpaced": "带空格的数字",
+      "obfBangla": "孟加拉文数字",
+      "obfZwj": "零宽字符",
+      "live": "实时检测",
+      "checking": "检测中…",
+      "found": {
+        "one": "发现 1 项身份信息",
+        "other": "发现 {n} 项身份信息",
+        "none": "未发现身份信息"
+      },
+      "send": "发送给 AI（演练）",
+      "sending": "发送中…",
+      "paneMasked": "已遮蔽的内容 — AI 看到的",
+      "paneAnswer": "AI 的回答（仍为遮蔽状态）",
+      "paneRestored": "由代码还原真实信息后的回答",
+      "results": "演练结果",
+      "detections": "检测结果",
+      "col": {
+        "type": "类型",
+        "token": "占位符",
+        "confidence": "置信度",
+        "handling": "处理方式"
+      },
+      "obfHandled": "已处理混淆",
+      "direct": "直接识别",
+      "error": "演练失败，请重试。"
+    },
+    "admin": {
+      "title": "隐私网关",
+      "intro": "发送给 AI 的每条消息都会先被遮蔽。本页提供证明：保护了什么、泄露了什么（应始终为零）以及 AI 实际收到了什么。",
+      "playground": "打开隐私演练场",
+      "protected": "已保护的身份信息",
+      "leaked": "泄露",
+      "calls": "AI 调用次数",
+      "leakedHint": "应始终为 0",
+      "byType": "按类型统计的保护数量",
+      "noData": "暂无记录。",
+      "chart": "每日已保护的身份信息（近 14 天）",
+      "chartShow": "以表格显示",
+      "chartHide": "隐藏表格",
+      "day": "日期",
+      "recent": "最新透明度记录",
+      "recentEmpty": "暂无透明度记录。",
+      "expand": "显示遮蔽后的内容",
+      "collapse": "隐藏遮蔽后的内容",
+      "payloadOnly": "此处只显示遮蔽后的内容，绝不显示真实值。",
+      "node": "步骤",
+      "source": "来源",
+      "sent": "已发送给 AI",
+      "notSent": "已准备，未发送",
+      "configOn": "遮蔽已开启",
+      "configOff": "遮蔽已关闭",
+      "amountsOn": "金额也会被遮蔽",
+      "amountsOff": "金额不会被遮蔽",
+      "prove": {
+        "title": "亲自验证",
+        "explain": "打开 LangSmith 运行记录，确认只出现 ⟦ACCT_1⟧ 这样的占位符，没有任何原始值。",
+        "link": "打开 LangSmith 运行记录",
+        "off": "当前环境未开启追踪，因此没有可打开的运行记录。",
+        "hint": "开启 LangSmith 追踪即可查看 AI 收到的确切内容。"
+      }
+    },
+    "land": {
+      "title": "AI 从不接触真实信息",
+      "line": "可逆遮蔽：AI 永远看不到真实值，由我们的代码把它还原。",
+      "before": "之前",
+      "after": "AI 看到的",
+      "link": "在隐私演练场亲自试试"
+    }
   }
 }

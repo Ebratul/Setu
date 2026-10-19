@@ -1491,6 +1491,97 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/privacy/dry-run": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Dry Run
+         * @description Mask the typed text and show what a model would receive. Saves nothing, calls no model.
+         */
+        post: operations["dry_run_privacy_dry_run_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/privacy/summary": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Summary
+         * @description Identifiers protected / leaked: one conversation, the caller's chats, or (admin) all.
+         */
+        get: operations["summary_privacy_summary_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/privacy/messages/{message_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Message Xray */
+        get: operations["message_xray_privacy_messages__message_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/privacy/documents/{document_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Document Xray */
+        get: operations["document_xray_privacy_documents__document_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/privacy/admin/overview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Overview */
+        get: operations["overview_privacy_admin_overview_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -2631,19 +2722,6 @@ export interface components {
             below_buffer: boolean;
             /** Items */
             items: components["schemas"]["FlowOut"][];
-        };
-        /** DayPoint */
-        DayPoint: {
-            /** Day */
-            day: string;
-            /** Auto */
-            auto: number;
-            /** One Tap */
-            one_tap: number;
-            /** Otp */
-            otp: number;
-            /** Blocked */
-            blocked: number;
         };
         /** DealActions */
         DealActions: {
@@ -4172,6 +4250,25 @@ export interface components {
             /** Text Bn */
             text_bn: string;
         };
+        /** HitOut */
+        HitOut: {
+            /** Type */
+            type: string;
+            /** Start */
+            start: number;
+            /** End */
+            end: number;
+            /** Confidence */
+            confidence: number;
+            /** Token */
+            token: string;
+            /** Obfuscated */
+            obfuscated: boolean;
+            /** Label En */
+            label_en: string;
+            /** Label Bn */
+            label_bn: string;
+        };
         /** ImpactOut */
         ImpactOut: {
             /**
@@ -4693,6 +4790,13 @@ export interface components {
             /** Simulated */
             simulated: boolean;
         };
+        /** LeftBlock */
+        LeftBlock: {
+            /** Label */
+            label: string;
+            /** Segments */
+            segments: components["schemas"]["Segment"][];
+        };
         /**
          * LenderCheckIn
          * @description Exactly one of `sha256`, `document_id` or `fields`. A file goes to `/lender-check/file`.
@@ -5203,7 +5307,7 @@ export interface components {
             simulated: true;
             counters: components["schemas"]["Counters"];
             /** Series */
-            series: components["schemas"]["DayPoint"][];
+            series: components["schemas"]["app__api__risk__DayPoint"][];
             /** Latest Blocked */
             latest_blocked: components["schemas"]["EventRow"][];
             /** Recent */
@@ -5316,6 +5420,65 @@ export interface components {
             /** Condition Bn */
             condition_bn: string;
         };
+        /** PrivacyConfigOut */
+        PrivacyConfigOut: {
+            /** Enabled */
+            enabled: boolean;
+            /** Mask Amounts */
+            mask_amounts: boolean;
+        };
+        /** PrivacyDryRunIn */
+        PrivacyDryRunIn: {
+            /** Text */
+            text: string;
+            /**
+             * Mask Amounts
+             * @default true
+             */
+            mask_amounts: boolean;
+        };
+        /** PrivacyDryRunOut */
+        PrivacyDryRunOut: {
+            /**
+             * Simulated
+             * @default true
+             * @constant
+             */
+            simulated: true;
+            /** Mask Amounts */
+            mask_amounts: boolean;
+            /** Hits */
+            hits: components["schemas"]["HitOut"][];
+            /** Source Segments */
+            source_segments: components["schemas"]["Segment"][];
+            /** Masked Segments */
+            masked_segments: components["schemas"]["Segment"][];
+            /** Masked */
+            masked: string;
+            /** Ai Answer Masked */
+            ai_answer_masked: string;
+            /** Ai Answer Segments */
+            ai_answer_segments: components["schemas"]["Segment"][];
+            /** Restored Answer */
+            restored_answer: string;
+            /** Restored Segments */
+            restored_segments: components["schemas"]["Segment"][];
+            stats: components["schemas"]["StatsOut"];
+        };
+        /** PrivacyOverviewOut */
+        PrivacyOverviewOut: {
+            totals: components["schemas"]["TotalsOut"];
+            /** By Type */
+            by_type: {
+                [key: string]: number;
+            };
+            /** Series */
+            series: components["schemas"]["app__schemas__privacy__DayPoint"][];
+            /** Recent */
+            recent: components["schemas"]["RecentRecord"][];
+            trace: components["schemas"]["TraceOut"];
+            config: components["schemas"]["PrivacyConfigOut"];
+        };
         /** ProposeRequest */
         ProposeRequest: {
             /**
@@ -5338,6 +5501,31 @@ export interface components {
             message: string;
             /** Message Bn */
             message_bn: string;
+        };
+        /** RecentRecord */
+        RecentRecord: {
+            /** Id */
+            id: string;
+            /** Created At */
+            created_at: string;
+            /** Source */
+            source: string;
+            /** Node */
+            node: string;
+            /** Model */
+            model: string | null;
+            /** Sent */
+            sent: boolean;
+            /** Protected */
+            protected: number;
+            /** Leaked */
+            leaked: number;
+            /** By Type */
+            by_type: {
+                [key: string]: number;
+            };
+            /** Masked Payload */
+            masked_payload: string;
         };
         /** Recommendation */
         Recommendation: {
@@ -5629,6 +5817,19 @@ export interface components {
             /** Delivered To Demo Phone */
             delivered_to_demo_phone: boolean;
         };
+        /** RightBlock */
+        RightBlock: {
+            /** Label */
+            label: string;
+            /** Node */
+            node: string;
+            /** Model */
+            model: string | null;
+            /** Sent */
+            sent: boolean;
+            /** Segments */
+            segments: components["schemas"]["Segment"][];
+        };
         /**
          * RiskOut
          * @description The engine's answer plus its rule trace. Decided by code, never by a model.
@@ -5819,6 +6020,18 @@ export interface components {
             suppliers: components["schemas"]["SupplierItem"][];
         };
         /**
+         * Segment
+         * @description A run of text; `type` is set when it is a protected value (NID, ACCT, PHONE, AMT …).
+         */
+        Segment: {
+            /** Text */
+            text: string;
+            /** Type */
+            type?: string | null;
+            /** Token */
+            token?: string | null;
+        };
+        /**
          * SemanticFields
          * @description The identity fields of an invoice or bill of lading (what a lender reads off the paper).
          */
@@ -5920,6 +6133,41 @@ export interface components {
              * @constant
              */
             simulated: true;
+        };
+        /** StatsOut */
+        StatsOut: {
+            /** Masked By Type */
+            masked_by_type?: {
+                [key: string]: number;
+            };
+            /**
+             * Protected
+             * @default 0
+             */
+            protected: number;
+            /**
+             * Leaked Count
+             * @default 0
+             */
+            leaked_count: number;
+            /**
+             * Chars Sent
+             * @default 0
+             */
+            chars_sent: number;
+        };
+        /** SummaryOut */
+        SummaryOut: {
+            /** Protected */
+            protected: number;
+            /** Leaked */
+            leaked: number;
+            /** Calls */
+            calls: number;
+            /** By Type */
+            by_type: {
+                [key: string]: number;
+            };
         };
         /** SupplierCompany */
         SupplierCompany: {
@@ -6302,6 +6550,15 @@ export interface components {
             /** Issue Bn */
             issue_bn: string;
         };
+        /** TotalsOut */
+        TotalsOut: {
+            /** Protected */
+            protected: number;
+            /** Leaked */
+            leaked: number;
+            /** Calls */
+            calls: number;
+        };
         /** TraceItemOut */
         TraceItemOut: {
             /** Code */
@@ -6323,6 +6580,17 @@ export interface components {
             value_en: string;
             /** Value Bn */
             value_bn: string;
+        };
+        /** TraceOut */
+        TraceOut: {
+            /** Enabled */
+            enabled: boolean;
+            /** Url */
+            url: string | null;
+            /** Run Id */
+            run_id: string | null;
+            /** Note */
+            note: string;
         };
         /** UploadResult */
         UploadResult: {
@@ -6420,6 +6688,34 @@ export interface components {
             source_id: string;
             /** Codes */
             codes: string[];
+        };
+        /** XrayOut */
+        XrayOut: {
+            /**
+             * Kind
+             * @enum {string}
+             */
+            kind: "message" | "document";
+            /** Available */
+            available: boolean;
+            stats: components["schemas"]["StatsOut"];
+            /** Left */
+            left: components["schemas"]["LeftBlock"][];
+            /** Right */
+            right: components["schemas"]["RightBlock"][];
+        };
+        /** DayPoint */
+        app__api__risk__DayPoint: {
+            /** Day */
+            day: string;
+            /** Auto */
+            auto: number;
+            /** One Tap */
+            one_tap: number;
+            /** Otp */
+            otp: number;
+            /** Blocked */
+            blocked: number;
         };
         /** ApprovalOut */
         app__schemas__approvals__ApprovalOut: {
@@ -6605,6 +6901,15 @@ export interface components {
              * @example 11200.00
              */
             effective_annual_rate_pct: string;
+        };
+        /** DayPoint */
+        app__schemas__privacy__DayPoint: {
+            /** Day */
+            day: string;
+            /** Protected */
+            protected: number;
+            /** Leaked */
+            leaked: number;
         };
     };
     responses: never;
@@ -9070,6 +9375,152 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["AccountChangeList"];
+                };
+            };
+        };
+    };
+    dry_run_privacy_dry_run_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PrivacyDryRunIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PrivacyDryRunOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    summary_privacy_summary_get: {
+        parameters: {
+            query?: {
+                thread_id?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SummaryOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    message_xray_privacy_messages__message_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                message_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["XrayOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    document_xray_privacy_documents__document_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                document_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["XrayOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    overview_privacy_admin_overview_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PrivacyOverviewOut"];
                 };
             };
         };

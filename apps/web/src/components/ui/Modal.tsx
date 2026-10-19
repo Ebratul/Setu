@@ -9,13 +9,17 @@ type Props = {
   onClose: () => void;
   children: ReactNode;
   closeDisabled?: boolean;
+  size?: "md" | "xl";
 };
+
+/** Open modals, innermost last: only the top one reacts to Esc / Tab. */
+const openModals: symbol[] = [];
 
 const FOCUSABLE =
   'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
 
 /** Accessible modal: focus trap, Esc closes, focus returns to the opener. */
-export function Modal({ title, onClose, children, closeDisabled }: Props) {
+export function Modal({ title, onClose, children, closeDisabled, size = "md" }: Props) {
   const t = useT();
   const titleId = useId();
   const panel = useRef<HTMLDivElement>(null);
@@ -30,8 +34,10 @@ export function Modal({ title, onClose, children, closeDisabled }: Props) {
     const opener = document.activeElement as HTMLElement | null;
     const el = panel.current;
     el?.focus();
+    const me = Symbol("modal");
+    openModals.push(me);
     function onKey(e: KeyboardEvent) {
-      if (!el) return;
+      if (!el || openModals[openModals.length - 1] !== me) return;
       if (e.key === "Escape") {
         if (!disabledRef.current) onCloseRef.current();
         return;
@@ -59,6 +65,8 @@ export function Modal({ title, onClose, children, closeDisabled }: Props) {
     document.addEventListener("keydown", onKey);
     return () => {
       document.removeEventListener("keydown", onKey);
+      const at = openModals.indexOf(me);
+      if (at !== -1) openModals.splice(at, 1);
       opener?.focus?.();
     };
   }, []);
@@ -71,7 +79,7 @@ export function Modal({ title, onClose, children, closeDisabled }: Props) {
         aria-modal="true"
         aria-labelledby={titleId}
         tabIndex={-1}
-        className="max-h-[92vh] w-full overflow-y-auto rounded-t-card bg-surface p-5 shadow-card-hover focus:outline-none sm:max-w-2xl sm:rounded-card"
+        className={`max-h-[92vh] w-full overflow-y-auto rounded-t-card bg-surface p-5 shadow-card-hover focus:outline-none ${size === "xl" ? "sm:max-w-5xl" : "sm:max-w-2xl"} sm:rounded-card`}
       >
         <div className="mb-4 flex items-start justify-between gap-3">
           <h2 id={titleId} className="text-lg font-bold text-ink">

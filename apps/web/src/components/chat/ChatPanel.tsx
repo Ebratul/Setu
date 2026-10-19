@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from "react";
 
+import { PrivacyCounter } from "@/components/privacy/PrivacyCounter";
 import { QueryError } from "@/components/ui/QueryError";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { useT } from "@/i18n";
@@ -33,6 +34,7 @@ export function ChatPanel({ session, focusSignal = 0, className = "" }: Props) {
 
   return (
     <div className={`flex min-h-0 min-w-0 flex-col gap-3 ${className}`}>
+      <PrivacyCounter threadId={session.threadId} refreshKey={busy ? "busy" : "idle"} />
       <DealSelect value={session.deal} onChange={session.setDeal} />
       <div
         ref={scroller}

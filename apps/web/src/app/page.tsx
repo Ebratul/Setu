@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { LandingPrivacy } from "@/components/privacy/LandingPrivacy";
 import { LandingSecurity } from "@/components/risk/LandingSecurity";
 import { AgentStatusCard } from "@/components/status/AgentStatusCard";
 
@@ -33,6 +34,7 @@ export default function Home() {
           Open the demo → /login
         </Link>
         <LandingSecurity />
+        <LandingPrivacy />
         <AgentStatusCard />
       </main>
       <footer className="px-6 py-6 text-center text-sm text-muted">

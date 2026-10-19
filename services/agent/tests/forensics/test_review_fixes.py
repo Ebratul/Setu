@@ -236,20 +236,6 @@ def test_structured_call_masks_inputs_and_unmasks_outputs(monkeypatch: pytest.Mo
     from langchain_core.runnables import RunnableLambda
 
     from app.llm import client
-    from app.security import privacy_gateway as pg
-
-    def fake_mask(text: str) -> pg.Masked:
-        vault: dict[str, str] = {}
-
-        def sub(kind: str, m: re.Match[str]) -> str:
-            token = f"⟦{kind}_{len(vault) + 1}⟧"
-            vault[token] = m.group(0)
-            return token
-
-        text = re.sub(r"SIM-[A-Z]{2}-[\d*-]+", lambda m: sub("ACCT", m), text)
-        text = re.sub(r"\+?8801[3-9]\d{8}", lambda m: sub("PHONE", m), text)
-        text = re.sub(r"USD [\d,]+\.\d\d", lambda m: sub("AMT", m), text)
-        return pg.Masked(text, vault)
 
     seen: dict[str, str] = {}
 
@@ -265,14 +251,13 @@ def test_structured_call_masks_inputs_and_unmasks_outputs(monkeypatch: pytest.Mo
 
             return RunnableLambda(run)
 
-    monkeypatch.setattr(pg, "mask", fake_mask)
     monkeypatch.setattr(client, "anthropic_chat_model", lambda model: FakeChat())
     out = client.structured_call(
         Out,
         system="Extract. Customer +8801712345678.",
         user="<untrusted_document>Account SIM-CN-6222-0400-1188 total USD 9,600.00</untrusted_document>",
     )
-    for raw in ("SIM-CN-6222-0400-1188", "+8801712345678", "USD 9,600.00"):
+    for raw in ("SIM-CN-6222-0400-1188", "+8801712345678", "9,600.00"):
         assert raw not in seen["all"]
     assert "⟦ACCT_" in seen["all"]
     assert out.bank_account == "SIM-CN-6222-0400-1188"  # unmasked on the way back

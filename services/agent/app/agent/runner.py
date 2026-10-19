@@ -38,8 +38,9 @@ from app.db.models import ChatThread
 from app.db.session import get_engine
 from app.errors import DomainError, ServiceUnavailable
 from app.llm import tracing
+from app.privacy.gateway import PrivacyGateway, StreamUnmasker
+from app.privacy.records import new_gateway, persist_calls
 from app.schemas.chat import ChatRequest, ChatResponse, Citation, ToolCallOut, UsageOut
-from app.security.privacy_gateway import mask_for_storage
 
 log = structlog.get_logger("setu.chat")
 
@@ -58,6 +59,7 @@ class Turn:
     config: RunnableConfig
     graph_input: dict[str, Any]
     callbacks: list[Any]
+    gateway: PrivacyGateway
 
 
 def _graph() -> CompiledStateGraph:
@@ -87,11 +89,10 @@ def start_turn(db: Session, user: CurrentUser, req: ChatRequest) -> Turn:
 
     run_id = uuid.uuid4()
     callbacks = tracing.callbacks()
+    gateway = new_gateway(db, user)
+    deps = AgentDeps(user=user, db=db, thread_id=str(thread.id), gateway=gateway)
     config: RunnableConfig = {
-        "configurable": {
-            "thread_id": str(thread.id),
-            "deps": AgentDeps(user=user, db=db, thread_id=str(thread.id)),
-        },
+        "configurable": {"thread_id": str(thread.id), "deps": deps},
         "callbacks": callbacks,
         "run_id": run_id,
         "run_name": "setu-chat",
@@ -99,13 +100,31 @@ def start_turn(db: Session, user: CurrentUser, req: ChatRequest) -> Turn:
         "metadata": {"user_role": str(user.role), "thread_id": str(thread.id)},
         "recursion_limit": 40,
     }
+    _reserve_history(gateway, config)
     graph_input = {
-        "messages": [HumanMessage(content=req.message, id=str(uuid.uuid4()))],
+        # Masked before the graph (and so before LangSmith) sees it; only the vault can undo it.
+        "messages": [
+            HumanMessage(
+                content=gateway.mask_text(gateway.defang(req.message)), id=str(uuid.uuid4())
+            )
+        ],
         "language": language,
         "deal_id": deal.reference if deal else None,
         "thread_tokens_before": thread.tokens_used or 0,
     }
-    return Turn(thread, language, graph_input["deal_id"], run_id, config, graph_input, callbacks)
+    return Turn(
+        thread, language, graph_input["deal_id"], run_id, config, graph_input, callbacks, gateway
+    )
+
+
+def _reserve_history(gateway: PrivacyGateway, config: RunnableConfig) -> None:
+    """Tokens in earlier turns (kept masked in the checkpoint) must not be reused for new values."""
+    try:
+        values = _graph().get_state(config).values
+        for m in values.get("messages", []):
+            gateway.vault.reserve_from(m.text if hasattr(m, "text") else str(m.content))
+    except Exception as exc:
+        log.warning("privacy_history_failed", error=type(exc).__name__)
 
 
 def _user_lang(user: CurrentUser) -> Lang:
@@ -114,12 +133,15 @@ def _user_lang(user: CurrentUser) -> Lang:
 
 def finish_turn(db: Session, user: CurrentUser, turn: Turn, values: dict[str, Any]) -> ChatResponse:
     state = AgentState.model_validate(values)
-    for rec, res in zip(state.tool_calls_made, state.tool_results, strict=False):
+    gw = turn.gateway
+    for i, (rec, res) in enumerate(zip(state.tool_calls_made, state.tool_results, strict=False)):
         append_message(
             db,
             turn.thread,
             ChatRole.TOOL,
-            mask_for_storage(res["payload"]),
+            # The deterministic tool output behind the UI card (history rebuilds cards from it).
+            # It is never sent to a model from here: the model-facing copy is the masked state.
+            gw.raw_results[i] if i < len(gw.raw_results) else res["payload"],
             {
                 "tool": rec["name"],
                 "ok": rec["ok"],
@@ -127,6 +149,7 @@ def finish_turn(db: Session, user: CurrentUser, turn: Turn, values: dict[str, An
                 "error_code": rec["error_code"],
             },
         )
+    state = unmasked(state, gw)  # real values only from here on: the user's own answer and cards
     answer = state.answer or ""
     usage = state.token_usage
     citations = citations_of(state)
@@ -149,6 +172,15 @@ def finish_turn(db: Session, user: CurrentUser, turn: Turn, values: dict[str, An
         },
     )
     add_tokens(db, turn.thread, usage["total_tokens"])
+    persist_calls(
+        db,
+        gw,
+        source="chat",
+        user_id=user.id,
+        thread_id=turn.thread.id,
+        message_id=assistant.id,
+        run_id=str(turn.run_id),
+    )
     db.commit()
     log.info(
         "chat_turn",
@@ -186,6 +218,24 @@ def finish_turn(db: Session, user: CurrentUser, turn: Turn, values: dict[str, An
         notes=state.notes,
         cards=cards_of(state.tool_results),
         citations=citations,
+    )
+
+
+def unmasked(state: AgentState, gw: PrivacyGateway) -> AgentState:
+    """The state with tokens restored by the request's vault (graph state itself stays masked)."""
+    results = [
+        {**r, "payload": gw.raw_results[i] if i < len(gw.raw_results) else gw.unmask(r["payload"])}
+        for i, r in enumerate(state.tool_results)
+    ]
+    records = [{**c, "args_summary": gw.unmask(c["args_summary"])} for c in state.tool_calls_made]
+    return state.model_copy(
+        update={
+            "answer": gw.unmask(state.answer, unresolved=True) if state.answer else state.answer,
+            "why": gw.unmask(state.why, unresolved=True) if state.why else state.why,
+            "notes": [gw.unmask(n, unresolved=True) for n in state.notes],
+            "tool_results": results,
+            "tool_calls_made": records,
+        }
     )
 
 
@@ -238,8 +288,17 @@ def abort_turn(
             spent = 0
         spent += streamed_chars // 4  # respond output streamed before its usage was checkpointed
         meta = {"aborted": reason, "tokens": spent}
-        append_message(db, turn.thread, ChatRole.ASSISTANT, "", meta)
+        marker = append_message(db, turn.thread, ChatRole.ASSISTANT, "", meta)
         add_tokens(db, turn.thread, spent)
+        persist_calls(
+            db,
+            turn.gateway,
+            source="chat",
+            user_id=turn.thread.user_id,
+            thread_id=turn.thread.id,
+            message_id=marker.id,
+            run_id=str(turn.run_id),
+        )
         db.commit()
         log.info("chat_turn_aborted", thread_id=str(turn.thread.id), reason=reason, tokens=spent)
     except Exception as exc:
@@ -306,6 +365,8 @@ def _stream_turn(db: Session, user: CurrentUser, req: ChatRequest) -> Iterator[s
 
 
 def _graph_events(turn: Turn, graph: CompiledStateGraph, streamed: list[str]) -> Iterator[str]:
+    gw = turn.gateway
+    unmasker = StreamUnmasker(gw)
     for mode, chunk in graph.stream(
         turn.graph_input, turn.config, stream_mode=["updates", "messages"]
     ):
@@ -313,6 +374,7 @@ def _graph_events(turn: Turn, graph: CompiledStateGraph, streamed: list[str]) ->
             msg, meta = chunk
             if meta.get("langgraph_node") == RESPOND_NODE and isinstance(msg, AIMessageChunk):
                 text = msg.text if isinstance(msg.content, list) else str(msg.content)
+                text = unmasker.feed(text) if text else ""
                 if text:
                     streamed.append(text)
                     yield sse("token", {"text": text})
@@ -337,18 +399,25 @@ def _graph_events(turn: Turn, graph: CompiledStateGraph, streamed: list[str]) ->
                             yield sse("tool_start", {"name": call["name"], "id": call.get("id")})
             elif node == "tools":
                 n = len(update.get("messages", []))
+                total = len(update.get("tool_results", []))
                 done = update.get("tool_calls_made", [])[-n:] if n else []
                 results = update.get("tool_results", [])[-n:] if n else []
-                for rec, res in zip(done, results, strict=False):
-                    card = card_of(res)
+                for i, (rec, res) in enumerate(zip(done, results, strict=False)):
+                    pos = total - len(results) + i
+                    real = gw.raw_results[pos] if pos < len(gw.raw_results) else res["payload"]
+                    card = card_of({**res, "payload": real})
                     yield sse(
                         "tool_end",
                         {
                             "name": rec["name"],
                             "id": rec["id"],
                             "ok": rec["ok"],
-                            "args_summary": rec["args_summary"],
+                            "args_summary": gw.unmask(rec["args_summary"]),
                             "error_code": rec["error_code"],
                             "card": card.model_dump(mode="json") if card else None,
                         },
                     )
+    tail = unmasker.flush()
+    if tail:
+        streamed.append(tail)
+        yield sse("token", {"text": tail})

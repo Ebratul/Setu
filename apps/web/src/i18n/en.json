@@ -43,7 +43,9 @@
     "playground": "Risk playground",
     "approvals": "Approvals",
     "emailCheck": "Check an email",
-    "simulator": "Scam simulator"
+    "simulator": "Scam simulator",
+    "privacy": "Privacy",
+    "privacyPlayground": "Privacy playground"
   },
   "role": {
     "BUYER": "Buyer",
@@ -1652,5 +1654,151 @@
     },
     "none": "No account change requests yet.",
     "tier": "Tier 3"
+  },
+  "privacy": {
+    "type": {
+      "NID": {
+        "one": "NID",
+        "other": "NIDs"
+      },
+      "PASSPORT": {
+        "one": "passport",
+        "other": "passports"
+      },
+      "PHONE": {
+        "one": "phone number",
+        "other": "phone numbers"
+      },
+      "ACCT": {
+        "one": "account",
+        "other": "accounts"
+      },
+      "IBAN": {
+        "one": "IBAN",
+        "other": "IBANs"
+      },
+      "SWIFT": {
+        "one": "SWIFT code",
+        "other": "SWIFT codes"
+      },
+      "EMAIL": {
+        "one": "email address",
+        "other": "email addresses"
+      },
+      "NAME": {
+        "one": "name",
+        "other": "names"
+      },
+      "AMT": {
+        "one": "amount",
+        "other": "amounts"
+      }
+    },
+    "summary": {
+      "one": "1 identifier protected: {list}",
+      "other": "{n} identifiers protected: {list}",
+      "none": "No identifiers needed protection here."
+    },
+    "leaked": "Leaked: {n}",
+    "leakedOk": "Leaked: 0 — nothing real reached the AI",
+    "protectedBadge": "Protected: {n}",
+    "notSent": "Not sent in this run",
+    "notSentHint": "Prepared for the AI but not sent in this run (mock mode or not needed).",
+    "sentTo": "Sent to {node}",
+    "model": "Model: {model}",
+    "xray": {
+      "open": "Show what the AI saw",
+      "title": "What did the AI see?",
+      "intro": "Highlighted values are swapped for tokens before anything reaches the AI. Our code puts them back afterwards.",
+      "left": "What you see",
+      "right": "What was sent to the AI",
+      "loading": "Loading privacy record…",
+      "unavailable": "No privacy record is available for this item yet.",
+      "noCalls": "Nothing was sent to the AI for this item.",
+      "tokenOf": "replaced by {token}"
+    },
+    "counter": {
+      "label": "Privacy counter",
+      "protected": "Identifiers protected this session: {n}",
+      "leaked": "Leaked: {n}",
+      "unavailable": "Privacy counter unavailable"
+    },
+    "pg": {
+      "title": "Privacy Gateway playground",
+      "intro": "Paste a message or document text. Setu finds identifiers, swaps them for tokens before the AI sees anything, and restores them afterwards with plain code.",
+      "note": "Simulated · nothing is stored",
+      "input": "Text to protect",
+      "maskAmounts": "Mask amounts",
+      "showObf": "Show obfuscation handling",
+      "obfIntro": "Try hiding a number: Setu still finds it.",
+      "obfSpaced": "Spaced digits",
+      "obfBangla": "Bangla digits",
+      "obfZwj": "Zero-width character",
+      "live": "Live detection",
+      "checking": "Checking…",
+      "found": {
+        "one": "1 identifier found",
+        "other": "{n} identifiers found",
+        "none": "No identifiers found"
+      },
+      "send": "Send to AI (dry run)",
+      "sending": "Sending…",
+      "paneMasked": "Masked payload — what the AI sees",
+      "paneAnswer": "AI answer, still masked",
+      "paneRestored": "Answer with values restored by code",
+      "results": "Dry-run result",
+      "detections": "Detections",
+      "col": {
+        "type": "Type",
+        "token": "Token",
+        "confidence": "Confidence",
+        "handling": "Handling"
+      },
+      "obfHandled": "Obfuscation handled",
+      "direct": "Plain",
+      "error": "The dry run failed. Please try again."
+    },
+    "admin": {
+      "title": "Privacy Gateway",
+      "intro": "Every message to the AI is masked first. This page shows the proof: what was protected, what leaked (it should stay at zero) and what the AI actually received.",
+      "playground": "Open the privacy playground",
+      "protected": "Identifiers protected",
+      "leaked": "Leaked",
+      "calls": "AI calls",
+      "leakedHint": "Should always stay at 0",
+      "byType": "Protected by type",
+      "noData": "Nothing recorded yet.",
+      "chart": "Identifiers protected per day (last 14 days)",
+      "chartShow": "Show as table",
+      "chartHide": "Hide table",
+      "day": "Day",
+      "recent": "Latest transparency records",
+      "recentEmpty": "No transparency records yet.",
+      "expand": "Show masked payload",
+      "collapse": "Hide masked payload",
+      "payloadOnly": "Only the masked payload is shown here — never the real values.",
+      "node": "Step",
+      "source": "Source",
+      "sent": "Sent to the AI",
+      "notSent": "Prepared, not sent",
+      "configOn": "Masking is on",
+      "configOff": "Masking is off",
+      "amountsOn": "Amounts are masked",
+      "amountsOff": "Amounts are not masked",
+      "prove": {
+        "title": "Prove it",
+        "explain": "Open the LangSmith run and check that only tokens such as ⟦ACCT_1⟧ appear — no raw values.",
+        "link": "Open the LangSmith run",
+        "off": "Tracing is off in this environment, so there is no run to open here.",
+        "hint": "Turn on LangSmith tracing to see the exact payloads the AI received."
+      }
+    },
+    "land": {
+      "title": "The AI never sees the real value",
+      "line": "Reversible masking: the AI never sees the real value — our code puts it back.",
+      "before": "Before",
+      "after": "What the AI sees",
+      "link": "Try it in the privacy playground"
+    }
   }
 }

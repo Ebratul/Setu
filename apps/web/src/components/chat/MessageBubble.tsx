@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
+import { XrayButton } from "@/components/privacy/XrayButton";
 import { useT } from "@/i18n";
 
 import { ChatCard } from "./cards/ChatCard";
@@ -187,6 +188,7 @@ function AssistantBubble({
             </button>
             {m.messageId ? (
               <>
+                <XrayButton kind="message" id={m.messageId} />
                 <button
                   type="button"
                   aria-label={t("chat.feedback.up")}
