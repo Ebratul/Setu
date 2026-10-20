@@ -41,3 +41,8 @@ apps/web/playwright-report/
 
 # Uploaded documents (local storage backend)
 services/agent/storage/
+.vercel
+.env*
+
+# The audit public key is meant to be committed (verifiers need it)
+!docs/submission/audit-public-key.pem

@@ -27,6 +27,23 @@ class Settings(BaseSettings):
     enable_dev_evidence: bool = False
     db_check_timeout_seconds: float = 2.0
     allowed_origins: str = "http://localhost:3000"
+    # Build identity for /health (set by CI / the Docker build args; never secrets).
+    git_sha: str | None = Field(
+        None, validation_alias=AliasChoices("GIT_SHA", "VERCEL_GIT_COMMIT_SHA")
+    )
+    build_time: str | None = None
+
+    # Edge protection (app/api/ratelimit.py, body_limit.py). In-process sliding windows: each
+    # worker / instance counts on its own, so the effective limit is N x workers.
+    rate_limit_enabled: bool = True
+    rate_limit_chat_per_minute: int = Field(20, ge=1)
+    rate_limit_upload_per_minute: int = Field(10, ge=1)
+    rate_limit_sandbox_create_per_minute: int = Field(5, ge=1)
+    rate_limit_global_per_minute: int = Field(300, ge=1)
+    # Comma list of proxy IPs/CIDRs whose X-Forwarded-For is believed ("*" = every peer is a
+    # trusted proxy, only when the app is unreachable except through one).
+    trusted_proxies: str = ""
+    max_body_bytes: int = Field(1024 * 1024, gt=0)  # every non-upload request body
 
     anthropic_api_key: SecretStr | None = None
     # OpenRouter's Anthropic-compatible endpoint (same Claude models, routed via openrouter.ai).
@@ -81,7 +98,8 @@ class Settings(BaseSettings):
     # Document forensics (app/services/documents, app/forensics). Weights: docs/forensics.md.
     storage_dir: Path = AGENT_DIR / "storage"  # git-ignored; never under a public folder
     storage_backend: Literal["local", "s3"] = "local"
-    document_max_bytes: int = Field(10 * 1024 * 1024, gt=0)
+    # <= 4 MB: Vercel functions reject request bodies over 4.5 MB (multipart framing included).
+    document_max_bytes: int = Field(4 * 1024 * 1024, gt=0)
     document_url_ttl_seconds: int = Field(300, gt=0, le=3600)
     document_url_secret: SecretStr | None = None  # falls back to DEMO_SESSION_SECRET / dev value
     forensics_quantity_tolerance_pct: Decimal = Field(Decimal("0"), ge=0, le=100)
@@ -98,7 +116,12 @@ class Settings(BaseSettings):
     # Approvals (app/services/approvals.py). DEMO_MODE shows the simulated "Demo phone" inbox; with
     # DEMO_MODE=false no OTP ever leaves the server. COOLING_OFF_SECONDS: 600, 30 for demos.
     demo_mode: bool = True
-    cooling_off_seconds: int = Field(600, ge=0, le=86_400)
+    cooling_off_seconds: int = Field(
+        600,
+        ge=0,
+        le=86_400,
+        validation_alias=AliasChoices("COOLING_OFF_SECONDS", "DEMO_COOLING_OFF_SECONDS"),
+    )
     approval_expiry_minutes: int = Field(1440, gt=0)
     otp_ttl_seconds: int = Field(300, gt=0)
     otp_max_attempts: int = Field(3, gt=0, le=10)
@@ -157,6 +180,10 @@ class Settings(BaseSettings):
     @property
     def use_mock_llm(self) -> bool:
         return self.agent_mock_mode or self.active_llm_provider is None
+
+    @property
+    def trusted_proxy_list(self) -> list[str]:
+        return [p.strip() for p in self.trusted_proxies.split(",") if p.strip()]
 
     @property
     def cors_origins(self) -> list[str]:

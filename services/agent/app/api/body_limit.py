@@ -1,5 +1,7 @@
-"""Reject oversized document uploads before the multipart parser spools them to disk: a
-Content-Length check, and a byte count on the stream for chunked bodies (413 either way)."""
+"""Reject oversized request bodies before they are parsed: a Content-Length check, and a byte
+count on the stream for chunked bodies (413 either way). Document uploads get their own limit
+(DOCUMENT_MAX_BYTES, kept <= 4 MB for Vercel's 4.5 MB function cap, before the multipart parser
+spools to disk); every other body, JSON included, is capped at MAX_BODY_BYTES (default 1 MB)."""
 
 import re
 from collections.abc import MutableMapping
@@ -14,29 +16,35 @@ UPLOAD_PATH = re.compile(r"^(/deals/[^/]+/documents|/registry/lender-check/file)
 SLACK = 64 * 1024  # multipart framing around the file
 
 
-class UploadBodyLimit:
+class BodyLimit:
     def __init__(self, app: ASGIApp) -> None:
         self.app = app
 
     async def __call__(self, scope: Scope, receive: Receive, send: Send) -> None:
-        if (
-            scope["type"] != "http"
-            or scope["method"] != "POST"
-            or not UPLOAD_PATH.match(scope["path"])
-        ):
+        if scope["type"] != "http" or scope["method"] not in ("POST", "PUT", "PATCH", "DELETE"):
             await self.app(scope, receive, send)
             return
-        limit = get_settings().document_max_bytes + SLACK
+        settings = get_settings()
+        is_upload = scope["method"] == "POST" and UPLOAD_PATH.match(scope["path"]) is not None
+        limit = settings.document_max_bytes + SLACK if is_upload else settings.max_body_bytes
         headers: MutableMapping[bytes, Any] = dict(scope["headers"])
         declared = headers.get(b"content-length")
 
         async def reject() -> None:
-            resp = problem(
-                413,
-                "Payload too large",
-                f"file is larger than {get_settings().document_max_bytes // (1024 * 1024)} MB",
-                "FILE_TOO_LARGE",
-            )
+            if is_upload:
+                resp = problem(
+                    413,
+                    "Payload too large",
+                    f"file is larger than {settings.document_max_bytes // (1024 * 1024)} MB",
+                    "FILE_TOO_LARGE",
+                )
+            else:
+                resp = problem(
+                    413,
+                    "Payload too large",
+                    f"request body is larger than {settings.max_body_bytes // 1024} KB",
+                    "BODY_TOO_LARGE",
+                )
             await resp(scope, receive, send)
 
         if declared is not None and declared.isdigit() and int(declared) > limit:

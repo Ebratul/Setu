@@ -11,6 +11,7 @@ import {
 } from "react";
 
 import { ChatDrawer } from "@/components/chat/ChatDrawer";
+import { FooterStatus } from "@/components/status/FooterStatus";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { ToastProvider } from "@/components/ui/Toast";
 import { useT } from "@/i18n";
@@ -113,8 +114,9 @@ export function AppShell({ children }: { children: ReactNode }) {
           <ChatDrawer />
         </Suspense>
         <DemoPhone />
-        <footer className="px-4 py-6 text-center text-sm text-muted">
-          {t("common.footer")}
+        <footer className="grid justify-items-center gap-2 px-4 py-6 text-center text-sm text-muted">
+          <p>{t("common.footer")}</p>
+          <FooterStatus />
         </footer>
       </MeContext.Provider>
     </ToastProvider>

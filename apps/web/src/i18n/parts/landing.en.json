@@ -328,5 +328,196 @@
       "body": "[contact address to be added before submission] Tell us about any barrier you meet and we will try to fix it."
     },
     "back": "Back to home"
+  },
+  "judges": {
+    "nav": "For judges",
+    "title": "Judge quick-start",
+    "lead": "Everything you need to review Setu in a few minutes: a private sandbox, a 60-second tour, how our features map to the requirements, and live system status. All money is simulated.",
+    "hero": {
+      "demo": "Open the live demo",
+      "sandbox": "Create my sandbox",
+      "sandboxBusy": "Creating your sandbox…",
+      "note": "Your sandbox is a private copy of the demo data. Nothing you do affects anyone else, and you can reset it at any time."
+    },
+    "creds": {
+      "title": "Demo sign-in",
+      "lead": "No account is needed. The demo uses a ready-made judge profile.",
+      "email": "Judge profile",
+      "how": "No password needed: open Sign in and press the Demo Judge card. It is one click. \"Create my sandbox\" above does this for you.",
+      "signin": "Go to sign in",
+      "noteLabel": "Note from the team"
+    },
+    "try": {
+      "title": "What to try in 60 seconds",
+      "lead": "Follow the list in order, or jump to whatever interests you.",
+      "open": "Open",
+      "guided": {
+        "title": "Guided demo",
+        "body": "Twelve narrated steps from a Bangla question to a signed credit record. Press Start."
+      },
+      "risk": {
+        "title": "Risk Playground",
+        "body": "Move the amount and flags and watch the permission tier change, with the rule trace."
+      },
+      "privacy": {
+        "title": "Privacy Playground",
+        "body": "Paste text with an NID or phone number and see what the AI receives after masking."
+      },
+      "attack": {
+        "title": "Attack Console",
+        "body": "Run the hidden-text attack with defences on and off, and see it blocked."
+      },
+      "verify": {
+        "title": "Verify the audit log",
+        "body": "Check a signed, hash-chained log in your browser. Tamper with it and see where it breaks."
+      }
+    },
+    "score": {
+      "title": "Features mapped to the requirements",
+      "lead": "This map follows our own project requirements (FR, SR and NFR items), not the official judging rubric, which we have not seen. Use it as a finding aid.",
+      "where": "Where to see it",
+      "signin": "Some links open signed-in screens. Press \"Create my sandbox\" first.",
+      "fr1": {
+        "req": "FR-1 Financing options compared on total cost and rate",
+        "where": "Financing"
+      },
+      "fr2": {
+        "req": "FR-2 90-day cash-flow calendar with shortfall and deadline alerts",
+        "where": "Cash flow"
+      },
+      "fr3": {
+        "req": "FR-3 Landed cost, margin and supplier scorecard",
+        "where": "Analysis"
+      },
+      "fr4": {
+        "req": "FR-4 Supplier checks (KYB) from name, account and age signals",
+        "where": "Suppliers"
+      },
+      "fr5": {
+        "req": "FR-5 Milestone escrow with evidence-gated releases",
+        "where": "Guided demo, step 5-6"
+      },
+      "fr6": {
+        "req": "FR-6 Trade-document forensics and hidden-text detection",
+        "where": "Guided demo, step 9"
+      },
+      "fr7": {
+        "req": "FR-7 USD versus CNY route comparison and rate lock",
+        "where": "Guided demo, step 6"
+      },
+      "fr8": {
+        "req": "FR-8 Signed credit record for a completed deal",
+        "where": "Guided demo, step 12"
+      },
+      "fr9": {
+        "req": "FR-9 Explained chat in Bangla and English",
+        "where": "Chat"
+      },
+      "sr12": {
+        "req": "SR-1, SR-2 Permission tiers enforced in code; the AI never executes Tier 2-3",
+        "where": "Risk Playground"
+      },
+      "sr3": {
+        "req": "SR-3 Prompt-injection defence",
+        "where": "Attack Console"
+      },
+      "sr4": {
+        "req": "SR-4 Privacy Gateway masks NID, accounts, phones and prices",
+        "where": "Privacy Playground"
+      },
+      "sr5": {
+        "req": "SR-5 Signed, hash-chained audit log with public verifier",
+        "where": "Verify the audit log"
+      },
+      "sr6": {
+        "req": "SR-6 Duplicate-financing prevention across lenders",
+        "where": "Guided demo, step 10"
+      },
+      "sr89": {
+        "req": "SR-8, SR-9 Simulated money only; step-up OTP and cooling-off",
+        "where": "Guided demo, step 8"
+      },
+      "nfr12": {
+        "req": "NFR-1, NFR-2 Accessibility (WCAG AA) and English, Bangla and Chinese",
+        "where": "Accessibility statement"
+      },
+      "nfr4": {
+        "req": "NFR-4 Measured evaluation results",
+        "where": "Results on the home page"
+      }
+    },
+    "resources": {
+      "title": "Links and resources",
+      "lead": "Docs, code, video and live status.",
+      "docs": "Documentation",
+      "repo": "Source code",
+      "video": "Demo video",
+      "status": "Live status",
+      "site": "Live site",
+      "coming": "Link coming",
+      "comingHint": "This link will be added before submission.",
+      "newTab": "(opens in a new tab)"
+    },
+    "qr": {
+      "title": "QR codes",
+      "lead": "Scan with a phone to open the live demo or this page.",
+      "demo": "Live demo",
+      "judges": "This quick-start page",
+      "alt": "QR code for {label}: {url}",
+      "png": "Download PNG",
+      "svg": "Download SVG",
+      "print": "Print QR codes",
+      "dl": "Download {kind} of the QR code for {label}",
+      "fail": "Could not generate the QR code."
+    },
+    "status": {
+      "title": "System status",
+      "lead": "Checked from your browser every 60 seconds while this tab is visible."
+    }
+  },
+  "status": {
+    "chip": {
+      "label": "System",
+      "ok": "OK",
+      "degraded": "Degraded",
+      "unreachable": "Unreachable",
+      "checking": "Checking",
+      "newTab": "(opens in a new tab)"
+    },
+    "detail": {
+      "db": "Database: {v}",
+      "kb": "Knowledge base: {v}",
+      "audit": "Audit key: {v}",
+      "replay": "Replay fixtures: {v}",
+      "unknown": "unknown",
+      "unreachable": "The agent API did not answer.",
+      "indexed": "indexed",
+      "notIndexed": "not indexed",
+      "loaded": "loaded",
+      "missing": "missing",
+      "present": "present",
+      "ok": "OK",
+      "unavailable": "unavailable",
+      "ready": "ready",
+      "notReady": "not ready",
+      "on": "on",
+      "off": "off"
+    },
+    "version": {
+      "web": "Web",
+      "agent": "Agent",
+      "loading": "checking…",
+      "unavailable": "unavailable"
+    },
+    "panel": {
+      "db": "Database",
+      "ready": "Ready to serve",
+      "kb": "Knowledge base",
+      "audit": "Audit signing key",
+      "replay": "Replay fixtures",
+      "demoMode": "Demo mode",
+      "demoReplay": "Demo replay (offline AI answers)",
+      "unreachable": "We cannot reach the agent API right now. If this persists, tell the team."
+    }
   }
 }

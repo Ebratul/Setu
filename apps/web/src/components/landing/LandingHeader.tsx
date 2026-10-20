@@ -46,6 +46,9 @@ export function LandingHeader() {
                 {t(`landing.nav.${n.id}`)}
               </a>
             ))}
+            <Link href="/judges" className={linkClass}>
+              {t("judges.nav")}
+            </Link>
           </nav>
           <div className="hidden items-center gap-3 lg:flex">
             <LanguageToggle withZh />
@@ -74,6 +77,9 @@ export function LandingHeader() {
                 {t(`landing.nav.${n.id}`)}
               </a>
             ))}
+            <Link href="/judges" className={linkClass} onClick={() => setOpen(false)}>
+              {t("judges.nav")}
+            </Link>
           </nav>
           <div className="mt-6 flex flex-wrap items-center gap-3">
             <LanguageToggle withZh />

@@ -7,10 +7,13 @@ import { Alert } from "@/components/ui/Alert";
 import { Button } from "@/components/ui/Button";
 import { useT } from "@/i18n";
 import { demoLogin } from "@/lib/api/auth";
+import { startSandbox } from "@/lib/api/demo";
 
 export const JUDGE_EMAIL = "judge@demo.setu";
 
-export function JudgeModeButton() {
+type Props = { label?: string; busyLabel?: string; withSandbox?: boolean };
+
+export function JudgeModeButton({ label, busyLabel, withSandbox = false }: Props = {}) {
   const t = useT();
   const router = useRouter();
   const [busy, setBusy] = useState(false);
@@ -20,6 +23,7 @@ export function JudgeModeButton() {
     setBusy(true);
     setFailed(false);
     try {
+      if (withSandbox) await startSandbox();
       await demoLogin(JUDGE_EMAIL);
       router.push("/demo?judge=1");
     } catch {
@@ -31,7 +35,7 @@ export function JudgeModeButton() {
   return (
     <div className="grid gap-3">
       <Button variant="secondary" loading={busy} onClick={start}>
-        {busy ? t("landing.hero.judgeBusy") : t("landing.hero.judge")}
+        {busy ? (busyLabel ?? t("landing.hero.judgeBusy")) : (label ?? t("landing.hero.judge"))}
       </Button>
       {failed ? (
         <Alert

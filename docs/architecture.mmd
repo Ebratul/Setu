@@ -1,0 +1,51 @@
+flowchart LR
+  subgraph Browser["Browser (judge / SME / supplier)"]
+    WEB["Next.js app<br/>apps/web<br/>EN / BN / ZH"]
+    VER["/verify page<br/>Web Crypto, no upload"]
+  end
+
+  subgraph API["FastAPI service: services/agent"]
+    direction TB
+    ROUTERS["HTTP routers<br/>app/api"]
+    AUTH["Session + role checks<br/>BUYER / SUPPLIER / ADMIN / JUDGE"]
+    subgraph AGENT["LangGraph agent (Tier 0 tools only)"]
+      PG["Privacy Gateway<br/>mask before every model call"]
+      RT["router"] --> AG["agent + tools"] --> RS["respond"]
+      WRAP["Injection layers 1,2,4,5<br/>wrap, detect, gate, guard"]
+    end
+    subgraph CODE["Deterministic code (no LLM)"]
+      DOM["app/domain<br/>landed cost, financing, cash flow,<br/>FX route, escrow, KYB"]
+      FOR["app/forensics<br/>extract, hidden text, 11 checks, score"]
+      REG["hash registry<br/>exact + semantic"]
+      RISK["risk-tier engine<br/>config/risk.yaml"]
+      APPR["approvals<br/>Tier 2 tap, Tier 3 cooling-off + OTP"]
+      ESC["escrow + simulated ledger"]
+    end
+    AUD["signed hash-chained audit log<br/>Ed25519, setu-audit-v2"]
+  end
+
+  subgraph DATA["PostgreSQL + pgvector"]
+    DB[("business tables, audit_log,<br/>kb_chunks, checkpoints")]
+  end
+
+  LLM["Claude models via app/llm/client.py<br/>(Anthropic or OpenRouter, or offline mock)"]
+  LS["LangSmith traces<br/>(masked input)"]
+
+  WEB -->|"/api/*"| ROUTERS
+  ROUTERS --> AUTH
+  AUTH --> AGENT
+  AUTH --> CODE
+  PG --> LLM
+  LLM --> LS
+  AG -->|"propose only"| RISK
+  RISK --> APPR
+  APPR -->|"human click executes"| ESC
+  FOR --> REG
+  FOR --> RISK
+  DOM --> RISK
+  ESC --> AUD
+  APPR --> AUD
+  AGENT --> AUD
+  CODE --> DB
+  AUD --> DB
+  VER -.->|"public key + JSONL export"| AUD

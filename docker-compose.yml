@@ -20,5 +20,95 @@ services:
       retries: 10
       start_period: 5s
 
+  # --- Full local demo stack: `docker compose --env-file docker-compose.env.example --profile full up --build`
+  # (DB + migrate/seed/KB index + agent + web, demo + replay mode, no AI key needed).
+  seed:
+    profiles: [full]
+    build:
+      context: ./services/agent
+      additional_contexts:
+        repo: .
+    image: setu-agent:local
+    restart: "no"
+    depends_on:
+      db:
+        condition: service_healthy
+    environment: &agent-env
+      APP_ENV: ${APP_ENV:-dev}
+      DATABASE_URL: postgresql+psycopg://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
+      ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:-http://localhost:${WEB_PORT:-3000}}
+      DEMO_MODE: ${DEMO_MODE:-true}
+      DEMO_REPLAY: ${DEMO_REPLAY:-true}
+      AGENT_MOCK_MODE: ${AGENT_MOCK_MODE:-true}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      COOLING_OFF_SECONDS: ${DEMO_COOLING_OFF_SECONDS:-30}
+      DEMO_SESSION_SECRET: ${DEMO_SESSION_SECRET:-}
+      OTP_SECRET_SEED: ${OTP_SECRET_SEED:-}
+      DEMO_COOKIE_SECURE: ${DEMO_COOKIE_SECURE:-false}
+      ENABLE_DEV_EVIDENCE: "false"
+      AUDIT_SIGNING_KEY: ${AUDIT_SIGNING_KEY:-}
+      TRUSTED_PROXIES: ${TRUSTED_PROXIES:-}
+      RATE_LIMIT_ENABLED: ${RATE_LIMIT_ENABLED:-true}
+      KB_EMBEDDER: ${KB_EMBEDDER:-fastembed}
+    volumes:
+      - setu-keys:/app/keys
+      - setu-storage:/app/services/agent/storage
+    command:
+      - sh
+      - -ec
+      - |
+        alembic upgrade head
+        python -m seed.cli seed
+        python -m app.rag.cli sync
+        python -m app.rag.cli index
+        python -m app.demo.cli check || echo "demo:check reported problems (see above)"
+
+  agent:
+    profiles: [full]
+    build:
+      context: ./services/agent
+      additional_contexts:
+        repo: .
+      args:
+        GIT_SHA: ${GIT_SHA:-local}
+        BUILD_TIME: ${BUILD_TIME:-}
+    image: setu-agent:local
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+      seed:
+        condition: service_completed_successfully
+    environment: *agent-env
+    ports:
+      - "${AGENT_PORT:-8000}:8000"
+    volumes:
+      - setu-keys:/app/keys
+      - setu-storage:/app/services/agent/storage
+
+  web:
+    profiles: [full]
+    build:
+      context: ./apps/web
+      dockerfile: Dockerfile
+      args:
+        # next.config.ts bakes the /api rewrite target at build time
+        AGENT_URL: http://agent:8000
+        NEXT_PUBLIC_API_BASE: /api
+        GIT_SHA: ${GIT_SHA:-local}
+        BUILD_TIME: ${BUILD_TIME:-}
+    image: setu-web:local
+    restart: unless-stopped
+    depends_on:
+      agent:
+        condition: service_healthy
+    environment:
+      AGENT_URL: http://agent:8000
+      NEXT_PUBLIC_API_BASE: /api
+    ports:
+      - "${WEB_PORT:-3000}:3000"
+
 volumes:
   setu-pgdata:
+  setu-keys:
+  setu-storage:

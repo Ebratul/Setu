@@ -19,7 +19,7 @@ const chinese = Noto_Sans_SC({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000"),
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"),
   title: { default: "Setu সেতু — AI SME Finance Copilot", template: "%s · Setu" },
   description:
     "AI finance copilot for Bangladeshi importers buying from China: milestone escrow, risk-tiered approvals, signed audit log. Simulated sandbox with fictional data.",

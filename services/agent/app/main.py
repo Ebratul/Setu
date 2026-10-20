@@ -22,7 +22,9 @@ from app.api import (
     risk,
     suppliers,
 )
-from app.api.body_limit import UploadBodyLimit
+from app.api.body_limit import BodyLimit
+from app.api.ratelimit import RateLimit
+from app.api.security_headers import SecurityHeaders
 from app.audit.middleware import AuditActorMiddleware
 from app.config import Settings, get_settings
 from app.demo.middleware import SandboxMiddleware
@@ -33,6 +35,11 @@ def check_prod_settings(settings: Settings) -> None:
     """Refuse to start in prod with the demo auth stub's dev fallbacks."""
     if settings.app_env != "prod":
         return
+    if "*" in settings.cors_origins or not settings.cors_origins:
+        raise RuntimeError(
+            "ALLOWED_ORIGINS must be an exact list of origins (no '*', not empty) when "
+            "APP_ENV=prod: credentials are allowed"
+        )
     secret = settings.demo_session_secret
     if secret is None or len(secret.get_secret_value()) < 32:
         raise RuntimeError("DEMO_SESSION_SECRET (>= 32 chars) is required when APP_ENV=prod")
@@ -42,8 +49,6 @@ def check_prod_settings(settings: Settings) -> None:
         raise RuntimeError("DEMO_MODE=false is required when APP_ENV=prod (no OTP in clear)")
     if settings.cooling_off_seconds < 600:
         raise RuntimeError("COOLING_OFF_SECONDS must be >= 600 when APP_ENV=prod (SR-9)")
-    if "*" in settings.cors_origins:
-        raise RuntimeError("ALLOWED_ORIGINS must not contain '*' (credentials are allowed)")
 
 
 def create_app() -> FastAPI:
@@ -56,7 +61,9 @@ def create_app() -> FastAPI:
     )
     app.add_middleware(AuditActorMiddleware)
     app.add_middleware(SandboxMiddleware)
-    app.add_middleware(UploadBodyLimit)  # inside CORS, so a 413 still carries CORS headers
+    # Last added = outermost. Limits sit inside CORS, so 413/429 still carry CORS headers.
+    app.add_middleware(BodyLimit)
+    app.add_middleware(RateLimit)
     app.add_middleware(
         CORSMiddleware,
         allow_origins=settings.cors_origins,
@@ -64,6 +71,7 @@ def create_app() -> FastAPI:
         allow_methods=["*"],
         allow_headers=["*"],
     )
+    app.add_middleware(SecurityHeaders)
     install_handlers(app)
     app.include_router(health.router)
     app.include_router(auth.router)

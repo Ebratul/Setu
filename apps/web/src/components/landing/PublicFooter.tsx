@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 
+import { FooterStatus } from "@/components/status/FooterStatus";
 import { useT } from "@/i18n";
 
 const link =
@@ -15,7 +16,11 @@ export function PublicFooter() {
         <p className="font-semibold text-ink">{t("landing.footer.team")}</p>
         <p>{t("landing.footer.simulated")}</p>
         <p>{t("landing.footer.licences")}</p>
+        <FooterStatus />
         <nav aria-label={t("landing.footer.nav")} className="flex flex-wrap gap-x-6">
+          <Link href="/judges" className={link}>
+            {t("judges.nav")}
+          </Link>
           <Link href="/accessibility" className={link}>
             {t("landing.footer.a11y")}
           </Link>

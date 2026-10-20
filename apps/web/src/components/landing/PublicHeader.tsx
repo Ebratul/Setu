@@ -18,12 +18,18 @@ export function PublicHeader() {
       </a>
       <header className="sticky top-0 z-40 border-b border-line bg-surface shadow-card">
         <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-2 px-4 py-2 sm:px-6">
-          <nav aria-label={t("landing.nav.label")}>
+          <nav aria-label={t("landing.nav.label")} className="flex items-center gap-3">
             <Link
               href="/"
               className="inline-flex min-h-11 items-center text-lg font-bold text-brand-text focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:outline-none"
             >
               Setu সেতু
+            </Link>
+            <Link
+              href="/judges"
+              className="inline-flex min-h-11 items-center rounded-lg px-3 text-sm font-semibold text-ink hover:bg-surface-alt focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2 focus-visible:outline-none"
+            >
+              {t("judges.nav")}
             </Link>
           </nav>
           <div className="flex flex-wrap items-center gap-3">
