@@ -21,7 +21,6 @@ from app.api import (
     kyb,
     members,
     onboarding,
-    payments,
     privacy,
     registry,
     risk,
@@ -130,7 +129,6 @@ def create_app() -> FastAPI:
     app.include_router(kyb.router)
     app.include_router(suppliers.router)
     app.include_router(deals.router)
-    app.include_router(payments.router)
     app.include_router(credit_records.router)
     app.include_router(documents.router)
     app.include_router(registry.router)

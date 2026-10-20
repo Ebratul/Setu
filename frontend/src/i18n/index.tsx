@@ -20,11 +20,8 @@ import landingBn from "./parts/landing.bn.json";
 import landingEn from "./parts/landing.en.json";
 import landingZh from "./parts/landing.zh.json";
 import onboardBn from "./parts/onboard.bn.json";
-import paypalBn from "./parts/paypal.bn.json";
 import onboardEn from "./parts/onboard.en.json";
-import paypalEn from "./parts/paypal.en.json";
 import onboardZh from "./parts/onboard.zh.json";
-import paypalZh from "./parts/paypal.zh.json";
 import pagesBn from "./parts/pages.bn.json";
 import pagesEn from "./parts/pages.en.json";
 import pagesZh from "./parts/pages.zh.json";
@@ -51,9 +48,9 @@ function flatten(dict: Dict, prefix = "", out: Record<string, string> = {}) {
 }
 
 export const messages: Record<Lang, Record<string, string>> = {
-  en: Object.assign(flatten(en as Dict), flatten(demoEn as Dict), flatten(landingEn as Dict), flatten(pagesEn as Dict), flatten(shellEn as Dict), flatten(uiEn as Dict), flatten(onboardEn as Dict), flatten(paypalEn as Dict)),
-  bn: Object.assign(flatten(bn as Dict), flatten(demoBn as Dict), flatten(landingBn as Dict), flatten(pagesBn as Dict), flatten(shellBn as Dict), flatten(uiBn as Dict), flatten(onboardBn as Dict), flatten(paypalBn as Dict)),
-  zh: Object.assign(flatten(zh as Dict), flatten(demoZh as Dict), flatten(landingZh as Dict), flatten(pagesZh as Dict), flatten(shellZh as Dict), flatten(uiZh as Dict), flatten(onboardZh as Dict), flatten(paypalZh as Dict)),
+  en: Object.assign(flatten(en as Dict), flatten(demoEn as Dict), flatten(landingEn as Dict), flatten(pagesEn as Dict), flatten(shellEn as Dict), flatten(uiEn as Dict), flatten(onboardEn as Dict)),
+  bn: Object.assign(flatten(bn as Dict), flatten(demoBn as Dict), flatten(landingBn as Dict), flatten(pagesBn as Dict), flatten(shellBn as Dict), flatten(uiBn as Dict), flatten(onboardBn as Dict)),
+  zh: Object.assign(flatten(zh as Dict), flatten(demoZh as Dict), flatten(landingZh as Dict), flatten(pagesZh as Dict), flatten(shellZh as Dict), flatten(uiZh as Dict), flatten(onboardZh as Dict)),
 };
 
 export function translate(lang: Lang, key: string, vars?: Vars): string {

@@ -47,14 +47,6 @@ class Settings(BaseSettings):
     trusted_proxies: str = ""
     max_body_bytes: int = Field(1024 * 1024, gt=0)  # every non-upload request body
 
-    # PayPal Sandbox checkout (app/services/payments). Sandbox only: the API host is a constant in
-    # the adapter, there is no setting for it, so live credentials can never be pointed at live.
-    paypal_sandbox_enabled: bool = False
-    paypal_sandbox_client_id: str | None = None
-    paypal_sandbox_client_secret: SecretStr | None = None
-    paypal_sandbox_webhook_id: str | None = None
-    paypal_sandbox_timeout_seconds: float = Field(10.0, gt=0, le=60)
-
     anthropic_api_key: SecretStr | None = None
     # OpenRouter's Anthropic-compatible endpoint (same Claude models, routed via openrouter.ai).
     openrouter_api_key: SecretStr | None = None
@@ -263,16 +255,6 @@ class Settings(BaseSettings):
     @property
     def use_mock_llm(self) -> bool:
         return self.agent_mock_mode or self.active_llm_provider is None
-
-    @property
-    def paypal_sandbox_ready(self) -> bool:
-        secret = self.paypal_sandbox_client_secret
-        return bool(
-            self.paypal_sandbox_enabled
-            and (self.paypal_sandbox_client_id or "").strip()
-            and secret is not None
-            and secret.get_secret_value().strip()
-        )
 
     @property
     def trusted_proxy_list(self) -> list[str]:

@@ -28,7 +28,6 @@ from app.db.models.identity import (
     StepupChallenge,
     User,
 )
-from app.db.models.payments import SandboxPayment, SandboxPaymentEvent
 from app.db.models.privacy import PrivacyRecord
 from app.db.models.trust import (
     ApprovalEvent,
@@ -78,8 +77,6 @@ __all__ = [
     "PartyMember",
     "PrivacyRecord",
     "RiskEvent",
-    "SandboxPayment",
-    "SandboxPaymentEvent",
     "StepupChallenge",
     "SupplierScore",
     "User",

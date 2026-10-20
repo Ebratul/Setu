@@ -265,14 +265,3 @@ class RegistryStatus(StrEnum):
     ACTIVE = "ACTIVE"
     RELEASED = "RELEASED"
 
-
-class SandboxPaymentStatus(StrEnum):
-    CREATED = "CREATED"  # order exists at the provider, buyer has not approved it yet
-    CAPTURED = "CAPTURED"  # provider confirmed the capture for exactly the recorded amount
-    FAILED = "FAILED"  # capture refused, denied, or the provider amount did not match
-    CANCELLED = "CANCELLED"  # the buyer abandoned the checkout
-
-
-class SandboxPaymentCoverage(StrEnum):
-    NEXT_TRANCHE = "NEXT_TRANCHE"
-    REMAINING = "REMAINING"

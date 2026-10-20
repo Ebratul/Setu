@@ -350,7 +350,6 @@ def fund_escrow(
     origin: Origin = Origin.USER_UI,
     approval_id: uuid.UUID | None = None,
     now: datetime | None = None,
-    on_funded: Callable[[], None] | None = None,
 ) -> FundOutcome:
     """Buyer deposits `amount` (deal currency) into the deal's simulated escrow.
 
@@ -358,11 +357,7 @@ def fund_escrow(
     still undeposited, so the buyer may deposit tranche by tranche (what the seed does) or the full
     value at once. Omitted = the next tranche that is not yet covered. Tranches turn READY as the
     cumulative deposits cover them. `advance_over_20k` is set when the total deposited exceeds
-    USD 20,000 (Phase 5.1 makes that a Tier 3 trigger).
-
-    `on_funded` runs after the posting and the audit row, just before the commit, so a caller can
-    record "this deposit happened" in the same transaction as the ledger (the PayPal Sandbox
-    payment link uses it)."""
+    USD 20,000 (Phase 5.1 makes that a Tier 3 trigger)."""
     now = now or utcnow()
     probe = db.get(Deal, deal_id)
     if probe is None:
@@ -470,8 +465,6 @@ def fund_escrow(
         "FUNDED",
         ts=now,
     )
-    if on_funded is not None:
-        on_funded()
     db.commit()
     log.info("escrow_funded", deal=deal.reference, advance_over_20k=escrow.advance_over_20k)
     return FundOutcome(deal, escrow, rows, escrow.advance_over_20k)
