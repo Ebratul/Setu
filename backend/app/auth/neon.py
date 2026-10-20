@@ -86,15 +86,26 @@ class JwksCache:
         assert self._fetched_at is not None
         return kid not in self._keys or now - self._fetched_at > ttl
 
+    def _due_locked(self, kid: str, settings: Settings) -> bool:
+        with self._state:
+            return self._due(kid, settings.neon_auth_jwks_ttl_seconds)
+
     def key_for(self, kid: str, settings: Settings) -> Ed25519PublicKey:
         url = settings.neon_auth_jwks_url
         if url is None:
             raise AuthUnavailable("NEON_AUTH_BASE_URL is not set")
         with self._state:
+            cold = not self._keys
             due = self._due(kid, settings.neon_auth_jwks_ttl_seconds)
-        if due and self._fetching.acquire(blocking=False):
+        # A cold cache has no keys to fall back on, so callers wait (bounded) for the one fetch.
+        if cold:
+            got = self._fetching.acquire(timeout=FETCH_TIMEOUT_SECONDS + 1.0)
+        else:
+            got = due and self._fetching.acquire(blocking=False)
+        if got:
             try:
-                self._refresh(url)
+                if self._due_locked(kid, settings):
+                    self._refresh(url)
             finally:
                 self._fetching.release()
         with self._state:

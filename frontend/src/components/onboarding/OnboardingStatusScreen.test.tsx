@@ -1,127 +1,93 @@
-import { act, screen, waitFor } from "@testing-library/react";
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { screen, waitFor } from "@testing-library/react";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { renderI18n, setLang, user } from "@/components/shell/testUtils";
-import { ApiError } from "@/lib/api/client";
+import { renderI18n, setLang } from "@/components/shell/testUtils";
+import { baseState } from "@/lib/onboarding/testState";
 
 const replace = vi.fn();
-vi.mock("next/navigation", () => ({ useRouter: () => ({ replace }) }));
+vi.mock("next/navigation", () => ({
+  useRouter: () => ({ replace }),
+  useSearchParams: () => new URLSearchParams(),
+}));
 vi.mock("@/lib/auth/client", () => ({
   getAuthMode: () => Promise.resolve("neon"),
-  endAuthSession: vi.fn(),
+  getPublicAuthConfig: () =>
+    Promise.resolve({ mode: "neon", demoEnabled: false, googleEnabled: true }),
 }));
-const startSession = vi.fn();
-vi.mock("@/lib/api/auth", () => ({ startSession: () => startSession(), logout: vi.fn() }));
-const getOnboardingStatus = vi.fn();
-vi.mock("@/lib/api/onboarding", () => ({ getOnboardingStatus: () => getOnboardingStatus() }));
+const getState = vi.hoisted(() => vi.fn());
+vi.mock("@/lib/api/onboarding", () => ({ getOnboardingState: getState }));
+vi.mock("@/lib/auth/flow", async (orig) => ({
+  ...(await orig<typeof import("@/lib/auth/flow")>()),
+  signOutEverywhere: vi.fn(),
+}));
 
-import { OnboardingStatusScreen, STATUS_POLL_MS } from "./OnboardingStatusScreen";
+import { OnboardingStatusScreen } from "./OnboardingStatusScreen";
 
-const state = (over: Record<string, unknown> = {}) => ({
-  status: "PENDING",
-  account_status: "PENDING",
-  role: "BUYER",
-  party_name: "Rahim Traders Ltd",
-  checks: [
-    { code: "TAX_ID_FORMAT", status: "PASS", detail: "ok" },
-    { code: "SANCTIONS_SCREEN", status: "PASS", detail: "hidden" },
-    { code: "HOLDER_NAME_MATCH", status: "WARN", detail: "x" },
-  ],
-  submitted_at: null,
-  decided_at: null,
-  reason: null,
-  ...over,
+const pending = {
+  ...baseState,
+  account_status: "PENDING_VERIFICATION" as const,
+  contact: { ...baseState.contact!, phone_verified: true },
+};
+
+beforeEach(() => {
+  vi.clearAllMocks();
+  localStorage.clear();
+  setLang("en");
 });
 
-const fakeIntervals = () => vi.useFakeTimers({ toFake: ["setInterval", "clearInterval"] });
-
-function setVisibility(v: "visible" | "hidden") {
-  Object.defineProperty(document, "visibilityState", { configurable: true, get: () => v });
-}
-
-async function flush() {
-  await act(async () => {
-    await Promise.resolve();
-  });
-}
-
-async function settle() {
-  for (let i = 0; i < 6; i++) await flush();
-}
-
 describe("OnboardingStatusScreen", () => {
-  beforeEach(() => {
-    vi.clearAllMocks();
-    setLang("en");
-    setVisibility("visible");
-  });
-  afterEach(() => vi.useRealTimers());
-
-  it("lists the public checks (never a sanctions check) and the review state", async () => {
-    getOnboardingStatus.mockResolvedValue(state());
-    renderI18n(<OnboardingStatusScreen />);
-    expect(await screen.findByText("Waiting for review")).toBeInTheDocument();
-    expect(screen.getByText("Tax ID format")).toBeInTheDocument();
-    expect(screen.getByText("Needs attention")).toBeInTheDocument();
-    expect(screen.queryByText(/anction/)).toBeNull();
-    expect(screen.queryByText(/score/i)).toBeNull();
-  });
-
-  it("polls every 20 s while pending, pauses while hidden", async () => {
-    getOnboardingStatus.mockResolvedValue(state());
-    fakeIntervals();
-    renderI18n(<OnboardingStatusScreen />);
-    await screen.findByText("Waiting for review");
-    expect(getOnboardingStatus).toHaveBeenCalledTimes(1);
-    await act(async () => {
-      vi.advanceTimersByTime(STATUS_POLL_MS);
+  it("shows Verification in progress with a checklist and hides sanctions checks", async () => {
+    getState.mockResolvedValue({
+      ...pending,
+      checks: [
+        { code: "PHONE_VERIFIED", status: "PASS" },
+        { code: "SANCTIONS_SCREEN", status: "FAIL" },
+      ],
     });
-    await flush();
-    expect(getOnboardingStatus).toHaveBeenCalledTimes(2);
-    setVisibility("hidden");
-    await act(async () => {
-      vi.advanceTimersByTime(STATUS_POLL_MS * 3);
+    renderI18n(<OnboardingStatusScreen />);
+    expect(await screen.findByText("Verification in progress")).toBeTruthy();
+    expect(screen.getByText("Review by a Setu reviewer")).toBeTruthy();
+    expect(screen.queryByText(/SANCTION/i)).toBeNull();
+    expect(replace).not.toHaveBeenCalled();
+  });
+
+  it("lists change requests with deep links to the right step and a resubmit link", async () => {
+    getState.mockResolvedValue({
+      ...pending,
+      decision: "CHANGES_REQUESTED",
+      change_requests: [
+        { target: "IRC", note: "Photo is blurry" },
+        { target: "tin", note: "Digits missing" },
+      ],
     });
-    expect(getOnboardingStatus).toHaveBeenCalledTimes(2);
+    renderI18n(<OnboardingStatusScreen />);
+    expect(await screen.findByText("Changes requested")).toBeTruthy();
+    expect(screen.getByText("Photo is blurry")).toBeTruthy();
+    expect(
+      screen
+        .getByRole("link", {
+          name: /Fix this: Import Registration Certificate/,
+        })
+        .getAttribute("href"),
+    ).toBe("/onboarding?step=documents");
+    expect(
+      screen.getByRole("link", { name: /Fix this: TIN/ }).getAttribute("href"),
+    ).toBe("/onboarding?step=business");
+    expect(
+      screen
+        .getByRole("link", { name: "Go to review and resubmit" })
+        .getAttribute("href"),
+    ).toBe("/onboarding?step=review");
   });
 
-  it("stops polling and opens the session when approved and active", async () => {
-    getOnboardingStatus.mockResolvedValue(state({ status: "APPROVED", account_status: "ACTIVE" }));
-    startSession.mockResolvedValue(user("SUPPLIER"));
-    fakeIntervals();
+  it.each([
+    [{ account_status: "REJECTED" }, "/account-status?reason=rejected"],
+    [{ account_status: "SUSPENDED" }, "/account-status?reason=suspended"],
+    [{ account_status: "ACTIVE" }, "/app"],
+    [{ account_status: "PENDING_PROFILE" }, "/onboarding"],
+  ])("sends %o to %s", async (over, path) => {
+    getState.mockResolvedValue({ ...baseState, ...over });
     renderI18n(<OnboardingStatusScreen />);
-    await settle();
-    expect(replace).toHaveBeenCalledWith("/supplier");
-    expect(startSession).toHaveBeenCalledTimes(1);
-    await act(async () => {
-      vi.advanceTimersByTime(STATUS_POLL_MS * 2);
-    });
-    expect(getOnboardingStatus).toHaveBeenCalledTimes(1);
-  });
-
-  it("sends a buyer to /app", async () => {
-    getOnboardingStatus.mockResolvedValue(state({ status: "APPROVED", account_status: "ACTIVE" }));
-    startSession.mockResolvedValue(user("BUYER"));
-    renderI18n(<OnboardingStatusScreen />);
-    await waitFor(() => expect(replace).toHaveBeenCalledWith("/app"));
-  });
-
-  it("hands a rejected applicant to the account-status screen and stops polling", async () => {
-    getOnboardingStatus.mockResolvedValue(state({ status: "REJECTED", account_status: "SUSPENDED", reason: "No licence" }));
-    fakeIntervals();
-    renderI18n(<OnboardingStatusScreen />);
-    await settle();
-    expect(replace).toHaveBeenCalledWith("/account-status?reason=suspended");
-    await act(async () => {
-      vi.advanceTimersByTime(STATUS_POLL_MS * 2);
-    });
-    expect(getOnboardingStatus).toHaveBeenCalledTimes(1);
-    expect(startSession).not.toHaveBeenCalled();
-  });
-
-  it("goes to the form when there is no application yet", async () => {
-    getOnboardingStatus.mockRejectedValue(new ApiError(404, "x", null, "NOT_ONBOARDED"));
-    renderI18n(<OnboardingStatusScreen />);
-    await waitFor(() => expect(replace).toHaveBeenCalledWith("/onboarding"));
+    await waitFor(() => expect(replace).toHaveBeenCalledWith(path));
   });
 });

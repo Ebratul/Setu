@@ -7,13 +7,21 @@ Nothing moves until the buyer approves it with a code and after the cooling-off.
 An e-mail can never start this: see `services/inbox.py`."""
 
 import uuid
+from dataclasses import replace
 from datetime import datetime
 
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from app.auth.deps import CurrentUser, to_current
-from app.db.enums import AccountStatus, AccountType, ApprovalAction, ApprovalStatus, Role
+from app.auth.deps import CurrentUser, ensure_verified, to_current
+from app.db.enums import (
+    AccountStatus,
+    AccountType,
+    ApprovalAction,
+    ApprovalStatus,
+    Role,
+    UserStatus,
+)
 from app.db.models import ApprovalRequest, BankAccount, Deal, Party, User
 from app.errors import Forbidden, NotFound
 from app.schemas.approvals import (
@@ -34,12 +42,20 @@ OPEN = (ApprovalStatus.PENDING, ApprovalStatus.APPROVED)
 
 
 def _system_admin(db: Session) -> CurrentUser:
-    """KYB runs are recorded against a real user row; the re-check on a supplier's request is
-    performed by the platform, so it uses the first admin account."""
-    row = db.scalars(select(User).where(User.role == Role.ADMIN).order_by(User.email)).first()
-    if row is None:
+    """The platform's own KYB re-check on a supplier's request. Runs are recorded against a real
+    admin row (preferring an ACTIVE, non-demo one), but the actor is an explicit system actor
+    that passes the user gates (status, 2FA, demo flags): it is never a person's session."""
+    admins = list(db.scalars(select(User).where(User.role == Role.ADMIN).order_by(User.email)))
+    if not admins:
         raise NotFound("no admin account to run the KYB re-check")
-    return to_current(row)
+    row = next((a for a in admins if a.status == UserStatus.ACTIVE and not a.is_demo), admins[0])
+    return replace(
+        to_current(row),
+        account_status=UserStatus.ACTIVE,
+        mfa_enabled=True,
+        is_demo=False,
+        party_blocked=False,
+    )
 
 
 def _label(a: BankAccount) -> str:
@@ -109,6 +125,7 @@ def _view(db: Session, account: BankAccount, appr: ApprovalRequest) -> AccountCh
 def request_change(
     db: Session, user: CurrentUser, body: AccountChangeIn, *, now: datetime | None = None
 ) -> AccountChangeRequestOut:
+    ensure_verified(user)
     party_id = _require_supplier(user)
     now = now or escrow_service.utcnow()
     deal = db.get(Deal, body.deal_id)
@@ -169,7 +186,16 @@ def request_change(
 
     supplier = db.get(Party, party_id)
     assert supplier is not None
-    kyb_service.verify(db, _system_admin(db), supplier.id, deal.reference, now=now)
+    try:
+        kyb_service.verify(db, _system_admin(db), supplier.id, deal.reference, now=now)
+    except Exception:
+        # never leave a parked account behind that blocks a retry with ACCOUNT_EXISTS
+        db.rollback()
+        parked = db.get(BankAccount, account.id)
+        if parked is not None:
+            parked.status = AccountStatus.RETIRED
+            db.commit()
+        raise
 
     try:
         out = beneficiary.change_beneficiary(

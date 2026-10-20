@@ -6,7 +6,7 @@ from fastapi import APIRouter, Depends
 from pydantic import BaseModel, ConfigDict
 from sqlalchemy.orm import Session
 
-from app.auth.deps import CurrentUser, current_user
+from app.auth.deps import CurrentUser, current_user, require_verified
 from app.db.session import get_db
 from app.schemas.approvals import (
     AccountChangeIn,
@@ -20,6 +20,7 @@ from app.services import inbox, supplier_accounts
 router = APIRouter(tags=["inbox"])
 Db = Annotated[Session, Depends(get_db)]
 User = Annotated[CurrentUser, Depends(current_user)]
+Verified = Annotated[CurrentUser, Depends(require_verified)]
 
 
 class DemoEmail(BaseModel):
@@ -43,7 +44,7 @@ def demo_email(user: User) -> DemoEmail:
 @router.post(
     "/supplier/accounts/change-request", response_model=AccountChangeRequestOut, status_code=202
 )
-def request_change(body: AccountChangeIn, db: Db, user: User) -> AccountChangeRequestOut:
+def request_change(body: AccountChangeIn, db: Db, user: Verified) -> AccountChangeRequestOut:
     """Supplier portal only. Parks the account as PENDING_CHANGE, re-runs KYB and opens a Tier 3
     request for the buyer. Nothing is paid to it until the buyer approves."""
     return supplier_accounts.request_change(db, user, body)

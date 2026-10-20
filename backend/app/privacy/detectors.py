@@ -12,6 +12,8 @@ import unicodedata
 from collections.abc import Iterable
 from dataclasses import dataclass
 
+from app.domain.onboarding_validation import uscc_valid
+
 NID = "NID"
 PASSPORT = "PASSPORT"
 PHONE = "PHONE"
@@ -21,10 +23,22 @@ SWIFT = "SWIFT"
 EMAIL = "EMAIL"
 NAME = "NAME"
 AMT = "AMT"
+BIZID = "BIZID"  # trade licence, IRC, TIN/BIN, USCC
 
-TYPES = (NID, PASSPORT, PHONE, ACCT, IBAN, SWIFT, EMAIL, NAME, AMT)
+TYPES = (NID, PASSPORT, PHONE, ACCT, IBAN, SWIFT, EMAIL, NAME, AMT, BIZID)
 # Higher wins when two hits overlap (an account number never beats the phone it contains).
-PRIORITY = {EMAIL: 9, IBAN: 8, SWIFT: 7, PASSPORT: 7, NID: 6, PHONE: 5, ACCT: 4, NAME: 3, AMT: 2}
+PRIORITY = {
+    EMAIL: 9,
+    IBAN: 8,
+    SWIFT: 7,
+    PASSPORT: 7,
+    BIZID: 7,
+    NID: 6,
+    PHONE: 5,
+    ACCT: 4,
+    NAME: 3,
+    AMT: 2,
+}
 LABELS = {
     NID: ("national ID", "জাতীয় পরিচয়পত্র"),
     PASSPORT: ("passport", "পাসপোর্ট"),
@@ -35,6 +49,7 @@ LABELS = {
     EMAIL: ("email", "ইমেইল"),
     NAME: ("person name", "ব্যক্তির নাম"),
     AMT: ("amount", "পরিমাণ"),
+    BIZID: ("business registration number", "ব্যবসা নিবন্ধন নম্বর"),
 }
 
 _ZERO_WIDTH = frozenset(chr(c) for c in (0x200B, 0x200C, 0x200D, 0x2060, 0xFEFF, 0xAD, 0x180E))
@@ -159,6 +174,16 @@ _ACCT_CTX = (
 _PASSPORT_CTX = r"(?:passport|পাসপোর্ট|护照|護照)"
 _SWIFT_CTX = r"(?:SWIFT|BIC)(?:\s*(?:code|/BIC))?"
 _GAP = r"[^\d]{0,28}?"
+_BIZ_CTX = (
+    r"(?:trade\s*licen[cs]e(?:\s*(?:no|number|#))?|licen[cs]e\s*(?:no|number|#)|\bIRC(?:\s*(?:no|number|#))?|"
+    r"import\s*registration(?:\s*certificate)?(?:\s*(?:no|number|#))?|\bTIN(?:\s*(?:no|number|#))?|\bBIN\b|"
+    r"\bUSCC\b|unified\s*social\s*credit\s*code|统一社会信用代码|社会信用代码|营业执照(?:号|编号)?|"
+    r"ট্রেড\s*লাইসেন্স|টিআইএন|আইআরসি)"
+)
+BIZ_LABELLED = re.compile(
+    rf"{_BIZ_CTX}\.?[\s:\uff1a#-]{{0,6}}([A-Z0-9][A-Z0-9/\-]{{4,30}}[A-Z0-9])(?![A-Z0-9])", re.I
+)
+USCC_RE = re.compile(r"(?<![A-Za-z0-9])[0-9A-HJ-NP-RT-UW-Y]{18}(?![A-Za-z0-9])")
 
 NID_BEFORE = re.compile(rf"{_NID_CTX}{_GAP}(?<!\d)(\d{{17}}|\d{{13}}|\d{{10}})(?!\d)", re.I)
 NID_AFTER = re.compile(rf"(?<!\d)(\d{{17}}|\d{{13}}|\d{{10}})(?!\d)[^\d\n]{{0,6}}{_NID_CTX}", re.I)
@@ -255,6 +280,13 @@ def _detect_numbers(view: View) -> Iterable[Hit]:
     for pat, conf in ((PHONE_BD, 0.97), (PHONE_CN, 0.9)):
         for m in pat.finditer(loose.text):
             yield _hit(loose, PHONE, m.start(), m.end(), conf, _canonical_phone(m.group()))
+    for m in BIZ_LABELLED.finditer(t):
+        s_, e_ = _group(m)
+        if sum(c.isdigit() for c in m.group(1)) >= 4:
+            yield _hit(view, BIZID, s_, e_, 0.9, re.sub(r"[^A-Za-z0-9]", "", m.group(1)).upper())
+    for m in USCC_RE.finditer(t):  # a valid check character makes a bare USCC unmistakable
+        if uscc_valid(m.group()):
+            yield _hit(view, BIZID, m.start(), m.end(), 0.95, m.group())
     for m in LONG_DIGITS.finditer(t):  # unlabelled 13-18 digit numbers: treated as accounts
         raw = view.original[view.span(m.start(), m.end())[0] : view.span(m.start(), m.end())[1]]
         if not DATE_RUN.fullmatch(raw):

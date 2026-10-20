@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { Suspense } from "react";
 
 import { Breadcrumbs } from "@/components/docs/Breadcrumbs";
 import { DocBody } from "@/components/docs/DocArticle";
@@ -25,7 +26,11 @@ export function generateStaticParams() {
   );
 }
 
-export async function generateMetadata({ params }: { params: Promise<Params> }): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<Params>;
+}): Promise<Metadata> {
   const { lang, section, name } = await params;
   if (!isDocLang(lang)) return {};
   const hit = getDocWithFallback(lang, `${section}/${name}`);
@@ -37,7 +42,15 @@ export async function generateMetadata({ params }: { params: Promise<Params> }):
   };
 }
 
-export default async function DocPage({ params }: { params: Promise<Params> }) {
+export default function DocPage({ params }: { params: Promise<Params> }) {
+  return (
+    <Suspense fallback={<p className="text-muted">Loading…</p>}>
+      <DocContent params={params} />
+    </Suspense>
+  );
+}
+
+async function DocContent({ params }: { params: Promise<Params> }) {
   const { lang, section, name } = await params;
   if (!isDocLang(lang)) notFound();
   const id = `${section}/${name}`;
@@ -48,20 +61,33 @@ export default async function DocPage({ params }: { params: Promise<Params> }) {
 
   const order = readingOrder(lang);
   const at = order.findIndex((m) => m.id === id);
-  const link = (i: number) => (order[i] ? { href: `/docs/${lang}/${order[i].id}`, title: order[i].title } : undefined);
+  const link = (i: number) =>
+    order[i]
+      ? { href: `/docs/${lang}/${order[i].id}`, title: order[i].title }
+      : undefined;
 
   return (
     <div className="flex gap-8">
       <article className="docs-print min-w-0 flex-1">
-        <Breadcrumbs lang={lang} section={doc.meta.section} title={doc.meta.title} />
+        <Breadcrumbs
+          lang={lang}
+          section={doc.meta.section}
+          title={doc.meta.title}
+        />
         <h1 className="text-3xl font-bold text-ink">{doc.meta.title}</h1>
         <p className="mt-2 text-lg text-muted">{doc.meta.summary}</p>
         <DocMetaBar
           lang={lang}
           fellBack={fellBack}
           updated={doc.meta.updated}
-          guide={GUIDE_SECTIONS.includes(doc.meta.section) ? doc.meta.section : undefined}
-          roles={doc.meta.roles.map((r) => <RoleBadge key={r} role={r} />)}
+          guide={
+            GUIDE_SECTIONS.includes(doc.meta.section)
+              ? doc.meta.section
+              : undefined
+          }
+          roles={doc.meta.roles.map((r) => (
+            <RoleBadge key={r} role={r} />
+          ))}
         />
         <div className="mt-6">
           <DocBody doc={doc} lang={lang} />
@@ -69,7 +95,10 @@ export default async function DocPage({ params }: { params: Promise<Params> }) {
         <PrevNext prev={link(at - 1)} next={link(at + 1)} />
         <PageFeedback pageId={`${lang}:${id}`} />
         <p className="no-print mt-6">
-          <Link href={`/docs/${lang}`} className="font-semibold text-brand-text underline">
+          <Link
+            href={`/docs/${lang}`}
+            className="font-semibold text-brand-text underline"
+          >
             {"←"} Documentation
           </Link>
         </p>
@@ -82,4 +111,3 @@ export default async function DocPage({ params }: { params: Promise<Params> }) {
     </div>
   );
 }
-

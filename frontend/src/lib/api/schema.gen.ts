@@ -100,6 +100,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/auth/session/revoked": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Session Revoked
+         * @description The browser revoked Neon sessions through the Neon SDK; this records it (signed audit).
+         */
+        post: operations["session_revoked_auth_session_revoked_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/auth/stepup/start": {
         parameters: {
             query?: never;
@@ -135,6 +155,83 @@ export interface paths {
          * @description Exchange the emailed code for a 10-minute `X-Stepup` token bound to this user.
          */
         post: operations["stepup_verify_auth_stepup_verify_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/auth/mfa/totp/setup": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Totp Setup
+         * @description Create a TOTP secret (shown once, encrypted at rest). Two-factor stays off until `enable`.
+         */
+        post: operations["totp_setup_auth_mfa_totp_setup_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/auth/mfa/totp/enable": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Totp Enable
+         * @description Confirm with a first code; returns 10 single-use recovery codes, shown once.
+         */
+        post: operations["totp_enable_auth_mfa_totp_enable_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/auth/mfa/totp/disable": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Totp Disable
+         * @description Not allowed for administrators (403 MFA_REQUIRED).
+         */
+        post: operations["totp_disable_auth_mfa_totp_disable_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/auth/mfa/totp/recovery-codes/regenerate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Totp Regenerate */
+        post: operations["totp_regenerate_auth_mfa_totp_recovery_codes_regenerate_post"];
         delete?: never;
         options?: never;
         head?: never;
@@ -178,7 +275,214 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/onboarding": {
+    "/onboarding/me": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Me
+         * @description Where the caller stands. 200 with `account_status: null` before a role is chosen.
+         */
+        get: operations["me_onboarding_me_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/onboarding/role": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Choose Role
+         * @description Create the account in PENDING_PROFILE. ADMIN needs an allowlisted email, JUDGE an invite
+         *     code (403 ROLE_NOT_ALLOWED / INVALID_INVITE_CODE); changing it after step 1 is a 409.
+         */
+        post: operations["choose_role_onboarding_role_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/onboarding/contact": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Contact */
+        put: operations["contact_onboarding_contact_put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/onboarding/phone/send": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Phone Send
+         * @description Send a 6-digit code to the saved mobile. `demo_code` is in the response only when
+         *     DEMO_MODE=true. 429 OTP_RATE_LIMIT after 3 sends in 10 minutes.
+         */
+        post: operations["phone_send_onboarding_phone_send_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/onboarding/phone/verify": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Phone Verify
+         * @description 410 OTP_EXPIRED, 423 OTP_LOCKED after 5 wrong codes, 400 OTP_INVALID otherwise.
+         */
+        post: operations["phone_verify_onboarding_phone_verify_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/onboarding/business": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Business
+         * @description Buyer or supplier business details (the body shape follows the account type).
+         */
+        put: operations["business_onboarding_business_put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/onboarding/documents": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Upload Document */
+        post: operations["upload_document_onboarding_documents_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/onboarding/documents/{document_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Delete Document */
+        delete: operations["delete_document_onboarding_documents__document_id__delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/onboarding/documents/{document_id}/url": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Document Url
+         * @description Short-lived signed link, for the owner or an administrator.
+         */
+        get: operations["document_url_onboarding_documents__document_id__url_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/onboarding/documents/{document_id}/file": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Document File */
+        get: operations["document_file_onboarding_documents__document_id__file_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/onboarding/consent": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Consent */
+        put: operations["consent_onboarding_consent_put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/onboarding/submit": {
         parameters: {
             query?: never;
             header?: never;
@@ -189,16 +493,35 @@ export interface paths {
         put?: never;
         /**
          * Submit
-         * @description Create the business, owner account (PENDING) and review; the server picks the role.
+         * @description Needs every earlier step; runs the automated checks and moves the account to
+         *     PENDING_VERIFICATION (admins: ACTIVE once TOTP and consent are done).
          */
-        post: operations["submit_onboarding_post"];
+        post: operations["submit_onboarding_submit_post"];
         delete?: never;
         options?: never;
         head?: never;
         patch?: never;
         trace?: never;
     };
-    "/onboarding/status": {
+    "/account": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Account */
+        get: operations["get_account_account_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Patch Account */
+        patch: operations["patch_account_account_patch"];
+        trace?: never;
+    };
+    "/account/export": {
         parameters: {
             query?: never;
             header?: never;
@@ -206,12 +529,32 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * Status
-         * @description Where the caller's onboarding stands (works while the account is still PENDING).
+         * Export Account
+         * @description A JSON copy of the caller's own data. Sensitive numbers stay masked.
          */
-        get: operations["status_onboarding_status_get"];
+        get: operations["export_account_account_export_get"];
         put?: never;
         post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/account/delete-request": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Delete Request
+         * @description Soft delete: the account is suspended and marked for erasure.
+         */
+        post: operations["delete_request_account_delete_request_post"];
         delete?: never;
         options?: never;
         head?: never;
@@ -252,6 +595,27 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/admin/onboarding/{review_id}/reveal": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Reveal
+         * @description One sensitive value, in clear, once. Needs a reason; the audit entry holds the field name
+         *     and reason, never the value.
+         */
+        post: operations["reveal_admin_onboarding__review_id__reveal_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/admin/onboarding/{review_id}/approve": {
         parameters: {
             query?: never;
@@ -269,6 +633,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/admin/onboarding/{review_id}/request-changes": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Request Changes */
+        post: operations["request_changes_admin_onboarding__review_id__request_changes_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/admin/onboarding/{review_id}/reject": {
         parameters: {
             query?: never;
@@ -280,6 +661,43 @@ export interface paths {
         put?: never;
         /** Reject */
         post: operations["reject_admin_onboarding__review_id__reject_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/admin/onboarding/{review_id}/suspend": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Suspend */
+        post: operations["suspend_admin_onboarding__review_id__suspend_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/admin/onboarding/{review_id}/auto-approve": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Auto Approve
+         * @description Demo only: 404 unless DEMO_MODE=true.
+         */
+        post: operations["auto_approve_admin_onboarding__review_id__auto_approve_post"];
         delete?: never;
         options?: never;
         head?: never;
@@ -1144,170 +1562,6 @@ export interface paths {
          *     evidence verdict that Phase 14's document pipeline will set.
          */
         post: operations["set_evidence_milestones__milestone_id__evidence_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/payments/paypal/config": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Config
-         * @description Whether the Sandbox checkout is configured, plus the public client id for the JS SDK.
-         */
-        get: operations["config_payments_paypal_config_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/payments/paypal/orders": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Create Order
-         * @description Create a Sandbox order for a deal. The amount is the next tranche (or the remaining goods
-         *     value) computed by the server; the request carries neither amount nor user.
-         */
-        post: operations["create_order_payments_paypal_orders_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/payments/paypal/deals/{deal_id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * List Payments
-         * @description Sandbox payments for a deal (your own; admins and judges see all).
-         */
-        get: operations["list_payments_payments_paypal_deals__deal_id__get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/payments/paypal/orders/{payment_id}/capture": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Capture
-         * @description Capture an order the buyer approved in PayPal. Verifies the order and the captured amount
-         *     against the stored payment. Idempotent.
-         */
-        post: operations["capture_payments_paypal_orders__payment_id__capture_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/payments/paypal/orders/{payment_id}/cancel": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Cancel
-         * @description The buyer abandoned the PayPal window; nothing was charged.
-         */
-        post: operations["cancel_payments_paypal_orders__payment_id__cancel_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/payments/paypal/{payment_id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Get Payment
-         * @description Stored status. With `refresh=true` an uncaptured payment is checked against PayPal.
-         */
-        get: operations["get_payment_payments_paypal__payment_id__get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/payments/paypal/{payment_id}/fund-escrow": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Fund Escrow
-         * @description Explicit step: deposit a captured Sandbox payment into the simulated escrow, once. Goes
-         *     through the normal funding path, so the risk gate can block it or ask for approval (202).
-         */
-        post: operations["fund_escrow_payments_paypal__payment_id__fund_escrow_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/payments/paypal/webhook": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Webhook
-         * @description PayPal Sandbox webhook. Unauthenticated by session: authenticity is PayPal's signature,
-         *     verified before anything is read from the body. Redeliveries are acknowledged and ignored.
-         */
-        post: operations["webhook_payments_paypal_webhook_post"];
         delete?: never;
         options?: never;
         head?: never;
@@ -2596,6 +2850,59 @@ export interface components {
              */
             simulated: true;
         };
+        /** AccountOut */
+        AccountOut: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Email */
+            email: string;
+            /** Display Name */
+            display_name: string;
+            /**
+             * Role
+             * @enum {string}
+             */
+            role: "BUYER" | "SUPPLIER" | "ADMIN" | "JUDGE";
+            /**
+             * Language
+             * @enum {string}
+             */
+            language: "en" | "bn" | "zh";
+            /**
+             * Account Status
+             * @enum {string}
+             */
+            account_status: "PENDING_PROFILE" | "PENDING_VERIFICATION" | "ACTIVE" | "REJECTED" | "SUSPENDED";
+            /** Auth Provider */
+            auth_provider: string | null;
+            /** Mfa Enabled */
+            mfa_enabled: boolean;
+            /** Terms Version */
+            terms_version: string | null;
+            /** Terms Accepted At */
+            terms_accepted_at: string | null;
+            /** Party Name */
+            party_name: string | null;
+            /** Mobile Masked */
+            mobile_masked: string | null;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /** Last Login At */
+            last_login_at: string | null;
+        };
+        /** AccountPatch */
+        AccountPatch: {
+            /** Language */
+            language?: ("en" | "bn" | "zh") | null;
+            /** Full Name */
+            full_name?: string | null;
+        };
         /** AccountSummary */
         AccountSummary: {
             /**
@@ -2633,11 +2940,6 @@ export interface components {
             /** Verified */
             verified: boolean;
         };
-        /**
-         * AccountType
-         * @enum {string}
-         */
-        AccountType: "CORPORATE" | "PERSONAL";
         /**
          * Action
          * @enum {string}
@@ -3139,23 +3441,10 @@ export interface components {
              * @enum {string}
              */
             mode: "demo" | "neon";
-        };
-        /** BankAccountIn */
-        BankAccountIn: {
-            /** Bank Name */
-            bank_name: string;
-            /** Bank Country */
-            bank_country: string;
-            /** Account Number */
-            account_number: string;
-            /** Holder Name */
-            holder_name: string;
-            /**
-             * Currency
-             * @enum {string}
-             */
-            currency: "BDT" | "USD" | "CNY";
-            account_type: components["schemas"]["AccountType"];
+            /** Demo Enabled */
+            demo_enabled: boolean;
+            /** Google Enabled */
+            google_enabled: boolean;
         };
         /** Bi */
         Bi: {
@@ -3199,6 +3488,60 @@ export interface components {
              * @description PDF, PNG or JPG, at most 10 MB
              */
             file: string;
+        };
+        /** Body_upload_document_onboarding_documents_post */
+        Body_upload_document_onboarding_documents_post: {
+            /** @description Document type */
+            type: components["schemas"]["VerificationDocType"];
+            /**
+             * File
+             * @description PDF, PNG or JPG, at most 4 MB
+             */
+            file: string;
+        };
+        /** BuyerAddress */
+        BuyerAddress: {
+            /** Division */
+            division: string;
+            /** District */
+            district: string;
+            /** Upazila */
+            upazila: string;
+            /** Street */
+            street: string;
+        };
+        /** BuyerBusinessIn */
+        BuyerBusinessIn: {
+            /** Legal Name */
+            legal_name: string;
+            /** Trade Name */
+            trade_name?: string | null;
+            /** Trade License No */
+            trade_license_no: string;
+            /** License Authority */
+            license_authority: string;
+            /**
+             * License Expiry
+             * Format: date
+             */
+            license_expiry: string;
+            /** Irc No */
+            irc_no: string;
+            /** Tin */
+            tin: string;
+            address: components["schemas"]["BuyerAddress"];
+            /**
+             * Business Type
+             * @enum {string}
+             */
+            business_type: "MANUFACTURER" | "TRADER";
+            /** Main Import Goods */
+            main_import_goods: string;
+            /**
+             * Monthly Import Volume
+             * @enum {string}
+             */
+            monthly_import_volume: "UNDER_500K_BDT" | "500K_2M_BDT" | "2M_10M_BDT" | "OVER_10M_BDT";
         };
         /** CashflowCard */
         CashflowCard: {
@@ -3297,6 +3640,20 @@ export interface components {
             approval: components["schemas"]["ApprovalRef"] | null;
             risk: components["schemas"]["RiskOut"];
             deal: components["schemas"]["DealDetail"];
+        };
+        /** ChangeItem */
+        ChangeItem: {
+            /** Target */
+            target: string;
+            /** Note */
+            note: string;
+        };
+        /** ChangeRequestOut */
+        ChangeRequestOut: {
+            /** Target */
+            target: string;
+            /** Note */
+            note: string;
         };
         /** ChangeStep */
         ChangeStep: {
@@ -3418,6 +3775,11 @@ export interface components {
             last_reviewed: string;
             /** Disclaimer */
             disclaimer: string;
+            /**
+             * Guide Url
+             * @description user_guide sources only: public doc URL, with #anchor when known.
+             */
+            guide_url?: string | null;
         };
         /** CitationSnippet */
         CitationSnippet: {
@@ -3441,6 +3803,11 @@ export interface components {
             last_reviewed: string;
             /** Disclaimer */
             disclaimer: string;
+            /**
+             * Guide Url
+             * @description user_guide sources only: public doc URL, with #anchor when known.
+             */
+            guide_url?: string | null;
             /** Score */
             score: number;
         };
@@ -3501,6 +3868,36 @@ export interface components {
             confirmed_at: string | null;
             /** Confirmed By */
             confirmed_by: string | null;
+        };
+        /** ConsentIn */
+        ConsentIn: {
+            /** Terms Version */
+            terms_version: string;
+            /**
+             * Accept Terms
+             * @constant
+             */
+            accept_terms: true;
+            /**
+             * Accept Privacy
+             * @constant
+             */
+            accept_privacy: true;
+            /**
+             * Consent Verification
+             * @constant
+             */
+            consent_verification: true;
+        };
+        /** ConsentOut */
+        ConsentOut: {
+            /** Terms Version */
+            terms_version: string;
+            /**
+             * Accepted At
+             * Format: date-time
+             */
+            accepted_at: string;
         };
         /**
          * ConsoleRunIn
@@ -3568,6 +3965,37 @@ export interface components {
             money_moved: false;
             /** Event Id */
             event_id?: string | null;
+        };
+        /** ContactIn */
+        ContactIn: {
+            /** Full Name */
+            full_name: string;
+            /** Designation */
+            designation: string;
+            /** Mobile */
+            mobile: string;
+            /**
+             * Language
+             * @default en
+             * @enum {string}
+             */
+            language: "en" | "bn" | "zh";
+        };
+        /** ContactOut */
+        ContactOut: {
+            /** Full Name */
+            full_name: string;
+            /** Designation */
+            designation: string;
+            /** Mobile Masked */
+            mobile_masked: string;
+            /** Phone Verified */
+            phone_verified: boolean;
+            /**
+             * Language
+             * @enum {string}
+             */
+            language: "en" | "bn" | "zh";
         };
         /** CoolingOffOut */
         CoolingOffOut: {
@@ -3735,17 +4163,6 @@ export interface components {
             expected_sale_value?: string | null;
             /** Costs */
             costs?: components["schemas"]["CostIn"][];
-        };
-        /** CreateOrderRequest */
-        CreateOrderRequest: {
-            /** Deal Id */
-            deal_id: string;
-            /**
-             * Coverage
-             * @default NEXT_TRANCHE
-             * @enum {string}
-             */
-            coverage: "NEXT_TRANCHE" | "REMAINING";
         };
         /** CreditRecordOut */
         CreditRecordOut: {
@@ -4194,6 +4611,20 @@ export interface components {
              */
             opened_on: string;
         };
+        /** DeleteRequested */
+        DeleteRequested: {
+            /**
+             * Status
+             * @default SUSPENDED
+             * @constant
+             */
+            status: "SUSPENDED";
+            /**
+             * Deleted At
+             * Format: date-time
+             */
+            deleted_at: string;
+        };
         /** DemoEmail */
         DemoEmail: {
             /** Text */
@@ -4240,6 +4671,13 @@ export interface components {
             party_id: string | null;
             /** Party Name */
             party_name: string | null;
+            /**
+             * Account Status
+             * @enum {string}
+             */
+            account_status: "PENDING_PROFILE" | "PENDING_VERIFICATION" | "ACTIVE" | "REJECTED" | "SUSPENDED";
+            /** Mfa Enabled */
+            mfa_enabled: boolean;
         };
         /** DemoUsers */
         DemoUsers: {
@@ -5310,29 +5748,6 @@ export interface components {
             weekly: components["schemas"]["WeekOut"][];
             /** Facts */
             facts: string[];
-        };
-        /** FundEscrowResult */
-        FundEscrowResult: {
-            /**
-             * Simulated
-             * @default true
-             * @constant
-             */
-            simulated: true;
-            /**
-             * Outcome
-             * @enum {string}
-             */
-            outcome: "FUNDED" | "PENDING_APPROVAL";
-            /** Idempotent Replay */
-            idempotent_replay: boolean;
-            /** Approval Id */
-            approval_id: string | null;
-            /** Approval Tier */
-            approval_tier: number | null;
-            /** Notice */
-            notice: string;
-            payment: components["schemas"]["PaymentOut"];
         };
         /** FundRequest */
         FundRequest: {
@@ -6515,7 +6930,7 @@ export interface components {
              * Status
              * @enum {string}
              */
-            status: "PENDING" | "ACTIVE" | "SUSPENDED";
+            status: "PENDING_PROFILE" | "PENDING_VERIFICATION" | "ACTIVE" | "REJECTED" | "SUSPENDED";
             /** Signed In Once */
             signed_in_once: boolean;
             /**
@@ -6564,6 +6979,22 @@ export interface components {
              * @description For tool messages that produced a card.
              */
             card?: (components["schemas"]["CitationsCard"] | components["schemas"]["LandedCostCard"] | components["schemas"]["CashflowCard"] | components["schemas"]["AlertsCard"] | components["schemas"]["FinancingComparisonCard"] | components["schemas"]["FxCompareCard"] | components["schemas"]["MonthlySummaryCard"] | components["schemas"]["ScorecardCard"] | components["schemas"]["KybCard"] | components["schemas"]["DocumentCheckCard"] | components["schemas"]["RegistryCard"]) | null;
+        };
+        /** MfaDisabledOut */
+        MfaDisabledOut: {
+            /**
+             * Mfa Enabled
+             * @default false
+             * @constant
+             */
+            mfa_enabled: false;
+        };
+        /** MfaOut */
+        MfaOut: {
+            /** Enabled */
+            enabled: boolean;
+            /** Required */
+            required: boolean;
         };
         /** MilestoneActions */
         MilestoneActions: {
@@ -6828,72 +7259,43 @@ export interface components {
             /** Items */
             items: components["schemas"]["EventOut"][];
         };
-        /**
-         * OnboardingIn
-         * @description What a new user submits. The role is derived from `account_type` by the server; ADMIN and
-         *     JUDGE cannot be chosen.
-         */
-        OnboardingIn: {
-            /**
-             * Account Type
-             * @enum {string}
-             */
-            account_type: "BUYER" | "SUPPLIER";
-            /** Display Name */
-            display_name: string;
-            /** Legal Name */
-            legal_name: string;
-            /** License Name */
-            license_name?: string | null;
-            /** License No */
-            license_no: string;
-            /** Tax Id */
-            tax_id: string;
-            /** City */
-            city: string;
-            /** Country */
-            country: string;
-            /**
-             * Language
-             * @default en
-             * @enum {string}
-             */
-            language: "en" | "bn" | "zh";
-            bank_account: components["schemas"]["BankAccountIn"];
+        /** OnboardingState */
+        OnboardingState: {
+            /** Account Status */
+            account_status: ("PENDING_PROFILE" | "PENDING_VERIFICATION" | "ACTIVE" | "REJECTED" | "SUSPENDED") | null;
+            /** Role */
+            role: ("BUYER" | "SUPPLIER" | "ADMIN" | "JUDGE") | null;
+            /** Step */
+            step: number;
+            /** Steps */
+            steps: components["schemas"]["StepOut"][];
+            contact: components["schemas"]["ContactOut"] | null;
+            /** Business */
+            business: {
+                [key: string]: unknown;
+            } | null;
+            /** Documents */
+            documents: components["schemas"]["VerificationDocumentOut"][];
+            consent: components["schemas"]["ConsentOut"] | null;
+            mfa: components["schemas"]["MfaOut"];
+            /** Checks */
+            checks: components["schemas"]["PublicCheck"][];
+            /** Submitted At */
+            submitted_at: string | null;
+            /** Decision */
+            decision: ("APPROVED" | "CHANGES_REQUESTED" | "REJECTED" | "SUSPENDED") | null;
+            /** Change Requests */
+            change_requests: components["schemas"]["ChangeRequestOut"][];
+            /** Terms Version */
+            terms_version: string;
+            /** Demo Mode */
+            demo_mode: boolean;
         };
         /**
          * OnboardingStatus
          * @enum {string}
          */
-        OnboardingStatus: "PENDING" | "APPROVED" | "REJECTED";
-        /** OnboardingStatusOut */
-        OnboardingStatusOut: {
-            /**
-             * Status
-             * @enum {string}
-             */
-            status: "PENDING" | "APPROVED" | "REJECTED";
-            /**
-             * Account Status
-             * @enum {string}
-             */
-            account_status: "PENDING" | "ACTIVE" | "SUSPENDED";
-            /**
-             * Role
-             * @enum {string}
-             */
-            role: "BUYER" | "SUPPLIER" | "ADMIN" | "JUDGE";
-            /** Party Name */
-            party_name: string | null;
-            /** Checks */
-            checks: components["schemas"]["PublicCheck"][];
-            /** Submitted At */
-            submitted_at: string | null;
-            /** Decided At */
-            decided_at: string | null;
-            /** Reason */
-            reason: string | null;
-        };
+        OnboardingStatus: "PENDING" | "APPROVED" | "REJECTED" | "CHANGES_REQUESTED" | "SUSPENDED";
         /** OptionQuote */
         OptionQuote: {
             /**
@@ -7041,119 +7443,6 @@ export interface components {
             /** Deal Ref */
             deal_ref: string | null;
         };
-        /** PaymentListOut */
-        PaymentListOut: {
-            /**
-             * Simulated
-             * @default true
-             * @constant
-             */
-            simulated: true;
-            /** Payments */
-            payments: components["schemas"]["PaymentOut"][];
-        };
-        /** PaymentOut */
-        PaymentOut: {
-            /**
-             * Simulated
-             * @default true
-             * @constant
-             */
-            simulated: true;
-            /**
-             * Provider
-             * @default PAYPAL_SANDBOX
-             * @constant
-             */
-            provider: "PAYPAL_SANDBOX";
-            /**
-             * Id
-             * Format: uuid
-             */
-            id: string;
-            /**
-             * Deal Id
-             * Format: uuid
-             */
-            deal_id: string;
-            /** Deal Reference */
-            deal_reference: string;
-            /**
-             * Coverage
-             * @enum {string}
-             */
-            coverage: "NEXT_TRANCHE" | "REMAINING";
-            /**
-             * Status
-             * @enum {string}
-             */
-            status: "CREATED" | "CAPTURED" | "FAILED" | "CANCELLED";
-            /**
-             * Amount
-             * @example 11200.00
-             */
-            amount: string;
-            /**
-             * Currency
-             * @enum {string}
-             */
-            currency: "USD" | "BDT" | "CNY";
-            /**
-             * Charge Amount
-             * @example 11200.00
-             */
-            charge_amount: string;
-            /**
-             * Charge Currency
-             * @enum {string}
-             */
-            charge_currency: "USD" | "BDT" | "CNY";
-            /** Fx Rate */
-            fx_rate: string | null;
-            /** Provider Order Id */
-            provider_order_id: string;
-            /** Provider Capture Id */
-            provider_capture_id: string | null;
-            /** Provider Status */
-            provider_status: string | null;
-            /** Failure Code */
-            failure_code: string | null;
-            /**
-             * Created At
-             * Format: date-time
-             */
-            created_at: string;
-            /** Captured At */
-            captured_at: string | null;
-            /** Escrow Funded At */
-            escrow_funded_at: string | null;
-            /** Funding Approval Id */
-            funding_approval_id: string | null;
-            /** Can Capture */
-            can_capture: boolean;
-            /** Can Cancel */
-            can_cancel: boolean;
-            /** Can Fund Escrow */
-            can_fund_escrow: boolean;
-        };
-        /** PaypalConfigOut */
-        PaypalConfigOut: {
-            /**
-             * Simulated
-             * @default true
-             * @constant
-             */
-            simulated: true;
-            /** Enabled */
-            enabled: boolean;
-            /** Client Id */
-            client_id: string | null;
-            /**
-             * Charge Currency
-             * @enum {string}
-             */
-            charge_currency: "USD" | "BDT" | "CNY";
-        };
         /** PendingAccountResult */
         PendingAccountResult: {
             /**
@@ -7191,6 +7480,26 @@ export interface components {
              * Format: date-time
              */
             created_at: string;
+        };
+        /** PhoneSent */
+        PhoneSent: {
+            /**
+             * Sent
+             * @default true
+             * @constant
+             */
+            sent: true;
+            /** Expires In Seconds */
+            expires_in_seconds: number;
+            /** Sends Left */
+            sends_left: number;
+            /** Demo Code */
+            demo_code?: string | null;
+        };
+        /** PhoneVerifyIn */
+        PhoneVerifyIn: {
+            /** Code */
+            code: string;
         };
         /** Point */
         Point: {
@@ -7437,6 +7746,17 @@ export interface components {
             /** Open */
             open: number;
         };
+        /** RecoveryCodesOut */
+        RecoveryCodesOut: {
+            /** Recovery Codes */
+            recovery_codes: string[];
+            /**
+             * Mfa Enabled
+             * @default true
+             * @constant
+             */
+            mfa_enabled: true;
+        };
         /** RefundRequest */
         RefundRequest: {
             /** Reason */
@@ -7674,6 +7994,11 @@ export interface components {
             notice: string | null;
             deal: components["schemas"]["DealDetail"];
         };
+        /** RequestChangesIn */
+        RequestChangesIn: {
+            /** Items */
+            items: components["schemas"]["ChangeItem"][];
+        };
         /** ResendResult */
         ResendResult: {
             approval: components["schemas"]["app__schemas__approvals__ApprovalOut"];
@@ -7684,6 +8009,26 @@ export interface components {
              * @default false
              */
             delivered_by_email: boolean;
+        };
+        /** RevealIn */
+        RevealIn: {
+            /**
+             * Field
+             * @enum {string}
+             */
+            field: "mobile" | "trade_license_no" | "irc_no" | "tin" | "uscc" | "bank_account_no";
+            /** Reason */
+            reason: string;
+        };
+        /** RevealOut */
+        RevealOut: {
+            /**
+             * Field
+             * @enum {string}
+             */
+            field: "mobile" | "trade_license_no" | "irc_no" | "tin" | "uscc" | "bank_account_no";
+            /** Value */
+            value: string;
         };
         /** ReviewList */
         ReviewList: {
@@ -7701,14 +8046,33 @@ export interface components {
              * Status
              * @enum {string}
              */
-            status: "PENDING" | "APPROVED" | "REJECTED";
+            status: "PENDING" | "APPROVED" | "REJECTED" | "CHANGES_REQUESTED" | "SUSPENDED";
             /**
              * Recommendation
              * @enum {string}
              */
             recommendation: "AUTO_CLEAR" | "NEEDS_REVIEW" | "BLOCK";
+            /**
+             * Risk Summary
+             * @enum {string}
+             */
+            risk_summary: "PASS" | "WARN" | "FAIL";
             /** Score */
             score: number;
+            /**
+             * Role
+             * @enum {string}
+             */
+            role: "BUYER" | "SUPPLIER" | "ADMIN" | "JUDGE";
+            /**
+             * Account Status
+             * @enum {string}
+             */
+            account_status: "PENDING_PROFILE" | "PENDING_VERIFICATION" | "ACTIVE" | "REJECTED" | "SUSPENDED";
+            /** Decision */
+            decision: ("APPROVED" | "CHANGES_REQUESTED" | "REJECTED" | "SUSPENDED") | null;
+            /** Revision */
+            revision: number;
             /**
              * User Id
              * Format: uuid
@@ -7720,6 +8084,15 @@ export interface components {
             user_display_name: string;
             party: components["schemas"]["AdminParty"];
             bank_account: components["schemas"]["AdminBank"] | null;
+            contact: components["schemas"]["ContactOut"] | null;
+            /** Business */
+            business: {
+                [key: string]: unknown;
+            } | null;
+            /** Documents */
+            documents: components["schemas"]["VerificationDocumentOut"][];
+            /** Change Requests */
+            change_requests: components["schemas"]["ChangeRequestOut"][];
             /** Checks */
             checks: components["schemas"]["AdminCheck"][];
             /**
@@ -7782,6 +8155,21 @@ export interface components {
             trace?: components["schemas"]["TraceItemOut"][];
             /** Hints */
             hints?: components["schemas"]["HintOut"][];
+        };
+        /**
+         * Role
+         * @enum {string}
+         */
+        Role: "BUYER" | "SUPPLIER" | "ADMIN" | "JUDGE";
+        /** RoleIn */
+        RoleIn: {
+            /**
+             * Role
+             * @enum {string}
+             */
+            role: "BUYER" | "SUPPLIER" | "ADMIN" | "JUDGE";
+            /** Invite Code */
+            invite_code?: string | null;
         };
         /** Route */
         Route: {
@@ -8208,6 +8596,14 @@ export interface components {
             /** Vessel */
             vessel?: string | null;
         };
+        /** SessionRevokedIn */
+        SessionRevokedIn: {
+            /**
+             * Scope
+             * @enum {string}
+             */
+            scope: "one" | "others" | "all";
+        };
         /** SettlementOut */
         SettlementOut: {
             /**
@@ -8365,6 +8761,16 @@ export interface components {
             /** Scenes */
             scenes: components["schemas"]["SceneDefOut"][];
         };
+        /** StepOut */
+        StepOut: {
+            /**
+             * Key
+             * @enum {string}
+             */
+            key: "role" | "contact" | "business" | "documents" | "security" | "review";
+            /** Done */
+            done: boolean;
+        };
         /** StepupStarted */
         StepupStarted: {
             /**
@@ -8409,6 +8815,52 @@ export interface components {
             /** Value */
             value: string;
             label: components["schemas"]["Bi"];
+        };
+        /** SupplierAddress */
+        SupplierAddress: {
+            /** Province */
+            province: string;
+            /** City */
+            city: string;
+            /** District */
+            district: string;
+            /** Street */
+            street?: string | null;
+        };
+        /** SupplierBank */
+        SupplierBank: {
+            /** Bank Name */
+            bank_name: string;
+            /** Holder Name */
+            holder_name: string;
+            /** Account No */
+            account_no: string;
+            /**
+             * Currency
+             * @enum {string}
+             */
+            currency: "CNY" | "USD";
+            /** Swift */
+            swift: string;
+        };
+        /** SupplierBusinessIn */
+        SupplierBusinessIn: {
+            /** Legal Name En */
+            legal_name_en: string;
+            /** Legal Name Zh */
+            legal_name_zh: string;
+            /** Uscc */
+            uscc: string;
+            address: components["schemas"]["SupplierAddress"];
+            /** Business Scope */
+            business_scope: string;
+            /** Export Experience Years */
+            export_experience_years: number;
+            /** Wechat Id */
+            wechat_id?: string | null;
+            /** Contact Phone */
+            contact_phone?: string | null;
+            bank: components["schemas"]["SupplierBank"];
         };
         /** SupplierCompany */
         SupplierCompany: {
@@ -8854,6 +9306,18 @@ export interface components {
             /** Calls */
             calls: number;
         };
+        /** TotpCodeIn */
+        TotpCodeIn: {
+            /** Code */
+            code: string;
+        };
+        /** TotpSetupOut */
+        TotpSetupOut: {
+            /** Otpauth Uri */
+            otpauth_uri: string;
+            /** Secret */
+            secret: string;
+        };
         /** TraceItemOut */
         TraceItemOut: {
             /** Code */
@@ -8897,6 +9361,13 @@ export interface components {
              * @enum {string}
              */
             checking: "QUEUED" | "DONE";
+        };
+        /** UrlOut */
+        UrlOut: {
+            /** Url */
+            url: string;
+            /** Expires At */
+            expires_at: number;
         };
         /** UsageOut */
         UsageOut: {
@@ -8944,6 +9415,42 @@ export interface components {
             /** Checked At */
             checked_at?: string | null;
         };
+        /**
+         * VerificationDocType
+         * @enum {string}
+         */
+        VerificationDocType: "TRADE_LICENSE" | "IRC" | "TIN_CERT" | "BUSINESS_LICENSE" | "BANK_PROOF" | "OTHER";
+        /** VerificationDocumentOut */
+        VerificationDocumentOut: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Type
+             * @enum {string}
+             */
+            type: "TRADE_LICENSE" | "IRC" | "TIN_CERT" | "BUSINESS_LICENSE" | "BANK_PROOF" | "OTHER";
+            /** Original Name */
+            original_name: string;
+            /** Mime */
+            mime: string;
+            /** Size */
+            size: number;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "UPLOADED" | "VERIFIED" | "REJECTED";
+            /** Reviewer Notes */
+            reviewer_notes: string | null;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+        };
         /** VerifyIn */
         VerifyIn: {
             /** Payload */
@@ -8952,17 +9459,6 @@ export interface components {
             };
             /** Signature */
             signature: string;
-        };
-        /** WebhookAck */
-        WebhookAck: {
-            /**
-             * Received
-             * @default true
-             * @constant
-             */
-            received: true;
-            /** Outcome */
-            outcome: string;
         };
         /** WeekOut */
         WeekOut: {
@@ -9444,6 +9940,37 @@ export interface operations {
             };
         };
     };
+    session_revoked_auth_session_revoked_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SessionRevokedIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     stepup_start_auth_stepup_start_post: {
         parameters: {
             query?: never;
@@ -9484,6 +10011,125 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["StepupToken"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    totp_setup_auth_mfa_totp_setup_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TotpSetupOut"];
+                };
+            };
+        };
+    };
+    totp_enable_auth_mfa_totp_enable_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["TotpCodeIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RecoveryCodesOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    totp_disable_auth_mfa_totp_disable_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["TotpCodeIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MfaDisabledOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    totp_regenerate_auth_mfa_totp_recovery_codes_regenerate_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["TotpCodeIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RecoveryCodesOut"];
                 };
             };
             /** @description Validation Error */
@@ -9550,40 +10196,7 @@ export interface operations {
             };
         };
     };
-    submit_onboarding_post: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["OnboardingIn"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["OnboardingStatusOut"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    status_onboarding_status_get: {
+    me_onboarding_me_get: {
         parameters: {
             query?: never;
             header?: never;
@@ -9598,7 +10211,433 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["OnboardingStatusOut"];
+                    "application/json": components["schemas"]["OnboardingState"];
+                };
+            };
+        };
+    };
+    choose_role_onboarding_role_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RoleIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OnboardingState"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    contact_onboarding_contact_put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ContactIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OnboardingState"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    phone_send_onboarding_phone_send_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PhoneSent"];
+                };
+            };
+        };
+    };
+    phone_verify_onboarding_phone_verify_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PhoneVerifyIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OnboardingState"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    business_onboarding_business_put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["BuyerBusinessIn"] | components["schemas"]["SupplierBusinessIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OnboardingState"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    upload_document_onboarding_documents_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "multipart/form-data": components["schemas"]["Body_upload_document_onboarding_documents_post"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["VerificationDocumentOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_document_onboarding_documents__document_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                document_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    document_url_onboarding_documents__document_id__url_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                document_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UrlOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    document_file_onboarding_documents__document_id__file_get: {
+        parameters: {
+            query: {
+                token: string;
+            };
+            header?: never;
+            path: {
+                document_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    consent_onboarding_consent_put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ConsentIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OnboardingState"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    submit_onboarding_submit_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OnboardingState"];
+                };
+            };
+        };
+    };
+    get_account_account_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AccountOut"];
+                };
+            };
+        };
+    };
+    patch_account_account_patch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AccountPatch"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AccountOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    export_account_account_export_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+        };
+    };
+    delete_request_account_delete_request_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeleteRequested"];
                 };
             };
         };
@@ -9607,6 +10646,7 @@ export interface operations {
         parameters: {
             query?: {
                 status?: components["schemas"]["OnboardingStatus"] | null;
+                role?: components["schemas"]["Role"] | null;
             };
             header?: never;
             path?: never;
@@ -9665,6 +10705,41 @@ export interface operations {
             };
         };
     };
+    reveal_admin_onboarding__review_id__reveal_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                review_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RevealIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RevealOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     approve_admin_onboarding__review_id__approve_post: {
         parameters: {
             query?: never;
@@ -9675,6 +10750,41 @@ export interface operations {
             cookie?: never;
         };
         requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReviewOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    request_changes_admin_onboarding__review_id__request_changes_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                review_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RequestChangesIn"];
+            };
+        };
         responses: {
             /** @description Successful Response */
             200: {
@@ -9710,6 +10820,72 @@ export interface operations {
                 "application/json": components["schemas"]["app__schemas__onboarding__RejectIn"];
             };
         };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReviewOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    suspend_admin_onboarding__review_id__suspend_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                review_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["app__schemas__onboarding__RejectIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReviewOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    auto_approve_admin_onboarding__review_id__auto_approve_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                review_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
         responses: {
             /** @description Successful Response */
             200: {
@@ -11281,247 +12457,6 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    config_payments_paypal_config_get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["PaypalConfigOut"];
-                };
-            };
-        };
-    };
-    create_order_payments_paypal_orders_post: {
-        parameters: {
-            query?: never;
-            header?: {
-                "Idempotency-Key"?: string | null;
-            };
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["CreateOrderRequest"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["PaymentOut"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    list_payments_payments_paypal_deals__deal_id__get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                deal_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["PaymentListOut"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    capture_payments_paypal_orders__payment_id__capture_post: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                payment_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["PaymentOut"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    cancel_payments_paypal_orders__payment_id__cancel_post: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                payment_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["PaymentOut"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    get_payment_payments_paypal__payment_id__get: {
-        parameters: {
-            query?: {
-                refresh?: boolean;
-            };
-            header?: never;
-            path: {
-                payment_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["PaymentOut"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    fund_escrow_payments_paypal__payment_id__fund_escrow_post: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                payment_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["FundEscrowResult"];
-                };
-            };
-            /** @description Waiting for human approval */
-            202: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["FundEscrowResult"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    webhook_payments_paypal_webhook_post: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["WebhookAck"];
                 };
             };
         };

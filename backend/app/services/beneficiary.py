@@ -10,7 +10,7 @@ from datetime import datetime
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from app.auth.deps import CurrentUser
+from app.auth.deps import CurrentUser, ensure_verified
 from app.db.enums import AccountStatus, ApprovalAction, ApprovalStatus, Role
 from app.db.models import ApprovalRequest, BankAccount, Deal
 from app.errors import Forbidden, NotFound
@@ -45,6 +45,7 @@ def change_beneficiary(
 ) -> BeneficiaryOutcome:
     """`supplier_request`: the supplier asked for the new account through its portal; the caller is
     that supplier, who may only open the request (a human buyer must still approve it)."""
+    ensure_verified(user)
     now = now or escrow_service.utcnow()
     probe = db.get(Deal, deal_id)
     if probe is None:

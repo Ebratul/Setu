@@ -23,6 +23,7 @@ def fake(monkeypatch: pytest.MonkeyPatch, seeded_db: str) -> Iterator[FakeNeon]:
     f = FakeNeon()
     monkeypatch.setenv("AUTH_MODE", "neon")
     monkeypatch.setenv("NEON_AUTH_BASE_URL", BASE_URL)
+    monkeypatch.setenv("DEMO_MODE", "false")  # demo-next-to-neon is covered in tests/onboarding
     get_settings.cache_clear()
     monkeypatch.setattr(neon, "_cache", f.cache())
     yield f
@@ -75,7 +76,11 @@ def audit_rows(action: str, actor_id: str | None = None) -> list[AuditLog]:
 
 
 def test_config_reports_neon_mode_and_demo_login_is_gone(client: TestClient) -> None:
-    assert client.get("/auth/config").json() == {"mode": "neon"}
+    assert client.get("/auth/config").json() == {
+        "mode": "neon",
+        "demo_enabled": False,
+        "google_enabled": True,
+    }
     assert client.get("/auth/demo-users").status_code == 404
     assert client.post("/auth/demo-login", json={"email": "rahima@demo.setu"}).status_code == 404
 
@@ -153,9 +158,9 @@ def test_demo_accounts_can_never_be_claimed_by_email(client: TestClient, fake: F
 
 @pytest.mark.parametrize(
     ("status", "code"),
-    [(UserStatus.PENDING, "ACCOUNT_PENDING"), (UserStatus.SUSPENDED, "ACCOUNT_SUSPENDED")],
+    [(UserStatus.REJECTED, "ACCOUNT_REJECTED"), (UserStatus.SUSPENDED, "ACCOUNT_SUSPENDED")],
 )
-def test_pending_and_suspended_accounts_are_403(
+def test_rejected_and_suspended_accounts_are_403(
     client: TestClient, fake: FakeNeon, status: UserStatus, code: str
 ) -> None:
     uid = add_user(f"{status.value.lower()}@example.com", status, auth_subject=f"sub-{status}")
@@ -219,7 +224,11 @@ def test_demo_mode_keeps_working_and_rejects_bearer_tokens(
     monkeypatch.setenv("AUTH_MODE", "demo")
     get_settings.cache_clear()
     c = TestClient(create_app())
-    assert c.get("/auth/config").json() == {"mode": "demo"}
+    assert c.get("/auth/config").json() == {
+        "mode": "demo",
+        "demo_enabled": True,
+        "google_enabled": False,
+    }
     assert c.post("/auth/demo-login", json={"email": "rahima@demo.setu"}).status_code == 200
     assert c.get("/auth/me").status_code == 200
     assert c.post("/auth/session").status_code == 404
@@ -281,15 +290,15 @@ def test_repeated_session_and_logout_calls_do_not_grow_the_chain(
     assert len(audit_rows("auth.logout", str(uid))) == 1
 
 
-def test_pending_denials_are_deduplicated(client: TestClient, fake: FakeNeon) -> None:
-    uid = add_user("pend2@example.com", UserStatus.PENDING, auth_subject="sub-pend2")
+def test_rejected_denials_are_deduplicated(client: TestClient, fake: FakeNeon) -> None:
+    uid = add_user("pend2@example.com", UserStatus.REJECTED, auth_subject="sub-pend2")
     token = fake.token(sub="sub-pend2", email="pend2@example.com")
     for _ in range(4):
         assert client.post("/auth/session", headers=bearer(token)).status_code == 403
     assert len(audit_rows("auth.login", str(uid))) == 1
 
 
-def test_new_real_accounts_default_to_pending_and_demo_accounts_to_active(
+def test_new_real_accounts_default_to_pending_profile_and_demo_accounts_to_active(
     fake: FakeNeon,
 ) -> None:
     uid = uuid.uuid4()
@@ -313,7 +322,7 @@ def test_new_real_accounts_default_to_pending_and_demo_accounts_to_active(
                 language=Language.EN,
             )
         )
-    assert user_row(uid).status == UserStatus.PENDING
+    assert user_row(uid).status == UserStatus.PENDING_PROFILE
     with batch_session() as s:
         demo = s.scalars(select(User).where(User.email == "dflt-demo@example.com")).one()
         assert demo.status == UserStatus.ACTIVE
@@ -330,7 +339,7 @@ def test_demo_cookie_never_sets_the_audit_actor_in_neon_mode(
     with batch_session() as s:
         demo_id = s.scalars(select(User.id).where(User.email == "rahima@demo.setu")).one()
     client.cookies.set(COOKIE_NAME, make_token(demo_id))
-    add_user("real2@example.com", UserStatus.PENDING, auth_subject="sub-real2")
+    add_user("real2@example.com", UserStatus.REJECTED, auth_subject="sub-real2")
     token = fake.token(sub="sub-real2", email="real2@example.com")
     client.post("/auth/session", headers=bearer(token))
     assert audit_rows("auth.login", str(demo_id)) == []

@@ -23,7 +23,7 @@ import structlog
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
-from app.auth.deps import CurrentUser
+from app.auth.deps import CurrentUser, ensure_verified
 from app.config import get_settings
 from app.db.enums import (
     AccountStatus,
@@ -87,6 +87,7 @@ FEED_KINDS = (
     "LOCKED",
     "BLOCKED",
     "RE_ESCALATED",
+    "ONBOARDING",
 )
 MAX_RESENDS = 5
 
@@ -721,6 +722,7 @@ def approve(
     stepup_token: str | None = None,
     now: datetime | None = None,
 ) -> ApproveResult:
+    ensure_verified(user)
     now = now or utcnow()
     appr, deal, role = _load(db, user, approval_id, decide=True, lock=True)
 
@@ -1005,6 +1007,7 @@ def cancel(
 def resend_otp(
     db: Session, user: CurrentUser, approval_id: uuid.UUID, *, now: datetime | None = None
 ) -> tuple[ApprovalOut, bool]:
+    ensure_verified(user)
     now = now or utcnow()
     appr, deal, role = _load(db, user, approval_id, decide=True, lock=True)
     if appr.tier != 3 or appr.status != ApprovalStatus.PENDING:

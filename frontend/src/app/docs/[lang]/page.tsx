@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Suspense } from "react";
 import { notFound } from "next/navigation";
 
 import { DocsHomeText } from "@/components/docs/DocsHomeText";
@@ -9,7 +10,23 @@ export function generateStaticParams() {
   return DOC_LANGS.map((lang) => ({ lang }));
 }
 
-export default async function DocsHome({ params }: { params: Promise<{ lang: string }> }) {
+export default function DocsHome({
+  params,
+}: {
+  params: Promise<{ lang: string }>;
+}) {
+  return (
+    <Suspense fallback={null}>
+      <DocsHomeContent params={params} />
+    </Suspense>
+  );
+}
+
+async function DocsHomeContent({
+  params,
+}: {
+  params: Promise<{ lang: string }>;
+}) {
   const { lang } = await params;
   if (!isDocLang(lang)) notFound();
   const nav = buildNav(lang);
@@ -18,7 +35,11 @@ export default async function DocsHome({ params }: { params: Promise<{ lang: str
       <DocsHomeText />
       <div className="mt-8 grid gap-4 md:grid-cols-2">
         {nav.map((s) => (
-          <section key={s.section} className="rounded-card border border-line bg-surface p-5 shadow-card" aria-labelledby={`home-${s.section}`}>
+          <section
+            key={s.section}
+            className="rounded-card border border-line bg-surface p-5 shadow-card"
+            aria-labelledby={`home-${s.section}`}
+          >
             <DocsHomeText section={s.section} headingId={`home-${s.section}`} />
             <ul className="mt-3 space-y-1">
               {s.items.map((i) => (

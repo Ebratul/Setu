@@ -417,8 +417,9 @@ def test_evidence_endpoint_needs_the_explicit_flag(
         monkeypatch.setenv("APP_ENV", env)
         monkeypatch.setenv("ENABLE_DEV_EVIDENCE", flag)
         get_settings.cache_clear()
-        assert call(karim) == 404, (env, flag)
-        assert call(admin) == 404, (env, flag)
+        gone = (401, 404) if env == "prod" else (404,)  # prod also drops the demo cookie
+        assert call(karim) in gone, (env, flag)
+        assert call(admin) in gone, (env, flag)
     monkeypatch.setenv("APP_ENV", "test")
     monkeypatch.setenv("ENABLE_DEV_EVIDENCE", "true")
     get_settings.cache_clear()

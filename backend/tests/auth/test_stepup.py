@@ -13,7 +13,7 @@ from sqlalchemy import func, select, update
 from app.auth import neon
 from app.config import get_settings
 from app.db.enums import MemberRole
-from app.db.models import AuditLog, StepupChallenge, User
+from app.db.models import AuditLog, StepupChallenge
 from app.db.session import batch_session
 from app.main import create_app
 from app.services import mail, stepup
@@ -92,6 +92,10 @@ def an_admin(fake: FakeNeon) -> tuple[uuid.UUID, dict[str, str], str]:
 def with_token(
     client: TestClient, headers: dict[str, str], box: mail.OutboxSender
 ) -> dict[str, str]:
+    from tests.onboarding.support import RECOVERY, totp_stepup
+
+    if client.get("/auth/me", headers=headers).json()["id"] in RECOVERY:
+        return totp_stepup(client, headers)  # admins decide with their authenticator, not email
     assert client.post("/auth/stepup/start", headers=headers).status_code == 200
     res = client.post("/auth/stepup/verify", json={"code": code_of(box.sent[-1])}, headers=headers)
     assert res.status_code == 200, res.text
@@ -118,7 +122,7 @@ def test_start_mails_a_code_to_the_users_verified_address_and_never_returns_it(
         assert row is not None and code not in row.code_hash  # HMAC at rest
 
 
-def test_verify_returns_a_token_sets_mfa_and_the_code_is_single_use(
+def test_verify_returns_a_token_and_the_code_is_single_use(
     client: TestClient, fake: FakeNeon, box: mail.OutboxSender
 ) -> None:
     uid, h, _ = an_admin(fake)
@@ -129,8 +133,6 @@ def test_verify_returns_a_token_sets_mfa_and_the_code_is_single_use(
     body = res.json()
     assert body["expires_in_seconds"] == 600 and body["header"] == "X-Stepup"
     assert stepup.token_valid(body["token"], uid)
-    with batch_session() as s:
-        assert s.get(User, uid).mfa_enabled is True  # type: ignore[union-attr]
     assert audit("auth.stepup", "ok", uid) == 1
     again = client.post("/auth/stepup/verify", json={"code": code}, headers=h)
     assert again.status_code == 400 and again.json()["code"] == "STEPUP_NO_CODE"
@@ -245,9 +247,12 @@ def test_token_is_bound_to_the_user_expires_and_detects_tampering() -> None:
     assert stepup.token_valid(token, a) and not stepup.token_valid(token, b)
     assert not stepup.token_valid(token, a, now=int(time.time()) + 601)
     assert stepup.token_valid(token, a, now=int(time.time()) + 599)
-    uid, expires, sig = token.split(".")
-    assert not stepup.token_valid(f"{uid}.{int(expires) + 3600}.{sig}", a)
-    assert not stepup.token_valid(f"{uid}.{expires}.{'A' * len(sig)}", a)
+    uid, expires, method, sig = token.split(".")
+    assert method == "email" and stepup.token_method(token, a) == "email"
+    assert not stepup.token_valid(f"{uid}.{int(expires) + 3600}.{method}.{sig}", a)
+    assert not stepup.token_valid(f"{uid}.{expires}.{method}.{'A' * len(sig)}", a)
+    assert not stepup.token_valid(f"{uid}.{expires}.totp.{sig}", a)  # the method is in the MAC
+    assert stepup.token_method(stepup.make_token(a, method="totp")[0], a) == "totp"
     assert not stepup.token_valid(None, a) and not stepup.token_valid("", a)
     assert not stepup.token_valid("a.b", a) and not stepup.token_valid("x" * 500, a)
     old, _ = stepup.make_token(a, now=int(time.time()) - 601)
@@ -270,10 +275,9 @@ def test_token_secret_is_the_otp_secret(monkeypatch: pytest.MonkeyPatch) -> None
 
 def pending_review(client: TestClient, fake: FakeNeon, admin: dict[str, str]) -> str:
     # ids are looked up through the admin list; STEPUP does not gate reads
-    headers, _ = onboard(client, fake)
-    mine = client.get("/onboarding/status", headers=headers).json()["party_name"]
+    _, state = onboard(client, fake)
     items = client.get("/admin/onboarding?status=PENDING", headers=admin).json()["items"]
-    return next(i["id"] for i in items if i["party"]["legal_name"] == mine)
+    return next(i["id"] for i in items if i["user_email"] == state["email"])
 
 
 def test_admin_decisions_need_a_stepup_token_and_reads_do_not(

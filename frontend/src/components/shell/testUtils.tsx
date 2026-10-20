@@ -17,4 +17,6 @@ export const user = (role: "BUYER" | "ADMIN" | "JUDGE" | "SUPPLIER") => ({
   language: "en" as const,
   party_id: null,
   party_name: null,
+  account_status: "ACTIVE" as const,
+  mfa_enabled: false,
 });

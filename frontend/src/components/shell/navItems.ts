@@ -27,7 +27,11 @@ export const TEAM: NavItem = { href: "/app/team", key: "nav.team", icon: "users"
 
 /** Only ADMIN reviews new companies (JUDGE has read access elsewhere but cannot decide). */
 export const ADMIN_ONLY_ITEMS: readonly NavItem[] = [
-  { href: "/app/admin/onboarding", key: "nav.onboarding", icon: "shield" },
+  {
+    href: "/app/admin/verifications",
+    key: "nav.verifications",
+    icon: "shield",
+  },
 ];
 
 export const SIMULATOR: NavItem = { href: "/demo/scam-simulator", key: "nav.simulator", icon: "play" };

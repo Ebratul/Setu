@@ -6,9 +6,9 @@ const hrefs = (role: string | undefined) => navGroups(role).flatMap((g) => g.ite
 
 describe("navGroups role gating", () => {
   it("shows the onboarding review entry only to ADMIN", () => {
-    expect(hrefs("ADMIN")).toContain("/app/admin/onboarding");
+    expect(hrefs("ADMIN")).toContain("/app/admin/verifications");
     for (const role of ["JUDGE", "BUYER", "SUPPLIER", undefined]) {
-      expect(hrefs(role)).not.toContain("/app/admin/onboarding");
+      expect(hrefs(role)).not.toContain("/app/admin/verifications");
     }
   });
 

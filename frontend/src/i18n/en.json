@@ -2185,7 +2185,7 @@
       "title": "Your sign-in is not active yet",
       "notOnboarded": {
         "title": "No Setu account yet",
-        "body": "Your sign-in works, but it has no Setu account attached. Company onboarding is coming; until then there is nothing more you can do here."
+        "body": "Your sign-in works, but it has no Setu account yet. Finish setting up your account so we can verify your business."
       },
       "pending": {
         "title": "Awaiting verification",

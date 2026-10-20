@@ -7,7 +7,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.audit.writer import write_audit
-from app.auth.deps import CurrentUser
+from app.auth.deps import CurrentUser, ensure_verified
 from app.db.enums import KybStatus, Language, MemberRole, PartyKind, Role, UserStatus
 from app.db.models import Party, PartyMember, User
 from app.errors import Conflict, DomainError, Forbidden, NotFound
@@ -56,6 +56,7 @@ def list_members(db: Session, actor: CurrentUser, party_id: uuid.UUID) -> Member
 
 
 def invite(db: Session, actor: CurrentUser, party_id: uuid.UUID, body: InviteIn) -> MemberOut:
+    ensure_verified(actor)
     party = _manager(db, actor, party_id)
     if party.kind == PartyKind.LENDER:
         raise DomainError("members cannot be added to a lender", "MEMBER_PARTY_KIND")
@@ -103,6 +104,7 @@ def invite(db: Session, actor: CurrentUser, party_id: uuid.UUID, body: InviteIn)
 
 
 def remove(db: Session, actor: CurrentUser, party_id: uuid.UUID, user_id: uuid.UUID) -> None:
+    ensure_verified(actor)
     party = _manager(db, actor, party_id, lock=True)
     members = _roles(db, party.id)
     target = next(((u, r) for u, r in members if u.id == user_id), None)

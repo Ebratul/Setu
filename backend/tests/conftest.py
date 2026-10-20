@@ -117,3 +117,15 @@ def default_to_mock_llm(monkeypatch: pytest.MonkeyPatch) -> Iterator[None]:
     get_settings.cache_clear()
     yield
     get_settings.cache_clear()
+
+
+TEST_FIELD_KEY = "q9lOZt0Y3oYb1VQd2s0m6m3wYtZ4m2kq4d0yLk0w1gA="
+
+
+@pytest.fixture(autouse=True)
+def field_encryption_key(monkeypatch: pytest.MonkeyPatch) -> Iterator[None]:
+    """AUTH_MODE=neon refuses to start without FIELD_ENCRYPTION_KEY; tests carry a throwaway one."""
+    monkeypatch.setenv("FIELD_ENCRYPTION_KEY", TEST_FIELD_KEY)
+    get_settings.cache_clear()
+    yield
+    get_settings.cache_clear()

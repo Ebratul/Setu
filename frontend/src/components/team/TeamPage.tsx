@@ -14,6 +14,7 @@ import { Skeleton } from "@/components/ui/Skeleton";
 import { useT } from "@/i18n";
 import { getMe } from "@/lib/api/auth";
 import { apiErrorText } from "@/lib/api/formErrors";
+import { useMoneyGate } from "@/lib/useAccountGate";
 import { inviteMember, listMembers, removeMember, type Member, type MemberRole } from "@/lib/api/members";
 import { useShellUser } from "@/lib/MeContext";
 import { useApi } from "@/lib/useApi";
@@ -23,6 +24,7 @@ const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export function TeamPage() {
   const t = useT();
+  const gate = useMoneyGate();
   const shellMe = useShellUser();
   const fetched = useApi((s) => getMe(s), "me", shellMe === undefined);
   const me = shellMe ?? fetched.data;
@@ -186,9 +188,14 @@ export function TeamPage() {
                 </select>
               )}
             </FormField>
-            <Button type="submit" loading={busy}>
+            <Button type="submit" loading={busy} disabled={!gate.allowed} aria-describedby={gate.allowed ? undefined : "team-invite-why"}>
               {busy ? t("team.inviting") : t("team.inviteSubmit")}
             </Button>
+            {gate.reason ? (
+              <p id="team-invite-why" className="text-xs text-muted">
+                {gate.reason}
+              </p>
+            ) : null}
           </form>
         </section>
       ) : null}

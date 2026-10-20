@@ -1,7 +1,8 @@
 """Admin bootstrap: `python -m app.admin_cli create-admin --email X --name Y`.
 
 Creates an ADMIN account (ACTIVE, not demo, no party). The person then signs up in Neon Auth with
-that email; the first verified sign-in links the account. Prints no secrets."""
+that email; the first verified sign-in links the account, then they turn on TOTP
+(POST /auth/mfa/totp/setup + enable): admin screens need it. Prints no secrets."""
 
 import argparse
 import sys
@@ -57,7 +58,7 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("--force", action="store_true", help="allow when AUTH_MODE=demo")
     args = parser.parse_args(argv)
     uid = create_admin(args.email, args.name, force=args.force)
-    print(f"created admin {uid}; sign up with that email to activate it")
+    print(f"created admin {uid}; sign up with that email, then turn on two-factor authentication")
     return 0
 
 

@@ -5,7 +5,7 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, Query
 from sqlalchemy.orm import Session
 
-from app.auth.deps import CurrentUser, require_analysis_reader, require_writer
+from app.auth.deps import CurrentUser, require_analysis_reader, verified_party_writer
 from app.db.session import get_db
 from app.schemas.analysis import InDec
 from app.schemas.financing import (
@@ -27,7 +27,7 @@ router = APIRouter(prefix="/financing", tags=["financing"])
 
 Db = Annotated[Session, Depends(get_db)]
 Reader = Annotated[CurrentUser, Depends(require_analysis_reader)]
-Writer = Annotated[CurrentUser, Depends(require_writer)]
+Writer = Annotated[CurrentUser, Depends(verified_party_writer)]
 
 
 @router.get("/gap", response_model=GapOut)

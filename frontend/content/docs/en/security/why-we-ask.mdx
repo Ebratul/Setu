@@ -1,0 +1,47 @@
+---
+title: Why Setu asks for these details
+summary: What we collect when you onboard, why, how it is protected, and where the Terms and Privacy pages are.
+section: security
+order: 70
+roles: [buyer, supplier, admin, judge]
+routes: ["/terms", "/privacy"]
+related: [security/privacy-masking, getting-started/creating-your-account, security/what-is-simulated]
+updated: 2026-10-21
+---
+
+## What it is \{#what-it-is}
+
+Setu helps importers pay Chinese suppliers through milestone escrow. Even in a sandbox, we treat the process like a real one: we need to know that a company is real before it can move money, even simulated money.
+
+## Why we ask \{#why}
+
+| We ask for | So that |
+|---|---|
+| Name, job title, verified mobile | A real person is accountable for the account and can approve sensitive actions. |
+| Licence, IRC, TIN or USCC | A reviewer can confirm the company exists and is not registered twice. |
+| Bank details (suppliers) | Payouts go to an account in the company's own name. |
+| Documents | A reviewer can compare them with what you typed. |
+| Consent | You agree to the checks, the Terms and the Privacy notice. |
+
+## How it is protected \{#protection}
+
+- Sensitive numbers are encrypted when stored and shown masked, for example `****1234`.
+- A reviewer must write a reason of at least 10 characters to see a full value. The reason and the field name are written to the audit log, never the value itself.
+- Before any text reaches an AI model, personal and business identifiers are masked. Numbers come from code, not from the model.
+- Instructions found inside uploaded documents are treated as data, never as commands.
+
+## Your choices \{#choices}
+
+In **Account settings** you can download your data and request deletion. You can read the [Terms](/terms) and the [Privacy notice](/privacy) at any time. Both are marked as sandbox pages and show their version.
+
+## Related security notes \{#security}
+
+<Callout type="security">
+Setu is a sandbox. No real funds are held. See [What is simulated](/docs/en/security/what-is-simulated) and [Privacy masking](/docs/en/security/privacy-masking).
+</Callout>
+
+## Related pages \{#related}
+
+- [Creating your account](/docs/en/getting-started/creating-your-account)
+- [Buyer verification requirements](/docs/en/buyer/verification-requirements)
+- [Supplier verification requirements](/docs/en/supplier/verification-requirements)

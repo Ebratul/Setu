@@ -21,6 +21,7 @@ import {
   type Milestone,
 } from "@/lib/api/deals";
 import type { RiskOut } from "@/lib/api/risk";
+import { useMoneyGate } from "@/lib/useAccountGate";
 import { isDecimal, isZero, sumDecimals } from "@/lib/decimal";
 import { formatMoney } from "@/lib/format";
 
@@ -38,19 +39,22 @@ function ActionButton({
   onClick: () => void;
   children: ReactNode;
 }) {
+  const gate = useMoneyGate();
+  const allowed = flag.allowed && gate.allowed;
+  const reason = !gate.allowed ? gate.reason : flag.reason;
   return (
     <div className="min-w-0">
       <Button
-        disabled={!flag.allowed}
-        aria-describedby={flag.allowed ? undefined : `${id}-why`}
+        disabled={!allowed}
+        aria-describedby={allowed ? undefined : `${id}-why`}
         onClick={onClick}
         data-testid={`action-${id}`}
       >
         {children}
       </Button>
-      {!flag.allowed && flag.reason ? (
+      {!allowed && reason ? (
         <p id={`${id}-why`} className="mt-1 max-w-xs text-xs text-muted">
-          {flag.reason}
+          {reason}
         </p>
       ) : null}
     </div>

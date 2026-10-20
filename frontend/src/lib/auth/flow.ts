@@ -1,5 +1,5 @@
 import { ApiError } from "@/lib/api/client";
-import { logout, startSession } from "@/lib/api/auth";
+import { logout, startSession, type AppUser } from "@/lib/api/auth";
 import { endAuthSession } from "@/lib/auth/client";
 
 export function safeNext(next: string | null, role: string) {
@@ -9,19 +9,61 @@ export function safeNext(next: string | null, role: string) {
   return next && /^\/app(\/|$)/.test(next) ? next : "/app";
 }
 
-/** Opens the Setu session after a Neon sign-in and returns the landing path for the user's role. */
-export async function finishSignIn(next: string | null): Promise<string> {
-  const user = await startSession();
-  return safeNext(next, user.role);
+/** Landing path for a signed-in user: onboarding steps first, then the role's home. */
+export function pathForUser(user: AppUser, next: string | null): string {
+  switch (user.account_status) {
+    case "PENDING_PROFILE":
+      return statusPath("not_onboarded");
+    case "PENDING_VERIFICATION":
+      return statusPath("pending");
+    case "REJECTED":
+      return statusPath("rejected");
+    case "SUSPENDED":
+      return statusPath("suspended");
+    default:
+      return safeNext(next, user.role);
+  }
 }
 
-export type StatusReason = "not_onboarded" | "pending" | "suspended";
+/** Opens the Setu session after a Neon sign-in and returns where the user belongs. */
+export async function finishSignIn(next: string | null): Promise<string> {
+  return pathForUser(await startSession(), next);
+}
+
+export type StatusReason =
+  "not_onboarded" | "pending" | "suspended" | "rejected";
 
 /** Where a signed-in user with a non-active account belongs. */
 export function statusPath(reason: StatusReason): string {
   if (reason === "not_onboarded") return "/onboarding";
   if (reason === "pending") return "/onboarding/status";
-  return "/account-status?reason=suspended";
+  return `/account-status?reason=${reason}`;
+}
+
+export type SignedInResult =
+  { kind: "go"; path: string } | { kind: "error"; key: string };
+
+/** Finishes a sign-in done elsewhere (Google redirect): opens the Setu session, retrying once for a late token. */
+export async function resolveSignedIn(
+  next: string | null,
+): Promise<SignedInResult> {
+  for (let attemptNo = 0; attemptNo < 2; attemptNo++) {
+    try {
+      return { kind: "go", path: await finishSignIn(next) };
+    } catch (e) {
+      const problem = classifyApiError(e);
+      if (problem.kind === "status")
+        return { kind: "go", path: statusPath(problem.reason) };
+      if (problem.kind === "unverified")
+        return { kind: "error", key: "auth.err.unverified" };
+      if (attemptNo === 0 && e instanceof ApiError && e.status === 401) {
+        await new Promise((r) => setTimeout(r, 700));
+        continue;
+      }
+      return { kind: "error", key: problem.key };
+    }
+  }
+  return { kind: "error", key: "auth.err.generic" };
 }
 
 export type SignInProblem =
@@ -40,6 +82,8 @@ export function classifyApiError(e: unknown): SignInProblem {
         return { kind: "status", reason: "pending" };
       case "ACCOUNT_SUSPENDED":
         return { kind: "status", reason: "suspended" };
+      case "ACCOUNT_REJECTED":
+        return { kind: "status", reason: "rejected" };
       case "UNAUTHENTICATED":
       case "TOKEN_INVALID":
         return { kind: "message", key: "auth.err.session" };

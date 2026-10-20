@@ -20,6 +20,8 @@ class Storage(Protocol):
 
     def get(self, path: str) -> bytes: ...
 
+    def delete(self, path: str) -> None: ...
+
 
 class LocalStorage:
     def __init__(self, root: Path) -> None:
@@ -54,6 +56,11 @@ class LocalStorage:
             raise NotFound("file not found")
         return full.read_bytes()
 
+    def delete(self, path: str) -> None:
+        if path.startswith(DEMO_PREFIX):
+            return  # the committed demo files are read-only
+        self._resolve(path).unlink(missing_ok=True)
+
 
 class S3Storage:
     """S3-compatible backend for production (interface stub; wire boto3/Vercel Blob here)."""
@@ -62,6 +69,9 @@ class S3Storage:
         raise ServiceUnavailable("object storage is not configured", "STORAGE_UNAVAILABLE")
 
     def get(self, path: str) -> bytes:
+        raise ServiceUnavailable("object storage is not configured", "STORAGE_UNAVAILABLE")
+
+    def delete(self, path: str) -> None:
         raise ServiceUnavailable("object storage is not configured", "STORAGE_UNAVAILABLE")
 
 

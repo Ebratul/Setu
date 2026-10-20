@@ -1,0 +1,477 @@
+{
+  "dealErr": {
+    "ACCOUNT_NOT_VERIFIED": "您的账户尚未通过验证，涉及资金的操作已被锁定。请先完成验证后再试。",
+    "ACCOUNT_REJECTED": "该账户未获批准。",
+    "ACCOUNT_SUSPENDED": "该账户已被暂停。",
+    "STEPUP_REQUIRED": "请先使用新的安全验证码确认。",
+    "STEPUP_TOTP_REQUIRED": "请先用验证器应用的验证码确认。",
+    "MFA_REQUIRED": "此操作需要双重验证，请先设置。"
+  },
+  "auth": {
+    "status": {
+      "rejected": {
+        "body": "您的申请已审核但未获批准。审核人如填写了原因，将显示在下方。"
+      }
+    }
+  },
+  "lg": {
+    "google": "使用 Google 继续",
+    "googleBusy": "正在打开 Google...",
+    "googleNote": "Google 会确认您的邮箱。Setu 不会看到您的 Google 密码。",
+    "googleFailed": "无法启动 Google 登录。请重试，或使用邮箱和密码登录。",
+    "finishing": "正在为您登录...",
+    "orEmail": "或使用邮箱和密码登录",
+    "email": "使用邮箱和密码登录",
+    "demoTitle": "演示账户",
+    "nothing": "目前没有可用的登录方式。",
+    "legalNav": "法律与帮助",
+    "why": "为什么需要企业证件",
+    "terms": "服务条款",
+    "privacy": "隐私政策"
+  },
+  "lgl": {
+    "version": "版本 {version}",
+    "sandbox": "Setu 是沙盒环境。所有资金流动均为模拟：不会持有、转移或释放真实资金。本页说明的是演示服务。",
+    "terms": {
+      "title": "使用条款（沙盒）",
+      "h1": "Setu 是什么",
+      "c1": "Setu 帮助中小企业规划进口、融资和向供应商付款。在此沙盒中，所有付款、托管余额和贷款均为模拟。",
+      "h2": "您的账户",
+      "c2": "您须对所提供信息的准确性负责，并妥善保管登录信息和安全验证码。",
+      "h3": "验证",
+      "c3": "在审核人验证您的企业之前，资金相关操作保持锁定。我们可能要求补充材料或拒绝申请。",
+      "h4": "合理使用",
+      "c4": "请勿上传无权分享的文件，也不要试图绕过检查。文件中隐藏的指令只会被当作数据，绝不会被当作命令。",
+      "h5": "非财务建议",
+      "c5": "数字是按固定规则得出的估算，不构成授信要约或担保。",
+      "h6": "变更与终止",
+      "c6": "我们可能更新条款，并记录您接受的版本。您可随时申请删除账户。"
+    },
+    "privacy": {
+      "title": "隐私声明（沙盒）",
+      "h1": "我们收集什么",
+      "c1": "您的姓名、工作邮箱、手机号、企业信息，以及为验证企业而上传的文件。",
+      "h2": "如何保护",
+      "c2": "执照号、税号和银行账号等敏感信息加密存储并以掩码显示。审核人查看完整内容必须填写书面理由，并会被记录。",
+      "h3": "人工智能与您的数据",
+      "c3": "任何文本进入 AI 模型之前，个人和企业标识信息都会被遮蔽。数字由代码计算，而不是由模型计算。",
+      "h4": "谁能看到",
+      "c4": "仅限授权审核人和您本人。我们不出售数据。",
+      "h5": "您的选择",
+      "c5": "您可以在账户设置中下载自己的数据并申请删除。",
+      "h6": "保存期限",
+      "c6": "账户存续期间，验证记录会作为审计痕迹保留。已删除的账户先被暂停，随后移除。"
+    }
+  },
+  "ob": {
+    "title": "设置您的账户",
+    "lead": "只需几个步骤，我们即可验证您的企业。您可以随时中断，稍后继续：进度会自动保存。",
+    "steps": "账户设置步骤",
+    "stepOf": "第 {n} 步，共 {total} 步：{name}",
+    "optional": "选填",
+    "choose": "请选择...",
+    "next": "下一步",
+    "back": "上一步",
+    "edit": "修改",
+    "continueSetup": "继续账户设置",
+    "saveContinue": "保存并继续",
+    "submit": "提交验证",
+    "submitting": "正在提交...",
+    "fixErrors": "继续之前，请修正 {n} 个标出的字段。",
+    "changesBanner": "审核人要求修改 {n} 项。请更新标出的内容后重新提交。",
+    "savedMasked": "已保存：{value}。留空则保持不变，输入新值则替换。",
+    "step": {
+      "role": "您的角色",
+      "contact": "联系方式与手机验证",
+      "business": "企业信息",
+      "documents": "证件材料",
+      "security": "安全与同意",
+      "review": "核对并提交"
+    },
+    "role": {
+      "lead": "请选择您使用 Setu 的方式。继续之后无法更改。",
+      "legend": "我是",
+      "invite": "邀请码",
+      "inviteHint": "评委从主办方处获得邀请码。",
+      "BUYER": "买家（孟加拉国进口商）",
+      "BUYER.desc": "规划进口、比较融资方案，并通过模拟托管向中国供应商付款。",
+      "SUPPLIER": "供应商（中国出口商）",
+      "SUPPLIER.desc": "确认里程碑、上传单据并接收模拟付款。",
+      "JUDGE": "评委",
+      "JUDGE.desc": "凭主办方提供的邀请码获得只读访问。",
+      "ADMIN": "管理员",
+      "ADMIN.desc": "仅限预先批准的员工邮箱，需要启用双重验证。"
+    },
+    "contact": {
+      "edit": "修改信息",
+      "save": "保存并验证手机"
+    },
+    "mobile": {
+      "hint": "孟加拉国手机号，例如 +8801712345678 或 01712345678。",
+      "hintIntl": "带国家区号的手机号，例如 +8613812345678。"
+    },
+    "phone": {
+      "title": "验证您的手机",
+      "lead": "我们将向 {phone} 发送 6 位验证码。",
+      "send": "发送验证码",
+      "resend": "重新发送验证码",
+      "resendIn": "{s} 秒后可重新发送",
+      "sent": "验证码已发送，5 分钟内有效。剩余发送次数：{left}。",
+      "code": "6 位验证码",
+      "verify": "验证手机",
+      "verified": "手机号已验证。",
+      "verifiedShort": "已验证",
+      "needed": "请先验证手机后继续。",
+      "demoTitle": "演示模式",
+      "demoBody": "演示环境不会发送短信。您的验证码是"
+    },
+    "group": {
+      "BUYER": {
+        "company": "公司",
+        "address": "经营地址",
+        "trade": "进口情况"
+      },
+      "SUPPLIER": {
+        "company": "公司",
+        "address": "注册地址",
+        "bank": "银行账户"
+      }
+    },
+    "biz": {
+      "leadBuyer": "请按贸易执照上的信息填写。执照、IRC 和 TIN 号码会加密存储。",
+      "leadSupplier": "请按营业执照上的信息填写。公司名称须与银行账户户名一致。"
+    },
+    "f": {
+      "full_name": "姓名",
+      "designation": "职位",
+      "mobile": "手机号",
+      "language": "语言",
+      "legal_name": "公司法定名称",
+      "trade_name": "商号",
+      "trade_license_no": "贸易执照号",
+      "license_authority": "发证机关",
+      "license_expiry": "执照到期日",
+      "irc_no": "进口登记证（IRC）号",
+      "tin": "TIN 税号",
+      "address_division": "行政区（Division）",
+      "address_district": "区/县",
+      "address_upazila": "乡区（Upazila）",
+      "address_street": "详细地址",
+      "business_type": "企业类型",
+      "main_import_goods": "主要进口商品",
+      "monthly_import_volume": "月进口额（塔卡）",
+      "legal_name_en": "公司名称（英文）",
+      "legal_name_zh": "公司名称（中文）",
+      "uscc": "统一社会信用代码（USCC）",
+      "address_province": "省份",
+      "address_city": "城市",
+      "business_scope": "经营范围",
+      "export_experience_years": "出口经验（年）",
+      "wechat_id": "微信号",
+      "contact_phone": "联系电话",
+      "bank_bank_name": "开户银行",
+      "bank_holder_name": "账户户名",
+      "bank_account_no": "银行账号",
+      "bank_currency": "账户币种",
+      "bank_swift": "SWIFT/BIC 代码"
+    },
+    "h": {
+      "trade_license_no": "按执照上的印刷内容填写，例如 TRAD/DNCC/012345/2024。",
+      "irc_no": "字母、数字、斜杠或连字符。",
+      "tin": "仅数字（9 到 13 位）。",
+      "license_expiry": "必须是未来的日期。",
+      "uscc": "共 18 位，最后一位是校验位。",
+      "bank_swift": "8 或 11 位字母和数字，例如 BKCHCNBJ。",
+      "bank_account_no": "仅字母和数字，6 到 34 位。",
+      "legal_name_zh": "须与营业执照完全一致。",
+      "contact_phone": "含国家区号，例如 +8613812345678。"
+    },
+    "o": {
+      "business_type": {
+        "MANUFACTURER": "制造商",
+        "TRADER": "贸易商"
+      },
+      "monthly_import_volume": {
+        "UNDER_500K_BDT": "低于 50 万塔卡",
+        "500K_2M_BDT": "50 万至 200 万塔卡",
+        "2M_10M_BDT": "200 万至 1000 万塔卡",
+        "OVER_10M_BDT": "高于 1000 万塔卡"
+      },
+      "bank_currency": {
+        "CNY": "CNY（人民币）",
+        "USD": "USD（美元）"
+      }
+    },
+    "lang": {
+      "en": "英语",
+      "bn": "孟加拉语",
+      "zh": "中文"
+    },
+    "docs": {
+      "lead": "请上传清晰的 PDF、PNG 或 JPG 文件，每个不超过 {mb} MB。",
+      "types": "PDF、PNG 或 JPG，最大 4 MB。",
+      "missing": "未上传",
+      "remove": "删除",
+      "uploading": "正在上传...",
+      "needed": "请上传所有必需的文件（带 * 号）后继续。"
+    },
+    "doc": {
+      "TRADE_LICENSE": "贸易执照",
+      "IRC": "进口登记证（IRC）",
+      "TIN_CERT": "TIN 证书",
+      "BUSINESS_LICENSE": "营业执照",
+      "BANK_PROOF": "银行账户证明",
+      "OTHER": "其他证明文件"
+    },
+    "docStatus": {
+      "UPLOADED": "已上传",
+      "VERIFIED": "已验证",
+      "REJECTED": "已退回"
+    },
+    "consent": {
+      "title": "同意事项",
+      "version": "条款版本 {version}",
+      "terms": "我接受使用条款。",
+      "privacy": "我接受隐私声明。",
+      "verify": "我同意 Setu 验证我的企业和文件，包括自动检查和人工审核。"
+    },
+    "totp": {
+      "title": "双重验证（验证器应用）",
+      "optional": "建议开启。批准敏感操作时，需要输入验证器应用中的 6 位验证码。",
+      "setup": "设置验证器",
+      "on": "双重验证已开启。",
+      "off": "双重验证未开启。",
+      "adminRequired": "管理员必须先开启双重验证，才能审核账户。"
+    },
+    "review": {
+      "lead": "提交前请核对所有内容。敏感信息以掩码显示。",
+      "note": "提交后，审核人将核查您的企业。验证通过后，资金相关操作才会解锁。"
+    },
+    "v": {
+      "required": "此项为必填。",
+      "length": "请输入 {min} 到 {max} 个字符。",
+      "mobile": "请输入孟加拉国手机号：+8801 后接 3-9 和 8 位数字。",
+      "mobileIntl": "请输入含国家区号的号码，例如 +8613812345678。",
+      "license": "这看起来不像贸易执照号。",
+      "irc": "这看起来不像 IRC 号码。",
+      "tin": "TIN 必须是 9 到 13 位数字。",
+      "date": "请使用 YYYY-MM-DD 格式。",
+      "expired": "执照不得已过期。",
+      "usccLength": "统一社会信用代码正好 18 位。",
+      "usccCheck": "该统一社会信用代码无效。请对照执照逐位检查。",
+      "years": "请输入整数年数，0 到 99。",
+      "account": "请输入 6 到 34 位字母或数字，不含空格。",
+      "swift": "SWIFT/BIC 须为 8 或 11 位，例如 BKCHCNBJ。",
+      "currency": "请选择 CNY 或 USD。",
+      "choose": "请选择一项。",
+      "chooseRole": "请选择角色后继续。",
+      "inviteCode": "请输入邀请码。",
+      "code6": "请输入 6 位验证码。",
+      "consent": "请勾选全部三项后继续。",
+      "server": "请检查此项。",
+      "fileEmpty": "该文件为空。",
+      "fileSize": "该文件超过 4 MB。",
+      "fileType": "仅接受 PDF、PNG 或 JPG 文件。",
+      "needsChinese": "请用中文汉字填写公司名称。"
+    },
+    "err": {
+      "ROLE_NOT_ALLOWED": "该邮箱不能使用此角色。",
+      "INVALID_INVITE_CODE": "邀请码无效。",
+      "ROLE_LOCKED": "您的角色已确定，无法更改。",
+      "OTP_RATE_LIMIT": "请求验证码次数过多，请稍等几分钟。",
+      "OTP_LOCKED": "错误次数过多，请稍后重新获取验证码。",
+      "OTP_EXPIRED": "验证码已过期，请重新发送。",
+      "OTP_INVALID": "验证码不正确。",
+      "EMAIL_IN_USE": "该邮箱已关联另一种登录方式，请联系支持。",
+      "DOCUMENT_REJECTED": "无法接受该文件，请检查类型和大小。",
+      "ONBOARDING_INCOMPLETE": "前面的某些步骤尚未完成。",
+      "MOBILE_REQUIRED": "请先保存您的手机号。",
+      "SMS_UNAVAILABLE": "目前无法发送短信，请稍后再试。",
+      "OTP_NOT_SENT": "请先获取验证码。",
+      "UNSUPPORTED_FILE_TYPE": "仅接受 PDF、PNG 或 JPG 文件。",
+      "FILE_TOO_LARGE": "该文件超过 4 MB。",
+      "DOC_TYPE_NOT_ALLOWED": "您的账户类型不接受此类文件。",
+      "TOO_MANY_DOCUMENTS": "已上传的文件过多，请先删除一个。",
+      "PROFILE_LOCKED": "您的资料正在审核中，目前无法编辑。",
+      "TERMS_VERSION_MISMATCH": "条款已更新。请刷新页面并接受新版本。",
+      "RATE_LIMITED": "尝试次数过多，请等待几分钟。",
+      "STEP_INCOMPLETE": "还有步骤未完成，请先完成再提交。",
+      "MFA_REQUIRED": "请先开启双重验证。"
+    },
+    "srv": {
+      "required": "此项为必填。",
+      "too_short": "内容太短。",
+      "invalid_format": "格式不正确。",
+      "not_allowed": "不接受此字段。",
+      "invalid_choice": "请从列出的选项中选择。",
+      "invalid_date": "请使用 YYYY-MM-DD 格式。",
+      "INVALID_BD_MOBILE": "请输入有效的孟加拉国手机号（+8801 后接 3-9 和 8 位数字）。",
+      "INVALID_TRADE_LICENSE": "这看起来不像贸易执照号。",
+      "INVALID_IRC": "这看起来不像 IRC 号码。",
+      "INVALID_TIN": "TIN 必须是 9 到 13 位数字。",
+      "LICENSE_EXPIRED": "执照不得已过期。",
+      "INVALID_USCC_LENGTH": "统一社会信用代码正好 18 位。",
+      "INVALID_USCC_CHECKSUM": "该统一社会信用代码无效。请对照执照逐位检查。",
+      "NEEDS_CHINESE_NAME": "请用中文汉字填写公司名称。",
+      "INVALID_SWIFT": "SWIFT/BIC 须为 8 或 11 位，例如 BKCHCNBJ。",
+      "INVALID_ACCOUNT_NO": "请输入 6 到 34 位字母或数字，不含空格。"
+    }
+  },
+  "ost": {
+    "title": "验证状态",
+    "loadFailed": "无法加载您的状态，请重试。",
+    "pending": {
+      "title": "验证进行中",
+      "body": "审核人正在核查您的企业，通常需要一小段时间。您可以查看工作区，但在通过验证前，资金相关操作保持锁定。"
+    },
+    "changes": {
+      "title": "需要修改",
+      "body": "审核人需要您更正几处内容后才能批准账户。",
+      "list": "需要修正的内容"
+    },
+    "fix": "去修改",
+    "resubmit": "前往核对并重新提交",
+    "checklist": "您的清单",
+    "done": "已完成",
+    "todo": "待完成",
+    "inProgress": "进行中",
+    "humanReview": "Setu 审核人审核"
+  },
+  "vb": {
+    "toast": "您的账户尚未通过验证，该操作已锁定。请完成验证后继续。",
+    "open": "您仍可浏览工作区并查看自己的数据。",
+    "locked": {
+      "title": "验证通过前已锁定",
+      "reason": "账户通过验证前已锁定。",
+      "orders": "创建正式订单",
+      "escrow": "为托管注资、释放里程碑款项和融资",
+      "fx": "锁定汇率和更改收款账户",
+      "team": "邀请或移除团队成员"
+    },
+    "profile": {
+      "title": "请完成账户设置",
+      "body": "您的资料尚未填写完整，因此账户还未通过验证。",
+      "cta": "继续设置"
+    },
+    "review": {
+      "title": "验证进行中",
+      "body": "审核人正在核查您的企业。",
+      "cta": "查看状态"
+    },
+    "blocked": {
+      "title": "账户未启用",
+      "body": "此账户不能进行资金相关操作。",
+      "cta": "查看状态"
+    },
+    "admin": {
+      "title": "请设置双重验证",
+      "body": "管理员账户须先开启双重验证，才能审核账户。",
+      "cta": "立即设置"
+    }
+  },
+  "wt": {
+    "progress": "导览第 {n} 步，共 {total} 步",
+    "skip": "跳过导览",
+    "finish": "创建我的第一个订单",
+    "finish.supplier": "前往我的门户",
+    "welcome": {
+      "title": "欢迎使用 Setu，{name}",
+      "body": "您的账户已通过验证。这里的一切都是沙盒：付款和托管均为模拟，您可以放心体验。",
+      "body.supplier": "您的账户已通过验证。这里的一切都是沙盒：付款均为模拟，您可以放心体验。"
+    },
+    "order": {
+      "title": "从订单开始",
+      "body": "根据供应商报价创建订单。Setu 按固定规则计算到岸成本和利润，让您用真实数字做决定。",
+      "body.supplier": "买家会向您发送订单。您确认付款里程碑，并为每个阶段上传单据。"
+    },
+    "escrow": {
+      "title": "通过里程碑托管付款",
+      "body": "提出里程碑、为托管注资，并在凭证验证后释放每笔付款。较大的操作需要您的批准。",
+      "body.supplier": "凭证验证通过后，买家会向您释放每个里程碑的付款。每一步您都可以跟踪。"
+    }
+  },
+  "tp": {
+    "lead": "请使用 Google Authenticator、Microsoft Authenticator 或 Authy 等验证器应用。",
+    "start": "开始设置",
+    "step1": "打开验证器应用并添加账户。",
+    "step2": "扫描二维码，或输入下方的密钥。",
+    "step3": "输入应用显示的 6 位验证码。",
+    "qrAlt": "验证器应用二维码",
+    "secretLabel": "密钥",
+    "secretOnce": "此密钥只显示一次，请妥善保密。",
+    "uri": "显示设置链接",
+    "code": "6 位验证码",
+    "enable": "开启双重验证",
+    "codes": {
+      "title": "您的恢复码",
+      "body": "手机丢失时，每个恢复码可使用一次。恢复码只显示这一次，请保存在安全的地方。",
+      "copy": "复制恢复码",
+      "copied": "已复制",
+      "download": "下载为文本",
+      "confirm": "我已保存这些恢复码。",
+      "done": "完成"
+    },
+    "err": {
+      "TOTP_INVALID": "验证码不正确。请检查手机时间后重试。",
+      "TOTP_ALREADY_ENABLED": "双重验证已开启。",
+      "TOTP_NOT_ENABLED": "双重验证未开启。",
+      "MFA_ADMIN_REQUIRED": "管理员不能关闭双重验证。",
+      "MFA_INVALID_CODE": "验证码不正确。请检查手机时间后重试。",
+      "MFA_NOT_STARTED": "请重新开始设置以获取新密钥。",
+      "MFA_ALREADY_ENABLED": "双重验证已开启。",
+      "MFA_REQUIRED": "管理员不能关闭双重验证。",
+      "RATE_LIMITED": "尝试次数过多，请等待几分钟。"
+    }
+  },
+  "as": {
+    "menu": "账户",
+    "title": "账户设置",
+    "lead": "您的资料、安全和数据。",
+    "saved": "已保存。",
+    "profile": "资料",
+    "role": "角色",
+    "linked": "登录方式",
+    "linked.google": "Google 账户",
+    "linked.email": "邮箱和密码",
+    "terms": "已接受的条款",
+    "2fa": "双重验证",
+    "2fa.regenerate": "重新生成恢复码",
+    "2fa.regenerate.title": "重新生成恢复码",
+    "2fa.regenerate.body": "输入验证器应用中的 6 位验证码。旧恢复码将失效。",
+    "2fa.regenerate.confirm": "重新生成",
+    "2fa.disable": "关闭双重验证",
+    "2fa.disable.title": "关闭双重验证？",
+    "2fa.disable.body": "输入验证器应用中的 6 位验证码确认。关闭后账户的保护会减弱。",
+    "2fa.disable.confirm": "关闭",
+    "2fa.disabled": "双重验证已关闭。",
+    "2fa.adminLocked": "管理员不能关闭双重验证。",
+    "sessions": "活动会话",
+    "sessions.failed": "无法加载或更改您的会话，请重试。",
+    "sessions.unknownDevice": "未知设备",
+    "sessions.current": "当前设备",
+    "sessions.signOut": "退出登录",
+    "sessions.others": "退出其他设备",
+    "sessions.all": "退出所有设备",
+    "data": "您的数据",
+    "data.body": "下载我们持有的您的数据副本，或申请删除账户。",
+    "export": "下载我的数据",
+    "delete": "申请删除账户",
+    "delete.title": "删除您的账户？",
+    "delete.body": "您的账户将被暂停并安排删除，审计痕迹条目会保留。您将被退出登录。",
+    "delete.confirm": "申请删除"
+  },
+  "vq": {
+    "err": {
+      "SANCTIONS_BLOCK": "该申请人命中筛查名单，无法批准。",
+      "DUPLICATE_COMPANY_APPROVED": "已有相同注册信息的公司获批。请改为要求修改或拒绝。",
+      "ROLE_NOT_REVIEWABLE": "此处只能审核买家和供应商账户。",
+      "MFA_INVALID_CODE": "验证码不正确或已过期。",
+      "RATE_LIMITED": "尝试次数过多，请等待几分钟。",
+      "STEPUP_TOTP_REQUIRED": "请先用验证器应用的验证码确认。"
+    },
+    "stepup": {
+      "body": "请输入验证器应用中当前的 6 位验证码，或一个恢复码。",
+      "code": "验证器验证码或恢复码"
+    }
+  }
+}

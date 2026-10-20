@@ -22,6 +22,10 @@ GOOD = {
     "DEMO_MODE": "false",
     "COOLING_OFF_SECONDS": "600",
     "OTP_SECRET_SEED": "o" * 40,
+    "SMS_PROVIDER": "webhook",
+    "SMS_WEBHOOK_URL": "https://sms.example/send",
+    "SMS_WEBHOOK_TOKEN": "tok",
+    "FIELD_ENCRYPTION_KEY": "K0rcLqO1kir_Q7_s431Rg5bR2x9BWm62knnkX6Fztvo=",
     "DOCUMENT_URL_SECRET": "d" * 40,
     "CRON_SECRET": "c" * 40,
     "MAIL_PROVIDER": "resend",
@@ -56,6 +60,7 @@ def test_the_good_configuration_starts(env) -> None:
 @pytest.mark.parametrize(
     ("over", "match"),
     [
+        ({"FIELD_ENCRYPTION_KEY": ""}, "FIELD_ENCRYPTION_KEY"),
         ({"OTP_SECRET_SEED": ""}, "OTP_SECRET_SEED"),
         ({"OTP_SECRET_SEED": "short"}, "OTP_SECRET_SEED"),
         ({"OTP_SECRET_SEED": "o" * 31}, "OTP_SECRET_SEED"),

@@ -2,7 +2,14 @@ import { describe, expect, it } from "vitest";
 
 import { ApiError } from "@/lib/api/client";
 
-import { attempt, authErrorKey, classifyApiError, safeNext } from "./flow";
+import {
+  attempt,
+  authErrorKey,
+  classifyApiError,
+  pathForUser,
+  safeNext,
+  statusPath,
+} from "./flow";
 
 describe("auth flow helpers", () => {
   it("keeps next inside the role area", () => {
@@ -27,5 +34,26 @@ describe("auth flow helpers", () => {
     expect(authErrorKey({ code: "validation_failed", status: 400, message: "" }, "otp")).toBe("auth.err.otp");
     expect(authErrorKey({ code: "bad_jwt", status: 401, message: "" }, "reset")).toBe("auth.err.resetToken");
     expect(authErrorKey({ code: null, status: 429, message: "" })).toBe("auth.err.tooMany");
+  });
+
+  it("routes users by account status after sign-in", () => {
+    const u = (account_status: string, role = "BUYER") =>
+      ({ role, account_status }) as never;
+    expect(pathForUser(u("PENDING_PROFILE"), null)).toBe("/onboarding");
+    expect(pathForUser(u("PENDING_VERIFICATION"), "/app/deals")).toBe(
+      "/onboarding/status",
+    );
+    expect(pathForUser(u("REJECTED"), null)).toBe(
+      "/account-status?reason=rejected",
+    );
+    expect(pathForUser(u("SUSPENDED"), null)).toBe(
+      "/account-status?reason=suspended",
+    );
+    expect(pathForUser(u("ACTIVE"), "/app/deals"), "active").toBe("/app/deals");
+    expect(pathForUser(u("ACTIVE", "SUPPLIER"), null)).toBe("/supplier");
+    expect(statusPath("rejected")).toBe("/account-status?reason=rejected");
+    expect(
+      classifyApiError(new ApiError(403, "x", null, "ACCOUNT_REJECTED")),
+    ).toEqual({ kind: "status", reason: "rejected" });
   });
 });

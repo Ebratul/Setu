@@ -1,0 +1,92 @@
+---
+title: 创建账户
+summary: 使用 Google 登录、完成六个设置步骤、等待验证，并管理账户设置。
+section: getting-started
+order: 25
+roles: [buyer, supplier, admin, judge]
+routes: ["/app/settings/account", "/supplier/settings/account"]
+tryIt: "/login"
+related: [security/why-we-ask, buyer/verification-requirements, supplier/verification-requirements, getting-started/roles-and-login]
+updated: 2026-10-21
+---
+
+## 简介 \{#what-it-is}
+
+Setu 的新账户由两部分组成：登录（你是谁）和经过验证的企业（你可以做什么）。你可以点击**使用 Google 继续**，也可以用邮箱和密码登录。随后 Setu 会请你提供一些企业信息和文件，由审核人验证。验证通过前，资金相关操作保持锁定。Setu 中的所有资金都是模拟的。
+
+## 适用对象 \{#who}
+
+<RoleBadge role="buyer" /> <RoleBadge role="supplier" /> 自行创建账户的所有人。<RoleBadge role="admin" /> 工作人员走同一流程，但只会看到安全步骤。<RoleBadge role="judge" /> 账户需要邀请码。
+
+## 何时使用 \{#when}
+
+首次登录时，以及审核人要求修改时。
+
+## 操作步骤 \{#how-to}
+
+<Steps>
+<Step title="登录">
+打开 `/login`，点击**使用 Google 继续**，或使用邮箱和密码。Setu 不会看到你的 Google 密码。
+<Screenshot name="getting-started/login-google" route="/login" as="buyer" alt="登录页面，邮箱密码表单上方有使用 Google 继续按钮。" caption="用 Google 或邮箱登录。" />
+</Step>
+<Step title="您的角色">
+选择**买家（孟加拉国进口商）**或**供应商（中国出口商）**。评委输入邀请码。管理员仅限预先批准的员工邮箱。角色之后无法更改。
+<Screenshot name="getting-started/onboarding-role" route="/onboarding" as="buyer" alt="您的角色步骤，有四个角色选项。" caption="第 1 步：选择角色。" />
+</Step>
+<Step title="联系方式与手机验证">
+填写姓名、职位和手机号，点击**保存并验证手机**。点击**发送验证码**，输入 6 位验证码后点击**验证手机**。演示模式不会发送短信，验证码直接显示在屏幕上。
+<Screenshot name="getting-started/onboarding-contact" route="/onboarding?step=contact" as="buyer" alt="联系方式与手机验证步骤，含验证码输入框。" caption="第 2 步：验证手机。" />
+</Step>
+<Step title="企业信息">
+填写公司信息。买家和供应商的字段不同：请见[买家验证要求](/docs/zh/buyer/verification-requirements)和[供应商验证要求](/docs/zh/supplier/verification-requirements)。然后点击**保存并继续**。
+<Screenshot name="getting-started/onboarding-business" route="/onboarding?step=business" as="buyer" alt="企业信息步骤，含公司和地址字段。" caption="第 3 步：企业信息。" />
+</Step>
+<Step title="证件材料">
+上传每份必需文件，格式为 PDF、PNG 或 JPG，每个不超过 4 MB。必需文件带星号。
+<Screenshot name="getting-started/onboarding-documents" route="/onboarding?step=documents" as="buyer" alt="证件材料步骤，每份必需文件都有上传框。" caption="第 4 步：上传文件。" />
+</Step>
+<Step title="安全与同意">
+勾选三项同意并点击**保存并继续**。也可以用验证器应用开启双重验证，并保存恢复码。
+<Screenshot name="getting-started/onboarding-security" route="/onboarding?step=security" as="buyer" alt="安全与同意步骤，有三个复选框和验证器设置按钮。" caption="第 5 步：同意与安全。" />
+</Step>
+<Step title="核对并提交">
+核对摘要（敏感信息已掩码），点击**提交验证**。然后在状态页查看进度。
+<Screenshot name="getting-started/onboarding-review" route="/onboarding?step=review" as="buyer" alt="核对并提交步骤，含各部分摘要。" caption="第 6 步：提交。" />
+</Step>
+</Steps>
+
+## 结果说明 \{#results}
+
+| 您看到的内容 | 含义 |
+|---|---|
+| 验证进行中 | 审核人正在核查您的企业。可以浏览，但资金相关操作已锁定。 |
+| 需要修改 | 页面列出需修正的字段或文件。点击**去修改**，然后重新提交。 |
+| 账户未获批准 | 会显示审核人的原因，请联系支持人员。 |
+| 欢迎导览 | 获批后会出现三步的简短导览。 |
+
+工作区顶部的黄色横幅会说明验证通过前哪些功能被锁定。
+
+## 账户设置 \{#settings}
+
+点击顶部栏的**账户**（`/app/settings/account`，供应商为 `/supplier/settings/account`）。你可以更改语言、查看登录方式、开启或关闭双重验证（管理员不能关闭）、重新生成恢复码、查看活动会话并退出其他设备、下载自己的数据以及申请删除账户。
+
+## 提示与常见错误 \{#tips}
+
+- 每一步之后进度都会保存。可以关闭页面，随时回来继续。
+- 已保存的敏感信息以掩码显示。留空表示保持不变，输入新值则替换。
+- 手机验证码过期时，点击**重新发送验证码**。输错五次后需要等待并重新获取。
+- 恢复码只显示一次。点击**完成**之前请先保存。
+
+## 相关安全说明 \{#security}
+
+<Callout type="security">
+执照号、税号和银行账号均加密存储。审核人默认只看到掩码，除非填写书面理由，且该理由会被记录。
+</Callout>
+
+## 试一试 \{#try-it}
+
+<TryItButton href="/login" />
+
+## 相关页面 \{#related}
+
+- [角色与登录](/docs/zh/getting-started/roles-and-login)

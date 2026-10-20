@@ -26,6 +26,9 @@ import { MeContext } from "@/lib/MeContext";
 import { useApi } from "@/lib/useApi";
 
 import { DemoPhone } from "./DemoPhone";
+import { NotVerifiedListener } from "./NotVerifiedListener";
+import { VerificationBanner } from "./VerificationBanner";
+import { WelcomeTour } from "./WelcomeTour";
 import { trackVisit } from "./onboarding";
 import { Sidebar } from "./Sidebar";
 import { TopBar } from "./TopBar";
@@ -106,6 +109,7 @@ export function AppShell({ children }: { children: ReactNode }) {
             {pathname !== "/app" ? (
               <BackButton fallbackHref="/app" className="-ml-2 mb-2" />
             ) : null}
+            <VerificationBanner />
             <DocHint userId={userId} />
             {me.loading || isSupplier ? (
               <Skeleton className="h-[60dvh]" />
@@ -121,6 +125,8 @@ export function AppShell({ children }: { children: ReactNode }) {
           <ChatDrawer />
         </Suspense>
         <DemoPhone />
+        <NotVerifiedListener />
+        <WelcomeTour />
         <footer className="grid justify-items-center gap-2 px-4 py-6 text-center text-sm text-muted">
           <p>{t("common.footer")}</p>
           <Link href="/docs" className="inline-flex min-h-11 items-center font-semibold text-brand-text underline">

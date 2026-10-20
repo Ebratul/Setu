@@ -22,11 +22,14 @@ from app.db.models.identity import (
     BankAccount,
     KybCheck,
     KybRun,
+    OnboardingProfile,
     OnboardingReview,
     Party,
     PartyMember,
+    PhoneVerification,
     StepupChallenge,
     User,
+    VerificationDocument,
 )
 from app.db.models.privacy import PrivacyRecord
 from app.db.models.trust import (
@@ -72,12 +75,15 @@ __all__ = [
     "LlmCache",
     "Milestone",
     "MilestoneConfirmation",
+    "OnboardingProfile",
     "OnboardingReview",
     "Party",
     "PartyMember",
+    "PhoneVerification",
     "PrivacyRecord",
     "RiskEvent",
     "StepupChallenge",
     "SupplierScore",
     "User",
+    "VerificationDocument",
 ]

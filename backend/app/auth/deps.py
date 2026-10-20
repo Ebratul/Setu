@@ -21,8 +21,8 @@ from app.audit.writer import current_actor_id, write_audit
 from app.auth import neon
 from app.auth.demo import COOKIE_NAME, parse_token
 from app.config import get_settings
-from app.db.enums import MemberRole, Role, UserStatus
-from app.db.models import AuditLog, PartyMember, User
+from app.db.enums import KybStatus, MemberRole, Role, UserStatus
+from app.db.models import AuditLog, Party, PartyMember, User
 from app.db.session import get_db
 from app.errors import DomainError, Forbidden, ServiceUnavailable, Unauthorized
 
@@ -38,16 +38,67 @@ class CurrentUser:
     language: str
     party_id: uuid.UUID | None
     member_role: MemberRole = MemberRole.OWNER
+    account_status: UserStatus = UserStatus.ACTIVE
+    mfa_enabled: bool = False  # TOTP really on: flag set AND a secret stored
+    is_demo: bool = False
+    party_blocked: bool = False  # the business was rejected or suspended
+
+    @property
+    def verified(self) -> bool:
+        return self.account_status == UserStatus.ACTIVE and not self.party_blocked
+
+    @property
+    def privileged(self) -> bool:
+        """May use admin powers: ACTIVE with TOTP on. Only the seeded demo admins of the demo
+        deployment (AUTH_MODE=demo) are exempt; never with AUTH_MODE=neon."""
+        if self.role != Role.ADMIN:
+            return True
+        if self.account_status == UserStatus.ACTIVE and self.mfa_enabled:
+            return True
+        s = get_settings()
+        return self.is_demo and s.auth_mode == "demo" and s.demo_mode and s.app_env != "prod"
 
     @property
     def reads_all(self) -> bool:
-        return self.role in READ_ALL_ROLES
+        return self.role in READ_ALL_ROLES and self.privileged
 
 
-def to_current(user: User, member_role: MemberRole = MemberRole.OWNER) -> CurrentUser:
+def has_mfa(user: User) -> bool:
+    """TOTP counts only with a stored secret. A pre-P30 row whose flag was set by the old email
+    step-up has no secret and does not count."""
+    return bool(user.mfa_enabled and user.mfa_secret_encrypted)
+
+
+def to_current(
+    user: User, member_role: MemberRole = MemberRole.OWNER, party_blocked: bool = False
+) -> CurrentUser:
     return CurrentUser(
-        user.id, user.email, user.display_name, user.role, user.language, user.party_id, member_role
+        user.id,
+        user.email,
+        user.display_name,
+        user.role,
+        user.language,
+        user.party_id,
+        member_role,
+        user.status,
+        has_mfa(user),
+        user.is_demo,
+        party_blocked,
     )
+
+
+def ensure_verified(user: CurrentUser) -> CurrentUser:
+    """Money actions need a verified (ACTIVE) account: 403 ACCOUNT_NOT_VERIFIED. Called by the
+    `Verified` router dependencies and again at the top of the service functions, so a service
+    reached through another path (approval execution, tools) is guarded too."""
+    if user.account_status != UserStatus.ACTIVE:
+        raise Forbidden(
+            "your account is not verified yet; money actions unlock after verification",
+            code="ACCOUNT_NOT_VERIFIED",
+        )
+    if user.party_blocked:
+        raise Forbidden("this business is suspended or was not approved", code="ACCOUNT_SUSPENDED")
+    return user
 
 
 def member_role_of(db: Session, user: User) -> MemberRole:
@@ -64,7 +115,11 @@ def member_role_of(db: Session, user: User) -> MemberRole:
 
 
 def current_of(db: Session, user: User) -> CurrentUser:
-    return to_current(user, member_role_of(db, user))
+    blocked = False
+    if user.party_id is not None and not user.is_demo:
+        status = db.scalar(select(Party.kyb_status).where(Party.id == user.party_id))
+        blocked = status == KybStatus.FAILED
+    return to_current(user, member_role_of(db, user), blocked)
 
 
 def _bearer(request: Request) -> str | None:
@@ -123,14 +178,16 @@ def local_user(db: Session, identity: neon.NeonIdentity) -> User | None:
 
 
 def require_active(user: User | None) -> User:
+    """Admit a local account to the API. PENDING_PROFILE / PENDING_VERIFICATION users get in (they
+    finish onboarding and read their own workspace); money actions need `ensure_verified`."""
     if user is None:
         raise Forbidden(
             "this sign-in has no Setu account yet; finish onboarding", code="ACCOUNT_NOT_ONBOARDED"
         )
-    if user.status == UserStatus.SUSPENDED:
+    if user.deleted_at is not None or user.status == UserStatus.SUSPENDED:
         raise Forbidden("this account is suspended", code="ACCOUNT_SUSPENDED")
-    if user.status != UserStatus.ACTIVE:
-        raise Forbidden("your account is awaiting verification", code="ACCOUNT_PENDING")
+    if user.status == UserStatus.REJECTED:
+        raise Forbidden("this account was not approved", code="ACCOUNT_REJECTED")
     return user
 
 
@@ -168,17 +225,26 @@ def record_login(db: Session, user: User) -> None:
 
 
 def _resolve(request: Request, db: Session) -> CurrentUser:
-    if get_settings().auth_mode == "neon":
+    """A bearer token (neon mode) always wins. The signed demo cookie is believed only when
+    DEMO_MODE=true and no bearer is present; it can only name a seeded demo user."""
+    settings = get_settings()
+    if settings.auth_mode == "neon" and _bearer(request) is not None:
         return current_of(db, require_active(local_user(db, verified_identity(request))))
-    token = request.cookies.get(COOKIE_NAME)
-    uid = parse_token(token) if token else None
+    token = request.cookies.get(COOKIE_NAME) if settings.demo_login_enabled else None
+    if token is None:
+        if settings.auth_mode == "neon":
+            return current_of(db, require_active(local_user(db, verified_identity(request))))
+        raise Unauthorized("sign in with a demo user first")
+    uid = parse_token(token)
     user = db.scalar(select(User).where(User.id == uid, User.is_demo.is_(True))) if uid else None
     if user is None:
         raise Unauthorized("sign in with a demo user first")
     return current_of(db, user)
 
 
-def current_user(request: Request, db: Annotated[Session, Depends(get_db)]) -> CurrentUser:
+def resolved_user(request: Request, db: Session) -> CurrentUser:
+    """Who is calling, admitted (not rejected/suspended) but not yet checked for admin 2FA. Used
+    by the routes an admin needs to *reach* 2FA: /auth/*, /account, onboarding documents."""
     cached = getattr(request.state, "auth_result", None)
     if cached is None:
         try:
@@ -191,6 +257,20 @@ def current_user(request: Request, db: Annotated[Session, Depends(get_db)]) -> C
     return cached
 
 
+def lenient_user(request: Request, db: Annotated[Session, Depends(get_db)]) -> CurrentUser:
+    """Dependency form of `resolved_user` (no admin-2FA gate)."""
+    return resolved_user(request, db)
+
+
+def current_user(request: Request, db: Annotated[Session, Depends(get_db)]) -> CurrentUser:
+    """The caller for every other route. An ADMIN who is not ACTIVE with TOTP on is refused
+    (403 MFA_REQUIRED) everywhere: admin rights are never granted before the second factor."""
+    user = resolved_user(request, db)
+    if not user.privileged:
+        raise Forbidden("turn on two-factor authentication first", code="MFA_REQUIRED")
+    return user
+
+
 @contextmanager
 def _own_session() -> Iterator[Session]:
     yield from get_db()
@@ -199,20 +279,22 @@ def _own_session() -> Iterator[Session]:
 def _actor_of(request: Request) -> uuid.UUID | None:
     with _own_session() as db:
         try:
-            return current_user(request, db).id
+            return resolved_user(request, db).id
         except DomainError:
             return None
 
 
 async def bind_actor(request: Request) -> None:
     """App-wide dependency: tell the audit writer who is acting. In neon mode the demo cookie is
-    never believed (the actor starts empty), and a request without a valid bearer stays anonymous.
-    The database is only touched when a bearer token is present (so /health works without one)."""
+    never believed unless DEMO_MODE=true and no bearer is sent (the audit middleware sets that
+    actor). The database is only touched when a bearer token is present (so /health works)."""
     if get_settings().auth_mode != "neon":
         return
-    current_actor_id.set(None)
     if _bearer(request) is None:
+        if not get_settings().demo_login_enabled:
+            current_actor_id.set(None)
         return
+    current_actor_id.set(None)
     try:
         uid = await run_in_threadpool(_actor_of, request)
     except DomainError:
@@ -258,3 +340,27 @@ def require_admin(user: Annotated[CurrentUser, Depends(current_user)]) -> Curren
     if user.role != Role.ADMIN:
         raise Forbidden("administrators only")
     return user
+
+
+def require_admin_mfa(user: Annotated[CurrentUser, Depends(require_admin)]) -> CurrentUser:
+    """ADMIN who is ACTIVE with TOTP on (403 MFA_REQUIRED). `current_user` already enforces it for
+    every admin; this stays as the explicit name admin-only routes depend on."""
+    if not user.privileged:
+        raise Forbidden("turn on two-factor authentication first", code="MFA_REQUIRED")
+    return user
+
+
+def require_verified(user: Annotated[CurrentUser, Depends(current_user)]) -> CurrentUser:
+    """Signed in AND verified (ACTIVE): the base guard for read-write money endpoints."""
+    return ensure_verified(user)
+
+
+def verified_writer(user: Annotated[CurrentUser, Depends(not_viewer)]) -> CurrentUser:
+    """Like `not_viewer` plus ACCOUNT_NOT_VERIFIED (viewer check first, as before)."""
+    return ensure_verified(user)
+
+
+def verified_party_writer(user: Annotated[CurrentUser, Depends(current_user)]) -> CurrentUser:
+    """Verified first (an applicant sees ACCOUNT_NOT_VERIFIED), then `require_writer`."""
+    ensure_verified(user)
+    return require_writer(user)

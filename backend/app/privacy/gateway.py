@@ -22,6 +22,7 @@ from app.config import get_settings
 from app.privacy.detectors import (
     ACCT,
     AMT,
+    BIZID,
     EMAIL,
     IBAN,
     NAME,
@@ -54,7 +55,12 @@ ID_KEYS = {
     "passport": PASSPORT,
     "holder": NAME,
     "beneficiary": NAME,
+    "uscc": BIZID,
+    "irc": BIZID,
+    "tin": BIZID,
+    "bin": BIZID,
 }
+BIZ_KEY = re.compile(r"licen[cs]e_(?:no|number)|(?:^|_)(?:trade|business)_licen[cs]e(?:$|_)", re.I)
 NOT_ID_WORDS = frozenset(
     {"type", "status", "currency", "id", "ids", "count", "kind", "verified", "masked", "invoice"}
 )
@@ -98,6 +104,8 @@ def id_type(key: str | None) -> str | None:
     if not key:
         return None
     parts = key.casefold().split("_")
+    if BIZ_KEY.search(key) and "masked" not in parts:
+        return BIZID
     if any(p in NOT_ID_WORDS for p in parts):
         return None
     return next((t for word, t in ID_KEYS.items() if word in parts), None)

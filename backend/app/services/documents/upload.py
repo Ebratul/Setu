@@ -20,7 +20,7 @@ from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
-from app.auth.deps import CurrentUser
+from app.auth.deps import CurrentUser, ensure_verified
 from app.config import get_settings
 from app.db.enums import CheckStatus, DealStatus, DocStatus, DocType
 from app.db.models import Deal, Document
@@ -105,6 +105,7 @@ def accept_upload(
     *,
     now: datetime | None = None,
 ) -> UploadOutcome:
+    ensure_verified(user)
     role = escrow_service.require_view(user, deal)
     if role not in ("BUYER", "SUPPLIER", "ADMIN"):
         _forbid(db, user, deal)

@@ -16,12 +16,13 @@ from datetime import UTC, datetime, timedelta
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
+from app.api.ratelimit import check_limit
 from app.audit.writer import write_audit
 from app.auth.deps import CurrentUser, audit_once
 from app.config import get_settings
 from app.db.models import StepupChallenge, User
 from app.errors import DomainError, Forbidden, TooManyRequests
-from app.services import approval_otp, mail
+from app.services import approval_otp, mail, mfa
 
 MAX_ATTEMPTS = 3
 MAX_STARTS = 3
@@ -47,27 +48,46 @@ def _code_hash(user_id: uuid.UUID, challenge_id: uuid.UUID, code: str) -> str:
     return _mac("stepup-code", f"{user_id}:{challenge_id}:{code}").hex()
 
 
-def make_token(user_id: uuid.UUID, *, now: int | None = None) -> tuple[str, int]:
-    """`<user>.<expiry>.<mac>`; returns the token and its lifetime in seconds."""
+METHODS = ("email", "totp")
+
+
+def make_token(
+    user_id: uuid.UUID, *, now: int | None = None, method: str = "email"
+) -> tuple[str, int]:
+    """`<user>.<expiry>.<method>.<mac>` (the method is inside the MAC: `email` = mailbox code,
+    `totp` = authenticator or recovery code); returns the token and its lifetime in seconds."""
     ttl = get_settings().stepup_token_ttl_seconds
     expires = (now if now is not None else int(time.time())) + ttl
-    payload = f"{user_id}.{expires}"
+    payload = f"{user_id}.{expires}.{method}"
     return f"{payload}.{_b64(_mac('stepup-token', payload))}", ttl
 
 
-def token_valid(token: str | None, user_id: uuid.UUID, *, now: int | None = None) -> bool:
+def token_method(token: str | None, user_id: uuid.UUID, *, now: int | None = None) -> str | None:
+    """The method a valid, unexpired token was issued by (None when invalid)."""
     if not token or len(token) > 200:
-        return False
+        return None
     try:
-        uid, expires, sig = token.split(".")
-        expected = _b64(_mac("stepup-token", f"{uid}.{expires}"))
-        if not hmac.compare_digest(sig.encode(), expected.encode()):
-            return False
+        uid, expires, method, sig = token.split(".")
+        expected = _b64(_mac("stepup-token", f"{uid}.{expires}.{method}"))
+        if not hmac.compare_digest(sig.encode(), expected.encode()) or method not in METHODS:
+            return None
         if uuid.UUID(uid) != user_id:
-            return False
-        return int(expires) > (now if now is not None else int(time.time()))
+            return None
+        return method if int(expires) > (now if now is not None else int(time.time())) else None
     except (ValueError, TypeError, UnicodeError):
-        return False
+        return None
+
+
+def token_valid(token: str | None, user_id: uuid.UUID, *, now: int | None = None) -> bool:
+    return token_method(token, user_id, now=now) is not None
+
+
+def require_totp(db: Session, user: CurrentUser, token: str | None) -> None:
+    """Admin decisions: a valid step-up token that came from the authenticator (or a recovery
+    code), never from the mailbox alone. No-op when step-up is switched off."""
+    require(db, user, token)
+    if get_settings().stepup_enabled and token_method(token, user.id) != "totp":
+        raise Forbidden("confirm with your authenticator app code", code="STEPUP_TOTP_REQUIRED")
 
 
 def _required() -> DomainError:
@@ -139,9 +159,16 @@ def verify(
     db: Session, user: CurrentUser, code: str, *, now: datetime | None = None
 ) -> tuple[str, int]:
     """Check the newest unused code. Returns (token, lifetime). A wrong code costs one of three
-    tries on that code; the right one is single-use and sets `users.mfa_enabled`."""
+    tries on that code; the right one is single-use. Once TOTP is on, a valid authenticator or
+    recovery code is accepted too (replay-safe)."""
     now = now or _now()
     row = db.scalar(select(User).where(User.id == user.id).with_for_update())
+    if row is not None and row.mfa_enabled and row.mfa_secret_encrypted:
+        check_limit("mfa", str(user.id), get_settings().rate_limit_mfa_per_10min, 600)
+        mfa.budget(db, row)
+        if mfa.check_second_factor(row, code):
+            return _issue(db, row, user, "totp")
+        mfa.record_failure(db, row)
     challenge = db.scalar(
         select(StepupChallenge)
         .where(StepupChallenge.user_id == user.id, StepupChallenge.consumed_at.is_(None))
@@ -163,8 +190,11 @@ def verify(
         _failed(db, row, "wrong_code")
         raise DomainError(f"wrong code, {left} tries left", "STEPUP_INVALID")
     challenge.consumed_at = now
-    row.mfa_enabled = True
-    token, ttl = make_token(user.id)
+    return _issue(db, row, user)
+
+
+def _issue(db: Session, row: User, user: CurrentUser, method: str = "email") -> tuple[str, int]:
+    token, ttl = make_token(user.id, method=method)
     write_audit(
         db,
         actor="user",

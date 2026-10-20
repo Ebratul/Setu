@@ -14,6 +14,7 @@ from tests.onboarding.support import (
 pytestmark = pytest.mark.db
 
 GATED = ("/deals", "/approvals", "/analysis/orders", "/analysis/suppliers", "/cashflow/forecast")
+READABLE = ("/deals", "/approvals", "/notifications", "/auth/me")
 
 
 def deal_for(supplier_id: str) -> dict[str, str]:
@@ -28,15 +29,16 @@ def deal_for(supplier_id: str) -> dict[str, str]:
     }
 
 
-def test_pending_user_is_locked_out_of_everything(client: TestClient, fake: FakeNeon) -> None:
+def test_pending_user_reads_but_cannot_start_money_actions(
+    client: TestClient, fake: FakeNeon
+) -> None:
     headers, _ = onboard(client, fake)
-    for path in GATED:
-        res = client.get(path, headers=headers)
-        assert res.status_code == 403 and res.json()["code"] == "ACCOUNT_PENDING", path
+    for path in READABLE:
+        assert client.get(path, headers=headers).status_code == 200, path
     res = client.post(
         "/deals", json=deal_for("00000000-0000-0000-0000-000000000000"), headers=headers
     )
-    assert res.status_code == 403 and res.json()["code"] == "ACCOUNT_PENDING"
+    assert res.status_code == 403 and res.json()["code"] == "ACCOUNT_NOT_VERIFIED"
 
 
 def test_rejected_user_stays_locked_out(client: TestClient, fake: FakeNeon) -> None:
@@ -50,7 +52,7 @@ def test_rejected_user_stays_locked_out(client: TestClient, fake: FakeNeon) -> N
     )
     for path in GATED:
         res = client.get(path, headers=headers)
-        assert res.status_code == 403 and res.json()["code"] == "ACCOUNT_SUSPENDED", path
+        assert res.status_code == 403 and res.json()["code"] == "ACCOUNT_REJECTED", path
 
 
 def test_deal_needs_a_verified_supplier_in_neon_mode(client: TestClient, fake: FakeNeon) -> None:

@@ -1,6 +1,7 @@
 import uuid
 
 import pytest
+from cryptography.fernet import Fernet
 from fastapi.testclient import TestClient
 
 from app.auth.demo import COOKIE_NAME, MAX_AGE_SECONDS, make_token, parse_token
@@ -59,6 +60,9 @@ def test_non_ascii_cookie_is_401_problem_json(client: TestClient) -> None:
 
 PROD_REST = {
     "OTP_SECRET_SEED": "o" * 40,
+    "SMS_PROVIDER": "webhook",
+    "SMS_WEBHOOK_URL": "https://sms.example/send",
+    "SMS_WEBHOOK_TOKEN": "tok",
     "DOCUMENT_URL_SECRET": "d" * 40,
     "CRON_SECRET": "c" * 40,
     "MAIL_PROVIDER": "resend",
@@ -86,6 +90,7 @@ def test_prod_requires_real_secret_and_secure_cookie(monkeypatch: pytest.MonkeyP
         with pytest.raises(RuntimeError, match="DEMO_SESSION_SECRET"):
             create_app()
         monkeypatch.setenv("DEMO_SESSION_SECRET", "x" * 32)
+        monkeypatch.setenv("FIELD_ENCRYPTION_KEY", Fernet.generate_key().decode())
         get_settings.cache_clear()
         with pytest.raises(RuntimeError, match="DEMO_COOKIE_SECURE"):
             create_app()

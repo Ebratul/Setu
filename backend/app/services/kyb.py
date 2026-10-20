@@ -31,12 +31,30 @@ from sqlalchemy import Select, func, or_, select
 from sqlalchemy.orm import Session
 
 from app.audit import write_audit
-from app.auth.deps import CurrentUser, can_read_party
+from app.auth.deps import CurrentUser, can_read_party, ensure_verified
 from app.config import get_settings
-from app.db.enums import AccountStatus, CheckStatus, DealStatus, DocType, KybStatus, PartyKind
-from app.db.models import BankAccount, Deal, Document, KybCheck, KybRun, Party
+from app.db.enums import (
+    AccountStatus,
+    CheckStatus,
+    DealStatus,
+    DocType,
+    KybStatus,
+    OnboardingStatus,
+    PartyKind,
+    UserStatus,
+)
+from app.db.models import (
+    BankAccount,
+    Deal,
+    Document,
+    KybCheck,
+    KybRun,
+    OnboardingReview,
+    Party,
+    User,
+)
 from app.domain import kyb as engine
-from app.errors import NotFound, ServiceUnavailable
+from app.errors import Conflict, NotFound, ServiceUnavailable
 from app.schemas.kyb import (
     AccountSummary,
     KybCheckOut,
@@ -396,6 +414,27 @@ def _store_check(
             setattr(row, k, v)
 
 
+def require_onboarded(db: Session, supplier: Party) -> None:
+    """A self-onboarded supplier is re-checked only after a person approved it and while its
+    owner account is ACTIVE; otherwise a KYB run could flip a rejected or suspended supplier back
+    to VERIFIED. Seeded suppliers have no onboarding review and are unaffected."""
+    review = db.scalar(
+        select(OnboardingReview)
+        .where(OnboardingReview.party_id == supplier.id)
+        .order_by(OnboardingReview.submitted_at.desc())
+        .limit(1)
+    )
+    if review is None:
+        return
+    owner = db.get(User, review.user_id)
+    if (
+        review.status != OnboardingStatus.APPROVED
+        or owner is None
+        or owner.status != UserStatus.ACTIVE
+    ):
+        raise Conflict("this supplier has not been approved", code="SUPPLIER_NOT_APPROVED")
+
+
 def verify(
     db: Session,
     user: CurrentUser,
@@ -408,7 +447,9 @@ def verify(
 ) -> KybResult:
     """Persisted state (Party.kyb_status, KybCheck, BankAccount.verified/status) comes only from
     party and account facts; the invoice-name result stays on this deal's KybRun and alert."""
+    ensure_verified(user)
     supplier = find_supplier(db, user, supplier_id)
+    require_onboarded(db, supplier)
     deal = find_deal(db, user, supplier, deal_ref) if deal_ref else None
     at = now or datetime.now(UTC)
     run = run_checks(

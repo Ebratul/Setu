@@ -14,7 +14,7 @@ from typing import cast
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
-from app.auth.deps import CurrentUser
+from app.auth.deps import CurrentUser, ensure_verified
 from app.db.enums import (
     CashflowKind,
     DealStatus,
@@ -703,6 +703,7 @@ def _next_reference(db: Session, today: date) -> str:
 
 
 def apply(db: Session, user: CurrentUser, req: ApplicationRequest) -> ApplicationOut:
+    ensure_verified(user)
     buyer = require_buyer(db, user, req.party_id)
     book = load_book(db, buyer)
     deal = _deal_for(db, user, buyer, req.deal_id, book)
@@ -819,6 +820,7 @@ def _recheck(db: Session, a: FinancingApplication, buyer: Party) -> str | None:
 
 def simulate_approval(db: Session, user: CurrentUser, app_id: uuid.UUID) -> ApprovalOut:
     """Simulated lender approval: APPROVED + disbursement inflow + repayment outflow + alerts."""
+    ensure_verified(user)
     _own_app(db, user, app_id)
     a = db.get(FinancingApplication, app_id, with_for_update=True)
     assert a is not None

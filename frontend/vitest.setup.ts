@@ -6,6 +6,12 @@ import { afterEach, vi } from "vitest";
 vi.mock("@/lib/auth/client", async (importOriginal) => ({
   ...(await importOriginal<typeof import("@/lib/auth/client")>()),
   getAuthMode: () => Promise.resolve("demo" as const),
+  getPublicAuthConfig: () =>
+    Promise.resolve({
+      mode: "demo" as const,
+      demoEnabled: true,
+      googleEnabled: false,
+    }),
 }));
 
 afterEach(() => cleanup());

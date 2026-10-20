@@ -1,5 +1,7 @@
 """Domain exceptions mapped to RFC 7807 problem JSON by one handler. No stack traces or secrets."""
 
+from typing import Any
+
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 from sqlalchemy.exc import OperationalError
@@ -9,10 +11,13 @@ class DomainError(Exception):
     status = 400
     title = "Bad request"
 
-    def __init__(self, detail: str, code: str | None = None) -> None:
+    def __init__(
+        self, detail: str, code: str | None = None, errors: list[dict[str, str]] | None = None
+    ) -> None:
         super().__init__(detail)
         self.detail = detail
         self.code = code
+        self.errors = errors  # field-level problems: [{field, code, message}]
 
 
 class Unauthorized(DomainError):
@@ -50,6 +55,16 @@ class Gone(DomainError):
     title = "Gone"
 
 
+class Locked(DomainError):
+    status = 423
+    title = "Locked"
+
+
+class Unprocessable(DomainError):
+    status = 422
+    title = "Validation failed"
+
+
 class TooManyRequests(DomainError):
     status = 429
     title = "Too many requests"
@@ -60,8 +75,14 @@ class ServiceUnavailable(DomainError):
     title = "Service unavailable"
 
 
-def problem(status: int, title: str, detail: str, code: str | None = None) -> JSONResponse:
-    body: dict[str, str | int] = {
+def problem(
+    status: int,
+    title: str,
+    detail: str,
+    code: str | None = None,
+    errors: list[dict[str, str]] | None = None,
+) -> JSONResponse:
+    body: dict[str, Any] = {
         "type": "about:blank",
         "title": title,
         "status": status,
@@ -69,6 +90,8 @@ def problem(status: int, title: str, detail: str, code: str | None = None) -> JS
     }
     if code:
         body["code"] = code  # stable machine-readable reason, e.g. EVIDENCE_NOT_VERIFIED
+    if errors:
+        body["errors"] = errors
     return JSONResponse(
         body,
         status_code=status,
@@ -87,7 +110,7 @@ def install_handlers(app: FastAPI) -> None:
 
     @app.exception_handler(DomainError)
     async def _domain(_: Request, exc: DomainError) -> JSONResponse:
-        return problem(exc.status, exc.title, exc.detail, exc.code)
+        return problem(exc.status, exc.title, exc.detail, exc.code, exc.errors)
 
     @app.exception_handler(Exception)
     async def _unexpected(_: Request, __: Exception) -> JSONResponse:

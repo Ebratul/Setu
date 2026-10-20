@@ -18,6 +18,7 @@ import { dealErrorText } from "@/lib/api/dealErrors";
 import { createDeal } from "@/lib/api/deals";
 import { getSuppliers, type SupplierListItem } from "@/lib/api/kyb";
 import { formatMoney } from "@/lib/format";
+import { useMoneyGate } from "@/lib/useAccountGate";
 import { useApi, useDebounced } from "@/lib/useApi";
 
 import {
@@ -36,6 +37,7 @@ type Step = (typeof STEPS)[number];
 
 export function NewDealPage() {
   const t = useT();
+  const gate = useMoneyGate();
   const { lang } = useLang();
   const router = useRouter();
   const toast = useToast();
@@ -320,9 +322,23 @@ export function NewDealPage() {
             {t("dn.back")}
           </Button>
           {step === "review" ? (
-            <Button onClick={submit} disabled={busy}>
-              {busy ? t("common.loading") : t("dn.create")}
-            </Button>
+            <div className="min-w-0">
+              <Button
+                onClick={submit}
+                disabled={busy || !gate.allowed}
+                aria-describedby={gate.allowed ? undefined : "dn-create-why"}
+              >
+                {busy ? t("common.loading") : t("dn.create")}
+              </Button>
+              {gate.reason ? (
+                <p
+                  id="dn-create-why"
+                  className="mt-1 max-w-xs text-xs text-muted"
+                >
+                  {gate.reason}
+                </p>
+              ) : null}
+            </div>
           ) : (
             <Button onClick={next}>{t("dn.next")}</Button>
           )}

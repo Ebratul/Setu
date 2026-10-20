@@ -1,17 +1,22 @@
 "use client";
 
+import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 
-import { AuthShell } from "@/components/auth/AuthShell";
+import { AuthShell, authLinkClass } from "@/components/auth/AuthShell";
 import { Alert } from "@/components/ui/Alert";
 import { Button } from "@/components/ui/Button";
+import { Icon } from "@/components/ui/Icon";
 import { hasKey, useT } from "@/i18n";
-import { startSession } from "@/lib/api/auth";
 import { ApiError } from "@/lib/api/client";
-import { getOnboardingStatus } from "@/lib/api/onboarding";
+import { getOnboardingState } from "@/lib/api/onboarding";
+import { signOutEverywhere } from "@/lib/auth/flow";
+import { isDocTarget, stepForTarget } from "@/lib/onboarding/changes";
+import { labelKey } from "@/lib/onboarding/errors";
+import { homeFor, stepDone, stepsFor } from "@/lib/onboarding/steps";
 import { useApi } from "@/lib/useApi";
-import { safeNext, signOutEverywhere } from "@/lib/auth/flow";
+import { markOnboardingSeen } from "@/lib/welcome";
 
 import { CheckStatusBadge } from "./CheckStatusBadge";
 
@@ -20,29 +25,40 @@ export const STATUS_POLL_MS = 20_000;
 export function OnboardingStatusScreen() {
   const t = useT();
   const router = useRouter();
-  const q = useApi((signal) => getOnboardingStatus(signal), "onboarding-status");
+  const q = useApi((signal) => getOnboardingState(signal), "onboarding-state");
   const { reload } = q;
   const state = q.data ?? null;
-  const [activateFailed, setActivateFailed] = useState(false);
   const [busy, setBusy] = useState(false);
-  const activating = useRef(false);
 
-  const done = state !== null && state.status !== "PENDING";
   const err = q.error;
-  const redirect =
-    err instanceof ApiError && err.status === 401
-      ? "/login?next=/onboarding/status"
-      : err instanceof ApiError && err.code === "NOT_ONBOARDED"
-        ? "/onboarding"
+  const unauth = err instanceof ApiError && err.status === 401;
+  const changes =
+    state?.decision === "CHANGES_REQUESTED" ||
+    (state?.change_requests.length ?? 0) > 0;
+  const needsProfile =
+    state !== null &&
+    (state.account_status === null ||
+      state.account_status === "PENDING_PROFILE") &&
+    !changes;
+  const home = state && !changes ? homeFor(state) : null;
+  const redirect = unauth
+    ? "/login?next=/onboarding/status"
+    : needsProfile
+      ? "/onboarding"
+      : home && home !== "/onboarding/status"
+        ? home
         : null;
-  const failed = err !== undefined && redirect === null;
 
   useEffect(() => {
     if (redirect) router.replace(redirect);
   }, [redirect, router]);
 
+  const waiting =
+    state !== null &&
+    !changes &&
+    state.account_status === "PENDING_VERIFICATION";
   useEffect(() => {
-    if (done) return;
+    if (!waiting) return;
     const tick = () => {
       if (document.visibilityState === "visible") reload();
     };
@@ -52,24 +68,12 @@ export function OnboardingStatusScreen() {
       clearInterval(id);
       document.removeEventListener("visibilitychange", tick);
     };
-  }, [done, reload]);
-
-  const activate = useCallback(() => {
-    if (activating.current) return;
-    activating.current = true;
-    startSession().then(
-      (user) => router.replace(safeNext(null, user.role)),
-      () => {
-        activating.current = false;
-        setActivateFailed(true);
-      },
-    );
-  }, [router]);
+  }, [waiting, reload]);
 
   useEffect(() => {
-    if (state?.status === "APPROVED" && state.account_status === "ACTIVE") activate();
-    else if (state?.status === "REJECTED") router.replace("/account-status?reason=suspended");
-  }, [state, activate, router]);
+    if (state && state.account_status && state.account_status !== "ACTIVE")
+      markOnboardingSeen();
+  }, [state]);
 
   async function onSignOut() {
     setBusy(true);
@@ -77,56 +81,146 @@ export function OnboardingStatusScreen() {
     router.replace("/login");
   }
 
-  const checks = (state?.checks ?? []).filter((c) => !c.code.toUpperCase().includes("SANCTION"));
+  const failed = err !== undefined && !unauth;
+  const checks = (state?.checks ?? []).filter(
+    (c) => !c.code.toUpperCase().includes("SANCTION"),
+  );
+  const stepsList = state
+    ? stepsFor(state.role).filter((s) => s !== "role" && s !== "review")
+    : [];
 
   return (
-    <AuthShell title={t("onb.st.title")} neonOnly>
+    <AuthShell title={t("ost.title")} neonOnly>
       <div className="space-y-5">
         {failed ? (
-          <Alert tone="danger" urgent action={<Button size="sm" onClick={reload}>{t("common.retry")}</Button>}>
-            {t("onb.st.loadFailed")}
+          <Alert
+            tone="danger"
+            urgent
+            action={
+              <Button size="sm" onClick={reload}>
+                {t("common.retry")}
+              </Button>
+            }
+          >
+            {t("ost.loadFailed")}
           </Alert>
         ) : null}
-        {state === null && !failed ? <p role="status">{t("common.loading")}</p> : null}
-        {state ? (
+        {state === null && !failed ? (
+          <p role="status">{t("common.loading")}</p>
+        ) : null}
+        {state && !redirect ? (
           <>
             <div aria-live="polite">
-              {state.status === "APPROVED" ? (
-                <Alert tone="success" title={t("onb.st.approved.title")}>
-                  {t("onb.st.approved.body")}
+              {changes ? (
+                <Alert tone="warning" title={t("ost.changes.title")}>
+                  {t("ost.changes.body")}
                 </Alert>
               ) : (
-                <Alert tone="warning" title={t("onb.st.pending.title")}>
-                  {t("onb.st.pending.body")}
+                <Alert tone="warning" title={t("ost.pending.title")}>
+                  {t("ost.pending.body")}
                 </Alert>
               )}
             </div>
-            {activateFailed ? (
-              <Alert tone="danger" urgent action={<Button size="sm" onClick={() => { setActivateFailed(false); activate(); }}>{t("common.retry")}</Button>}>
-                {t("onb.st.activateFailed")}
-              </Alert>
+
+            {changes && state.change_requests.length > 0 ? (
+              <section aria-labelledby="ost-changes-h" className="space-y-2">
+                <h2 id="ost-changes-h" className="text-lg font-bold text-ink">
+                  {t("ost.changes.list")}
+                </h2>
+                <ul className="divide-y divide-line rounded-card border border-line bg-surface">
+                  {state.change_requests.map((c) => {
+                    const step = stepForTarget(c.target);
+                    const name = isDocTarget(c.target)
+                      ? t(`ob.doc.${c.target}`)
+                      : hasKey(`ob.f.${labelKey(c.target)}`)
+                        ? t(`ob.f.${labelKey(c.target)}`)
+                        : c.target;
+                    return (
+                      <li
+                        key={`${c.target}-${c.note}`}
+                        className="flex flex-wrap items-start justify-between gap-3 px-4 py-3 text-sm"
+                      >
+                        <div className="min-w-0">
+                          <p className="font-semibold text-ink">{name}</p>
+                          <p className="break-words text-muted">{c.note}</p>
+                        </div>
+                        <Link
+                          href={`/onboarding?step=${step}`}
+                          className={authLinkClass}
+                          aria-label={`${t("ost.fix")}: ${name}`}
+                        >
+                          {t("ost.fix")}
+                        </Link>
+                      </li>
+                    );
+                  })}
+                </ul>
+                <Link
+                  href="/onboarding?step=review"
+                  className={`${authLinkClass} text-base`}
+                >
+                  {t("ost.resubmit")}
+                </Link>
+              </section>
             ) : null}
-            {state.party_name ? (
-              <p className="text-sm text-muted">
-                {t("onb.st.company")}: <span className="font-semibold text-ink">{state.party_name}</span>
-              </p>
-            ) : null}
+
+            <section aria-labelledby="ost-list-h" className="space-y-2">
+              <h2 id="ost-list-h" className="text-lg font-bold text-ink">
+                {t("ost.checklist")}
+              </h2>
+              <ul className="divide-y divide-line rounded-card border border-line bg-surface">
+                {stepsList.map((s) => {
+                  const done = stepDone(state, s);
+                  return (
+                    <li
+                      key={s}
+                      className="flex items-center justify-between gap-2 px-4 py-3 text-sm"
+                    >
+                      <span className="text-ink">{t(`ob.step.${s}`)}</span>
+                      <span
+                        className={`inline-flex items-center gap-1 font-semibold ${done ? "text-success" : "text-warning"}`}
+                      >
+                        <Icon name={done ? "check" : "clock"} size={14} />
+                        {done ? t("ost.done") : t("ost.todo")}
+                      </span>
+                    </li>
+                  );
+                })}
+                <li className="flex items-center justify-between gap-2 px-4 py-3 text-sm">
+                  <span className="text-ink">{t("ost.humanReview")}</span>
+                  <span className="inline-flex items-center gap-1 font-semibold text-warning">
+                    <Icon name="clock" size={14} />
+                    {t("ost.inProgress")}
+                  </span>
+                </li>
+              </ul>
+            </section>
+
             {checks.length > 0 ? (
-              <section aria-labelledby="onb-checks-h" className="space-y-2">
-                <h2 id="onb-checks-h" className="text-lg font-bold text-ink">
+              <section aria-labelledby="ost-checks-h" className="space-y-2">
+                <h2 id="ost-checks-h" className="text-lg font-bold text-ink">
                   {t("onb.st.checks")}
                 </h2>
                 <ul className="divide-y divide-line rounded-card border border-line bg-surface">
                   {checks.map((c) => (
-                    <li key={c.code} className="flex flex-wrap items-center justify-between gap-2 px-4 py-3 text-sm">
-                      <span className="text-ink">{hasKey(`onb.check.${c.code}`) ? t(`onb.check.${c.code}`) : c.code}</span>
+                    <li
+                      key={c.code}
+                      className="flex flex-wrap items-center justify-between gap-2 px-4 py-3 text-sm"
+                    >
+                      <span className="text-ink">
+                        {hasKey(`onb.check.${c.code}`)
+                          ? t(`onb.check.${c.code}`)
+                          : c.code}
+                      </span>
                       <CheckStatusBadge status={c.status} />
                     </li>
                   ))}
                 </ul>
               </section>
             ) : null}
-            {!done ? <p className="text-xs text-muted">{t("onb.st.polling")}</p> : null}
+            {waiting ? (
+              <p className="text-xs text-muted">{t("onb.st.polling")}</p>
+            ) : null}
           </>
         ) : null}
         <div>

@@ -1,0 +1,73 @@
+---
+title: Supplier verification requirements (中文)
+summary: The details and documents a Chinese supplier must provide, including the USCC check and bank account rules.
+section: supplier
+order: 5
+roles: [supplier]
+routes: []
+tryIt: "/onboarding"
+related: [getting-started/creating-your-account, security/why-we-ask, buyer/verification-requirements]
+updated: 2026-10-21
+---
+
+## What it is \{#what-it-is}
+
+Before a supplier can receive simulated payments, a reviewer verifies the company. This page lists what the **Business** and **Documents** steps ask for. The page is also available in Chinese (中文).
+
+## Who uses it \{#who}
+
+<RoleBadge role="supplier" /> Chinese exporters setting up their own account.
+
+## When to use it \{#when}
+
+Before you start `/onboarding`, or when a reviewer asks for a correction.
+
+## Step by step \{#how-to}
+
+<Steps>
+<Step title="Have your documents ready">
+You need your **Business licence** and a **Bank account proof**. Other supporting files are optional. Each file is a PDF, PNG or JPG, up to 4 MB.
+<Screenshot name="supplier/verification-documents" route="/onboarding?step=documents" as="supplier" alt="The Documents step listing Business licence and Bank account proof as required." caption="Required documents." />
+</Step>
+<Step title="Fill in the company fields">
+Enter the company name in English and in Chinese, the Unified Social Credit Code (USCC), the registered address (province, city, district, street optional), business scope, years of export experience, and optionally WeChat ID and contact phone.
+<Screenshot name="supplier/verification-company" route="/onboarding?step=business" as="supplier" alt="The Business step with English and Chinese company names and the USCC field." caption="Company details." />
+</Step>
+<Step title="Add the bank account">
+Enter Bank name, Account holder name, Account number, Account currency (CNY or USD) and SWIFT/BIC code.
+<Screenshot name="supplier/verification-bank" route="/onboarding?step=business" as="supplier" alt="The Business step bank account group." caption="Bank account." />
+</Step>
+</Steps>
+
+## What the results mean \{#results}
+
+| Field | Format Setu checks |
+|---|---|
+| USCC | 18 characters from 0-9 and A-Z without I, O, S, V, Z, with a correct check character (GB 32100-2015). |
+| Account number | 6 to 34 letters or digits, no spaces. |
+| SWIFT/BIC | 8 or 11 characters, for example `BKCHCNBJ`. |
+| Account currency | CNY or USD. |
+| Mobile number | Country code first, for example `+8613812345678`. |
+
+After submission the reviewer sees automatic checks: the bank holder name must match the company name, the account type and bank country are checked, and a document file must not be reused by another account.
+
+## Tips and common mistakes \{#tips}
+
+- Copy the USCC from the licence; one wrong character fails the check.
+- Use the bank account in the company's own name. A personal account is flagged.
+- The Chinese company name must be exactly as on the licence.
+
+## Related security notes \{#security}
+
+<Callout type="security">
+Account numbers are encrypted and shown masked. Money in Setu is simulated. See [Why Setu asks for these details](/docs/en/security/why-we-ask).
+</Callout>
+
+## Try it \{#try-it}
+
+<TryItButton href="/onboarding" />
+
+## Related pages \{#related}
+
+- [Creating your account](/docs/en/getting-started/creating-your-account)
+- [Buyer verification requirements](/docs/en/buyer/verification-requirements)

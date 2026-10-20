@@ -9,7 +9,7 @@ from fastapi import APIRouter, BackgroundTasks, Depends, File, Form, Query, Resp
 from pydantic import BaseModel, ConfigDict, Field
 from sqlalchemy.orm import Session
 
-from app.auth.deps import CurrentUser, current_user
+from app.auth.deps import CurrentUser, current_user, require_verified
 from app.config import get_settings
 from app.db.enums import DocType
 from app.db.session import batch_session, get_db
@@ -29,6 +29,7 @@ router = APIRouter(tags=["documents"])
 
 Db = Annotated[Session, Depends(get_db)]
 User = Annotated[CurrentUser, Depends(current_user)]
+Verified = Annotated[CurrentUser, Depends(require_verified)]
 UPLOAD_TYPES = Annotated[DocType, Form(description="Document type")]
 
 
@@ -55,7 +56,7 @@ def _check_in_background(document_id: uuid.UUID, user_id: uuid.UUID) -> None:
 def upload_document(
     deal_id: str,
     db: Db,
-    user: User,
+    user: Verified,
     background: BackgroundTasks,
     doc_type: UPLOAD_TYPES,
     file: Annotated[UploadFile, File(description="PDF, PNG or JPG, at most 10 MB")],

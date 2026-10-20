@@ -172,8 +172,11 @@ def test_concurrent_requests_do_not_fetch_in_parallel() -> None:
     )
     first.start()
     assert inside.wait(5)
-    with pytest.raises(neon.AuthUnavailable):  # does not queue behind the slow fetch
-        neon.verify_token(fake.token(), s, cache)
+    second = threading.Thread(  # a cold cache makes it wait for the one fetch, not fetch again
+        target=lambda: results.append(neon.verify_token(fake.token(), s, cache).subject)
+    )
+    second.start()
     release.set()
     first.join(5)
-    assert results == ["u-1"] and fake.fetches == 1
+    second.join(5)
+    assert results == ["u-1", "u-1"] and fake.fetches == 1

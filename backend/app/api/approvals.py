@@ -8,7 +8,7 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, Query, Request
 from sqlalchemy.orm import Session
 
-from app.auth.deps import CurrentUser, current_user, not_viewer
+from app.auth.deps import CurrentUser, current_user, not_viewer, verified_writer
 from app.config import get_settings
 from app.db.session import get_db
 from app.schemas.approvals import (
@@ -32,6 +32,7 @@ router = APIRouter(tags=["approvals"])
 Db = Annotated[Session, Depends(get_db)]
 User = Annotated[CurrentUser, Depends(current_user)]
 Decider = Annotated[CurrentUser, Depends(not_viewer)]  # a party VIEWER may read, never decide
+VerifiedDecider = Annotated[CurrentUser, Depends(verified_writer)]  # approve / resend: money
 
 
 @router.get("/approvals", response_model=ApprovalList)
@@ -52,7 +53,7 @@ def get_approval(approval_id: uuid.UUID, db: Db, user: User) -> ApprovalOut:
 
 @router.post("/approvals/{approval_id}/approve", response_model=ApproveResult)
 def approve(
-    approval_id: uuid.UUID, body: ApproveIn, request: Request, db: Db, user: Decider
+    approval_id: uuid.UUID, body: ApproveIn, request: Request, db: Db, user: VerifiedDecider
 ) -> ApproveResult:
     """Tier 2: one tap (plus a step-up token in neon mode: 403 STEPUP_REQUIRED). Tier 3: needs the
     6-digit code and the end of the cooling-off. Executes the stored action only; re-escalates
@@ -75,7 +76,7 @@ def cancel(approval_id: uuid.UUID, db: Db, user: Decider) -> RejectResult:
 
 
 @router.post("/approvals/{approval_id}/resend-otp", response_model=ResendResult)
-def resend_otp(approval_id: uuid.UUID, db: Db, user: Decider) -> ResendResult:
+def resend_otp(approval_id: uuid.UUID, db: Db, user: VerifiedDecider) -> ResendResult:
     """New code: emailed to the buyer's OWNER/FINANCE members (neon) or the simulated phone (demo).
     The code is never in this response. 503 if the mail could not be sent; try again."""
     out, delivered = approvals.resend_otp(db, user, approval_id)

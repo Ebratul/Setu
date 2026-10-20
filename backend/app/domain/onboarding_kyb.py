@@ -19,6 +19,7 @@ check passes, otherwise NEEDS_REVIEW. Name matching and bands are `app.domain.ky
 import re
 from collections.abc import Sequence
 from dataclasses import dataclass
+from datetime import date
 from decimal import ROUND_HALF_UP, Decimal
 from typing import Literal
 
@@ -34,7 +35,20 @@ WEIGHTS: dict[str, int] = {
     "COUNTRY_ALLOWED": 30,
     "BANK_COUNTRY": 10,
     "TAX_ID_FORMAT": 15,
+    "DUPLICATE_COMPANY": 40,
+    "DOC_PRESENT": 25,
+    "DOC_HASH_REUSE": 40,
+    "PHONE_VERIFIED": 15,
+    "LICENSE_EXPIRY": 30,
+    "KYB_HOLDER_NAME": 30,
+    "KYB_ACCOUNT_TYPE": 20,
+    "KYB_COUNTRY": 15,
 }
+COMPANY_MARKERS = re.compile(
+    r"\b(?:co|company|corp|corporation|inc|ltd|limited|llc|trading|industr(?:y|ies)|group|"
+    r"enterprise[s]?|factory|manufactur\w*)\b|有限公司|有限责任公司|公司|集团|工厂|厂",
+    re.I,
+)
 SEVERITY: dict[str, Decimal] = {"PASS": Decimal("0"), "WARN": Decimal("0.5"), "FAIL": Decimal("1")}
 BD_TAX_ID = re.compile(r"^\d{9,13}$")
 OTHER_TAX_ID = re.compile(r"^[A-Za-z0-9][A-Za-z0-9 -]{3,30}[A-Za-z0-9]$")
@@ -175,3 +189,145 @@ def recommend(checks: Sequence[OnboardingCheck]) -> Recommendation:
     if blocked(checks):
         return "BLOCK"
     return "AUTO_CLEAR" if all(c.status == "PASS" for c in checks) else "NEEDS_REVIEW"
+
+
+REQUIRED_DOCS: dict[str, frozenset[str]] = {
+    "BUYER": frozenset({"TRADE_LICENSE", "IRC"}),
+    "SUPPLIER": frozenset({"BUSINESS_LICENSE", "BANK_PROOF"}),
+}
+
+
+@dataclass(frozen=True, slots=True)
+class ProfileFacts:
+    """What the multi-step onboarding collected, reduced to what the checks need."""
+
+    role: str  # BUYER | SUPPLIER
+    legal_name: str
+    contact_name: str
+    today: date
+    duplicate_of_other_company: bool
+    phone_verified: bool
+    doc_types: frozenset[str]
+    reused_hash: bool
+    license_expiry: date | None = None  # buyer
+    holder_name: str | None = None  # supplier bank
+    swift_country: str | None = None  # ISO-2 from the SWIFT/BIC (supplier)
+
+
+def _profile_sanctions(
+    facts: ProfileFacts, entries: Sequence[SanctionEntry], th: Thresholds
+) -> OnboardingCheck:
+    names = [("legal_name", facts.legal_name), ("contact_name", facts.contact_name)]
+    if facts.holder_name:
+        names.append(("holder_name", facts.holder_name))
+    hits = screen_sanctions(names, entries, th)
+    if hits:
+        roles = sorted({h["role"] for h in hits})
+        ids = sorted({h["entry_id"] for h in hits})
+        return OnboardingCheck(
+            "SANCTIONS_SCREEN",
+            "FAIL",
+            f"match on the sanctions list (mock list): entries {', '.join(ids)}; "
+            f"fields {', '.join(roles)}",
+        )
+    return OnboardingCheck(
+        "SANCTIONS_SCREEN", "PASS", "no screened name matches the sanctions list"
+    )
+
+
+def assess_profile(
+    facts: ProfileFacts,
+    sanctions: Sequence[SanctionEntry],
+    allowed_countries: Sequence[str],
+    thresholds: Thresholds | None = None,
+) -> OnboardingAssessment:
+    """Automated checks for a submitted onboarding profile (docs/p30-design.md section 5)."""
+    th = thresholds or Thresholds()
+    checks: list[OnboardingCheck] = [_profile_sanctions(facts, sanctions, th)]
+    checks.append(
+        OnboardingCheck(
+            "DUPLICATE_COMPANY",
+            "FAIL" if facts.duplicate_of_other_company else "PASS",
+            "an approved business already uses this licence or registration number; "
+            "needs manual review"
+            if facts.duplicate_of_other_company
+            else "no other business uses this licence or registration number",
+        )
+    )
+    missing = sorted(REQUIRED_DOCS[facts.role] - facts.doc_types)
+    checks.append(
+        OnboardingCheck(
+            "DOC_PRESENT",
+            "FAIL" if missing else "PASS",
+            f"missing documents: {', '.join(missing)}"
+            if missing
+            else "required documents uploaded",
+        )
+    )
+    checks.append(
+        OnboardingCheck(
+            "DOC_HASH_REUSE",
+            "FAIL" if facts.reused_hash else "PASS",
+            "a document is byte-identical to one uploaded by another account"
+            if facts.reused_hash
+            else "no document was uploaded by another account",
+        )
+    )
+    checks.append(
+        OnboardingCheck(
+            "PHONE_VERIFIED",
+            "PASS" if facts.phone_verified else "FAIL",
+            "mobile number confirmed by code" if facts.phone_verified else "mobile not verified",
+        )
+    )
+    if facts.role == "BUYER" and facts.license_expiry is not None:
+        left = (facts.license_expiry - facts.today).days
+        if left < 0:
+            checks.append(OnboardingCheck("LICENSE_EXPIRY", "FAIL", "trade licence has expired"))
+        elif left <= 30:
+            checks.append(
+                OnboardingCheck("LICENSE_EXPIRY", "WARN", f"trade licence expires in {left} days")
+            )
+        else:
+            checks.append(OnboardingCheck("LICENSE_EXPIRY", "PASS", "trade licence is current"))
+    if facts.role == "SUPPLIER" and facts.holder_name:
+        status, detail = _name_status(facts.legal_name, facts.holder_name, th)
+        # a differing holder is a reviewer's call at onboarding (the Tier 3 name-mismatch rule
+        # applies later, per payment), so it warns instead of failing
+        checks.append(
+            OnboardingCheck(
+                "KYB_HOLDER_NAME",
+                "PASS" if status == "PASS" else "WARN",
+                f"holder vs legal: {detail}",
+            )
+        )
+        corporate = bool(COMPANY_MARKERS.search(facts.holder_name))
+        checks.append(
+            OnboardingCheck(
+                "KYB_ACCOUNT_TYPE",
+                "PASS" if corporate else "WARN",
+                "bank account holder looks like a company"
+                if corporate
+                else "bank account holder does not look like a company (personal account?)",
+            )
+        )
+        allowed = {c.upper() for c in allowed_countries}
+        country = (facts.swift_country or "").upper()
+        in_list = country in allowed or country == "HK"
+        checks.append(
+            OnboardingCheck(
+                "KYB_COUNTRY",
+                "PASS" if in_list else "WARN",
+                "bank country is supported"
+                if in_list
+                else "bank country is outside the supported list",
+            )
+        )
+    return OnboardingAssessment(tuple(checks), score_of(checks), recommend(checks))
+
+
+def risk_summary(checks: Sequence[OnboardingCheck]) -> Status:
+    """Worst status across the checks: FAIL > WARN > PASS."""
+    if any(c.status == "FAIL" for c in checks):
+        return "FAIL"
+    return "WARN" if any(c.status == "WARN" for c in checks) else "PASS"

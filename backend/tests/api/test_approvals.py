@@ -427,6 +427,15 @@ def test_the_otp_is_stored_only_as_a_hash() -> None:
 def test_with_demo_mode_off_no_otp_is_stored_or_served(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setenv("DEMO_MODE", "false")
     get_settings.cache_clear()
+    # DEMO_MODE=false also removes the demo login/cookie; the test still needs a session, so the
+    # login layer alone is told the demo is on while approvals and the OTP code see it off.
+    real = get_settings
+
+    def login_layer() -> object:
+        return real().model_copy(update={"demo_mode": True})
+
+    monkeypatch.setattr("app.auth.deps.get_settings", login_layer)
+    monkeypatch.setattr("app.main.get_settings", login_layer)
     karim, _deal_id, _ms, appr = big_deal_approval()
     with batch_session() as s:
         n = s.scalar(

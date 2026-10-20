@@ -9,8 +9,10 @@ class Role(StrEnum):
 
 
 class UserStatus(StrEnum):
-    PENDING = "PENDING"
+    PENDING_PROFILE = "PENDING_PROFILE"
+    PENDING_VERIFICATION = "PENDING_VERIFICATION"
     ACTIVE = "ACTIVE"
+    REJECTED = "REJECTED"
     SUSPENDED = "SUSPENDED"
 
 
@@ -23,6 +25,30 @@ class MemberRole(StrEnum):
 class OnboardingStatus(StrEnum):
     PENDING = "PENDING"
     APPROVED = "APPROVED"
+    REJECTED = "REJECTED"
+    CHANGES_REQUESTED = "CHANGES_REQUESTED"
+    SUSPENDED = "SUSPENDED"
+
+
+class OnboardingDecision(StrEnum):
+    APPROVED = "APPROVED"
+    CHANGES_REQUESTED = "CHANGES_REQUESTED"
+    REJECTED = "REJECTED"
+    SUSPENDED = "SUSPENDED"
+
+
+class VerificationDocType(StrEnum):
+    TRADE_LICENSE = "TRADE_LICENSE"
+    IRC = "IRC"
+    TIN_CERT = "TIN_CERT"
+    BUSINESS_LICENSE = "BUSINESS_LICENSE"
+    BANK_PROOF = "BANK_PROOF"
+    OTHER = "OTHER"
+
+
+class VerificationDocStatus(StrEnum):
+    UPLOADED = "UPLOADED"
+    VERIFIED = "VERIFIED"
     REJECTED = "REJECTED"
 
 
@@ -264,4 +290,3 @@ class RegistryPurpose(StrEnum):
 class RegistryStatus(StrEnum):
     ACTIVE = "ACTIVE"
     RELEASED = "RELEASED"
-

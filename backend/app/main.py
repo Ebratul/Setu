@@ -3,6 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import SecretStr
 
 from app.api import (
+    account,
     admin_onboarding,
     analysis,
     approvals,
@@ -34,6 +35,9 @@ from app.auth.deps import bind_actor
 from app.config import Settings, get_settings
 from app.demo.middleware import SandboxMiddleware
 from app.errors import install_handlers
+from app.security import crypto
+
+MIN_INVITE_CODE = 16
 
 
 def _long_secret(name: str, value: SecretStr | None) -> None:
@@ -46,6 +50,19 @@ def check_prod_settings(settings: Settings) -> None:
     missing secrets or an unconfigured mail provider."""
     if settings.auth_mode == "neon" and not settings.neon_auth_base_url:
         raise RuntimeError("NEON_AUTH_BASE_URL is required when AUTH_MODE=neon")
+    if any(len(c) < MIN_INVITE_CODE for c in settings.judge_codes):
+        raise RuntimeError(f"every JUDGE_INVITE_CODES entry needs >= {MIN_INVITE_CODE} characters")
+    key_set = settings.field_encryption_key is not None and bool(
+        settings.field_encryption_key.get_secret_value().strip()
+    )
+    if (
+        settings.sms_provider == "webhook"
+        and settings.app_env != "test"
+        and not (settings.sms_webhook_url or "").startswith("https://")
+    ):
+        raise RuntimeError("SMS_WEBHOOK_URL must be an https URL when SMS_PROVIDER=webhook")
+    if settings.auth_mode == "neon" and settings.app_env != "test" and not key_set:
+        raise RuntimeError("FIELD_ENCRYPTION_KEY is required when AUTH_MODE=neon")
     if settings.app_env != "prod":
         return
     if settings.auth_mode != "neon":
@@ -64,11 +81,25 @@ def check_prod_settings(settings: Settings) -> None:
         raise RuntimeError("DEMO_COOKIE_SECURE=true is required when APP_ENV=prod")
     if settings.demo_mode:
         raise RuntimeError("DEMO_MODE=false is required when APP_ENV=prod (no OTP in clear)")
+    if settings.demo_cookie_in_neon:
+        raise RuntimeError("DEMO_COOKIE_IN_NEON=false is required when APP_ENV=prod")
     if settings.cooling_off_seconds < 600:
         raise RuntimeError("COOLING_OFF_SECONDS must be >= 600 when APP_ENV=prod (SR-9)")
+    key = settings.field_encryption_key
+    if key is None or not key.get_secret_value().strip():
+        raise RuntimeError("FIELD_ENCRYPTION_KEY is required when APP_ENV=prod")
     _long_secret("OTP_SECRET_SEED", settings.otp_secret_seed)
     _long_secret("DOCUMENT_URL_SECRET", settings.document_url_secret)
     _long_secret("CRON_SECRET", settings.cron_secret)
+    if settings.sms_provider != "webhook":
+        raise RuntimeError("SMS_PROVIDER=webhook is required when APP_ENV=prod (codes are texted)")
+    token = settings.sms_webhook_token
+    if not (settings.sms_webhook_url or "").startswith("https://") or not (
+        token and token.get_secret_value().strip()
+    ):
+        raise RuntimeError(
+            "SMS_WEBHOOK_URL (https) and SMS_WEBHOOK_TOKEN are required when APP_ENV=prod"
+        )
     if settings.mail_provider != "resend":
         raise RuntimeError("MAIL_PROVIDER=resend is required when APP_ENV=prod (codes are emailed)")
     key = settings.mail_resend_api_key
@@ -95,6 +126,7 @@ def check_prod_settings(settings: Settings) -> None:
 def create_app() -> FastAPI:
     settings = get_settings()
     check_prod_settings(settings)
+    crypto.validate_configuration()  # a malformed FIELD_ENCRYPTION_KEY stops startup, not a request
     app = FastAPI(
         title="Setu Agent API",
         version=settings.app_version,
@@ -117,9 +149,10 @@ def create_app() -> FastAPI:
     install_handlers(app)
     app.include_router(health.router)
     app.include_router(auth.router)
-    if settings.auth_mode == "demo":
+    if settings.demo_login_enabled:  # demo login-as exists in the demo deployment only
         app.include_router(auth.demo_router)
     app.include_router(onboarding.router)
+    app.include_router(account.router)
     app.include_router(admin_onboarding.router)
     app.include_router(members.router)
     app.include_router(analysis.router)
@@ -134,7 +167,7 @@ def create_app() -> FastAPI:
     app.include_router(registry.router)
     app.include_router(risk.router)
     app.include_router(approvals.router)
-    if settings.auth_mode == "demo":
+    if settings.demo_login_enabled:
         app.include_router(demo.router)
     app.include_router(inbox.router)
     app.include_router(privacy.router)

@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/Button";
 import { Modal } from "@/components/ui/Modal";
 import { SimulatedBadge } from "@/components/ui/SimulatedBadge";
 import { useLang, useT } from "@/i18n";
+import { useMoneyGate } from "@/lib/useAccountGate";
 import type { Currency } from "@/lib/api/analysis";
 import { ApiError } from "@/lib/api/client";
 import {
@@ -44,6 +45,7 @@ export function ApplyDialog({
   onClose,
 }: Props) {
   const t = useT();
+  const gate = useMoneyGate();
   const { lang } = useLang();
   const [phase, setPhase] = useState<Phase>("confirm");
   const [problem, setProblem] = useState<string | null>(null);
@@ -166,7 +168,21 @@ export function ApplyDialog({
               <Button variant="secondary" onClick={() => onClose(false)}>
                 {t("common.cancel")}
               </Button>
-              <Button onClick={submit}>{t("fin.apply.confirm")}</Button>
+              <Button
+                onClick={submit}
+                disabled={!gate.allowed}
+                aria-describedby={gate.allowed ? undefined : "fin-apply-why"}
+              >
+                {t("fin.apply.confirm")}
+              </Button>
+              {gate.reason ? (
+                <p
+                  id="fin-apply-why"
+                  className="w-full text-right text-xs text-muted"
+                >
+                  {gate.reason}
+                </p>
+              ) : null}
             </>
           ) : null}
           {phase === "approved" ? (

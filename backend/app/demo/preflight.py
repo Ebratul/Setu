@@ -37,7 +37,8 @@ def script_digest() -> str:
 
 def prompts_digest() -> str:
     """Prompt files feed the fixture keys: when they change, fixtures must be re-recorded."""
-    # Order matters for the digest: agent prompts first, then llm/prompts/* by name (as before the split).
+    # Order matters for the digest: agent prompts first, then llm/prompts/* by name
+    # (as before the split).
     llm_prompts = sorted((AGENT_DIR / "app" / "llm" / "prompts").glob("*"))
     files = [RAG_AGENT_DIR / "app" / "agent" / "prompts.py", *llm_prompts]
     h = hashlib.sha256()

@@ -1,0 +1,72 @@
+---
+title: 供应商验证要求（中文）
+summary: 中国供应商需要提供的信息和文件，包括统一社会信用代码校验与银行账户规则。
+section: supplier
+order: 5
+roles: [supplier]
+routes: []
+tryIt: "/onboarding"
+related: [getting-started/creating-your-account, security/why-we-ask, buyer/verification-requirements]
+updated: 2026-10-21
+---
+
+## 简介 \{#what-it-is}
+
+供应商在接收模拟付款之前，需要由审核人验证公司。本页列出**企业信息**和**证件材料**两个步骤所要求的内容。
+
+## 适用对象 \{#who}
+
+<RoleBadge role="supplier" /> 自行创建账户的中国出口商。
+
+## 何时使用 \{#when}
+
+开始 `/onboarding` 之前，或审核人要求修改时。
+
+## 操作步骤 \{#how-to}
+
+<Steps>
+<Step title="准备好文件">
+需要**营业执照**和**银行账户证明**，其他证明文件可选。每个文件为 PDF、PNG 或 JPG，不超过 4 MB。
+<Screenshot name="supplier/verification-documents" route="/onboarding?step=documents" as="supplier" alt="证件材料步骤，营业执照和银行账户证明为必需项。" caption="必需文件。" />
+</Step>
+<Step title="填写公司信息">
+填写中文和英文公司名称、统一社会信用代码（USCC）、注册地址（省、市、区；街道可选）、经营范围、出口经验年数，以及可选的微信号和联系电话。
+<Screenshot name="supplier/verification-company" route="/onboarding?step=business" as="supplier" alt="企业信息步骤，含中英文公司名称和统一社会信用代码。" caption="公司信息。" />
+</Step>
+<Step title="添加银行账户">
+填写开户银行、账户户名、银行账号、账户币种（CNY 或 USD）和 SWIFT/BIC 代码。
+<Screenshot name="supplier/verification-bank" route="/onboarding?step=business" as="supplier" alt="企业信息步骤中的银行账户部分。" caption="银行账户。" />
+</Step>
+</Steps>
+
+## 结果说明 \{#results}
+
+| 字段 | Setu 检查的格式 |
+|---|---|
+| 统一社会信用代码 | 18 位，由数字和大写字母（不含 I、O、S、V、Z）组成，且校验位正确（GB 32100-2015）。 |
+| 银行账号 | 6 到 34 位字母或数字，不含空格。 |
+| SWIFT/BIC | 8 或 11 位，例如 `BKCHCNBJ`。 |
+| 账户币种 | CNY 或 USD。 |
+| 手机号 | 先写国家区号，例如 `+8613812345678`。 |
+
+提交后，审核人会看到自动检查结果：银行户名必须与公司名称一致，会检查账户类型和银行所在国家，同一份文件不能被其他账户重复使用。
+
+## 提示与常见错误 \{#tips}
+
+- 请从执照上原样复制统一社会信用代码，错一位校验就会失败。
+- 请使用公司本人名下的银行账户，个人账户会被标记。
+- 中文公司名称必须与执照完全一致。
+
+## 相关安全说明 \{#security}
+
+<Callout type="security">
+银行账号加密存储并以掩码显示。Setu 中的资金都是模拟的。
+</Callout>
+
+## 试一试 \{#try-it}
+
+<TryItButton href="/onboarding" />
+
+## 相关页面 \{#related}
+
+- [创建账户](/docs/zh/getting-started/creating-your-account)

@@ -1,7 +1,5 @@
-export const instant = false;
-
-import { OnboardingQueuePage } from "@/components/onboarding/OnboardingQueuePage";
+import { redirect } from "next/navigation";
 
 export default function Page() {
-  return <OnboardingQueuePage />;
+  redirect("/app/admin/verifications");
 }

@@ -12,7 +12,7 @@ from typing import cast
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from app.auth.deps import CurrentUser
+from app.auth.deps import CurrentUser, ensure_verified
 from app.db.enums import ApprovalAction, ApprovalStatus, FxLockStatus
 from app.db.models import ApprovalRequest, BankAccount, Deal, FxLock
 from app.domain import escrow as rules
@@ -50,6 +50,7 @@ def lock_fx(
     approval_id: uuid.UUID | None = None,
     now: datetime | None = None,
 ) -> FxLockOutcome:
+    ensure_verified(user)
     now = now or escrow_service.utcnow()
     probe = db.get(Deal, deal_id)
     if probe is None:

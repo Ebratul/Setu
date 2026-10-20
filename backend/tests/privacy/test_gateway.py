@@ -219,3 +219,99 @@ def test_a_surviving_identifier_blocks_the_call() -> None:
     with pytest.raises(PrivacyBlocked):
         gw.protect([HumanMessage("A/C 6222002144557788")], node="x")
     assert gw.calls[0].stats.leaked_count == 1
+
+
+# --- P30: Bangladesh mobile, trade licence / IRC / TIN, USCC -------------------------------------
+
+BIZ_DOC = (
+    "Buyer: Padma Textile Ltd\nTrade licence no: TL-2024/00123\nIRC No BD-IRC-998877\n"
+    "TIN: 123456789012\nSeller USCC 91350100M000100Y43\nContact 01712345678 / +8801812345678"
+)
+
+
+def test_business_identifiers_and_bd_mobiles_never_reach_the_model() -> None:
+    from app.privacy.detectors import BIZID
+
+    gw = PrivacyGateway()
+    [sent], call = gw.protect([HumanMessage(BIZ_DOC)], node="onboarding")
+    for raw in (
+        "TL-2024/00123",
+        "BD-IRC-998877",
+        "123456789012",
+        "91350100M000100Y43",
+        "01712345678",
+        "+8801812345678",
+    ):
+        assert raw not in sent.content, raw
+    assert call.stats.leaked_count == 0
+    assert {BIZID, PHONE} <= set(call.stats.masked_by_type)
+    assert "91350100M000100Y43" in gw.unmask(sent.content)
+
+
+@pytest.mark.parametrize(
+    "text",
+    [
+        "Trade Licence No. TL-2024/00123",
+        "trade license number: TL-2024/00123",
+        "IRC: BD-IRC-998877",
+        "Import Registration Certificate No BD-IRC-998877",
+        "TIN 123456789012",
+        "BIN: 000123456-0101",
+        "统一社会信用代码\uff1a91350100M000100Y43",
+        "USCC: 91350100M000100Y43",
+        "91350100M000100Y43",  # bare, but the check character is valid
+    ],
+)
+def test_business_identifier_detector(text: str) -> None:
+    from app.privacy.detectors import BIZID
+
+    assert BIZID in kinds(text), text
+
+
+@pytest.mark.parametrize(
+    "text",
+    ["91350100M000100Y44", "licence expires 2027-10-21", "Order SETU-2026-0001", "TIN is required"],
+)
+def test_business_identifier_detector_ignores_lookalikes(text: str) -> None:
+    from app.privacy.detectors import BIZID
+
+    assert BIZID not in kinds(text), text
+
+
+@pytest.mark.parametrize(
+    "text", ["01712345678", "+8801712345678", "+880 1712-345678", "০১৭১২৩৪৫৬৭৮", "01312345678"]
+)
+def test_bd_mobile_forms_are_phones(text: str) -> None:
+    assert kinds(text) == [PHONE], text
+
+
+def test_bd_mobile_lookalikes_are_not_phones() -> None:
+    assert PHONE not in kinds("01212345678")  # 012 is not an operator prefix
+    assert PHONE not in kinds("order 0171234567")  # one digit short
+
+
+def test_business_id_field_names_are_masked_in_structured_payloads() -> None:
+    gw = PrivacyGateway()
+    masked = gw.mask(
+        {
+            "trade_license_no": "TL-1",
+            "irc_no": "IRC-1",
+            "uscc": "X",
+            "tin": "9",
+            "mobile": "01712345678",
+            "trade_license_no_masked": "****0001",
+            "legal_name": "Padma",
+        }
+    )
+    assert all(
+        masked[k].startswith("⟦") for k in ("trade_license_no", "uscc", "tin", "mobile", "irc_no")
+    )
+    assert masked["legal_name"] == "Padma" and masked["trade_license_no_masked"] == "****0001"
+
+
+def test_audit_payloads_redact_business_ids() -> None:
+    from app.audit.mask import clean_payload
+
+    out = clean_payload({"note": "TIN: 123456789012 and USCC 91350100M000100Y43", "uscc": "abc"})
+    assert "123456789012" not in str(out) and "91350100M000100Y43" not in str(out)
+    assert out["uscc"] == "[redacted:BIZID]"

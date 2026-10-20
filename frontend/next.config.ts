@@ -6,6 +6,7 @@ const agentUrl = process.env.AGENT_URL ?? "http://localhost:8000";
 const agentPublic = process.env.NEXT_PUBLIC_AGENT_URL?.trim();
 const isDev = process.env.NODE_ENV !== "production";
 
+// Google sign-in is a top-level navigation started by the Neon SDK, so only form-action needs accounts.google.com.
 // 'unsafe-inline' scripts: Next injects inline bootstrap/hydration scripts; a nonce would force every page dynamic.
 const csp = [
   "default-src 'self'",
@@ -14,10 +15,10 @@ const csp = [
   "img-src 'self' data: blob:",
   "font-src 'self'",
   `connect-src 'self'${agentPublic ? ` ${agentPublic}` : ""}${isDev ? " ws: wss:" : ""}`,
-  "frame-src 'self'",
+  "frame-src 'self' blob:",
   "frame-ancestors 'self'",
   "base-uri 'self'",
-  "form-action 'self'",
+  "form-action 'self' https://accounts.google.com",
   "object-src 'none'",
 ].join("; ");
 

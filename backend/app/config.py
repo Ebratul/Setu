@@ -9,7 +9,8 @@ from pydantic import AliasChoices, Field, SecretStr
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 AGENT_DIR = Path(__file__).resolve().parent.parent  # the backend/ folder
-REPO_ROOT = AGENT_DIR.parent
+# In a staged bundle (Vercel) data/, docs/ and rag_agent/ sit inside backend/ itself.
+REPO_ROOT = AGENT_DIR if (AGENT_DIR / "rag_agent").is_dir() else AGENT_DIR.parent
 RAG_AGENT_DIR = REPO_ROOT / "rag_agent"
 
 
@@ -177,6 +178,32 @@ class Settings(BaseSettings):
     # Self-service onboarding (app/services/onboarding.py).
     onboarding_countries: str = "BD,CN"  # comma list of ISO-2 codes a party may register from
     onboarding_auto_approve: bool = False  # approve clean (AUTO_CLEAR) submissions without an admin
+    # P30 role gates: an allowlisted email becomes ADMIN on sign-up; an invite code makes a JUDGE.
+    admin_email_allowlist: str = ""  # comma list, case-insensitive
+    judge_invite_codes: SecretStr | None = None  # comma list
+    terms_version: str = "2026-10"
+    google_signin_enabled: bool | None = None  # None = on in neon mode
+    sms_provider: Literal["console", "webhook"] = "console"
+    sms_webhook_url: str | None = None  # POST {to, text, message_id}; https only in prod
+    sms_webhook_token: SecretStr | None = None
+    # Field encryption (app/security/crypto.py): comma list of Fernet keys, newest first.
+    field_encryption_key: SecretStr | None = None
+    phone_hash_secret: SecretStr | None = None  # falls back to OTP_SECRET_SEED
+    # Business-id formats (regex, applied to the upper-cased value without spaces).
+    bd_trade_license_regex: str = r"^[A-Z0-9][A-Z0-9/\-]{4,31}$"
+    bd_irc_regex: str = r"^[A-Z0-9][A-Z0-9/\-]{4,31}$"
+    bd_tin_regex: str = r"^\d{9,13}$"
+    phone_otp_ttl_seconds: int = Field(300, gt=0, le=900)
+    phone_otp_max_attempts: int = Field(5, gt=0, le=10)
+    phone_otp_max_sends: int = Field(3, gt=0, le=10)
+    phone_otp_send_window_seconds: int = Field(600, gt=0)
+    # P30 per-user / per-IP abuse limits (app/api/ratelimit.py `check_limit`).
+    rate_limit_auth_per_minute: int = Field(30, ge=1)  # /auth/session, callbacks
+    rate_limit_role_per_10min: int = Field(10, ge=1)  # role / invite-code attempts, per IP
+    rate_limit_onboarding_upload_per_hour: int = Field(10, ge=1)
+    rate_limit_submit_per_hour: int = Field(5, ge=1)
+    rate_limit_reveal_per_hour: int = Field(30, ge=1)
+    rate_limit_mfa_per_10min: int = Field(10, ge=1)
 
     @property
     def four_eyes_active(self) -> bool:
@@ -189,6 +216,40 @@ class Settings(BaseSettings):
         if self.auth_mode != "neon":
             return False
         return True if self.stepup_required is None else self.stepup_required
+
+    @property
+    def admin_allowlist(self) -> frozenset[str]:
+        return frozenset(
+            e.strip().lower() for e in self.admin_email_allowlist.split(",") if e.strip()
+        )
+
+    @property
+    def judge_codes(self) -> list[str]:
+        raw = self.judge_invite_codes.get_secret_value() if self.judge_invite_codes else ""
+        return [c.strip() for c in raw.split(",") if c.strip()]
+
+    # Opt-in to keep the seeded demo login/cookie next to Neon sign-in (staging only; never prod).
+    demo_cookie_in_neon: bool = False
+
+    @property
+    def demo_login_enabled(self) -> bool:
+        """The "login as" routes, the signed demo cookie and the MFA-exempt seeded admin exist only
+        in the demo deployment (AUTH_MODE=demo). With AUTH_MODE=neon they need the explicit
+        DEMO_COOKIE_IN_NEON flag as well, and never in prod."""
+        if not self.demo_mode or self.app_env == "prod":
+            return False
+        return self.auth_mode == "demo" or self.demo_cookie_in_neon
+
+    @property
+    def demo_enabled(self) -> bool:
+        """Demo conveniences that are not a login (OTP echo, auto-approve) need DEMO_MODE."""
+        return self.demo_mode and self.app_env != "prod"
+
+    @property
+    def google_enabled(self) -> bool:
+        if self.google_signin_enabled is not None:
+            return self.google_signin_enabled
+        return self.auth_mode == "neon"
 
     @property
     def onboarding_country_list(self) -> list[str]:

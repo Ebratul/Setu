@@ -29,7 +29,7 @@ from sqlalchemy import func, or_, select
 from sqlalchemy.orm import Session
 
 from app.audit import write_audit
-from app.auth.deps import CurrentUser
+from app.auth.deps import CurrentUser, ensure_verified
 from app.db.enums import (
     AccountStatus,
     Actor,
@@ -358,6 +358,7 @@ def fund_escrow(
     value at once. Omitted = the next tranche that is not yet covered. Tranches turn READY as the
     cumulative deposits cover them. `advance_over_20k` is set when the total deposited exceeds
     USD 20,000 (Phase 5.1 makes that a Tier 3 trigger)."""
+    ensure_verified(user)
     now = now or utcnow()
     probe = db.get(Deal, deal_id)
     if probe is None:
@@ -703,6 +704,7 @@ def release_tranche(
     APPROVED `ApprovalRequest` whose binding hash and tier are re-verified here. `origin` says who
     asked (the HTTP endpoints leave it USER_UI; the agent tools pass AGENT): an agent request can
     only ever create an ApprovalRequest, and an approval can only be executed by a person."""
+    ensure_verified(requested_by)
     now = now or utcnow()
     if approval_id is not None and origin != Origin.USER_UI:
         raise Forbidden("only a person can execute an approval", "APPROVAL_NOT_HUMAN")
@@ -1191,6 +1193,7 @@ def refund(
     the deal in DISPUTED (remaining open tranches FROZEN). A deal refund returns the whole escrow
     balance, REFUNDS the funded unsettled tranches, CANCELS the unfunded ones and cancels the
     deal."""
+    ensure_verified(user)
     if (milestone_id is None) == (deal_id is None):
         raise DomainError("give a milestone or a deal to refund", "INVALID_TARGET")
     now = now or utcnow()

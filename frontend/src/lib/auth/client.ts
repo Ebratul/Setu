@@ -25,25 +25,45 @@ export function getAuthClient(): NeonClient {
   return client;
 }
 
-let modePromise: Promise<AuthMode> | null = null;
+export type PublicAuthConfig = {
+  mode: AuthMode;
+  demoEnabled: boolean;
+  googleEnabled: boolean;
+};
 
-/** Which sign-in the backend runs. Cached for the page lifetime; a failed lookup is retried. */
-export function getAuthMode(): Promise<AuthMode> {
-  modePromise ??= fetch(`${API_BASE}/auth/config`, {
+let configPromise: Promise<PublicAuthConfig> | null = null;
+
+/** Public sign-in options from the API. Cached for the page lifetime; a failed lookup is retried. */
+export function getPublicAuthConfig(): Promise<PublicAuthConfig> {
+  configPromise ??= fetch(`${API_BASE}/auth/config`, {
     credentials: "same-origin",
     headers: { Accept: "application/json" },
     cache: "no-store",
   })
     .then(async (res) => {
       if (!res.ok) throw new Error(`auth config failed with ${res.status}`);
-      const body = (await res.json()) as { mode?: string };
-      return body.mode === "neon" ? "neon" : "demo";
+      const body = (await res.json()) as {
+        mode?: string;
+        demo_enabled?: boolean;
+        google_enabled?: boolean;
+      };
+      const mode: AuthMode = body.mode === "neon" ? "neon" : "demo";
+      return {
+        mode,
+        demoEnabled: body.demo_enabled ?? mode === "demo",
+        googleEnabled: body.google_enabled ?? mode === "neon",
+      };
     })
     .catch((e: unknown) => {
-      modePromise = null;
+      configPromise = null;
       throw e;
     });
-  return modePromise;
+  return configPromise;
+}
+
+/** Which sign-in the backend runs. */
+export function getAuthMode(): Promise<AuthMode> {
+  return getPublicAuthConfig().then((c) => c.mode);
 }
 
 type CachedToken = { token: string; expMs: number };
@@ -104,6 +124,6 @@ export async function endAuthSession(): Promise<void> {
 /** Test helper: resets module state. */
 export function resetAuthStateForTests(): void {
   client = null;
-  modePromise = null;
+  configPromise = null;
   clearAccessToken();
 }

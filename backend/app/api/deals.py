@@ -9,7 +9,7 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, Query, Response
 from sqlalchemy.orm import Session
 
-from app.auth.deps import CurrentUser, current_user, not_viewer
+from app.auth.deps import CurrentUser, current_user, verified_writer
 from app.config import get_settings
 from app.db.enums import DealStatus, EvidenceStatus
 from app.db.session import get_db
@@ -44,7 +44,7 @@ router = APIRouter(tags=["deals"])
 
 Db = Annotated[Session, Depends(get_db)]
 User = Annotated[CurrentUser, Depends(current_user)]
-Writer = Annotated[CurrentUser, Depends(not_viewer)]
+Writer = Annotated[CurrentUser, Depends(verified_writer)]  # 403 ACCOUNT_NOT_VERIFIED
 DealRef = Annotated[str, Query(max_length=64, pattern=r"^[A-Za-z0-9-]+$")]
 
 

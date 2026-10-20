@@ -9,12 +9,15 @@ from sqlalchemy import (
     Date,
     DateTime,
     ForeignKey,
+    Index,
     Integer,
+    LargeBinary,
     SmallInteger,
     String,
     Text,
     UniqueConstraint,
     Uuid,
+    text,
 )
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import Mapped, mapped_column
@@ -26,10 +29,13 @@ from app.db.enums import (
     KybStatus,
     Language,
     MemberRole,
+    OnboardingDecision,
     OnboardingStatus,
     PartyKind,
     Role,
     UserStatus,
+    VerificationDocStatus,
+    VerificationDocType,
 )
 
 
@@ -55,7 +61,19 @@ class Party(Base):
     )
     tax_id: Mapped[str | None] = mapped_column(String(32))
     onboarded_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    # HMAC-SHA256 of the normalised trade licence (buyer) / USCC (supplier); set when ACTIVE.
+    dedupe_key: Mapped[str | None] = mapped_column(CHAR(64))
     created_at: Mapped[Created]
+
+    __table_args__ = (
+        Index(
+            "uq_parties_kind_dedupe_key",
+            "kind",
+            "dedupe_key",
+            unique=True,
+            postgresql_where=text("dedupe_key IS NOT NULL"),
+        ),
+    )
 
 
 class User(Base):
@@ -79,12 +97,23 @@ class User(Base):
     )
     last_login_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     mfa_enabled: Mapped[bool] = mapped_column(Boolean, default=False, server_default="false")
+    email_verified_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    # Fernet ciphertext of the TOTP secret; `mfa_enabled` only turns true after a first valid code.
+    mfa_secret_encrypted: Mapped[bytes | None] = mapped_column(LargeBinary)
+    mfa_recovery_hashes: Mapped[list[str] | None] = mapped_column(JSONB)
+    mfa_last_step: Mapped[int | None] = mapped_column(BigInteger)  # TOTP replay guard
+    terms_accepted_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    privacy_accepted_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    terms_version: Mapped[str | None] = mapped_column(String(32))
+    deleted_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    auth_provider: Mapped[str | None] = mapped_column(String(32))
     created_at: Mapped[Created]
 
     def __init__(self, **kw: Any) -> None:
-        """Real (non-demo) accounts start PENDING until activated; seeded demo users are ACTIVE."""
+        """Real (non-demo) accounts start PENDING_PROFILE until verified; seeded demo users are
+        ACTIVE."""
         if not kw.get("is_demo", True):
-            kw.setdefault("status", UserStatus.PENDING)
+            kw.setdefault("status", UserStatus.PENDING_PROFILE)
         super().__init__(**kw)
 
 
@@ -97,7 +126,11 @@ class BankAccount(Base):
     party_id: Mapped[uuid.UUID] = mapped_column(Uuid, ForeignKey("parties.id"), index=True)
     bank_name: Mapped[str] = mapped_column(String(120))
     bank_country: Mapped[str] = mapped_column(CHAR(2))
+    # Onboarded accounts keep the masked value here ("****1234"); the full number is only in
+    # `account_number_encrypted` (Fernet) with `account_number_hmac` as a blind index.
     account_number: Mapped[str] = mapped_column(String(64))
+    account_number_encrypted: Mapped[bytes | None] = mapped_column(LargeBinary)
+    account_number_hmac: Mapped[str | None] = mapped_column(CHAR(64), index=True)
     holder_name: Mapped[str] = mapped_column(String(200))
     account_type: Mapped[AccountType] = mapped_column(str_enum(AccountType, "account_type"))
     currency: Mapped[str] = mapped_column(CHAR(3))
@@ -176,14 +209,84 @@ class OnboardingReview(Base):
     reason: Mapped[str | None] = mapped_column(Text)
 
 
+class OnboardingProfile(Base):
+    """The multi-step onboarding draft/submission of one user. `data` holds non-sensitive and masked
+    values only; `secure` is Fernet-encrypted JSON of the sensitive ones (full phone, licence/IRC/
+    TIN/USCC numbers, bank account number)."""
+
+    __tablename__ = "onboarding_profiles"
+
+    id: Mapped[UUIDPk]
+    user_id: Mapped[uuid.UUID] = mapped_column(Uuid, ForeignKey("users.id"), unique=True)
+    role: Mapped[Role] = mapped_column(str_enum(Role, "onboarding_profile_role"))
+    step: Mapped[int] = mapped_column(SmallInteger, default=0, server_default="0")
+    data: Mapped[dict[str, Any]] = mapped_column(JSONB, default=dict)
+    secure: Mapped[bytes | None] = mapped_column(LargeBinary)
+    submitted_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    reviewed_by: Mapped[uuid.UUID | None] = mapped_column(Uuid, ForeignKey("users.id"))
+    reviewed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    review_notes: Mapped[str | None] = mapped_column(Text)
+    decision: Mapped[OnboardingDecision | None] = mapped_column(
+        str_enum(OnboardingDecision, "onboarding_decision")
+    )
+    change_requests: Mapped[list[dict[str, Any]]] = mapped_column(JSONB, default=list)
+    revision: Mapped[int] = mapped_column(Integer, default=0, server_default="0")
+    created_at: Mapped[Created]
+
+
+class VerificationDocument(Base):
+    """A business document uploaded for verification; the file lives in private storage."""
+
+    __tablename__ = "verification_documents"
+
+    id: Mapped[UUIDPk]
+    user_id: Mapped[uuid.UUID] = mapped_column(Uuid, ForeignKey("users.id"), index=True)
+    profile_id: Mapped[uuid.UUID] = mapped_column(
+        Uuid, ForeignKey("onboarding_profiles.id"), index=True
+    )
+    type: Mapped[VerificationDocType] = mapped_column(
+        str_enum(VerificationDocType, "verification_doc_type")
+    )
+    storage_key: Mapped[str] = mapped_column(String(200))
+    original_name: Mapped[str] = mapped_column(String(160))
+    mime: Mapped[str] = mapped_column(String(64))
+    size: Mapped[int] = mapped_column(Integer)
+    sha256: Mapped[str] = mapped_column(CHAR(64), index=True)
+    status: Mapped[VerificationDocStatus] = mapped_column(
+        str_enum(VerificationDocStatus, "verification_doc_status"),
+        default=VerificationDocStatus.UPLOADED,
+    )
+    reviewer_notes: Mapped[str | None] = mapped_column(Text)
+    created_at: Mapped[Created]
+
+
+class PhoneVerification(Base):
+    """One emailed/SMS code for a phone number (HMAC only, single use)."""
+
+    __tablename__ = "phone_verifications"
+
+    id: Mapped[UUIDPk]
+    user_id: Mapped[uuid.UUID] = mapped_column(Uuid, ForeignKey("users.id"), index=True)
+    phone_masked: Mapped[str] = mapped_column(String(32))
+    phone_hash: Mapped[str] = mapped_column(CHAR(64))
+    code_hash: Mapped[str] = mapped_column(CHAR(64))
+    expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    attempts: Mapped[int] = mapped_column(SmallInteger, default=0, server_default="0")
+    verified_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    created_at: Mapped[Created]
+
+
 __all__ = [
     "BankAccount",
     "KybCheck",
     "KybRun",
+    "OnboardingProfile",
     "OnboardingReview",
     "Party",
     "PartyMember",
+    "PhoneVerification",
     "User",
+    "VerificationDocument",
 ]
 
 

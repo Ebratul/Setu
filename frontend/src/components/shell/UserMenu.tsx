@@ -38,6 +38,18 @@ export function UserMenu() {
           </span>
         </span>
       ) : null}
+      {user ? (
+        <Link
+          href={
+            user.role === "SUPPLIER"
+              ? "/supplier/settings/account"
+              : "/app/settings/account"
+          }
+          className="inline-flex min-h-11 items-center rounded-md px-2 py-1 font-semibold text-brand-text underline focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:outline-none"
+        >
+          {t("as.menu")}
+        </Link>
+      ) : null}
       <Link
         href="/login"
         className="inline-flex min-h-11 items-center rounded-md px-2 py-1 font-semibold text-brand-text underline focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:outline-none"

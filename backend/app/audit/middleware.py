@@ -17,13 +17,20 @@ class AuditActorMiddleware:
         if scope["type"] != "http":
             await self.app(scope, receive, send)
             return
+        from starlette.requests import Request
+
         from app.auth.demo import COOKIE_NAME, parse_token
+        from app.auth.deps import _bearer
         from app.config import get_settings
 
-        if get_settings().auth_mode != "demo":  # bind_actor sets the actor from the bearer
+        if not get_settings().demo_login_enabled:  # the cookie is only believed in the demo
             await self.app(scope, receive, send)
             return
-        raw = dict(scope["headers"]).get(b"cookie", b"").decode("latin-1")
+        headers = dict(scope["headers"])
+        if get_settings().auth_mode == "neon" and _bearer(Request(scope)) is not None:
+            await self.app(scope, receive, send)  # bearer wins; bind_actor sets the actor
+            return
+        raw = headers.get(b"cookie", b"").decode("latin-1")
         cookie: SimpleCookie = SimpleCookie()
         try:
             cookie.load(raw)

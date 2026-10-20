@@ -6,7 +6,7 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, Response
 from sqlalchemy.orm import Session
 
-from app.api.guards import require_stepup
+from app.api.guards import require_verified_stepup
 from app.auth.deps import CurrentUser, current_user
 from app.db.session import get_db
 from app.schemas.onboarding import InviteIn, MemberList, MemberOut
@@ -16,7 +16,7 @@ router = APIRouter(prefix="/parties", tags=["members"])
 
 Db = Annotated[Session, Depends(get_db)]
 User = Annotated[CurrentUser, Depends(current_user)]
-StepUpUser = Annotated[CurrentUser, Depends(require_stepup)]
+StepUpUser = Annotated[CurrentUser, Depends(require_verified_stepup)]
 
 
 @router.get("/{party_id}/members", response_model=MemberList)

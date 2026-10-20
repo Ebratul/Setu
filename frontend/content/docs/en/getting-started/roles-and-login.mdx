@@ -1,6 +1,6 @@
 ---
 title: Roles and sign-in
-summary: The four roles in Setu, how to sign in, register, verify your email, reset a password and follow your company review.
+summary: The four roles in Setu, how to sign in with Google or email, verify your email, reset a password and follow your company review.
 section: getting-started
 order: 20
 roles: [buyer, supplier, admin, judge]
@@ -28,7 +28,7 @@ Setu has four roles. What you can see and do depends on your role. There are two
 The `/login` page checks which mode the deployment uses.
 
 - **Demo mode.** The page title is "Log in as a demo user". It lists pre-made sandbox accounts, each with a "Log in" button. No password. A note says this screen "does not exist in a real deployment".
-- **Real sign-in.** The title is "Sign in". Enter your email and password.
+- **Real sign-in.** The title is "Sign in". Press **Continue with Google**, or enter your email and password. A **Demo accounts** list appears below only when the deployment also has demo mode switched on.
 
 The pages `/register`, `/forgot-password`, `/reset-password`, `/verify-email`, `/onboarding`, `/onboarding/status` and `/account-status` only work when real sign-in is enabled. In demo mode they show a short note with a link to the demo login.
 
@@ -55,24 +55,23 @@ Choose "Forgot your password?", enter your email and press "Send reset link". Th
 
 KYB means "know your business": checking that a company is real. A new sign-in cannot use trade features until a person at Setu approves the company.
 
-1. On `/onboarding` fill four steps: account type and your name (Buyer or Supplier), company, bank account, review and submit.
-2. Press "Submit for review". Setu runs automatic checks and shows them on `/onboarding/status`.
-3. The status page refreshes about every 20 seconds. When it says "Approved", Setu opens your session.
+1. After your first sign-in `/onboarding` walks you through six steps: **Your role**, **Contact and phone**, **Business**, **Documents**, **Security and consent** and **Review and submit**. Your progress is saved, so you can leave and come back. The full walk-through is in [Creating your account](/docs/en/getting-started/creating-your-account).
+2. Press **Submit for verification**. Setu runs automatic checks and shows your progress on `/onboarding/status` ("Verification in progress").
+3. The status page refreshes about every 20 seconds. When a reviewer approves you, Setu opens your workspace. If the reviewer asks for changes, the page lists each field or document with a **Fix this** link.
 
 <Screenshot name="getting-started/onboarding-status" route="/onboarding/status" as="buyer" alt="The application status page showing Waiting for review and a list of automatic checks with passed or needs attention labels." caption="Review status and automatic checks." />
 
 The checks include tax ID format, whether the account holder matches the company name, bank account type, licence name, country and bank country. The holder name must match the company legal name, otherwise the application gets a closer review. A sanctions check also runs but is hidden from the applicant's list.
 
-`/account-status` explains why you cannot enter yet: no Setu account, awaiting verification, or suspended. A rejected application shows the reviewer's reason.
+`/account-status` explains why you cannot enter yet: no Setu account, awaiting verification, or suspended. A rejected or suspended account shows the reviewer's reason.
 
-{/* REVIEW: the "No Setu account yet" text on /account-status still says "Company onboarding is coming" although onboarding exists. Text comes from the app i18n; confirm or update. */}
 {/* REVIEW: not verified where a signed-in user with no company is redirected automatically; described only from the page texts. */}
 
 ## Tips and common mistakes \{#tips}
 
 - "Too many attempts": wait a few minutes.
 - "Your email is not verified yet": finish the 6-digit code step first.
-- Admin and Judge cannot be chosen at onboarding. Those accounts are not self-service.
+- Administrator is only offered to pre-approved staff emails and needs two-factor authentication. Judge needs an invite code from the organisers. Everyone else chooses Buyer or Supplier.
 
 ## Related security notes \{#security}
 

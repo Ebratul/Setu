@@ -31,7 +31,15 @@ export function AuthShell({ title, lead, neonOnly = false, children }: Props) {
   let body: ReactNode;
   if (failed) {
     body = (
-      <Alert tone="danger" urgent action={<Button size="sm" onClick={retry}>{t("common.retry")}</Button>}>
+      <Alert
+        tone="danger"
+        urgent
+        action={
+          <Button size="sm" onClick={retry}>
+            {t("common.retry")}
+          </Button>
+        }
+      >
         {t("auth.configError")}
       </Alert>
     );
@@ -56,14 +64,16 @@ export function AuthShell({ title, lead, neonOnly = false, children }: Props) {
           <span className="text-lg font-bold text-brand-text">Setu সেতু</span>
           <div className="flex items-center gap-3">
             <SimulatedBadge />
-            <LanguageToggle />
+            <LanguageToggle withZh />
           </div>
         </div>
       </header>
       <main id="main" className="mx-auto w-full max-w-2xl flex-1 px-4 py-10">
-        <BackButton fallbackHref="/" className="-ml-2 mb-4" />
+        <BackButton href="/" className="mb-4 -ml-2" />
         <h1 className="text-2xl font-bold text-ink">{title}</h1>
-        {lead && mode === "neon" ? <p className="mt-2 text-sm text-muted">{lead}</p> : null}
+        {lead && mode === "neon" ? (
+          <p className="mt-2 text-sm text-muted">{lead}</p>
+        ) : null}
         <div className="mt-6" aria-busy={mode === null && !failed}>
           {body}
         </div>

@@ -198,6 +198,24 @@ Open http://localhost:3000/demo for the guided 12-step walkthrough, or log in wi
 For the simulated SMS panel and the scam simulator, set `DEMO_MODE=true` (with `APP_ENV` = `dev` and `AUTH_MODE=demo`; see
 `docs/demo.md`). Real sign-in (`AUTH_MODE=neon`) needs a Neon Auth project: see `docs/auth.md`.
 
+### Google sign-in (real accounts)
+
+Google is a social provider inside **Neon Auth**, so the Google client id and secret are entered in the Neon console and never
+appear in our env files. Design and API: [`docs/p30-design.md`](docs/p30-design.md).
+
+1. Google Cloud Console: create a project, then **APIs & Services > OAuth consent screen**. User type External, app name,
+   support email, authorised domain (your production domain). Scopes: only `openid`, `email`, `profile`. While the status is
+   *Testing*, add every tester under **Test users**; set it to *In production* to let anyone sign in.
+2. **Credentials > Create credentials > OAuth client ID**, type *Web application*. Authorised redirect URIs: copy the exact
+   callback URL shown in the Neon console (Neon Auth > Configuration > OAuth providers > Google). Authorised JavaScript origins:
+   `http://localhost:3000` and your production origin.
+3. Neon console: enable Google, paste the client id and secret, add `http://localhost:3000` and the production origin to the
+   trusted origins, and keep account linking off for unverified providers.
+4. Set (names only; see the `.env.example` files): `NEON_AUTH_BASE_URL`, `NEON_AUTH_COOKIE_SECRET` (frontend);
+   `AUTH_MODE=neon`, `NEON_AUTH_BASE_URL`, `FIELD_ENCRYPTION_KEY`, `ADMIN_EMAIL_ALLOWLIST`, `JUDGE_INVITE_CODES`,
+   `DEMO_MODE=false` (backend).
+5. First admin: put the admin's Google email in `ADMIN_EMAIL_ALLOWLIST`; they must enable TOTP before any admin access.
+
 ## Deployment
 
 Runbook with variable names only: [`docs/deploy-prod.md`](docs/deploy-prod.md). Two shapes are supported:

@@ -5,13 +5,17 @@ import { usePathname, useRouter } from "next/navigation";
 import { useEffect, type ReactNode } from "react";
 
 import { DocHint } from "@/components/docs/DocHint";
+import { NotVerifiedListener } from "@/components/shell/NotVerifiedListener";
 import { TopBar } from "@/components/shell/TopBar";
+import { VerificationBanner } from "@/components/shell/VerificationBanner";
+import { WelcomeTour } from "@/components/shell/WelcomeTour";
 import { QueryError } from "@/components/ui/QueryError";
 import { BackButton } from "@/components/ui/BackButton";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { ToastProvider } from "@/components/ui/Toast";
 import { useT } from "@/i18n";
 import { getMe } from "@/lib/api/auth";
+import { MeContext } from "@/lib/MeContext";
 import { useApi } from "@/lib/useApi";
 import { useDigits } from "@/lib/useDigits";
 import { useEmbed } from "@/lib/useEmbed";
@@ -59,13 +63,16 @@ export function SupplierShell({ children }: { children: ReactNode }) {
         {pathname !== "/supplier" ? (
           <BackButton fallbackHref="/supplier" className="-ml-2 mb-2" />
         ) : null}
+        <VerificationBanner user={me.data} />
         <DocHint userId={me.data?.id} />
         {me.error ? (
           <QueryError error={me.error} onRetry={me.reload} />
         ) : me.loading || wrongRole ? (
           <Skeleton className="h-64" />
         ) : (
-          <div key={digits}>{children}</div>
+          <MeContext.Provider value={me.data}>
+            <div key={digits}>{children}</div>
+          </MeContext.Provider>
         )}
       </main>
       <footer className="px-4 py-6 text-center text-sm text-muted">
@@ -74,6 +81,8 @@ export function SupplierShell({ children }: { children: ReactNode }) {
           {t("docs.title")}
         </Link>
       </footer>
+      <NotVerifiedListener />
+      <WelcomeTour user={me.data} />
     </ToastProvider>
   );
 }

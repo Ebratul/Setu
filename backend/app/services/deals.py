@@ -15,7 +15,7 @@ from sqlalchemy import select, text
 from sqlalchemy.orm import Session
 
 from app.audit.timeline import describe_entry
-from app.auth.deps import CurrentUser
+from app.auth.deps import CurrentUser, ensure_verified
 from app.config import get_settings
 from app.db import tenancy
 from app.db.enums import (
@@ -133,6 +133,7 @@ def find_milestone(
 def create_deal(db: Session, user: CurrentUser, req: CreateDealRequest) -> Deal:
     """New DRAFT deal with its landed-cost lines, then a KYB run for the supplier on this deal
     (stored as `kyb_run_id`). A buyer creates for its own business; an admin names the buyer."""
+    ensure_verified(user)
     if user.role == Role.BUYER and user.party_id is not None:
         if req.buyer_id not in (None, user.party_id):
             raise Forbidden("you can only create deals for your own business")
@@ -267,6 +268,7 @@ def propose_milestones(
     Replacing resets both confirmations. SR-1 lists schedule creation/change as Tier 2: a person's
     own request here is the one-tap (audited as a RISK_DECISION); from the agent it only creates an
     ApprovalRequest (`ApprovalPending`). Both parties must still confirm."""
+    ensure_verified(user)
     probe = db.get(Deal, deal_id)
     if probe is None:
         raise NotFound("deal not found")
@@ -387,6 +389,7 @@ def confirm_milestones(
 ) -> Deal:
     """Record this party's confirmation of the current schedule (idempotent per party). When both
     BUYER and SUPPLIER have confirmed the deal becomes CONFIRMED and the tranches are locked."""
+    ensure_verified(user)
     probe = db.get(Deal, deal_id)
     if probe is None:
         raise NotFound("deal not found")

@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation";
-import type { ReactNode } from "react";
+import { Suspense, type ReactNode } from "react";
 
 import { DocsFrame } from "@/components/docs/DocsFrame";
 import { buildNav, langsByPage } from "@/lib/docs/nav";
@@ -9,7 +9,17 @@ export function generateStaticParams() {
   return DOC_LANGS.map((lang) => ({ lang }));
 }
 
-export default async function DocsLangLayout({ children, params }: { children: ReactNode; params: Promise<{ lang: string }> }) {
+type LayoutProps = { children: ReactNode; params: Promise<{ lang: string }> };
+
+export default function DocsLangLayout(props: LayoutProps) {
+  return (
+    <Suspense fallback={null}>
+      <DocsLangContent {...props} />
+    </Suspense>
+  );
+}
+
+async function DocsLangContent({ children, params }: LayoutProps) {
   const { lang } = await params;
   if (!isDocLang(lang)) notFound();
   return (
