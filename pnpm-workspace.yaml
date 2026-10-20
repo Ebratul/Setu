@@ -2,5 +2,6 @@ packages:
   - frontend
 
 allowBuilds:
+  core-js: false
   sharp: false
   unrs-resolver: false

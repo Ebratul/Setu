@@ -9,14 +9,8 @@ import { Skeleton } from "@/components/ui/Skeleton";
 import { QueryError } from "@/components/ui/QueryError";
 import { useT } from "@/i18n";
 import { demoLogin, getDemoUsers } from "@/lib/api/auth";
+import { safeNext } from "@/lib/auth/flow";
 import { useApi } from "@/lib/useApi";
-
-function safeNext(next: string | null, role: string) {
-  if (role === "SUPPLIER") {
-    return next && /^\/supplier(\/|$)/.test(next) ? next : "/supplier";
-  }
-  return next && /^\/app(\/|$)/.test(next) ? next : "/app";
-}
 
 export function LoginPanel() {
   const t = useT();

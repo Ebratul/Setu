@@ -2113,5 +2113,105 @@
       "highlightFound": "Entry #{seq} is in your log and its hash matches the receipt.",
       "highlightMissing": "Entry #{seq} is not in this log."
     }
+  },
+  "auth": {
+    "signIn": {
+      "title": "Sign in",
+      "lead": "Use the email and password of your Setu sign-in.",
+      "email": "Email",
+      "password": "Password",
+      "submit": "Sign in",
+      "submitting": "Signing in...",
+      "forgot": "Forgot your password?",
+      "noAccount": "New to Setu?",
+      "register": "Create a sign-in",
+      "verifiedNote": "Email verified. Please sign in."
+    },
+    "register": {
+      "title": "Create your sign-in",
+      "lead": "This creates your personal sign-in only. Your company profile is reviewed next, and until then you cannot use trade features.",
+      "name": "Full name",
+      "email": "Email",
+      "password": "Password",
+      "submit": "Create sign-in",
+      "submitting": "Creating...",
+      "haveAccount": "Already have a sign-in?",
+      "signIn": "Sign in",
+      "required": "required"
+    },
+    "strength": {
+      "label": "Password strength: {level}",
+      "weak": "weak",
+      "fair": "fair",
+      "strong": "strong",
+      "hint": "Use at least 8 characters; mix letters, numbers and symbols."
+    },
+    "verify": {
+      "title": "Verify your email",
+      "lead": "We sent a 6-digit code to {email}. Enter it below.",
+      "noEmail": "Enter the email you registered with.",
+      "email": "Email",
+      "code": "Verification code",
+      "submit": "Verify email",
+      "submitting": "Verifying...",
+      "resend": "Send a new code",
+      "resent": "A new code was sent.",
+      "back": "Back to sign in"
+    },
+    "forgot": {
+      "title": "Reset your password",
+      "lead": "Enter your email and we will send you a link to choose a new password.",
+      "email": "Email",
+      "submit": "Send reset link",
+      "submitting": "Sending...",
+      "sent": "If an account exists for that email, a reset link is on its way.",
+      "back": "Back to sign in"
+    },
+    "reset": {
+      "title": "Choose a new password",
+      "lead": "Pick a new password for your Setu sign-in.",
+      "password": "New password",
+      "confirm": "Confirm new password",
+      "submit": "Save password",
+      "submitting": "Saving...",
+      "mismatch": "The two passwords do not match.",
+      "done": "Your password was changed. You can sign in now.",
+      "missingToken": "This reset link is incomplete or has expired. Request a new one.",
+      "requestNew": "Request a new link",
+      "signIn": "Go to sign in"
+    },
+    "status": {
+      "title": "Your sign-in is not active yet",
+      "notOnboarded": {
+        "title": "No Setu account yet",
+        "body": "Your sign-in works, but it has no Setu account attached. Company onboarding is coming; until then there is nothing more you can do here."
+      },
+      "pending": {
+        "title": "Awaiting verification",
+        "body": "Your company profile is waiting to be verified. We will let you in once the review is complete."
+      },
+      "suspended": {
+        "title": "Account suspended",
+        "body": "This account is suspended. Please contact Setu support."
+      },
+      "signOut": "Sign out",
+      "signingOut": "Signing out..."
+    },
+    "unavailable": {
+      "body": "This page is only used when real sign-in is enabled. This deployment uses demo accounts.",
+      "toLogin": "Go to the demo login"
+    },
+    "err": {
+      "generic": "Something went wrong. Please try again.",
+      "invalid": "The email or password is not correct.",
+      "unverified": "Your email is not verified yet.",
+      "exists": "A sign-in with this email already exists. Try signing in instead.",
+      "passwordLength": "The password length is not allowed. Use 8 to 128 characters.",
+      "otp": "That code is wrong or has expired. Request a new one.",
+      "tooMany": "Too many attempts. Wait a few minutes and try again.",
+      "resetToken": "This reset link is invalid or has expired.",
+      "session": "Your session could not be confirmed. Please sign in again."
+    },
+    "configError": "Could not load the sign-in settings."
   }
 }

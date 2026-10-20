@@ -792,5 +792,105 @@
       "highlightFound": "条目 #{seq} 在您的日志中，且其哈希与回执一致。",
       "highlightMissing": "此日志中没有条目 #{seq}。"
     }
+  },
+  "auth": {
+    "signIn": {
+      "title": "登录",
+      "lead": "请使用您的 Setu 登录邮箱和密码。",
+      "email": "邮箱",
+      "password": "密码",
+      "submit": "登录",
+      "submitting": "正在登录...",
+      "forgot": "忘记密码?",
+      "noAccount": "初次使用 Setu?",
+      "register": "创建登录账号",
+      "verifiedNote": "邮箱已验证,请登录。"
+    },
+    "register": {
+      "title": "创建登录账号",
+      "lead": "此步骤只创建您的个人登录账号。随后将审核您的公司资料,在此之前无法使用贸易功能。",
+      "name": "姓名",
+      "email": "邮箱",
+      "password": "密码",
+      "submit": "创建登录账号",
+      "submitting": "正在创建...",
+      "haveAccount": "已有登录账号?",
+      "signIn": "登录",
+      "required": "必填"
+    },
+    "strength": {
+      "label": "密码强度:{level}",
+      "weak": "弱",
+      "fair": "一般",
+      "strong": "强",
+      "hint": "至少 8 个字符,建议混合字母、数字和符号。"
+    },
+    "verify": {
+      "title": "验证您的邮箱",
+      "lead": "我们已向 {email} 发送 6 位验证码,请在下方输入。",
+      "noEmail": "请输入注册时使用的邮箱。",
+      "email": "邮箱",
+      "code": "验证码",
+      "submit": "验证邮箱",
+      "submitting": "正在验证...",
+      "resend": "重新发送验证码",
+      "resent": "已发送新的验证码。",
+      "back": "返回登录"
+    },
+    "forgot": {
+      "title": "重置密码",
+      "lead": "输入邮箱,我们会发送设置新密码的链接。",
+      "email": "邮箱",
+      "submit": "发送重置链接",
+      "submitting": "正在发送...",
+      "sent": "如果该邮箱存在账号,重置链接已发出。",
+      "back": "返回登录"
+    },
+    "reset": {
+      "title": "设置新密码",
+      "lead": "为您的 Setu 登录账号设置新密码。",
+      "password": "新密码",
+      "confirm": "确认新密码",
+      "submit": "保存密码",
+      "submitting": "正在保存...",
+      "mismatch": "两次输入的密码不一致。",
+      "done": "密码已修改,现在可以登录。",
+      "missingToken": "此重置链接不完整或已过期,请重新申请。",
+      "requestNew": "重新申请链接",
+      "signIn": "前往登录"
+    },
+    "status": {
+      "title": "您的登录账号尚未启用",
+      "notOnboarded": {
+        "title": "尚无 Setu 账户",
+        "body": "您的登录有效,但尚未关联 Setu 账户。公司入驻功能即将推出,在此之前您无需进行其他操作。"
+      },
+      "pending": {
+        "title": "等待验证",
+        "body": "您的公司资料正在等待验证,审核完成后即可进入。"
+      },
+      "suspended": {
+        "title": "账户已暂停",
+        "body": "此账户已被暂停,请联系 Setu 支持。"
+      },
+      "signOut": "退出登录",
+      "signingOut": "正在退出..."
+    },
+    "unavailable": {
+      "body": "此页面仅在启用真实登录时使用。本部署使用演示账号。",
+      "toLogin": "前往演示登录"
+    },
+    "err": {
+      "generic": "出现问题,请重试。",
+      "invalid": "邮箱或密码不正确。",
+      "unverified": "您的邮箱尚未验证。",
+      "exists": "该邮箱已有登录账号,请直接登录。",
+      "passwordLength": "密码长度不符合要求,请使用 8 到 128 个字符。",
+      "otp": "验证码错误或已过期,请重新获取。",
+      "tooMany": "尝试次数过多,请几分钟后再试。",
+      "resetToken": "此重置链接无效或已过期。",
+      "session": "无法确认您的会话,请重新登录。"
+    },
+    "configError": "无法加载登录设置。"
   }
 }

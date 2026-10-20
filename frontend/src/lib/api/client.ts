@@ -1,3 +1,5 @@
+import { clearAccessToken, getAccessToken, getAuthMode } from "@/lib/auth/client";
+
 import type { components } from "./schema.gen";
 
 export type HealthResponse = components["schemas"]["HealthResponse"];
@@ -54,17 +56,44 @@ async function toError(method: string, path: string, res: Response) {
   );
 }
 
+/** Bearer token in neon mode; null in demo mode (cookie auth) or when signed out. */
+async function bearer(path: string, force: boolean): Promise<string | null> {
+  if (path === "/auth/config") return null;
+  try {
+    if ((await getAuthMode()) !== "neon") return null;
+  } catch {
+    return null;
+  }
+  return getAccessToken({ force });
+}
+
+async function send(method: string, path: string, init: RequestInit | undefined, force: boolean) {
+  const token = await bearer(path, force);
+  const headers: Record<string, string> = { Accept: "application/json" };
+  Object.assign(headers, init?.headers);
+  if (token) headers.Authorization = `Bearer ${token}`;
+  return fetch(`${API_BASE}${path}`, {
+    credentials: "same-origin",
+    ...init,
+    method,
+    headers,
+  });
+}
+
 async function request<T>(
   method: string,
   path: string,
   init?: RequestInit,
 ): Promise<T> {
-  const res = await fetch(`${API_BASE}${path}`, {
-    credentials: "same-origin",
-    ...init,
-    method,
-    headers: { Accept: "application/json", ...init?.headers },
-  });
+  let res = await send(method, path, init, false);
+  if (res.status === 401) {
+    const err = await toError(method, path, res.clone());
+    if (err.code === "TOKEN_INVALID" || err.code === "UNAUTHENTICATED") {
+      // The access token may simply have expired: refresh once and retry.
+      clearAccessToken();
+      if ((await bearer(path, true)) !== null) res = await send(method, path, init, false);
+    }
+  }
   if (!res.ok) throw await toError(method, path, res);
   if (res.status === 204) return undefined as T;
   return (await res.json()) as T;

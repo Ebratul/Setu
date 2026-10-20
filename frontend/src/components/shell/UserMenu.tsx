@@ -7,6 +7,8 @@ import { useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { useT } from "@/i18n";
 import { getMe, logout } from "@/lib/api/auth";
+import { getAuthMode } from "@/lib/auth/client";
+import { signOutEverywhere } from "@/lib/auth/flow";
 import { useApi } from "@/lib/useApi";
 
 export function UserMenu() {
@@ -18,7 +20,9 @@ export function UserMenu() {
   async function onLogout() {
     setBusy(true);
     try {
-      await logout();
+      const mode = await getAuthMode().catch(() => "demo" as const);
+      if (mode === "neon") await signOutEverywhere();
+      else await logout();
     } finally {
       router.replace("/login");
     }

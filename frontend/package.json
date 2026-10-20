@@ -16,6 +16,7 @@
     "i18n:check": "node scripts/check-i18n.mjs"
   },
   "dependencies": {
+    "@neondatabase/auth": "0.6.0-beta",
     "@noble/ed25519": "3.0.0",
     "next": "16.4.1",
     "qrcode": "1.5.4",
