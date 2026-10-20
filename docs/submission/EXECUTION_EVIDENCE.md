@@ -1,4 +1,4 @@
-# Setu — Execution Evidence (v1)
+# Setu — Execution Evidence (v2)
 
 This document explains how a judge can check that Setu's operation log is genuine and untampered.
 **All operations in the log are simulated sandbox actions.** The log records what the code did, including
@@ -9,7 +9,8 @@ simulated escrow funding and releases.
 Every agent, user and system action is one row in `audit_log`: tool calls by the AI agent, KYB runs, document
 checks, registry hits, risk decisions, approvals (created, approved, rejected, expired, locked, executed), OTP
 events, escrow funding and release, FX lock, beneficiary changes, blocked e-mails, injection detections, demo
-resets. Rows are signed with Ed25519 and chained by hash (scheme `setu-audit-v2`, `docs/audit.md`).
+resets, sign-in and sign-out (`auth.login`, `auth.logout`), onboarding decisions (`onboarding.*`), and PayPal Sandbox
+payments (`PAYMENT_*`). Rows are signed with Ed25519 and chained by hash (scheme `setu-audit-v2`, `docs/audit.md`).
 
 ```
 payload_hash = sha256(canonical_json(body))
@@ -78,24 +79,47 @@ failing. The real table is not changed. Judge-facing pages: `/demo/audit` and `/
 | Item | Status |
 |---|---|
 | `docs/submission/audit-public-key.pem` | present |
-| `docs/submission/execution-evidence/` | **not present** when this file was written (the directory is created by `pnpm audit:export`) |
-| `frontend/e2e/fixtures/audit/` | test fixtures signed with a **test** key, for the verifier tests only. Not production evidence. |
-| `PROGRESS.md` (P20) | records the CLI verifying a 493-entry export against the committed public key on the development machine; that export is not committed |
+| `docs/submission/execution-evidence/` | **not present** (checked when this file was updated). The directory is created by `pnpm audit:export` |
+| `frontend/e2e/fixtures/audit/` | test fixtures signed with a **test** key, for the verifier tests only. Not production evidence |
+| `docs/PROGRESS.md` (P20) | records the CLI verifying a 493-entry export against the committed public key on the development machine; that export is not committed |
+| `backend/eval/results/metrics.json`, `metrics.md`, `injection_test.json`, `injection_dev.json` | evaluation outputs (test split generated 2026-10-20). These are evaluation evidence, not an operation log. At the time of writing `metrics.*` and `injection_test.json` are untracked in git |
+| `data/demo/fixtures/llm/` | recorded model replies that make the guided demo repeatable offline |
 
-## 6. Production demo run export (to be generated after deploy)
+## 6. Fresh operation-log export (TO DO, needs a database run)
 
-> **Not generated yet. Do not fabricate.** This must be produced by the user or the lead after the production
-> deployment, from a real run of the guided demo on production.
+> **Not generated.** A fresh export needs a demo run that writes to the database. This document was updated without any
+> database write because `DATABASE_URL` points at a hosted Neon database. Do not fabricate a log.
 
-Steps:
-1. Deploy and confirm `AUDIT_SIGNING_KEY` matches `docs/submission/audit-public-key.pem` (or commit the new PEM).
-2. Reset the demo data on the target database, run the guided demo (`/demo`, all 12 steps) or `pnpm demo:run`.
-3. `pnpm audit:export` (against the production `DATABASE_URL`, with the keys in place). It writes
-   `docs/submission/execution-evidence/operation-log-<date>.jsonl` and `.md`, then verifies the file.
-4. Run `pnpm audit:verify --file <that file> --pubkey docs/submission/audit-public-key.pem` and keep the output.
+**Option A: local database (recommended, safe).** Start the compose database, point `DATABASE_URL` at it, and run:
+
+```bash
+pnpm run db:up
+export DATABASE_URL=postgresql://setu:setu@localhost:5435/setu     # local only; adjust the port to your .env
+pnpm run db:migrate && pnpm run db:reset-demo                       # writes to the LOCAL database
+pnpm run demo:run                                                   # runs the guided demo through the real services
+pnpm run audit:export                                               # writes docs/submission/execution-evidence/operation-log-<date>.jsonl and .md, then verifies
+pnpm audit:verify --file docs/submission/execution-evidence/operation-log-<date>.jsonl \
+                  --pubkey docs/submission/audit-public-key.pem
+```
+
+**Unverified caveat.** `pnpm demo:run` runs "in a throwaway sandbox" (`backend/app/demo/cli.py`), and sandboxes are separate
+Postgres schemas. `audit:export` reads the default schema. Neither was run when this was written, so it is not confirmed whether the demo's
+actions end up in the exported chain. After exporting, check `entry_count` and that the file contains `TRANCHE_RELEASED`,
+`RISK_DECISION` and `INJECTION_DETECTED` entries. If they are missing, drive the same story in a browser against the local
+stack with `SANDBOXES_ENABLED=false`, or export from the sandbox schema, and record which one you used.
+
+The local log is signed with the dev key under `keys/` (git-ignored) unless `AUDIT_SIGNING_KEY` is set. The export
+verifies against the committed PEM only if that key is the one the PEM was made from (fingerprint above).
+
+**Option B: production run** (the user or lead, after deploy):
+1. Confirm `AUDIT_SIGNING_KEY` matches `docs/submission/audit-public-key.pem` (`GET /api/audit/public-key` ->
+   `matches_committed_key: true`), or commit the new PEM.
+2. Reset the demo data on the target database and run the guided demo (`/demo`, all 12 steps) or `pnpm demo:run`.
+3. Run the same `pnpm audit:export` with the production `DATABASE_URL` and the keys in place.
+4. Run `pnpm audit:verify --file <file> --pubkey docs/submission/audit-public-key.pem` and keep the output.
 5. Note the live head from `/api/audit/summary` at export time so tail truncation can be ruled out.
 
-Production run export file: [TO FILL: file name, entry count, last seq, head hash, export date]
+Export file: [TO FILL: file name, entry count, last seq, head hash, export date]
 Verifier output: [TO FILL: paste the `OK: N entries verified` line]
 
 ## 7. Demo video
@@ -106,4 +130,4 @@ The video shows simulated transactions only. [TO FILL: confirm the recording mat
 ## 8. Related references
 
 `docs/audit.md` (scheme, keys, export format) · `docs/submission/SECURITY_SELF_ASSESSMENT.md` ·
-`docs/demo.md` (guided demo) · `README.md` (commands).
+`docs/demo.md` (guided demo) · `backend/eval/results/metrics.md` (evaluation) · `README.md` (commands).

@@ -96,7 +96,7 @@ def flagged(status: str | None, fail_only: bool) -> bool:
     return status == "FAIL" if fail_only else status in ("FAIL", "WARN")
 
 
-def run(root: Path = GENERATED, *, fail_only: bool = False) -> dict[str, Any]:
+def run(root: Path = GENERATED, *, fail_only: bool = False, split: str = "dev") -> dict[str, Any]:
     registry = build_registry(root)
     tp: dict[str, int] = defaultdict(int)
     fp: dict[str, int] = defaultdict(int)
@@ -109,7 +109,7 @@ def run(root: Path = GENERATED, *, fail_only: bool = False) -> dict[str, Any]:
     misses: list[str] = []
     false_alarms: list[str] = []
     for entry in manifest(root):
-        if entry["split"] != "dev":
+        if entry["split"] != split:
             continue
         lp = load_pack(entry, root)
         res = evaluate_pack(lp, registry)

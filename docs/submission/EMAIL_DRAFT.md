@@ -19,7 +19,7 @@ trade documents for forgery and hidden instructions, blocks duplicate financing 
 through milestone escrow. Actions are put in permission tiers by deterministic code: the AI can only propose, and
 higher-risk actions need a person, a cooling-off pause and a one-time code. Every action is written to an
 Ed25519-signed, hash-chained log that anyone can verify with a public key. All transactions are a simulated
-sandbox with fictional data, and no model was trained. Measured results are on the dev split of synthetic data
+sandbox with fictional data, and no model was trained. Measured results are on the test split of synthetic data
 and are labelled that way in the documents.
 
 **Links**

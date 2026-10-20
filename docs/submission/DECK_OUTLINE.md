@@ -1,109 +1,133 @@
-# Setu — Deck Outline (10 minutes), v1
+# Setu — Deck Outline (10 minutes), v2
 
-The full deck is built in phase P28. This file fixes the flow, timing, speaker notes and the live screen for each
-slide. Every number is from `docs/PROGRESS.md` and is **dev split, synthetic** unless it is a seeded demo number.
+Flow: problem with data, Setu demo, security, measured results, impact for Chinese exporters and Bangladeshi SMEs,
+roadmap. Nine slides, 10:00 in total.
+
 Say once, early: **all transactions are a simulated sandbox and no model was trained.**
 
-Live URL: [TO FILL: live URL]. Guided demo: `/demo` (presenter mode `/demo/run?mode=presenter`, arrows to step).
-Judge page: [TO FILL: live URL]/judges.
+Rules for every slide:
+- Quote only numbers from `backend/eval/results/metrics.json` (test split) or from the seeded demo data.
+- Say "synthetic test split, a ceiling, not real-world accuracy" every time a measured number is shown.
+- No market-size figure goes on a slide until the team has checked a source. The landing page still has two placeholders
+  marked "[figure to verify]"; do not read them out.
+- Rubric reminder: task completion 40% · security and compliance 30% · innovation and interaction 30%.
 
-Rubric reminder: task completion 40% · security and compliance 30% · innovation and interaction 30%.
+Live URL: [TO FILL: live URL]. Guided demo: `/demo` (presenter mode `/demo/run?mode=presenter`, arrows to step).
+Judge page: [TO FILL: live URL]/judges. Team: [TO FILL: team name, members, universities].
 
 | # | Time | Slide | Live screen |
 |---|---|---|---|
-| 1 | 0:00–0:45 | Title and the one-line pitch | `/` landing hero |
-| 2 | 0:45–1:45 | Problem | `/` problem band |
-| 3 | 1:45–2:30 | Persona and scenario | `/app` dashboard as Rahima |
-| 4 | 2:30–3:30 | Solution overview and Topic E coverage | `/` how-it-works |
-| 5 | 3:30–6:00 | Live demo (guided) | `/demo/run` |
-| 6 | 6:00–7:15 | Security design | `/demo/risk-playground`, `/demo/attack-console` |
-| 7 | 7:15–8:15 | Evidence and measured results | `/verify`, `/app/admin/audit` |
-| 8 | 8:15–9:00 | Innovation | `/demo/privacy-playground` |
-| 9 | 9:00–9:30 | Architecture | diagram slide |
-| 10 | 9:30–10:00 | Limits, roadmap, close | `/` footer, status chip |
+| 1 | 0:00–0:30 | Title and one-line pitch | `/` landing hero |
+| 2 | 0:30–1:30 | Problem, with data | `/app` dashboard as Rahima |
+| 3 | 1:30–2:30 | Solution, Topic E coverage, architecture | `/` how-it-works, architecture diagram |
+| 4 | 2:30–5:30 | Live demo (3 minutes) | `/demo/run?mode=presenter` |
+| 5 | 5:30–6:45 | Security design | `/demo/risk-playground`, `/demo/attack-console` |
+| 6 | 6:45–8:00 | Measured results | `backend/eval/results/metrics.md`, `/verify` |
+| 7 | 8:00–8:30 | Innovation | `/demo/privacy-playground` |
+| 8 | 8:30–9:20 | Impact: Chinese exporters and Bangladeshi SMEs | supplier portal (EN/中文) |
+| 9 | 9:20–10:00 | Roadmap, limits, close | `/` footer, `/judges` |
 
-## Slide 1 — Title (0:00–0:45)
-- On slide: "Setu (সেতু) — AI SME Finance Copilot", Topic E, team name [TO FILL], "Simulated sandbox" badge.
-- Notes: "Setu means bridge in Bangla. It bridges a Bangladeshi importer and a Chinese supplier with financing, cash-flow
+## Slide 1 — Title (0:00–0:30)
+- On slide: "Setu (সেতু) — AI SME Finance Copilot", Topic E, team [TO FILL], a "Simulated sandbox" badge.
+- Say: "Setu means bridge in Bangla. It links a Bangladeshi importer and a Chinese supplier with financing, cash-flow
   and safe payment. Everything you see is simulated. No model was trained. The AI explains; code decides."
 - Show: landing hero with the three-state preview (shortfall, OTP approval, forged B/L blocked).
 
-## Slide 2 — Problem (1:00)
-- On slide: three pains: unclear cash gap before a supplier payment, document fraud and duplicate financing, payment
-  redirection scams.
-- Notes: SMEs pay Chinese suppliers by LC or TT in tranches. A missed gap stops production. A forged bill of lading or
-  a changed bank account costs the whole advance. Market-size figures: use only figures you have verified; the landing
-  page has two figures marked "[figure to verify]" (see `PROGRESS.md` 6.3), so do not quote them.
-- Show: landing problem band (read only; do not read the unverified figures).
+## Slide 2 — Problem, with data (1:00)
+Use one worked case, not market statistics. Persona: Rahima, a fictional Dhaka fabric importer; order SETU-2026-0001.
+- On slide (seeded demo numbers, labelled "simulated"):
+  - Goods USD 9,600.00; landed cost USD 11,200.00 once freight, insurance, duty and bank charges are added.
+  - Sale value USD 13,660.00, so gross margin is 18.01%.
+  - Milestones 30/60/10: USD 2,880 / 5,760 / 960. On 2026-11-07 her balance is USD 4,200 against a USD 5,760 payment:
+    **a shortfall of USD 1,560.00**, found 18 days ahead.
+- Three pains (say in your own words): (1) the cash gap is not visible before a supplier payment; (2) a forged bill of
+  lading or a reused invoice can cost the whole advance; (3) a "please pay our new account" e-mail redirects the money.
+- Market context: [TO FILL: one or two sourced figures with source and year, or leave out].
+- Show: `/app` dashboard, the shortfall alert of USD 1,560 on 2026-11-07.
 
-## Slide 3 — Persona (0:45)
-- On slide: Rahima, Dhaka fabric importer (fictional), order SETU-2026-0001: 8,000 m fabric, goods USD 9,600,
-  landed cost USD 11,200, three suppliers, one suspicious.
-- Notes: one persona, one order, followed from question to final payment. Seeded demo numbers: cash USD 6,000, escrow
-  holds the first tranche USD 2,880.
-- Show: `/app` dashboard: KPIs and the shortfall alert of USD 1,560 on 2026-11-07.
+## Slide 3 — Solution, coverage, architecture (1:00)
+- On slide: nine requirements in one row: FR-1 financing, FR-2 cash flow, FR-3 order analysis, FR-4 supplier KYB,
+  FR-5 milestone escrow, FR-6 document forensics and duplicate-financing registry, FR-7 FX route and rate lock, FR-8
+  signed credit record, FR-9 explained chat in English, Bangla and Chinese.
+- Also on slide: the Mermaid diagram from `docs/architecture.mmd`, rendered to an image (not produced yet).
+- Say: "The web app only talks to the API. Domain code has no LLM. One module calls models. Everything is written to a
+  signed log. Where something is mock, we label it: FX spreads are mock, lenders are fictional."
 
-## Slide 4 — Solution and Topic E coverage (1:00)
-- On slide: FR-1 financing, FR-2 cash flow, FR-3 analysis, FR-4 KYB, FR-5 escrow, FR-6 forensics + registry,
-  FR-7 FX route, FR-8 signed credit record, FR-9 explained chat (EN/BN/ZH).
-- Notes: "Nine requirements, all built. Where something is mock we label it: FX spreads are mock, lenders are fictional."
-- Show: landing "how it works" tabs.
+## Slide 4 — Live demo (3:00)
+Use the guided demo in presenter mode. Run the pre-flight first (`/demo` shows a green/red list). Fallback: offline
+replay (`pnpm run demo:check`, 27 of 27 scenes recorded at P21) or the video [TO FILL: video URL].
+Demo steps are numbered as in `docs/demo.md`.
 
-## Slide 5 — Live demo (2:30)
-Run the guided demo (12 steps, about 4 minutes full; present the highlights). Use presenter mode. Pre-flight first
-(`/demo` shows a green/red list). Fall back to the offline replay if the network fails (`pnpm run demo:check` proves it).
+| Time | Step | What to show | Say |
+|---|---|---|---|
+| 2:30 | 1, 4 | Rahima asks in Bangla; cash-flow card shows USD 1,560 shortfall; financing compared; supplier credit applied (simulated) | "Numbers come from code. The AI explains." |
+| 3:15 | 6 | Tier 2 one-tap release of tranche 1, paid in CNY, FX saving shown | "Money moves only after a person taps." |
+| 3:45 | 9 | **Wow A.** Forged B/L: FAILED, hidden white text revealed, rule trace shows Tier 3, chat says it ignored the instruction | "Document text is data, never instructions." |
+| 4:30 | 10 | **Wow B.** Same invoice offered at Lender B: duplicate blocked | "One invoice, one loan." |
+| 5:00 | 12 | Signed credit record; audit chain verifies | "Anyone can check the log." |
 
-Cut for 2:30, in this order:
-1. Rahima asks in Bangla: streamed answer with a cash-flow card (USD 1,560 shortfall). (steps 1, 4)
-2. Financing comparison: supplier credit chosen, simulated. Say why the escrow-backed Lender B loan is blocked (the invoice is already pledged at Lender A). (step 4)
-3. Tier 2 one-tap release of tranche 1, paid in CNY with the FX saving. (step 6)
-4. **Wow A.** Forged B/L: FAILED, hidden white text revealed, rule trace shows Tier 3, chat says it ignored the instruction. (step 9)
-5. **Wow B.** Same invoice offered at Lender B: duplicate blocked. (step 10)
-6. Signed credit record and audit chain verifies. (step 12)
+Notes: say each step calls the real API. Be honest about the two deviations in `docs/demo.md`: the escrow-backed Lender B
+loan is blocked on purpose (invoice already pledged at Lender A), and step 12 uses a labelled time skip for cash.
 
-Notes: say each of these was done by the real API, not a mock-up. The deviations (blocked Lender B loan, a labelled
-time skip for cash in step 12) are stated honestly in `docs/demo.md`.
-
-## Slide 6 — Security design (1:15)
-- On slide: tiers 0–3 table; "LLM can only propose"; OTP + cooling-off; injection layers; Privacy Gateway.
-- Notes: "Tiers are decided by a deterministic engine in code. The model is offered Tier 0 tools only, and a test asserts
+## Slide 5 — Security design (1:15)
+- On slide: tier table 0 to 3 plus BLOCK; "LLM can only propose"; cooling-off 600 s then OTP; five injection layers;
+  Privacy Gateway; signed hash-chained log. Map to SR-1 to SR-9.
+- Say: "Tiers are decided by a deterministic engine in code. The model is offered Tier 0 tools only, and a test asserts
   that. Tier 3 needs a cooling-off pause and a one-time code, enforced by timestamp on the server."
-- Show: `/demo/risk-playground` (change amount over USD 20,000: tier flips to 3, rule trace shown), then
-  `/demo/attack-console` with a hidden-instruction document, defences OFF then ON.
+- Show: `/demo/risk-playground` (set the amount over USD 20,000: tier flips to 3, rule trace shown), then
+  `/demo/attack-console` with a hidden-instruction document, defences off then on.
+- Honest line: "Judges use demo login. Real sign-in exists but has not had an independent review."
 
-## Slide 7 — Evidence and measured results (1:00)
-- On slide (label every number "dev split, synthetic"):
-  - Forensics: precision and recall 1.00 on 11 checks, 10 fraud types; 0/50 clean packs flagged.
-  - Registry: 5/5 duplicates caught (3 exact, 2 re-saved).
-  - Injection: attack success 100% (defences off) to 0% (on), 13 attacks; false positives 0/300; money moved 0.
-  - Privacy: 0 detectable identifiers reach the model payload; 1/600 ground-truth identifier leaked (explain).
-- Notes: "These are ceilings on synthetic data. The test split is not run yet. We will report it once." Be ready for
-  the question "why is dev perfect?": the generator and checks share a team; the injection harness uses an obedient mock.
-- Show: `/verify` with a dropped export (verifies in the browser, nothing uploaded) and the tamper panel in
-  `/app/admin/audit` (note: the tamper panel and chain page were not browser-checked at P20; rehearse first).
+## Slide 6 — Measured results (1:15)
+Title the slide: "Test split, synthetic data: a ceiling, not real-world accuracy". All from `metrics.json`, 2026-10-20.
 
-## Slide 8 — Innovation (0:45)
-- On slide: four ideas: (1) every tier decision is explained with a rule trace and "what would change it" hints,
-  (2) Privacy X-ray shows what the model actually saw, (3) a live attack console, (4) anyone can verify the log with a
-  public key, no login.
+| Area | Result |
+|---|---|
+| Fraud checks (100 packs, 11 checks, 10 fraud types) | precision 1.0, recall 1.0 (WARN or FAIL counts); FAIL only: recall 0.9508 |
+| Clean packs flagged | 0 of 50 |
+| Duplicate documents caught | 5 of 5 |
+| Injection attack success (12 attacks) | defences off 100%, on 0% |
+| Injection detector | recall 100%; false positives 0 of 300 clean documents |
+| Money moved by injection | 0 |
+| Bank identifiers reaching the model (600 documents) | masking off 600, on 0 |
+| Tampered packs auto-released | 0 of 50 (27 escalated, 23 blocked); clean packs auto 50 of 50 |
+
+- Say: "Why is it perfect? The data is synthetic and our team built the generator and the checks. The injection test uses
+  an obedient mock model, so it does not prove the delimiters hold against a real model. We report it once, on the test
+  split, after tuning only on dev."
+- Show: `/verify` with a dropped export (verifies in the browser, nothing uploaded), or `metrics.md`. Rehearse the tamper
+  panel in `/app/admin/audit` first; it was not browser-checked at P20.
+
+## Slide 7 — Innovation (0:30)
+- On slide: four ideas. (1) Every tier decision has a rule trace and "what would change it" hints. (2) A Privacy X-ray
+  shows what the model actually saw. (3) A live attack console. (4) Anyone can verify the log with a public key, no login.
 - Show: `/demo/privacy-playground` or the eye icon on a chat message.
 
-## Slide 9 — Architecture (0:30)
-- On slide: the Mermaid diagram from `docs/architecture.mmd` (render it into the final deck).
-- Notes: web talks only to the API; domain code has no LLM; the model client is one module; Postgres + pgvector.
+## Slide 8 — Impact (0:50)
+State clearly: these are design benefits shown in the demo, **not measured outcomes**. No customer or revenue figure.
+- **Bangladeshi SMEs:** see the cash gap days before it bites (USD 1,560 in the demo); compare financing options by total
+  cost; one place to check a supplier before paying; plain-language answers in Bangla.
+- **Chinese exporters:** a supplier portal in Chinese; payment tranches released when evidence is verified, so the
+  supplier knows the money is held; a signed credit record issued when a deal completes, which a lender can verify with the public key;
+  changes to payout accounts only through the portal, which protects them from impersonation.
+- **Lenders and banks:** a duplicate-financing registry across lenders and a signed, verifiable audit trail.
+- Impact numbers: [TO FILL only if the team has a sourced figure or a pilot result; otherwise leave this out].
 
-## Slide 10 — Limits, roadmap, close (0:30)
-- On slide: honest limits: synthetic data and dev-split numbers, no real authentication or SMS, mock FX spreads and
-  lenders, Bangla and Chinese not natively reviewed. Roadmap: test-split report (P24), real auth, SMS, lender sandbox
-  integration, native-speaker review.
-- Notes: Close with the link, the `/judges` page [TO FILL], and the verify command `pnpm audit:verify`.
+## Slide 9 — Roadmap, limits, close (0:40)
+- Limits (say them): synthetic data and mock model in the injection test; judge deployment uses demo login; no SMS provider;
+  PayPal is Sandbox only and optional; mock FX spreads and lenders; Bangla and Chinese text not reviewed by native speakers.
+- Roadmap: (1) evaluate on real, consented documents and with a real model attacking; (2) independent security review of
+  sign-in and approvals; (3) SMS or authenticator second factor and a non-owner audit database role; (4) lender and bank
+  sandbox integrations; (5) HS-code duty table and loan repayment flow; (6) native-speaker review; (7) optional public
+  anchor of the registry (an interface exists, nothing is wired).
+- Close: repository [TO FILL], `/judges` [TO FILL], and `pnpm audit:verify`.
 
 ## Backup plan
-- If the live site is down: run `pnpm run demo:check` output or play the recorded video [TO FILL: video URL].
-- If the model provider is slow: the guided demo uses recorded model replies (fixtures in `data/demo/fixtures/llm/`).
-- If the Demo phone panel is empty: the deployment must run with `DEMO_MODE=true` (see `docs/demo.md`).
+- Live site down: play the recorded video [TO FILL: video URL] or show `pnpm run demo:check` output.
+- Model provider slow: the guided demo uses recorded model replies (`data/demo/fixtures/llm/`).
+- Demo phone panel empty: the deployment needs `DEMO_MODE=true` (see `docs/demo.md`).
 
-## Open items for P28
-- Screenshots into `docs/submission/img/` (not produced yet).
+## Open items
+- Screenshots into `docs/submission/img/` (not produced).
 - Render the architecture diagram as an image (not produced; Mermaid text only).
-- Team and university details [TO FILL].
+- Build the actual slides from this outline: [TO FILL: deck file name].

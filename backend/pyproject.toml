@@ -69,6 +69,7 @@ allowed-confusables = ["−", "×", "–"]
 "synthetic/demo.py" = ["E501"]
 
 # Multilingual detection rules and notices use full-width punctuation and look-alike marks on purpose.
+"eval/run.py" = ["E501"]
 "app/security/injection/*.py" = ["RUF001", "RUF003", "E501"]
 "tests/injection/*.py" = ["RUF001", "RUF003", "E501"]
 
