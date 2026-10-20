@@ -19,8 +19,6 @@
     "kb:sync": "uv run --directory backend python -m app.rag.cli sync",
     "kb:index": "uv run --directory backend python -m app.rag.cli index",
     "db:verify": "./scripts/verify_seed",
-    "predev": "pnpm run stop",
-    "stop": "fuser -k 3000/tcp 8000/tcp >/dev/null 2>&1 || true",
     "dev": "concurrently -k -n agent,web -c blue,green \"pnpm:dev:agent\" \"pnpm:dev:web\"",
     "dev:web": "pnpm --dir frontend dev",
     "dev:agent": "uv run --directory backend fastapi dev app/main.py --port 8000",
