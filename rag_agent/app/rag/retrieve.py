@@ -185,12 +185,14 @@ def search(
     out: list[Snippet] = []
     withheld: list[dict[str, Any]] = []
     for score, c, r in scored:
-        body = passage_text(c.title, c.heading_path, c.content, c.meta)
-        codes = {f.code for f in detect_instructions(body)}
-        if layer_on(2):  # P19 detector (EN/BN/ZH, obfuscation); the legacy patterns always run
-            found = scan(body, "kb", use_llm=False)
-            if found.is_injection:
-                codes |= set(found.matched_rules)
+        codes: set[str] = set()
+        if not c.trusted:  # only the indexer sets this, for our own generated user guide
+            body = passage_text(c.title, c.heading_path, c.content, c.meta)
+            codes = {f.code for f in detect_instructions(body)}
+            if layer_on(2):  # P19 detector (EN/BN/ZH, obfuscation); the legacy patterns always run
+                found = scan(body, "kb", use_llm=False)
+                if found.is_injection:
+                    codes |= set(found.matched_rules)
         if codes:
             # id and codes only: the withheld text is never shown, stored or sent anywhere
             withheld.append({"source_id": c.source_id, "codes": sorted(codes)})

@@ -4,6 +4,7 @@ from typing import Any
 
 from pgvector.sqlalchemy import Vector
 from sqlalchemy import (
+    Boolean,
     Computed,
     Date,
     DateTime,
@@ -15,6 +16,7 @@ from sqlalchemy import (
     Text,
     UniqueConstraint,
     Uuid,
+    false,
     func,
 )
 from sqlalchemy.dialects.postgresql import JSONB, TSVECTOR
@@ -109,6 +111,8 @@ class KbChunk(Base):
     content: Mapped[str] = mapped_column(Text)
     language: Mapped[str] = mapped_column(String(8))
     content_hash: Mapped[str] = mapped_column(String(64), index=True)
+    # True only for our own generated user guide, set by the indexer; skips the injection gate.
+    trusted: Mapped[bool] = mapped_column(Boolean, default=False, server_default=false())
     embedding: Mapped[list[float]] = mapped_column(Vector(EMBEDDING_DIM))
     # 'simple' config: no stemming or stop words, so codes like "FOB" and Bangla tokens match as-is.
     tsv: Mapped[Any] = mapped_column(

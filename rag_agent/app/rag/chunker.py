@@ -63,10 +63,13 @@ class Chunk:
     content: str
     language: str
     meta: dict[str, Any] = field(default_factory=dict)
+    # Set only by ingest.load_chunks for our generated user guide; never parsed from a source file.
+    trusted: bool = False
 
     def content_hash(self, model_id: str) -> str:
-        """Changes when the text, its place in the source, or the embedding model changes."""
-        raw = "\x1f".join((model_id, self.source_id, self.heading_path, self.content))
+        """Changes when the text, its place, the embedding model or the trust flag changes."""
+        parts = (model_id, self.source_id, self.heading_path, self.content)
+        raw = "\x1f".join((*parts, "trusted") if self.trusted else parts)
         return hashlib.sha256(raw.encode("utf-8")).hexdigest()
 
 

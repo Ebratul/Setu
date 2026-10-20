@@ -1,15 +1,16 @@
 """Index KB sources into kb_chunks. Idempotent: a chunk is (re-)embedded only when its content hash
 (text + heading path + embedding model) changes; chunks of deleted sources are removed."""
 
+import unicodedata
 import uuid
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from pathlib import Path
 
 from sqlalchemy import delete, select
 from sqlalchemy.orm import Session
 
 from app.db.models import KbChunk
-from app.rag.chunker import Chunk, chunk_source, read_source
+from app.rag.chunker import Chunk, Source, chunk_source, read_source
 from app.rag.embed import Embedder
 from app.rag.retrieve import passage_text
 from app.security.injection import detect_instructions
@@ -25,6 +26,28 @@ class IndexStats:
     removed: int
 
 
+GUIDE_PARTS = ("generated", "user-guide")
+
+
+def is_first_party_guide(src: Source, path: Path, root: Path) -> bool:
+    """Decided from where the indexer found the file, not from what a document says of itself."""
+    return (
+        src.source_type == "user_guide"
+        and src.id.startswith("user-guide-")
+        and path.resolve().parent.relative_to(root).parts == GUIDE_PARTS
+    )
+
+
+def _invisible(text: str) -> bool:
+    """Control, format (zero-width space, bidi, tag) and private-use characters.
+
+    Newline, tab and ZWNJ/ZWJ are allowed: Bangla conjuncts need the joiners."""
+    return any(
+        unicodedata.category(ch) in {"Cc", "Cf", "Co"} and ch not in "\n\t\u200c\u200d"
+        for ch in text
+    )
+
+
 def load_chunks(sources_dir: Path) -> list[Chunk]:
     chunks: list[Chunk] = []
     seen: set[str] = set()
@@ -36,7 +59,15 @@ def load_chunks(sources_dir: Path) -> list[Chunk]:
         if src.id in seen:
             raise ValueError(f"duplicate source id {src.id}")
         seen.add(src.id)
+        guide = is_first_party_guide(src, path, root)
         for c in chunk_source(src):
+            if guide:
+                if _invisible(c.content) or _invisible(c.heading_path):
+                    raise ValueError(f"{src.id}: chunk {c.seq} has invisible characters")
+                # Our generated user guide (from reviewed repo files) legitimately describes actions
+                # such as "release the payment"; the prompt still wraps it as untrusted data.
+                chunks.append(replace(c, trusted=True))
+                continue
             # Refuse to index our own sources if they look like instructions (fix the text instead).
             text = passage_text(c.title, c.heading_path, c.content, c.meta)
             if detect_instructions(text) or scan(text, "kb", use_llm=False).is_injection:
@@ -71,6 +102,7 @@ def index(db: Session, embedder: Embedder, sources_dir: Path) -> IndexStats:
                     content=c.content,
                     language=c.language,
                     content_hash=h,
+                    trusted=c.trusted,
                     embedding=vec,
                     meta=c.meta,
                 )
