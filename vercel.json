@@ -2,11 +2,11 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "services": {
     "web": {
-      "root": "apps/web",
+      "root": "frontend",
       "framework": "nextjs"
     },
     "agent": {
-      "root": "services/agent",
+      "root": "backend",
       "framework": "fastapi",
       "entrypoint": "app/main.py",
       "rewrites": [{ "source": "/api/:path(.*)?", "destination": "/:path" }]

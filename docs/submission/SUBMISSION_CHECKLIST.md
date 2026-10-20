@@ -17,8 +17,8 @@ Topic chosen: **E** (AI SME finance copilot).
 | 7 | Demo video, 5 minutes max | TODO-user | [TO FILL: video URL] | Record from `/demo/run?mode=record` on the final production build; upload and add the link here, in the README and in the email |
 | 8 | Source code | draft | [TO FILL: repository URL] | Current branch `phase/p23-deploy`; the P23 changes are uncommitted. Confirm repo access for the organisers (public or invited). Make sure no `.env*` or `keys/` are committed |
 | 9 | README with local run, deployment, tests | draft | `README.md` | v1. Depends on P23 Part B files (see 10) |
-| 10 | Deployment instructions and Docker fallback | blocked on P23 Part B | `docs/deploy-prod.md`, `docker-compose.env.example`, `docker-compose.yml` (`full` profile), `services/agent/Dockerfile`, `apps/web/Dockerfile`, `scripts/smoke_prod` | None of these existed when README v1 was written; verify each after the other agents finish |
-| 11 | Test cases | draft | `services/agent/tests/`, `apps/web/src/**/*.test.*`, `apps/web/e2e/` | Last recorded: pytest 1,240 passed (P20), Vitest 420 passed (P22). PLAN also lists `docs/submission/test-cases.md` (catalogue with counts): not written. Re-run the full suites and record the counts |
+| 10 | Deployment instructions and Docker fallback | blocked on P23 Part B | `docs/deploy-prod.md`, `docker-compose.env.example`, `docker-compose.yml` (`full` profile), `backend/Dockerfile`, `frontend/Dockerfile`, `scripts/smoke_prod` | None of these existed when README v1 was written; verify each after the other agents finish |
+| 11 | Test cases | draft | `backend/tests/`, `frontend/src/**/*.test.*`, `frontend/e2e/` | Last recorded: pytest 1,240 passed (P20), Vitest 420 passed (P22). PLAN also lists `docs/submission/test-cases.md` (catalogue with counts): not written. Re-run the full suites and record the counts |
 | 12 | Security self-assessment report | draft | `docs/submission/SECURITY_SELF_ASSESSMENT.md` | v1; known-risk list from PROGRESS.md |
 | 13 | Execution evidence: operation-log export | TODO-user (after deploy) | `docs/submission/execution-evidence/operation-log-<date>.jsonl` and `.md` | Generate with `pnpm audit:export` after the production demo run. Do not fabricate |
 | 14 | Execution evidence: how to verify | draft | `docs/submission/EXECUTION_EVIDENCE.md`, `docs/submission/audit-public-key.pem` | Confirm the production signing key matches the committed PEM |
@@ -28,8 +28,8 @@ Topic chosen: **E** (AI SME finance copilot).
 | 18 | Email to organiser | draft | `docs/submission/EMAIL_DRAFT.md` | To wangyr@pbcsf.tsinghua.edu.cn; fill all [TO FILL] first |
 | 19 | Test-split evaluation (P24) | TODO (project) | planned | Not run. No test-split number may appear in any document until it is |
 | 20 | Native-speaker review of Bangla and Chinese text | TODO-user | n/a | Not reviewed |
-| 21 | Licences | draft | README "Third-party licences", `apps/web/public/CREDITS.md` | Add a project LICENSE file; replace `favicon.ico` (scaffold default, licence unverified) |
-| 22 | Unverified landing-page figures | TODO (project) | `apps/web` landing "problem" band | Two figures are marked "[figure to verify]"; the ADB figure was cited from memory. Verify or remove before submission |
+| 21 | Licences | draft | README "Third-party licences", `frontend/public/CREDITS.md` | Add a project LICENSE file; replace `favicon.ico` (scaffold default, licence unverified) |
+| 22 | Unverified landing-page figures | TODO (project) | `frontend` landing "problem" band | Two figures are marked "[figure to verify]"; the ADB figure was cited from memory. Verify or remove before submission |
 | 23 | Placeholders on the footer (GitHub link, accessibility contact) | TODO-user | landing footer | Fill in |
 
 ## Attachment list for the email (exact file names)

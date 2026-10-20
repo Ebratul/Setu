@@ -9,7 +9,7 @@ You write Setu's competition deliverables (English). Audience: FinTechathon judg
 Task completion 40% · Security & compliance 30% · Innovation & interaction 30%.
 
 Read: `CLAUDE.md`, `docs/REQUIREMENTS.md`, `docs/PROGRESS.md`, the relevant section of `docs/PLAN.md`, and
-`services/agent/eval/results/metrics.md`. Then read only the code you need to describe accurately (use Grep).
+`backend/eval/results/metrics.md`. Then read only the code you need to describe accurately (use Grep).
 
 Rules:
 - Every claim must be true of the current code. Quote real numbers from `metrics.json`; never invent metrics.

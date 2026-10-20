@@ -44,7 +44,7 @@ Not built or partly built: see [Limitations](#limitations-and-known-risks).
 
 | Control | Requirement | How it works |
 |---|---|---|
-| Permission tiers | SR-1, SR-2 | A deterministic engine (`app/services/risk/engine.py`, thresholds in `services/agent/config/risk.yaml`) decides Tier 0 to 3 or BLOCK. Highest tier wins. The agent can only queue requests. |
+| Permission tiers | SR-1, SR-2 | A deterministic engine (`app/services/risk/engine.py`, thresholds in `backend/config/risk.yaml`) decides Tier 0 to 3 or BLOCK. Highest tier wins. The agent can only queue requests. |
 | Tier 3 step-up | SR-9 | Cooling-off pause (600 s default), then a 6-digit OTP (5 min life, 3 wrong codes lock the request). Shown as a simulated SMS in a "Demo phone" panel. |
 | Privacy Gateway | SR-4 | Masks NID, passport, phone, account, IBAN, SWIFT, email, known names and amounts with reversible tokens before every model call. Code restores values in the answer. |
 | Injection defence | SR-3 | Five switchable or fixed layers: structural wrapping, detector, capability control (money tools only propose; flagged documents force Tier 3), tool gating, output guard. |
@@ -59,11 +59,11 @@ Details: [`docs/submission/SECURITY_SELF_ASSESSMENT.md`](docs/submission/SECURIT
 ```mermaid
 flowchart LR
   subgraph Browser["Browser (judge / SME / supplier)"]
-    WEB["Next.js app<br/>apps/web<br/>EN / BN / ZH"]
+    WEB["Next.js app<br/>frontend<br/>EN / BN / ZH"]
     VER["/verify page<br/>Web Crypto, no upload"]
   end
 
-  subgraph API["FastAPI service: services/agent"]
+  subgraph API["FastAPI service: backend"]
     direction TB
     ROUTERS["HTTP routers<br/>app/api"]
     AUTH["Session + role checks<br/>BUYER / SUPPLIER / ADMIN / JUDGE"]
@@ -127,7 +127,7 @@ phase P24). These are ceilings on synthetic data, not real-world accuracy.
 |---|---|---|
 | Document forensics | Precision and recall 1.00 on all 11 checks and all 10 fraud types (obvious and subtle); 0/50 clean packs flagged; 0/400 clean documents not PASSED. With WARN not counted, NAME_MATCH recall is 0.57. | `docs/forensics.md` (100 dev packs, 600 PDFs) |
 | Duplicate-document registry | Byte-identical 3/3 EXACT; re-saved 2/2 NEAR; 5/5 caught | `python -m app.forensics.eval_registry` |
-| Prompt injection | Attack success 100% with defences OFF, 0% ON (13 attacks); detection recall 100%; false positives 0/300 clean documents; money moved 0 in all modes | `services/agent/eval/results/injection_dev.json` |
+| Prompt injection | Attack success 100% with defences OFF, 0% ON (13 attacks); detection recall 100%; false positives 0/300 clean documents; money moved 0 in all modes | `backend/eval/results/injection_dev.json` |
 | Privacy Gateway | Masking ON: detectable identifiers in payload 0; ground-truth bank identifiers leaked 1/600 (a seller company name equal to the account holder; company names are not masked by design). OFF: 600/600 leaked. | `python -m app.privacy.eval dev` |
 | Demo numbers | Landed cost USD 11,200.00, margin 18.01%, shortfall USD 1,560.00 on 2026-11-07 | `docs/finance-formulas.md` |
 
@@ -139,7 +139,7 @@ The injection result uses an "obedient" mock model, so it does not show that lay
 ### Option A: Docker (fallback, one command)
 
 > This depends on files being added in P23 Part B (`docker-compose.env.example`, a `full` profile in
-> `docker-compose.yml`, `services/agent/Dockerfile`, `apps/web/Dockerfile`). They were not present when this
+> `docker-compose.yml`, `backend/Dockerfile`, `frontend/Dockerfile`). They were not present when this
 > README was written. Check they exist before relying on this section.
 
 ```bash
@@ -158,7 +158,7 @@ docker compose --env-file docker-compose.env.example --profile full up --build
 ```bash
 cp .env.example .env            # local placeholders; never commit .env
 pnpm install                    # web deps (pnpm workspace)
-uv sync --directory services/agent
+uv sync --directory backend
 pnpm run db:up                  # Postgres 16 + pgvector on :5432, waits until healthy
 pnpm run db:migrate             # create all tables
 pnpm run db:seed                # load the simulated demo data
@@ -179,7 +179,7 @@ The RAG embedding model is downloaded once by `pnpm run kb:index` (about 240 MB)
 | `pnpm run kb:index` | embed the knowledge-base sources into pgvector |
 | `./scripts/verify_seed` | assert the key demo numbers; see `data/demo/README.md` |
 | `pnpm run lint` / `format` / `test` | ESLint + i18n check + tsc + Ruff / Prettier + Ruff format / pytest + Vitest |
-| `pnpm run types` | regenerate `apps/web/src/lib/api/schema.gen.ts` from the running agent |
+| `pnpm run types` | regenerate `frontend/src/lib/api/schema.gen.ts` from the running agent |
 
 `npm run <script>` works too (pnpm must be installed). On macOS/Linux the `Makefile` wraps the same scripts:
 `make up down dev test lint format types migrate seed reset-demo verify-seed demo-check`.
@@ -193,7 +193,7 @@ For the simulated SMS panel and the scam simulator, set `DEMO_MODE=true` (with `
 ## Deployment
 
 See [`docs/deploy-prod.md`](docs/deploy-prod.md) (written in P23 Part B; not verified here). Facts that exist in the repo:
-- `vercel.json` defines two Vercel services: `web` (`apps/web`, Next.js) and `agent` (`services/agent`, FastAPI),
+- `vercel.json` defines two Vercel services: `web` (`frontend`, Next.js) and `agent` (`backend`, FastAPI),
   with `/api/*` routed to the agent. It is in the working tree and not yet committed.
 - Production database: PostgreSQL with pgvector (Neon was the plan); run `pnpm run db:migrate` against it.
 - The agent refuses to start with `APP_ENV=prod` unless a 32+ character `DEMO_SESSION_SECRET`, a secure cookie
@@ -208,25 +208,25 @@ See [`docs/deploy-prod.md`](docs/deploy-prod.md) (written in P23 Part B; not ver
 |---|---|
 | `make test` (= `pnpm run test`) | pytest (agent) + Vitest (web). DB tests need a local pgvector Postgres (see `.claude/rules/testing.md`) |
 | `make lint` (= `pnpm run lint`) | ESLint, `i18n:check`, `tsc`, Ruff check and format check |
-| `pnpm --dir apps/web i18n:check` | fails on missing Bangla keys (all areas) and missing Chinese keys (landing, accessibility, errors, supplier, common) |
-| `pnpm --dir apps/web e2e` | Playwright end-to-end specs (needs a running stack and `E2E_BASE_URL`; use `E2E_RESET_DEMO=1` with a local `DATABASE_URL` to reset demo data) |
+| `pnpm --dir frontend i18n:check` | fails on missing Bangla keys (all areas) and missing Chinese keys (landing, accessibility, errors, supplier, common) |
+| `pnpm --dir frontend e2e` | Playwright end-to-end specs (needs a running stack and `E2E_BASE_URL`; use `E2E_RESET_DEMO=1` with a local `DATABASE_URL` to reset demo data) |
 | `pnpm run demo:check` | replay the guided demo offline (27 scenes) |
-| `uv run --directory services/agent python -m app.forensics.eval_dev` | forensics, dev split (needs `data/generated`) |
-| `uv run --directory services/agent python -m app.forensics.eval_registry` | duplicate-hash catch rate, dev split |
-| `uv run --directory services/agent python -m app.security.injection.suite dev` | injection attack success OFF vs ON, dev split |
-| `uv run --directory services/agent python -m app.privacy.eval dev` | PII leakage ON vs OFF, dev split |
-| `uv run --directory services/agent python -m synthetic.generator --clean 100 --tampered 100 --seed 42` | regenerate the synthetic trade-document set (git-ignored output) |
+| `uv run --directory backend python -m app.forensics.eval_dev` | forensics, dev split (needs `data/generated`) |
+| `uv run --directory backend python -m app.forensics.eval_registry` | duplicate-hash catch rate, dev split |
+| `uv run --directory backend python -m app.security.injection.suite dev` | injection attack success OFF vs ON, dev split |
+| `uv run --directory backend python -m app.privacy.eval dev` | PII leakage ON vs OFF, dev split |
+| `uv run --directory backend python -m synthetic.generator --clean 100 --tampered 100 --seed 42` | regenerate the synthetic trade-document set (git-ignored output) |
 | `pnpm run audit:verify` / `audit:export` | verify the audit chain / export the operation log (see `docs/submission/EXECUTION_EVIDENCE.md`) |
 
-`make eval` currently prints a notice only (`services/agent/eval/run.py` does not exist). Use the commands above.
+`make eval` currently prints a notice only (`backend/eval/run.py` does not exist). Use the commands above.
 Last recorded runs in `docs/PROGRESS.md`: pytest 1,240 passed (P20), Vitest 420 passed and Playwright `p22.spec.ts` 5/5 (P22).
 Some earlier Playwright specs (`approvals`, `chat`, `deals`) failed in the P22 run and were not re-checked.
 
 ## Project structure
 
 ```
-apps/web/                 Next.js app (src/app routes, src/components, src/i18n, e2e/)
-services/agent/
+frontend/                 Next.js app (src/app routes, src/components, src/i18n, e2e/)
+backend/
   app/api/                FastAPI routers
   app/domain/             deterministic money logic (landed cost, financing, cash flow, FX, escrow, KYB)
   app/services/           orchestration, risk engine (services/risk), approvals, registry, credit record
@@ -268,16 +268,16 @@ no on-chain registry anchor, audit-table owner can truncate the table (use a non
 Licences below were read from package metadata in the local installs (`uv` virtualenv and `node_modules`) on the
 build machine, except where marked.
 
-**Web (`apps/web`)**
+**Web (`frontend`)**
 - Next.js 16.4.1, React 19.3.0, React DOM, Tailwind CSS 4.3.3, Recharts 3.10.1 (charts), `qrcode` 1.5.4 (receipt QR codes), `@noble/ed25519` 3.0.0 (browser verification fallback) — MIT
 - TypeScript 5.9.3, Playwright 1.64.1 (dev), jsQR 1.4.0 (dev, QR tests) — Apache-2.0
 - `@axe-core/playwright` 4.14.0 (dev only, accessibility tests) — MPL-2.0
 - Vitest 5.0.5 (dev) — MIT
 - Fonts [Inter](https://rsms.me/inter/), [Noto Sans Bengali](https://fonts.google.com/noto/specimen/Noto+Sans+Bengali), [Noto Sans SC](https://fonts.google.com/noto/specimen/Noto+Sans+SC) — SIL Open Font License 1.1 (via `next/font/google`)
-- Icons: self-made SVG paths in `src/components/ui/Icon.tsx`; favicon, OG image and landing mock screens drawn for Setu. `src/app/favicon.ico` is the Next.js scaffold default; its licence is **unverified** (replace before submission). See `apps/web/public/CREDITS.md`.
+- Icons: self-made SVG paths in `src/components/ui/Icon.tsx`; favicon, OG image and landing mock screens drawn for Setu. `src/app/favicon.ico` is the Next.js scaffold default; its licence is **unverified** (replace before submission). See `frontend/public/CREDITS.md`.
 - The Colorlib "Pexcon" template was visual inspiration only; no code, CSS, text or images were copied.
 
-**Agent (`services/agent`)**
+**Agent (`backend`)**
 - FastAPI 0.143.3, Alembic 1.20.0, SQLAlchemy 2.1.4, pydantic-settings 2.16.0, LangChain 1.4.6, LangChain-core 1.6.12, langchain-anthropic 1.7.6, LangGraph 1.2.15, langgraph-checkpoint 4.3.0, langgraph-checkpoint-postgres 3.2.0, LangSmith SDK 0.14.11, pgvector (Python) 0.5.1, pyotp 2.10.0, PyYAML 6.0.3, rapidfuzz 3.14.6 — MIT
 - structlog 26.1.0 — MIT OR Apache-2.0
 - cryptography 50.0.2 — Apache-2.0 OR BSD-3-Clause

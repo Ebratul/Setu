@@ -28,7 +28,7 @@ signature      = Ed25519_sign(private_key, bytes.fromhex(entry_hash))           
 prev_hash      = entry_hash of seq-1;  seq 1 uses GENESIS = 64 × "0"
 ```
 
-`app/audit/scheme.py` is the reference implementation; `apps/web/src/lib/audit/verify.ts` mirrors it
+`app/audit/scheme.py` is the reference implementation; `frontend/src/lib/audit/verify.ts` mirrors it
 and is tested against fixtures produced by the Python code (`tests/audit/make_fixtures.py`).
 
 ## Keys
@@ -99,7 +99,7 @@ and a readable `.md` (per deal: actions, tiers, decisions, timestamps) and verif
   changed.
 * Receipts: QR → `/verify?seq=&hash=#e=<entry>`; the signed entry travels in the URL fragment (never
   sent to a server) and is checked in the browser.
-* Fixtures for the verifier tests: `apps/web/e2e/fixtures/audit/` (signed with a **test** key).
+* Fixtures for the verifier tests: `frontend/e2e/fixtures/audit/` (signed with a **test** key).
 
 ## Migration note
 

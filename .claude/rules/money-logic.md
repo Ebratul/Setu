@@ -1,10 +1,10 @@
 ---
 paths:
-  - "services/agent/app/domain/**"
-  - "services/agent/app/services/**"
-  - "services/agent/**/*money*"
-  - "services/agent/**/*fx*"
-  - "services/agent/seed/**"
+  - "backend/app/domain/**"
+  - "backend/app/services/**"
+  - "backend/**/*money*"
+  - "backend/**/*fx*"
+  - "backend/seed/**"
 ---
 
 # Money logic rules

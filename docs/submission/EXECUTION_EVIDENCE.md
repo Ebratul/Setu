@@ -38,7 +38,7 @@ pnpm audit:verify --file docs/submission/execution-evidence/operation-log-<date>
                      --pubkey docs/submission/audit-public-key.pem
 ```
 
-(Equivalent: `uv run --directory services/agent python -m app.audit.verify --file F --pubkey PEM`.)
+(Equivalent: `uv run --directory backend python -m app.audit.verify --file F --pubkey PEM`.)
 Output is `OK: N entries verified ...` or `BROKEN at seq N: <reason>: <detail>` with exit code 1.
 Reasons: `hash_mismatch`, `bad_signature`, `missing_seq`, `reordered`, `broken_link`, `malformed`.
 Without `--file` the command verifies the database (needs `DATABASE_URL`); `--from` and `--to` select a range.
@@ -79,7 +79,7 @@ failing. The real table is not changed. Judge-facing pages: `/demo/audit` and `/
 |---|---|
 | `docs/submission/audit-public-key.pem` | present |
 | `docs/submission/execution-evidence/` | **not present** when this file was written (the directory is created by `pnpm audit:export`) |
-| `apps/web/e2e/fixtures/audit/` | test fixtures signed with a **test** key, for the verifier tests only. Not production evidence. |
+| `frontend/e2e/fixtures/audit/` | test fixtures signed with a **test** key, for the verifier tests only. Not production evidence. |
 | `PROGRESS.md` (P20) | records the CLI verifying a 493-entry export against the committed public key on the development machine; that export is not committed |
 
 ## 6. Production demo run export (to be generated after deploy)

@@ -4,7 +4,7 @@
 > accounts or payment rails are used. Every account number starts with `SIM-`. All money movement is a
 > simulated sandbox and the UI labels it "Simulated".
 
-The seed lives in `services/agent/seed/` (Python owns the schema and the seed). One module per domain:
+The seed lives in `backend/seed/` (Python owns the schema and the seed). One module per domain:
 `parties` (parties, bank accounts, KYB), `users`, `deals` (deals, costs, milestones, escrow, ledger),
 `cashflow`, `fx`, `financing`, `documents` (documents, findings, hash registry), `alerts_approvals`,
 `audit` (audit log, credit records), `scores`, `chat`. `cli.py` is the only file that writes to the DB.
@@ -98,7 +98,7 @@ Score formula is in `seed/scores.py`.
 
 ## Demo documents (`data/demo/SETU-2026-0001/`)
 
-Written by `uv run --directory services/agent python -m synthetic.generator --demo` (P11) and committed.
+Written by `uv run --directory backend python -m synthetic.generator --demo` (P11) and committed.
 Every PDF has a real text layer and the footer "SIMULATED – FOR TESTING". Numbers, names and dates match
 the seed. Dates fit the default `DEMO_TODAY = 2026-10-20`: PI 11 Oct, production complete 3 Nov,
 B/L on board 6 Nov, ETA 29 Nov, bill of entry 30 Nov.

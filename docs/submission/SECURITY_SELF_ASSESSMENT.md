@@ -2,7 +2,7 @@
 
 FinTechathon 2026 International Track, Topic E. Prepared by the Setu team. [TO FILL: team name]
 
-**Scope.** The Setu web app (`apps/web`) and API/agent service (`services/agent`), as of the P22 handoff in
+**Scope.** The Setu web app (`frontend`) and API/agent service (`backend`), as of the P22 handoff in
 `docs/PROGRESS.md`. **All money movement is simulated. No real payment rails, no real SMS provider, no real
 lender.** No model was trained. This is a self-assessment: it was written by the team, and the project's
 `security-reviewer` agent reviewed most phases (results below). There has been no external penetration test.
@@ -27,17 +27,17 @@ Highest tier wins; BLOCK beats every tier.
 
 | Function | Where |
 |---|---|
-| Tier enum and LLM ceiling `MAX_LLM_TOOL_TIER = Tier.T0` | `services/agent/app/security/tiers.py` |
-| Tool registry; `ToolSpec.max_tier`; `llm_tools()` offers only allow-listed tools at or below the ceiling; `guard()` refuses `max_tier > MAX_LLM_TOOL_TIER` with `requires_approval_flow` before validation | `services/agent/app/agent/registry.py` |
-| Risk engine `evaluate(ctx, policy)` (pure), `context_hash`, `rules_table` | `services/agent/app/services/risk/engine.py` |
-| Thresholds | `services/agent/config/risk.yaml`, loaded by `services/agent/app/security/policy.py` |
-| Gate used by fund, propose/confirm schedule, FX lock, beneficiary change: `run_gate` | `services/agent/app/services/risk/gate.py` |
-| Enforcement inside services: `release_tranche`, `fund_escrow` | `services/agent/app/services/escrow.py` |
-| `lock_fx`, `change_beneficiary` | `services/agent/app/services/fx_lock.py`, `services/agent/app/services/beneficiary.py` |
-| Approval binding hash over action, tier, deal, milestone, account, params: `approval_binding_hash` | `services/agent/app/security/approvals.py` |
-| Approve, reject, cancel, expiry, re-escalation: `approve` | `services/agent/app/services/approvals.py` |
-| OTP (`hash_code`, `code_matches`, `cooling_off_until`, `issue_otp`) | `services/agent/app/services/approval_otp.py` |
-| Agent-side propose-only tools (`propose_release_tranche`, `propose_fx_lock`, ...) | `services/agent/app/agent/tools/escrow.py` |
+| Tier enum and LLM ceiling `MAX_LLM_TOOL_TIER = Tier.T0` | `backend/app/security/tiers.py` |
+| Tool registry; `ToolSpec.max_tier`; `llm_tools()` offers only allow-listed tools at or below the ceiling; `guard()` refuses `max_tier > MAX_LLM_TOOL_TIER` with `requires_approval_flow` before validation | `backend/app/agent/registry.py` |
+| Risk engine `evaluate(ctx, policy)` (pure), `context_hash`, `rules_table` | `backend/app/services/risk/engine.py` |
+| Thresholds | `backend/config/risk.yaml`, loaded by `backend/app/security/policy.py` |
+| Gate used by fund, propose/confirm schedule, FX lock, beneficiary change: `run_gate` | `backend/app/services/risk/gate.py` |
+| Enforcement inside services: `release_tranche`, `fund_escrow` | `backend/app/services/escrow.py` |
+| `lock_fx`, `change_beneficiary` | `backend/app/services/fx_lock.py`, `backend/app/services/beneficiary.py` |
+| Approval binding hash over action, tier, deal, milestone, account, params: `approval_binding_hash` | `backend/app/security/approvals.py` |
+| Approve, reject, cancel, expiry, re-escalation: `approve` | `backend/app/services/approvals.py` |
+| OTP (`hash_code`, `code_matches`, `cooling_off_until`, `issue_otp`) | `backend/app/services/approval_otp.py` |
+| Agent-side propose-only tools (`propose_release_tranche`, `propose_fx_lock`, ...) | `backend/app/agent/tools/escrow.py` |
 
 ### Tests that prove the boundary
 

@@ -15,7 +15,7 @@ Rules:
 - Money: golden worked example + Hypothesis invariants (splits sum to total, ledger balances, conversion round-trips within 0.01).
 - Security: every tier trigger and its boundary, params-hash tampering, cooling-off before/after (time-machine),
   audit chain tamper detection, PII absent from fake-model inputs, injection detector on all 5 attack styles.
-- Fixtures go in `services/agent/tests/fixtures/` (tiny) — generated data stays out of git.
+- Fixtures go in `backend/tests/fixtures/` (tiny) — generated data stays out of git.
 - Do not change production code; if a test reveals a bug, report it with the failing test name.
 
 Run the relevant suite and report: tests added (count + files), pass/fail summary line, bugs found. Max 15 lines.

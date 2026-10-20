@@ -34,10 +34,10 @@ Requirement IDs (FR-1.., SR-1.., NFR-..) refer to `docs/REQUIREMENTS.md`, the st
 ```mermaid
 flowchart LR
   subgraph Browser["Browser"]
-    WEB["Next.js app (apps/web)"]
+    WEB["Next.js app (frontend)"]
     VER["/verify page"]
   end
-  subgraph API["FastAPI service (services/agent)"]
+  subgraph API["FastAPI service (backend)"]
     ROUTERS["Routers + role checks"]
     subgraph AGENT["LangGraph agent, Tier 0 tools only"]
       PG["Privacy Gateway"] --> RT["router"] --> AG["agent + tools"] --> RS["respond"]
@@ -79,7 +79,7 @@ source is the only form.)
 | Agent | LangGraph, LangChain, `langchain-anthropic` | Nodes: load context, privacy gateway, router, agent (tools), respond. Postgres checkpointer. |
 | Domain | Pure Python, `Decimal` | Money logic with no LLM and no I/O. |
 | Database | PostgreSQL 16 + pgvector; SQLAlchemy 2 + Alembic | One schema owner. Alembic migrations are the only way the schema changes. |
-| Models | `claude-haiku-5-5` (router, agent, answers), `claude-sonnet-5-5` (document tasks) | Called only through `services/agent/app/llm/client.py`. Anthropic direct, or OpenRouter, or an offline mock model if no key is set. |
+| Models | `claude-haiku-5-5` (router, agent, answers), `claude-sonnet-5-5` (document tasks) | Called only through `backend/app/llm/client.py`. Anthropic direct, or OpenRouter, or an offline mock model if no key is set. |
 | Tracing | LangSmith | Root run holds masked text. Tool runs are traced without raw inputs and outputs. |
 
 **Model-call boundary.** `app/llm/client.py` is the only module that imports `langchain_anthropic` (a test
@@ -94,7 +94,7 @@ note, the injection warning, and a "Why:" line taken from the tool's own explana
 
 # 3. Data model summary
 
-Single owner: SQLAlchemy models in `services/agent/app/db/models/` and Alembic migrations (14 revision files).
+Single owner: SQLAlchemy models in `backend/app/db/models/` and Alembic migrations (14 revision files).
 Full table list: `docs/data-model.md`. Conventions: money is `NUMERIC(20,4)` with a separate currency code; FX
 rates `NUMERIC(20,8)`; enums are `VARCHAR` + CHECK; primary keys are UUIDs (seed rows use `uuid5`).
 
@@ -217,7 +217,7 @@ pledged. The date is deliberately not part of the semantic key. An on-chain anch
 ## 4.9 Risk-tier engine (SR-1) — `app/services/risk/engine.py`
 
 A pure function `evaluate(ctx, policy)` returns a decision with reason codes (English and Bangla), a context hash,
-a rule trace and counterfactual hints. Thresholds are in `services/agent/config/risk.yaml`.
+a rule trace and counterfactual hints. Thresholds are in `backend/config/risk.yaml`.
 
 | Result | Triggers (examples) |
 |---|---|
@@ -309,7 +309,7 @@ Bangladesh Bank figures are simplified summaries and not independently verified.
 
 # 8. Evaluation method and honest limits
 
-**Data.** A synthetic generator (`services/agent/synthetic/`, seed 42) makes 100 clean and 100 tampered trade-document
+**Data.** A synthetic generator (`backend/synthetic/`, seed 42) makes 100 clean and 100 tampered trade-document
 packs (10 fraud types, obvious and subtle), split 100 dev / 100 test, stratified. A 25-item injection attack set
 (5 styles × 5 variants) is split 13 dev / 12 test. Tuning used the **dev split only**. **The test split has not been
 run**; it is planned for phase P24 and will be reported once per configuration.
@@ -340,7 +340,7 @@ run**; it is planned for phase P24 and will be reported once per configuration.
 
 - **Local:** Docker for PostgreSQL + pgvector; `pnpm run dev` runs the API (:8000) and web (:3000). A `full` Docker
   Compose profile is planned in P23 Part B (`docker compose --env-file docker-compose.env.example --profile full up --build`).
-- **Hosted:** `vercel.json` defines two Vercel services (`apps/web`, `services/agent`) with `/api/*` routed to the
+- **Hosted:** `vercel.json` defines two Vercel services (`frontend`, `backend`) with `/api/*` routed to the
   agent; database on PostgreSQL with pgvector (Neon planned). Steps: `docs/deploy-prod.md` (P23 Part B).
 - **Required production settings:** `APP_ENV`, `DEMO_SESSION_SECRET` (32+ chars), secure cookie,
   `ALLOWED_ORIGINS`, `DATABASE_URL`, `AUDIT_SIGNING_KEY` (matching the committed public key), model key

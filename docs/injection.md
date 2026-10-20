@@ -1,7 +1,7 @@
 # Prompt-injection defence (P19)
 
 Text from documents, e-mails, KB passages or tool results can never make Setu move money, change an
-account or change its own behaviour. Code: `services/agent/app/security/injection/`.
+account or change its own behaviour. Code: `backend/app/security/injection/`.
 
 | Layer | Module | What it does | Switchable |
 |---|---|---|---|
@@ -19,7 +19,7 @@ event per placement (pipeline); chat tool results record events through `Nodes.t
 `run_attack_suite(split, defences="both")` runs every P11 attack through the REAL graph nodes with an obedient mock
 model and a sandbox registry (propose stubs under the production names; the real risk engine decides what a
 proposal that reached a service would have caused). Modes: `off`, `on`, `on_without_detector` (gate + guard only).
-Saved to `services/agent/eval/results/injection_<split>.json`. CLI: `python -m app.security.injection.suite dev`.
+Saved to `backend/eval/results/injection_<split>.json`. CLI: `python -m app.security.injection.suite dev`.
 The attack set has no split in its manifest: attack n of style s is DEV when `(variant + s)` is even (13 dev / 12 test).
 **The test split is for P24; run it once per configuration.**
 

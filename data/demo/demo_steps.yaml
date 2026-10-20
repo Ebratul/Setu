@@ -1,4 +1,4 @@
-# Guided demo: Rahima's 12-step story. Single source for the orchestrator (services/agent/app/demo)
+# Guided demo: Rahima's 12-step story. Single source for the orchestrator (backend/app/demo)
 # and the /demo UI. Every scene runs REAL services against the judge's own sandbox (no fake data);
 # `expect` rows are checked after the actions and ticked in the judge scorecard.
 #

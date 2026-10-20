@@ -23,5 +23,5 @@ description: Step-by-step procedure to add a LangChain tool to Setu's agent with
 6. **Explainer support**: if output has new fact types, add a template line in `app/llm/prompts/explainer.md` and bump the prompt version.
 7. **Tests** (`tests/tools/test_<name>.py`): valid call returns schema; invalid args rejected; LLM caller blocked if tier ≥ 2;
    audit entry written; graph test with `FakeChatModel` choosing the tool end-to-end.
-8. Run `uv run --directory services/agent pytest -q -m "not llm"` and `ruff check`. If the tool touches security paths,
+8. Run `uv run --directory backend pytest -q -m "not llm"` and `ruff check`. If the tool touches security paths,
    delegate a review to the `security-reviewer` subagent and fix findings.

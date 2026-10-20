@@ -1,10 +1,10 @@
 flowchart LR
   subgraph Browser["Browser (judge / SME / supplier)"]
-    WEB["Next.js app<br/>apps/web<br/>EN / BN / ZH"]
+    WEB["Next.js app<br/>frontend<br/>EN / BN / ZH"]
     VER["/verify page<br/>Web Crypto, no upload"]
   end
 
-  subgraph API["FastAPI service: services/agent"]
+  subgraph API["FastAPI service: backend"]
     direction TB
     ROUTERS["HTTP routers<br/>app/api"]
     AUTH["Session + role checks<br/>BUYER / SUPPLIER / ADMIN / JUDGE"]

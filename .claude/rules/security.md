@@ -1,16 +1,16 @@
 ---
 paths:
-  - "services/agent/app/security/**"
-  - "services/agent/app/tools/**"
-  - "services/agent/app/graph/**"
-  - "services/agent/app/llm/**"
-  - "services/agent/app/domain/escrow*"
-  - "services/agent/app/forensics/**"
-  - "services/agent/app/api/approvals*"
-  - "services/agent/app/api/audit*"
-  - "services/agent/app/audit/**"
-  - "apps/web/src/app/(app)/approvals/**"
-  - "apps/web/src/components/approvals/**"
+  - "backend/app/security/**"
+  - "backend/app/tools/**"
+  - "backend/app/graph/**"
+  - "backend/app/llm/**"
+  - "backend/app/domain/escrow*"
+  - "backend/app/forensics/**"
+  - "backend/app/api/approvals*"
+  - "backend/app/api/audit*"
+  - "backend/app/audit/**"
+  - "frontend/src/app/(app)/approvals/**"
+  - "frontend/src/components/approvals/**"
 ---
 
 # Security rules

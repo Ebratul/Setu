@@ -1,7 +1,7 @@
 # Risk-tier engine (SR-1, SR-2, Phase 5.1 / P16)
 
 Decided by code, not by AI. `app/services/risk/engine.py` is pure (no DB, clock, LLM). Thresholds live in
-`services/agent/config/risk.yaml`, loaded by `app/security/policy.py`.
+`backend/config/risk.yaml`, loaded by `app/security/policy.py`.
 
 ## Rules (highest tier wins; BLOCK beats every tier)
 | Kind | Rule | Applies to |

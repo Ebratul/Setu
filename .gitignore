@@ -25,8 +25,8 @@ keys/
 # Generated data
 synth/out/
 eval/data/
-services/agent/synth/out/
-services/agent/eval/data/
+backend/synth/out/
+backend/eval/data/
 data/generated/
 
 # Tooling / OS
@@ -36,11 +36,11 @@ data/generated/
 *.log
 
 # Playwright output
-apps/web/test-results/
-apps/web/playwright-report/
+frontend/test-results/
+frontend/playwright-report/
 
 # Uploaded documents (local storage backend)
-services/agent/storage/
+backend/storage/
 .vercel
 .env*
 

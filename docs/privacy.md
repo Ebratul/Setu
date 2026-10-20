@@ -1,6 +1,6 @@
 # Privacy Gateway (SR-4) — reference
 
-Package `services/agent/app/privacy/`. No raw personal or sensitive financial identifier reaches the model provider or LangSmith; answers stay correct because code restores the values afterwards.
+Package `backend/app/privacy/`. No raw personal or sensitive financial identifier reaches the model provider or LangSmith; answers stay correct because code restores the values afterwards.
 
 ## Pieces
 | File | Role |

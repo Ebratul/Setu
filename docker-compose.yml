@@ -25,7 +25,7 @@ services:
   seed:
     profiles: [full]
     build:
-      context: ./services/agent
+      context: ./backend
       additional_contexts:
         repo: .
     image: setu-agent:local
@@ -52,7 +52,7 @@ services:
       KB_EMBEDDER: ${KB_EMBEDDER:-fastembed}
     volumes:
       - setu-keys:/app/keys
-      - setu-storage:/app/services/agent/storage
+      - setu-storage:/app/backend/storage
     command:
       - sh
       - -ec
@@ -66,7 +66,7 @@ services:
   agent:
     profiles: [full]
     build:
-      context: ./services/agent
+      context: ./backend
       additional_contexts:
         repo: .
       args:
@@ -84,12 +84,12 @@ services:
       - "${AGENT_PORT:-8000}:8000"
     volumes:
       - setu-keys:/app/keys
-      - setu-storage:/app/services/agent/storage
+      - setu-storage:/app/backend/storage
 
   web:
     profiles: [full]
     build:
-      context: ./apps/web
+      context: ./frontend
       dockerfile: Dockerfile
       args:
         # next.config.ts bakes the /api rewrite target at build time

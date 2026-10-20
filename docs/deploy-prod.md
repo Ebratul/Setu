@@ -5,7 +5,7 @@ Two supported shapes: **A. Vercel Services + Neon** (web and agent behind one do
 Everything money-related stays **simulated**. This file lists variable **names only**; set values in the Vercel dashboard, the VPS
 `.env.prod` (git-ignored, `chmod 600`) or your password manager. Never commit or paste values.
 
-> The brief mentions "Prisma migrations". This project uses SQLAlchemy models + **Alembic** (`services/agent/alembic`,
+> The brief mentions "Prisma migrations". This project uses SQLAlchemy models + **Alembic** (`backend/alembic`,
 > `pnpm db:migrate`). Alembic is the single schema owner; there is no Prisma.
 
 ## 0. Pick the mode first
@@ -59,20 +59,20 @@ Generate random values with `openssl rand -base64 48` (secrets) and `python -m a
 
    ```
    pnpm db:migrate                                    # Alembic upgrade head
-   uv run --directory services/agent python -m seed.cli seed        # idempotent demo data (first deploy)
+   uv run --directory backend python -m seed.cli seed        # idempotent demo data (first deploy)
    pnpm kb:sync && pnpm kb:index                      # knowledge base chunks + embeddings (model ~220 MB, downloads once)
    pnpm db:verify                                     # asserts the key demo numbers and idempotent re-seed
    pnpm demo:check                                    # runs the 12-step demo in replay in a throwaway sandbox; fails on any miss
    ```
 4. **Audit re-sign.** Audit rows are signed with whichever key was configured when they were written. If you change
    `AUDIT_SIGNING_KEY` after seeding, old rows no longer verify. Re-seed under the new key on a demo-only database:
-   `uv run --directory services/agent python -m seed.cli reset-demo --allow-remote` (wipes demo rows, writes a signed `DEMO_RESET`),
+   `uv run --directory backend python -m seed.cli reset-demo --allow-remote` (wipes demo rows, writes a signed `DEMO_RESET`),
    then `pnpm audit:verify -- --file <export> --pubkey docs/submission/audit-public-key.pem` or open `/verify`.
 5. After the first deploy, `scripts/smoke_prod` (section 8) must be green.
 
 ## 3. Deploy A: Vercel Services
 
-`vercel.json` (repo root) defines two services: `web` (`apps/web`, Next.js) and `agent` (`services/agent`, FastAPI, entrypoint
+`vercel.json` (repo root) defines two services: `web` (`frontend`, Next.js) and `agent` (`backend`, FastAPI, entrypoint
 `app/main.py`); `/api/*` goes to the agent with the prefix stripped, everything else to the web app.
 
 1. `vercel link` the repo, add the variables from section 1 for **Production** (and Preview if you test there) in the dashboard or with
@@ -91,7 +91,7 @@ Generate random values with `openssl rand -base64 48` (secrets) and `python -m a
 Needs a Linux host with Docker, ports 80/443 open, and a DNS record for the hostname.
 
 ```
-git clone <repo> && cd Setu            # or rsync the tree; the web Dockerfile lives in apps/web
+git clone <repo> && cd Setu            # or rsync the tree; the web Dockerfile lives in frontend
 cp <your values> .env.prod             # names in section 1; chmod 600; never commit
 docker compose -f docker-compose.prod.yml --env-file .env.prod build \
   --build-arg GIT_SHA=$(git rev-parse --short=7 HEAD)
@@ -159,7 +159,7 @@ BASE_URL=https://<domain> scripts/smoke_prod            # AGENT_URL=... if the A
 ```
 It checks `/health` ready, the landing page, judge sandbox + login, the full 12-step replay, the hidden-text attack is BLOCKED, the signed
 audit export verifies, Privacy Gateway masking, sandbox reset, and prints per-step timings (non-zero exit on any failure). The browser
-flavoured companion is `apps/web/e2e`.
+flavoured companion is `frontend/e2e`.
 
 `GET /health` (public, no secrets, no LLM call) returns `status`, `service`, `db`, `version` plus `ready`, `kb_indexed`,
 `audit_key_loaded`, `replay_fixtures_present`, `git_sha`, `built_at`, `demo_mode`, `demo_replay`. `status` stays `ok` while the

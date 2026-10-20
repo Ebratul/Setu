@@ -1,7 +1,7 @@
 # Hash registry (FR-6.2, SR-6, TC-05)
 
 One trade document must not back two things: escrow evidence on two deals, or collateral at two lenders.
-Code: `services/agent/app/services/hash_registry.py` (rules), `registry.py` (API logic), `api/registry.py`,
+Code: `backend/app/services/hash_registry.py` (rules), `registry.py` (API logic), `api/registry.py`,
 `schemas/registry.py`, table `hash_registry` (migration `d5a3f0c8b7e1`). All money and lenders are simulated.
 
 ## Fingerprints

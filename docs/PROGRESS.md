@@ -956,3 +956,10 @@ Times are Dhaka (UTC+6). Deadline: 20 Oct 2026 21:59 Dhaka. Must-have cut line: 
 ## Metrics (filled by Phase 7.2)
 | Metric | Before | After | n |
 |---|---|---|---|
+
+## 2026-10-20 — Repo restructure (no behaviour change)
+- `apps/web` → `frontend/`; `services/agent` → `backend/`; LangGraph agent + RAG (`app/agent`, `app/rag`, `kb/`) → `rag_agent/`.
+- `app.agent` / `app.rag` still import unchanged: `backend/app/__init__.py` adds `rag_agent/app` to the package path.
+- Tests stay in `backend/tests` (incl. `agent/`, `rag/`); verified identical to before: 768 passed / 31 failed (Postgres not running) / 538 skipped; vitest 433 passed.
+- Env files: `frontend/.env.local`, `backend/.env`, `rag_agent/.env` (see the `.env.example` in each). Root `.env` is still read first.
+- Older entries in this file use the previous paths (`apps/web`, `services/agent`).

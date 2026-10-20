@@ -8,12 +8,12 @@ then explore freely in their own private sandbox. Every step calls the **real se
 | Piece | Where | Notes |
 |---|---|---|
 | Script (12 steps, 27 scenes, 17 scorecard items) | `data/demo/demo_steps.yaml` | EN + BN text, presenter notes, highlight selectors. Validated at load (`app/demo/script.py`) |
-| Orchestrator | `services/agent/app/demo/runner.py` | A scene's actions call the real API **in-process as the scene's user** (same routers, same permission checks), or a registered service call (`app/demo/actions.py`). Expectations are checked and stored per scene |
+| Orchestrator | `backend/app/demo/runner.py` | A scene's actions call the real API **in-process as the scene's user** (same routers, same permission checks), or a registered service call (`app/demo/actions.py`). Expectations are checked and stored per scene |
 | Judge sandboxes | `app/demo/sandbox.py`, `app/db/tenancy.py` | One Postgres **schema** per sandbox, cloned from the seed (profile `demo`), routed by a signed cookie |
 | LLM replay | `app/llm/replay.py` | Fixtures keyed by hash of the masked prompt + model: identical answers, works offline |
 | Pre-flight | `app/demo/preflight.py`, `GET /demo/preflight` | Green/red list |
 | CLI | `pnpm demo:run \| demo:check \| demo:record \| demo:cleanup` | See below |
-| UI | `/demo` (landing), `/demo/run` (split screen) | `apps/web/src/components/demo/` |
+| UI | `/demo` (landing), `/demo/run` (split screen) | `frontend/src/components/demo/` |
 
 ## The story (matches the brief; see the YAML for exact text)
 
@@ -136,7 +136,7 @@ Roles for a scene: `login_as` (a demo email) and `view` (`buyer|supplier|admin|s
   outcomes, same fixture keys, timings within tolerance), isolation (two sandboxes at once, separate approvals, ledgers and audit
   chains), reset + `seed.verify`, middleware (410 / 429), `demo:check` fails when a fixture is missing, credit record, reject
   document.
-* Playwright `apps/web/e2e/demo.spec.ts` (replay, no network).
+* Playwright `frontend/e2e/demo.spec.ts` (replay, no network).
 
 ## Known gaps
 

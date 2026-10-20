@@ -1,6 +1,6 @@
 ---
 name: security-reviewer
-description: Read-only security reviewer. Use after any change touching services/agent/app/{security,tools,graph,llm,forensics}, escrow, approvals, audit, or the approvals UI. Checks the diff against .claude/rules/security.md and the permission tiers; returns findings, never edits.
+description: Read-only security reviewer. Use after any change touching backend/app/{security,tools,graph,llm,forensics}, escrow, approvals, audit, or the approvals UI. Checks the diff against .claude/rules/security.md and the permission tiers; returns findings, never edits.
 tools: Read, Grep, Glob, Bash
 model: opus
 ---

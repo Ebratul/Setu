@@ -15,7 +15,7 @@ x-logging: &logging
 services:
   agent:
     build:
-      context: ./services/agent
+      context: ./backend
       additional_contexts:
         repo: .
       args:
@@ -50,14 +50,14 @@ services:
       TRUSTED_PROXIES: ""
       UVICORN_WORKERS: ${UVICORN_WORKERS:-2}
     volumes:
-      - agent-storage:/app/services/agent/storage
+      - agent-storage:/app/backend/storage
     expose:
       - "8000"
     stop_grace_period: 30s
 
   web:
     build:
-      context: ./apps/web
+      context: ./frontend
       dockerfile: Dockerfile
       args:
         AGENT_URL: http://agent:8000

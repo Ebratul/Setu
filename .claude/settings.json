@@ -22,11 +22,11 @@
       "Bash(git log*)",
       "Bash(make test*)",
       "Bash(make lint*)",
-      "Bash(pnpm --dir apps/web test*)",
-      "Bash(pnpm --dir apps/web lint*)",
-      "Bash(pnpm --dir apps/web typecheck*)",
-      "Bash(uv run --directory services/agent pytest*)",
-      "Bash(uv run --directory services/agent ruff*)"
+      "Bash(pnpm --dir frontend test*)",
+      "Bash(pnpm --dir frontend lint*)",
+      "Bash(pnpm --dir frontend typecheck*)",
+      "Bash(uv run --directory backend pytest*)",
+      "Bash(uv run --directory backend ruff*)"
     ]
   },
   "hooks": {

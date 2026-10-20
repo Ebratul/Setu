@@ -4,7 +4,7 @@ Simulated data only. A document goes in, a verdict (status, 0-100 score, reason 
 milestone evidence status follows. Every number and verdict is deterministic code; a model may only read text that the parser
 could not read, never decides anything, and never sees hidden text or metadata.
 
-Pure logic (no DB, no network, no LLM): `services/agent/app/forensics/`. Orchestration: `app/services/documents/`.
+Pure logic (no DB, no network, no LLM): `backend/app/forensics/`. Orchestration: `app/services/documents/`.
 API: `app/api/documents.py`, `app/schemas/documents.py`. Agent tool: `app/agent/tools/documents.py`.
 No migration: the existing `documents` and `forensic_findings` tables carry everything (verdict and extraction live in
 `documents.extracted_json["_forensics"]`; the extracted fields are the other keys, so `extracted_json["seller"]` still feeds KYB).
@@ -218,7 +218,7 @@ is this invoice ok" (EN and BN) to the tool.
 
 ## Dev-split evaluation (tune on dev only)
 
-`uv run --directory services/agent python -m app.forensics.eval_dev [--fail-only]` (needs `data/generated`; test
+`uv run --directory backend python -m app.forensics.eval_dev [--fail-only]` (needs `data/generated`; test
 `tests/forensics/test_dev_split.py` is skipped without it). It scores only the dev split, builds each pack's deal context from
 `deal.json` instead of the DB (the check functions are pure over fields and a `DealContext`), and never scores or prints test-split
 metrics. Because the duplicate registry is global, the commercial invoice of every pack that another pack copies is registered

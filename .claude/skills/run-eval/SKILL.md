@@ -5,10 +5,10 @@ description: How to run Setu's evaluation harness and record metrics (fraud prec
 
 # Run the evaluation harness
 
-1. **Prerequisites**: `make up && make migrate` (DB running). Datasets exist in `services/agent/eval/data/`
-   — if not, generate: `uv run --directory services/agent python -m synth.cli eval --clean 100 --tampered 100 --seed 2026 --out eval/data`
+1. **Prerequisites**: `make up && make migrate` (DB running). Datasets exist in `backend/eval/data/`
+   — if not, generate: `uv run --directory backend python -m synth.cli eval --clean 100 --tampered 100 --seed 2026 --out eval/data`
    (also writes attacks.jsonl and pii.jsonl).
-2. **Run**: `make eval` = `uv run --directory services/agent python -m eval.run --seed 2026 --out eval/results`.
+2. **Run**: `make eval` = `uv run --directory backend python -m eval.run --seed 2026 --out eval/results`.
    Flags: `--only forensics|duplicates|injection|pii|tiers`, `--with-llm` (uses real Sonnet extraction; costs tokens;
    cached), `--baseline` (defences off for the "before" column).
 3. **What it computes**

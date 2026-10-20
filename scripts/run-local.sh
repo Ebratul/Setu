@@ -12,10 +12,10 @@ sleep 1
 cleanup() { kill "${API_PID:-}" "${WEB_PID:-}" 2>/dev/null || true; }
 trap cleanup EXIT INT TERM
 
-(cd "$ROOT/services/agent" && DATABASE_URL="$DB_URL" AGENT_MOCK_MODE=true DEMO_MODE=true \
+(cd "$ROOT/backend" && DATABASE_URL="$DB_URL" AGENT_MOCK_MODE=true DEMO_MODE=true \
   COOLING_OFF_SECONDS=30 uv run fastapi run app/main.py --port 8000) &
 API_PID=$!
-(cd "$ROOT" && pnpm --dir apps/web dev) &
+(cd "$ROOT" && pnpm --dir frontend dev) &
 WEB_PID=$!
 
 echo "Web: http://localhost:3000   API: http://localhost:8000/docs   (Ctrl+C to stop)"
