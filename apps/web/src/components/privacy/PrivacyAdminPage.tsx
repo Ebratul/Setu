@@ -41,7 +41,7 @@ export function PrivacyAdminPage() {
         <PrivacyCounter />
         <Link
           href="/demo/privacy-playground"
-          className={`inline-block rounded-md font-semibold text-brand-700 underline ${focusRing}`}
+          className={`inline-block rounded-md font-semibold text-brand-text underline ${focusRing}`}
         >
           {t("privacy.admin.playground")}
         </Link>
@@ -197,7 +197,7 @@ function DayChart({ series }: { series: PrivacyOverview["series"] }) {
             type="button"
             aria-expanded={table}
             onClick={() => setTable((v) => !v)}
-            className={`rounded-md text-sm font-semibold text-brand-700 underline ${focusRing}`}
+            className={`rounded-md text-sm font-semibold text-brand-text underline ${focusRing}`}
           >
             {t(table ? "privacy.admin.chartHide" : "privacy.admin.chartShow")}
           </button>
@@ -259,7 +259,7 @@ function RecordRow({ record: r }: { record: PrivacyRecord }) {
         aria-expanded={open}
         aria-controls={panel}
         onClick={() => setOpen((v) => !v)}
-        className={`min-h-6 rounded-md text-sm font-semibold text-brand-700 underline ${focusRing}`}
+        className={`min-h-6 rounded-md text-sm font-semibold text-brand-text underline ${focusRing}`}
       >
         {t(open ? "privacy.admin.collapse" : "privacy.admin.expand")}
       </button>
@@ -291,7 +291,7 @@ function ProvePanel({ trace }: { trace: PrivacyOverview["trace"] }) {
             target="_blank"
             rel="noopener noreferrer"
             data-testid="trace-link"
-            className={`inline-block rounded-md font-semibold text-brand-700 underline ${focusRing}`}
+            className={`inline-block rounded-md font-semibold text-brand-text underline ${focusRing}`}
           >
             {t("privacy.admin.prove.link")} <span aria-hidden="true">↗</span>
           </a>

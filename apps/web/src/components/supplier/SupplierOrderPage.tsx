@@ -53,7 +53,7 @@ function Body({ deal, reload, back }: { deal: DealDetail; reload: () => void; ba
     <div className="space-y-6">
       <Link
         href="/supplier"
-        className="text-sm font-semibold text-brand-700 underline focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:outline-none"
+        className="text-sm font-semibold text-brand-text underline focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:outline-none"
       >
         ← {back}
       </Link>
@@ -81,7 +81,7 @@ function Body({ deal, reload, back }: { deal: DealDetail; reload: () => void; ba
         <p className="text-xs text-muted">{t("sp.escrowNote")}</p>
       </Card>
 
-      <section aria-labelledby="sp-ms-h" className="space-y-3">
+      <section aria-labelledby="sp-ms-h" data-demo="supplier-schedule" className="space-y-3">
         <h2 id="sp-ms-h" className="text-lg font-bold text-ink">
           <Bi k="sp.milestones" />
         </h2>

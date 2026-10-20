@@ -4,8 +4,9 @@ import Link from "next/link";
 import { useState } from "react";
 
 import { CurrencyToggle } from "@/components/analysis/CurrencyToggle";
-import { KpiCard } from "@/components/analysis/KpiCard";
 import { Card } from "@/components/ui/Card";
+import { CountUp } from "@/components/ui/CountUp";
+import { KpiCard } from "@/components/ui/KpiCard";
 import { QueryError } from "@/components/ui/QueryError";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { useLang, useT } from "@/i18n";
@@ -21,7 +22,7 @@ import { MonthCard } from "./MonthCard";
 import { PendingApprovalsCard } from "./PendingApprovalsCard";
 
 export const linkClass =
-  "font-semibold text-brand-700 underline focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:outline-none";
+  "font-semibold text-brand-text underline focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:outline-none";
 
 type Props = { partyId?: string };
 
@@ -44,8 +45,15 @@ export function DashboardView({ partyId }: Props) {
       </div>
     );
   }
-  const money = (a: Record<Currency, string>) =>
-    formatMoney(a[currency], currency, lang);
+  // Server value is the source of truth: the animation only decorates it, and screen readers get the final text.
+  const money = (a: Record<Currency, string>) => (
+    <>
+      <span className="sr-only">{formatMoney(a[currency], currency, lang)}</span>
+      <span aria-hidden="true">
+        <CountUp value={a[currency]} format={(v) => formatMoney(v, currency, lang)} />
+      </span>
+    </>
+  );
 
   return (
     <div className="space-y-6">

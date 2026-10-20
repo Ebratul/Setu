@@ -15,7 +15,7 @@ export function LoginScreen() {
     <>
       <header className="border-b border-line bg-surface">
         <div className="mx-auto flex max-w-2xl flex-wrap items-center justify-between gap-3 px-4 py-3">
-          <span className="text-lg font-bold text-brand-700">Setu সেতু</span>
+          <span className="text-lg font-bold text-brand-text">Setu সেতু</span>
           <div className="flex items-center gap-3">
             <SimulatedBadge />
             <LanguageToggle />

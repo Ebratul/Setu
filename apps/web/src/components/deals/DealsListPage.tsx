@@ -32,7 +32,7 @@ const FILTERS: (DealStatus | "ALL")[] = [
 const KYB = ["VERIFIED", "WARNING", "BLOCKED", "PENDING"];
 
 const linkCls =
-  "font-semibold text-brand-700 underline focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2 focus-visible:outline-none";
+  "font-semibold text-brand-text underline focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2 focus-visible:outline-none";
 
 export function DealsListPage() {
   const t = useT();
@@ -113,7 +113,29 @@ export function DealsListPage() {
       ) : !data ? (
         <Skeleton className="h-48" />
       ) : shown.length === 0 ? (
-        <EmptyState title={t("deals.empty")} />
+        data.deals.length === 0 && status === "ALL" ? (
+          <EmptyState
+            icon="box"
+            title={t("emptyx.dealsTitle")}
+            body={t("emptyx.dealsBody")}
+            action={
+              canCreate ? (
+                <Link
+                  href="/app/deals/new"
+                  className="inline-flex min-h-11 items-center rounded-xl bg-brand-700 px-4 py-2 text-sm font-semibold text-white hover:bg-brand-800 focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2 focus-visible:outline-none"
+                >
+                  {t("emptyx.dealsCta")}
+                </Link>
+              ) : undefined
+            }
+          />
+        ) : (
+          <EmptyState
+            icon="search"
+            title={t("deals.empty")}
+            body={t("emptyx.dealsFilteredBody")}
+          />
+        )
       ) : (
         <div className="overflow-x-auto rounded-card bg-surface p-3 shadow-card">
           <p aria-live="polite" className="sr-only">

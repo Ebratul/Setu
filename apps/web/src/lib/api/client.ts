@@ -9,14 +9,18 @@ export class ApiError extends Error {
   readonly detail: string | null;
   /** Stable machine-readable reason from the problem JSON, e.g. EVIDENCE_NOT_VERIFIED. */
   readonly code: string | null;
+  /** Seconds from the Retry-After header (429 only), else null. */
+  readonly retryAfter: number | null;
 
   constructor(
     status: number,
     message: string,
     detail: string | null = null,
     code: string | null = null,
+    retryAfter: number | null = null,
   ) {
     super(message);
+    this.retryAfter = retryAfter;
     this.name = "ApiError";
     this.status = status;
     this.detail = detail;
@@ -40,11 +44,13 @@ async function toError(method: string, path: string, res: Response) {
   } catch {
     /* non-JSON error body */
   }
+  const ra = Number(res.headers.get("Retry-After"));
   return new ApiError(
     res.status,
     `${method} ${path} failed with ${res.status}`,
     detail,
     code,
+    Number.isFinite(ra) && ra > 0 ? ra : null,
   );
 }
 

@@ -21,7 +21,7 @@ export function WhyPanel({ explanations, facts }: Props) {
       </ul>
       {facts.length > 0 ? (
         <details className="mt-4 text-sm">
-          <summary className="cursor-pointer font-semibold text-brand-700 focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:outline-none">
+          <summary className="cursor-pointer font-semibold text-brand-text focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:outline-none">
             {t("analysis.why.facts")}
           </summary>
           <ul className="mt-2 list-disc space-y-1 pl-5 text-muted">

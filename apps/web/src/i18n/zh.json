@@ -12,7 +12,10 @@
     "cancel": "取消",
     "loading": "加载中…",
     "retry": "重试",
-    "footer": "FinTechathon 2026 · 模拟沙盒，无真实支付"
+    "footer": "FinTechathon 2026 · 模拟沙盒，无真实支付",
+    "simulatedData": "模拟数据",
+    "updating": "更新中…",
+    "redirectingLogin": "正在跳转到登录…"
   },
   "shell": {
     "skip": "跳到主要内容",

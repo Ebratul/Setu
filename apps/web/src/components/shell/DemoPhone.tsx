@@ -117,7 +117,7 @@ export function DemoPhone() {
         </button>
       </div>
       <p className="px-1 text-xs font-semibold tracking-wide text-warning uppercase">{t("phone.simulated")}</p>
-      <div className="mt-2 max-h-64 space-y-2 overflow-y-auto rounded-2xl bg-surface-alt p-2" aria-live="polite">
+      <div tabIndex={0} role="region" aria-label={t("phone.title")} className="mt-2 max-h-64 space-y-2 overflow-y-auto rounded-2xl bg-surface-alt p-2 focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:outline-none" aria-live="polite">
         {messages.length === 0 ? (
           <p className="p-2 text-xs text-muted">{t("phone.empty")}</p>
         ) : (

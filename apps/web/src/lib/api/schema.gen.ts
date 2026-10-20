@@ -918,6 +918,46 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/credit-records/{deal}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Record
+         * @description The signed record of a completed deal (reference or id), with its verification result.
+         */
+        get: operations["get_record_credit_records__deal__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/credit-records/verify": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Verify
+         * @description Lender-style check of a record you hold: recompute the hash and verify the signature.
+         */
+        post: operations["verify_credit_records_verify_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/deals/{deal_id}/documents": {
         parameters: {
             query?: never;
@@ -1000,6 +1040,27 @@ export interface paths {
          *     deal's reference for booking, dates and bank details. Tier 2 human action, audited.
          */
         post: operations["accept_reference_documents__document_id__accept_reference_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/documents/{document_id}/reject": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Reject
+         * @description Withdraw an uploaded file (forged, wrong or replaced) so it no longer counts as evidence.
+         *     Buyer of the deal or admin; audited. The file and its findings stay on record.
+         */
+        post: operations["reject_documents__document_id__reject_post"];
         delete?: never;
         options?: never;
         head?: never;
@@ -1407,6 +1468,225 @@ export interface paths {
         get: operations["deal_timeline_deals__deal_id__timeline_get"];
         put?: never;
         post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/demo/steps": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Steps
+         * @description The story: titles, narration, presenter notes, scenes and the scorecard (EN and BN).
+         */
+        get: operations["steps_demo_steps_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/demo/preflight": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Preflight
+         * @description Green/red readiness list: API, database, fixtures, audit key, knowledge base.
+         */
+        get: operations["get_preflight_demo_preflight_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/demo/sandbox": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Sandbox */
+        get: operations["get_sandbox_demo_sandbox_get"];
+        put?: never;
+        /**
+         * Start Sandbox
+         * @description Start (or resume) the judge's own sandbox: a private copy of the demo data.
+         */
+        post: operations["start_sandbox_demo_sandbox_post"];
+        /**
+         * End Sandbox
+         * @description End the sandbox now and drop its data.
+         */
+        delete: operations["end_sandbox_demo_sandbox_delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/demo/sandbox/live-ai": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Live Ai
+         * @description Use the real model for this sandbox's AI answers (budget-capped); off = recorded replay.
+         */
+        post: operations["live_ai_demo_sandbox_live_ai_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/demo/sandbox/skip-cooling-off": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Skip Cooling Off
+         * @description "Skip cooling-off (demo only)": ends the pause of this sandbox's open Tier 3 requests.
+         */
+        post: operations["skip_cooling_off_demo_sandbox_skip_cooling_off_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/demo/run": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Run */
+        get: operations["get_run_demo_run_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/demo/run/scenes/{n}/{k}/run": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Run Scene
+         * @description Run one scene's real actions in this sandbox (a passed scene is not run twice).
+         */
+        post: operations["run_scene_demo_run_scenes__n___k__run_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/demo/run/goto": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Goto
+         * @description Deep link / jump: run every earlier scene that has not run, so the state is right.
+         */
+        post: operations["goto_demo_run_goto_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/demo/run/reset": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Reset
+         * @description Rebuild only this sandbox from the seed (audited as DEMO_RESET).
+         */
+        post: operations["reset_demo_run_reset_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/demo/run/summary": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Run Summary */
+        get: operations["run_summary_demo_run_summary_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/demo/cleanup": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Cleanup
+         * @description Drop expired sandboxes (for a scheduler). Needs `Authorization: Bearer $CRON_SECRET`.
+         */
+        post: operations["cleanup_demo_cleanup_post"];
         delete?: never;
         options?: never;
         head?: never;
@@ -2373,6 +2653,23 @@ export interface components {
              */
             simulated: true;
         };
+        /** AssertionOut */
+        AssertionOut: {
+            label: components["schemas"]["Bi"];
+            /** Ok */
+            ok: boolean;
+            /** Expected */
+            expected: string;
+            /** Actual */
+            actual: string;
+        };
+        /** Bi */
+        Bi: {
+            /** En */
+            en: string;
+            /** Bn */
+            bn: string;
+        };
         /** Bilingual */
         Bilingual: {
             /** Code */
@@ -2778,6 +3075,16 @@ export interface components {
             /** Event Id */
             event_id?: string | null;
         };
+        /** CoolingOffOut */
+        CoolingOffOut: {
+            /** Skipped */
+            skipped: number;
+            /**
+             * Note
+             * @default Demo only: the cooling-off pause was skipped in this sandbox (audited).
+             */
+            note: string;
+        };
         /** CostDriverOut */
         CostDriverOut: {
             /**
@@ -2934,6 +3241,52 @@ export interface components {
             expected_sale_value?: string | null;
             /** Costs */
             costs?: components["schemas"]["CostIn"][];
+        };
+        /** CreditRecordOut */
+        CreditRecordOut: {
+            /**
+             * Simulated
+             * @default true
+             * @constant
+             */
+            simulated: true;
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Deal Ref */
+            deal_ref: string;
+            /**
+             * Issued At
+             * Format: date-time
+             */
+            issued_at: string;
+            /** Key Id */
+            key_id: string;
+            /** Payload */
+            payload: {
+                [key: string]: unknown;
+            };
+            /** Payload Hash */
+            payload_hash: string;
+            /** Signature */
+            signature: string;
+            /** Hash Ok */
+            hash_ok: boolean;
+            /** Signature Ok */
+            signature_ok: boolean;
+            /** Verified */
+            verified: boolean;
+            /** Public Key Pem */
+            public_key_pem: string;
+        };
+        /** CursorOut */
+        CursorOut: {
+            /** N */
+            n: number;
+            /** K */
+            k: number;
         };
         /** DashboardDeal */
         DashboardDeal: {
@@ -4673,6 +5026,14 @@ export interface components {
             /** Facts */
             facts: string[];
         };
+        /** GotoIn */
+        GotoIn: {
+            /**
+             * Step
+             * @description Run every earlier scene that has not run yet.
+             */
+            step: number;
+        };
         /** HTTPValidationError */
         HTTPValidationError: {
             /** Detail */
@@ -5451,6 +5812,23 @@ export interface components {
             /** Held By */
             held_by?: string | null;
         };
+        /** LiveAiIn */
+        LiveAiIn: {
+            /** Enabled */
+            enabled: boolean;
+        };
+        /** LlmNote */
+        LlmNote: {
+            /**
+             * Mode
+             * @enum {string}
+             */
+            mode: "off" | "replay" | "record" | "live";
+            /** Fixtures Used */
+            fixtures_used: number;
+            /** Misses */
+            misses: number;
+        };
         /** LoanIn */
         LoanIn: {
             /**
@@ -6064,6 +6442,25 @@ export interface components {
             /** Condition Bn */
             condition_bn: string;
         };
+        /** PreflightItem */
+        PreflightItem: {
+            /** Id */
+            id: string;
+            label: components["schemas"]["Bi"];
+            /** Ok */
+            ok: boolean;
+            /** Detail */
+            detail: string;
+        };
+        /** PreflightOut */
+        PreflightOut: {
+            /** Ok */
+            ok: boolean;
+            /** Replay */
+            replay: boolean;
+            /** Items */
+            items: components["schemas"]["PreflightItem"][];
+        };
         /** PrivacyConfigOut */
         PrivacyConfigOut: {
             /** Enabled */
@@ -6425,11 +6822,6 @@ export interface components {
          * @enum {string}
          */
         RegistryStatus: "ACTIVE" | "RELEASED";
-        /** RejectIn */
-        RejectIn: {
-            /** Reason */
-            reason?: string | null;
-        };
         /** RejectResult */
         RejectResult: {
             approval: components["schemas"]["app__schemas__approvals__ApprovalOut"];
@@ -6563,6 +6955,73 @@ export interface components {
              */
             total: string;
         };
+        /** RunOut */
+        RunOut: {
+            sandbox: components["schemas"]["SandboxOut"];
+            cursor?: components["schemas"]["CursorOut"] | null;
+            /** Scenes */
+            scenes: components["schemas"]["SceneResultOut"][];
+            /** Scorecard */
+            scorecard: components["schemas"]["ScoreItemOut"][];
+            /** Total Scenes */
+            total_scenes: number;
+            /** Passed */
+            passed: number;
+            /** Failed */
+            failed: number;
+            /** Completed */
+            completed: boolean;
+            last?: components["schemas"]["SceneResultOut"] | null;
+        };
+        /** SandboxCreateIn */
+        SandboxCreateIn: {
+            /**
+             * Fresh
+             * @description Discard the current sandbox and start a new one.
+             * @default false
+             */
+            fresh: boolean;
+        };
+        /** SandboxOut */
+        SandboxOut: {
+            /**
+             * Simulated
+             * @default true
+             * @constant
+             */
+            simulated: true;
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Expires At
+             * Format: date-time
+             */
+            expires_at: string;
+            /**
+             * Replay
+             * @description AI answers come from recorded fixtures (identical, offline).
+             */
+            replay: boolean;
+            /** Live Ai */
+            live_ai: boolean;
+            /**
+             * Live Ai Available
+             * @description A real model key is configured on the server.
+             */
+            live_ai_available: boolean;
+            /** Live Ai Budget Left */
+            live_ai_budget_left: number;
+            /** Resets */
+            resets: number;
+        };
         /** ScenarioOut */
         ScenarioOut: {
             /**
@@ -6605,6 +7064,61 @@ export interface components {
              */
             loans: components["schemas"]["LoanIn"][];
         };
+        /** SceneDefOut */
+        SceneDefOut: {
+            /** K */
+            k: number;
+            /**
+             * View
+             * @enum {string}
+             */
+            view: "buyer" | "supplier" | "admin" | "split";
+            /** Login As */
+            login_as: string;
+            /**
+             * Route
+             * @description Route template; the resolved route comes with the result.
+             */
+            route: string;
+            /**
+             * Highlight
+             * @description CSS selector of the element to spotlight.
+             */
+            highlight?: string | null;
+            caption: components["schemas"]["Bi"];
+        };
+        /** SceneResultOut */
+        SceneResultOut: {
+            /** N */
+            n: number;
+            /** K */
+            k: number;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "pending" | "running" | "passed" | "failed";
+            /** Started At */
+            started_at?: string | null;
+            /** Duration Ms */
+            duration_ms?: number | null;
+            /** Assertions */
+            assertions?: components["schemas"]["AssertionOut"][];
+            /** Facts */
+            facts?: {
+                [key: string]: unknown;
+            };
+            /**
+             * Route
+             * @description Resolved route to show in the embedded app.
+             */
+            route?: string | null;
+            /** @description Friendly text when the scene could not finish. */
+            message?: components["schemas"]["Bi"] | null;
+            /** Error Code */
+            error_code?: string | null;
+            llm?: components["schemas"]["LlmNote"] | null;
+        };
         /** ScheduleOut */
         ScheduleOut: {
             /**
@@ -6636,6 +7150,41 @@ export interface components {
             cost: components["schemas"]["app__schemas__financing__CostOut"];
             /** Instalments */
             instalments: components["schemas"]["InstalmentOut"][];
+        };
+        /** ScoreDefOut */
+        ScoreDefOut: {
+            /** Id */
+            id: string;
+            /**
+             * Group
+             * @enum {string}
+             */
+            group: "TASK" | "SECURITY" | "INNOVATION";
+            /**
+             * After
+             * @description Scene "n.k" whose success ticks this item.
+             */
+            after: string;
+            /** Link */
+            link: string;
+            label: components["schemas"]["Bi"];
+        };
+        /** ScoreItemOut */
+        ScoreItemOut: {
+            /** Id */
+            id: string;
+            /**
+             * Group
+             * @enum {string}
+             */
+            group: "TASK" | "SECURITY" | "INNOVATION";
+            label: components["schemas"]["Bi"];
+            /** Link */
+            link: string;
+            /** After */
+            after: string;
+            /** Ticked */
+            ticked: boolean;
         };
         /** ScorePoint */
         ScorePoint: {
@@ -6714,6 +7263,21 @@ export interface components {
             window_months: number;
             /** Suppliers */
             suppliers: components["schemas"]["SupplierItem"][];
+        };
+        /** ScriptOut */
+        ScriptOut: {
+            /**
+             * Simulated
+             * @default true
+             * @constant
+             */
+            simulated: true;
+            /** Steps */
+            steps: components["schemas"]["StepDefOut"][];
+            /** Scorecard */
+            scorecard: components["schemas"]["ScoreDefOut"][];
+            /** Total Scenes */
+            total_scenes: number;
         };
         /**
          * SecurityCheckOut
@@ -6916,6 +7480,38 @@ export interface components {
             data?: {
                 [key: string]: unknown;
             };
+        };
+        /** StepDefOut */
+        StepDefOut: {
+            /** N */
+            n: number;
+            /** Id */
+            id: string;
+            /**
+             * Tag
+             * @enum {string}
+             */
+            tag: "TASK" | "SECURITY" | "INNOVATION";
+            title: components["schemas"]["Bi"];
+            narration: components["schemas"]["Bi"];
+            /** @description Presenter talking points (presenter mode only). */
+            notes: components["schemas"]["Bi"];
+            /** Scenes */
+            scenes: components["schemas"]["SceneDefOut"][];
+        };
+        /** SummaryLink */
+        SummaryLink: {
+            label: components["schemas"]["Bi"];
+            /** Href */
+            href: string;
+        };
+        /** SummaryNumber */
+        SummaryNumber: {
+            /** Key */
+            key: string;
+            /** Value */
+            value: string;
+            label: components["schemas"]["Bi"];
         };
         /** SupplierCompany */
         SupplierCompany: {
@@ -7205,7 +7801,7 @@ export interface components {
              * @constant
              */
             real_table_changed: false;
-            report: components["schemas"]["VerifyOut"];
+            report: components["schemas"]["app__api__audit__VerifyOut"];
             /** Entries */
             entries: components["schemas"]["EntryOut"][];
         };
@@ -7451,35 +8047,14 @@ export interface components {
             /** Checked At */
             checked_at?: string | null;
         };
-        /** VerifyOut */
-        VerifyOut: {
-            /** Ok */
-            ok: boolean;
-            /** Entries Checked */
-            entries_checked: number;
-            /** First Seq */
-            first_seq: number | null;
-            /** Last Seq */
-            last_seq: number | null;
-            /** Broken Seq */
-            broken_seq: number | null;
-            /** Reason */
-            reason: string | null;
-            /** Detail */
-            detail: string | null;
-            /** Anchored */
-            anchored: boolean;
-            /** Missing Seqs */
-            missing_seqs: number;
-            /** Scheme */
-            scheme: string;
-            /** Public Key Fingerprint */
-            public_key_fingerprint: string;
-            /**
-             * Verified At
-             * Format: date-time
-             */
-            verified_at: string;
+        /** VerifyIn */
+        VerifyIn: {
+            /** Payload */
+            payload: {
+                [key: string]: unknown;
+            };
+            /** Signature */
+            signature: string;
         };
         /** WeekOut */
         WeekOut: {
@@ -7552,7 +8127,55 @@ export interface components {
             fingerprint: string;
             /** Scheme */
             scheme: string;
-            last_verification: components["schemas"]["VerifyOut"] | null;
+            last_verification: components["schemas"]["app__api__audit__VerifyOut"] | null;
+        };
+        /** VerifyOut */
+        app__api__audit__VerifyOut: {
+            /** Ok */
+            ok: boolean;
+            /** Entries Checked */
+            entries_checked: number;
+            /** First Seq */
+            first_seq: number | null;
+            /** Last Seq */
+            last_seq: number | null;
+            /** Broken Seq */
+            broken_seq: number | null;
+            /** Reason */
+            reason: string | null;
+            /** Detail */
+            detail: string | null;
+            /** Anchored */
+            anchored: boolean;
+            /** Missing Seqs */
+            missing_seqs: number;
+            /** Scheme */
+            scheme: string;
+            /** Public Key Fingerprint */
+            public_key_fingerprint: string;
+            /**
+             * Verified At
+             * Format: date-time
+             */
+            verified_at: string;
+        };
+        /** VerifyOut */
+        app__api__credit_records__VerifyOut: {
+            /**
+             * Simulated
+             * @default true
+             * @constant
+             */
+            simulated: true;
+            /** Payload Hash */
+            payload_hash: string;
+            /** Verified */
+            verified: boolean;
+        };
+        /** RejectIn */
+        app__api__documents__RejectIn: {
+            /** Reason */
+            reason: string;
         };
         /** DayPoint */
         app__api__risk__DayPoint: {
@@ -7655,6 +8278,11 @@ export interface components {
              */
             simulated: true;
         };
+        /** RejectIn */
+        app__schemas__approvals__RejectIn: {
+            /** Reason */
+            reason?: string | null;
+        };
         /** NextMilestone */
         app__schemas__cashflow__NextMilestone: {
             /** Seq */
@@ -7726,6 +8354,28 @@ export interface components {
              * @enum {string}
              */
             trigger: "PRODUCTION_START" | "SHIPMENT" | "ARRIVAL";
+        };
+        /** SummaryOut */
+        app__schemas__demo__SummaryOut: {
+            /**
+             * Simulated
+             * @default true
+             * @constant
+             */
+            simulated: true;
+            /**
+             * Ready
+             * @description All scenes have run.
+             */
+            ready: boolean;
+            /** Numbers */
+            numbers: components["schemas"]["SummaryNumber"][];
+            /** Attacks */
+            attacks: components["schemas"]["Bi"][];
+            /** Links */
+            links: components["schemas"]["SummaryLink"][];
+            /** Run Seconds */
+            run_seconds?: number | null;
         };
         /** ApprovalOut */
         app__schemas__financing__ApprovalOut: {
@@ -9352,6 +10002,70 @@ export interface operations {
             };
         };
     };
+    get_record_credit_records__deal__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                deal: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CreditRecordOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    verify_credit_records_verify_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["VerifyIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["app__api__credit_records__VerifyOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     list_documents_deals__deal_id__documents_get: {
         parameters: {
             query?: never;
@@ -9493,6 +10207,41 @@ export interface operations {
             cookie?: never;
         };
         requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DocumentDetail"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    reject_documents__document_id__reject_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                document_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["app__api__documents__RejectIn"];
+            };
+        };
         responses: {
             /** @description Successful Response */
             200: {
@@ -9913,7 +10662,7 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["RejectIn"];
+                "application/json": components["schemas"]["app__schemas__approvals__RejectIn"];
             };
         };
         responses: {
@@ -10123,6 +10872,330 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["TimelineOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    steps_demo_steps_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ScriptOut"];
+                };
+            };
+        };
+    };
+    get_preflight_demo_preflight_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PreflightOut"];
+                };
+            };
+        };
+    };
+    get_sandbox_demo_sandbox_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SandboxOut"];
+                };
+            };
+        };
+    };
+    start_sandbox_demo_sandbox_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SandboxCreateIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SandboxOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    end_sandbox_demo_sandbox_delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    live_ai_demo_sandbox_live_ai_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["LiveAiIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SandboxOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    skip_cooling_off_demo_sandbox_skip_cooling_off_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CoolingOffOut"];
+                };
+            };
+        };
+    };
+    get_run_demo_run_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RunOut"];
+                };
+            };
+        };
+    };
+    run_scene_demo_run_scenes__n___k__run_post: {
+        parameters: {
+            query?: {
+                force?: boolean;
+            };
+            header?: never;
+            path: {
+                n: number;
+                k: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RunOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    goto_demo_run_goto_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["GotoIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RunOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    reset_demo_run_reset_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RunOut"];
+                };
+            };
+        };
+    };
+    run_summary_demo_run_summary_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["app__schemas__demo__SummaryOut"];
+                };
+            };
+        };
+    };
+    cleanup_demo_cleanup_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                authorization?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: number;
+                    };
                 };
             };
             /** @description Validation Error */
@@ -10669,7 +11742,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["VerifyOut"];
+                    "application/json": components["schemas"]["app__api__audit__VerifyOut"];
                 };
             };
             /** @description Validation Error */

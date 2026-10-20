@@ -158,7 +158,7 @@ export function VerifyPage() {
     <>
       <header className="border-b border-line bg-surface shadow-card">
         <div className="mx-auto flex max-w-4xl flex-wrap items-center justify-between gap-3 px-4 py-3">
-          <Link href="/" className={`rounded text-lg font-bold text-brand-700 ${focus}`}>
+          <Link href="/" className={`rounded text-lg font-bold text-brand-text ${focus}`}>
             Setu সেতু
           </Link>
           <LanguageToggle withZh />

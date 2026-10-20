@@ -19,12 +19,14 @@ type Props = {
   message: UiMessage;
   onRetry: (id: string) => void;
   onRate: (m: AssistantMessage, rating: "up" | "down") => void;
+  /** Newest assistant answer (guided-demo spotlight anchor). */
+  latest?: boolean;
 };
 
 const focusRing =
   "focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2 focus-visible:outline-none";
 
-export function MessageBubble({ message, onRetry, onRate }: Props) {
+export function MessageBubble({ message, onRetry, onRate, latest }: Props) {
   if (message.role === "user") {
     return (
       <li className="flex justify-end">
@@ -37,17 +39,19 @@ export function MessageBubble({ message, onRetry, onRate }: Props) {
       </li>
     );
   }
-  return <AssistantBubble m={message} onRetry={onRetry} onRate={onRate} />;
+  return <AssistantBubble m={message} onRetry={onRetry} onRate={onRate} latest={latest} />;
 }
 
 function AssistantBubble({
   m,
   onRetry,
   onRate,
+  latest,
 }: {
   m: AssistantMessage;
   onRetry: Props["onRetry"];
   onRate: Props["onRate"];
+  latest?: boolean;
 }) {
   const t = useT();
   const [copied, setCopied] = useState(false);
@@ -95,6 +99,7 @@ function AssistantBubble({
     <li className="flex min-w-0 justify-start">
       <div
         data-role="assistant"
+        data-demo={latest ? "chat-answer" : undefined}
         data-status={m.status}
         className="w-full min-w-0 max-w-full space-y-2 rounded-2xl rounded-bl-md border border-line bg-surface px-3.5 py-3 text-sm text-ink shadow-card sm:max-w-[92%]"
       >

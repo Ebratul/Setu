@@ -24,7 +24,7 @@ export function DecidedByCode() {
         onClick={() => setOpen(true)}
         onFocus={() => setOpen(true)}
         onBlur={() => setOpen(false)}
-        className="inline-flex items-center gap-1 rounded-full border border-brand-700 bg-brand-50 px-3 py-1 text-xs font-semibold text-brand-800 focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2 focus-visible:outline-none"
+        className="inline-flex items-center gap-1 rounded-full border border-brand-700 bg-brand-50 px-3 py-1 text-xs font-semibold text-brand-text focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2 focus-visible:outline-none"
       >
         <span aria-hidden="true">⚙</span>
         {t("risk.code.badge")}

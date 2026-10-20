@@ -70,7 +70,7 @@ export function DealKybPanel({ supplierId }: { supplierId: string }) {
       )}
       <Link
         href={`/app/suppliers/${profile.data.supplier_id}`}
-        className="inline-block rounded text-sm font-semibold text-brand-700 underline focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2 focus-visible:outline-none"
+        className="inline-block rounded text-sm font-semibold text-brand-text underline focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2 focus-visible:outline-none"
       >
         {t("sup.panel.viewProfile")} →
       </Link>

@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
@@ -25,6 +25,7 @@ import {
 } from "@/lib/api/documents";
 import { getDocumentRegistry } from "@/lib/api/registry";
 import { useApi } from "@/lib/useApi";
+import { useEmbed } from "@/lib/useEmbed";
 
 import { ChecksList } from "./ChecksList";
 import { DocStatusBadge } from "./DocStatusBadge";
@@ -35,7 +36,7 @@ import { RegistryBox } from "./RegistryBox";
 import { VerdictPanel } from "./VerdictPanel";
 
 const linkCls =
-  "text-sm font-semibold text-brand-700 underline focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2 focus-visible:outline-none";
+  "text-sm font-semibold text-brand-text underline focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2 focus-visible:outline-none";
 
 export function DocumentViewerPage({ id }: { id: string }) {
   const doc = useApi((s) => getDocument(id, s), `document|${id}`);
@@ -122,6 +123,16 @@ function Viewer({
       setHiddenBusy(false);
     }
   }
+
+  // Guided demo (embedded in the iframe): show the hidden instruction without a click.
+  const embed = useEmbed();
+  const autoReveal = useRef(false);
+  useEffect(() => {
+    if (!embed || !hasHidden || autoReveal.current) return;
+    autoReveal.current = true;
+    void toggle();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [embed, hasHidden]);
 
   async function recheck() {
     setRecheckBusy(true);
@@ -237,7 +248,11 @@ function Viewer({
             </Card>
           ) : null}
 
-          {buyerSide && registry.data ? <RegistryBox registry={registry.data} /> : null}
+          {buyerSide && registry.data ? (
+            <div data-demo="registry-box">
+              <RegistryBox registry={registry.data} />
+            </div>
+          ) : null}
 
           {buyerSide ? (
             <Card as="section" labelledBy="c-h" className="space-y-3">

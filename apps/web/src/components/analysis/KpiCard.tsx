@@ -22,15 +22,18 @@ type Props = {
   ariaLabel?: string;
   band?: MarginBand | null;
   hint?: string;
+  /** Guided-demo spotlight anchor. */
+  demo?: string;
 };
 
-export function KpiCard({ label, value, ariaLabel, band, hint }: Props) {
+export function KpiCard({ label, value, ariaLabel, band, hint, demo }: Props) {
   const t = useT();
   const tone: Tone = band ? BAND_TONE[band] : "neutral";
   return (
     <div
       data-tone={tone}
       data-testid="kpi-card"
+      data-demo={demo}
       className={`rounded-card border-l-4 bg-surface p-5 shadow-card ${toneClasses[tone].split(" ")[0]}`}
     >
       <p className="text-sm font-medium text-muted">{label}</p>

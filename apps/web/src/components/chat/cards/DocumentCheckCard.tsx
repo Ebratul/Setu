@@ -22,7 +22,7 @@ const UI: Record<string, DocUiStatus | null> = {
 };
 
 const linkCls =
-  "rounded-md font-semibold text-brand-700 underline focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2 focus-visible:outline-none";
+  "rounded-md font-semibold text-brand-text underline focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2 focus-visible:outline-none";
 
 /** Read-only summary of stored document checks: status, score, top reasons and links. No actions. */
 export function DocumentCheckCard({ card }: { card: Card }) {

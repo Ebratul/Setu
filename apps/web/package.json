@@ -12,7 +12,8 @@
     "format:check": "prettier --check .",
     "test": "vitest run --passWithNoTests",
     "e2e": "playwright test",
-    "types": "openapi-typescript http://localhost:8000/openapi.json -o src/lib/api/schema.gen.ts"
+    "types": "openapi-typescript http://localhost:8000/openapi.json -o src/lib/api/schema.gen.ts",
+    "i18n:check": "node scripts/check-i18n.mjs"
   },
   "dependencies": {
     "@noble/ed25519": "3.0.0",

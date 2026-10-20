@@ -16,6 +16,7 @@ export type AlertView = AlertPreview & { id?: string; status?: AlertStatus };
 type Props = { alert: AlertView; actions?: ReactNode };
 
 const CURRENCIES: readonly string[] = ["USD", "BDT", "CNY"];
+const DEMO_ANCHOR: Record<string, string | undefined> = { SHORTFALL: "shortfall-alert", DEADLINE: "deadline-alerts" };
 const SHOWS_AMOUNT = new Set(["SHORTFALL", "DEADLINE"]);
 
 export function AlertItem({ alert, actions }: Props) {
@@ -30,6 +31,7 @@ export function AlertItem({ alert, actions }: Props) {
   return (
     <li
       data-alert-type={alert.type}
+      data-demo={DEMO_ANCHOR[alert.type]}
       data-severity={alert.severity}
       className="rounded-xl border border-line bg-surface p-4"
     >
@@ -65,7 +67,7 @@ export function AlertItem({ alert, actions }: Props) {
         {alert.action ? (
           <Link
             href={actionHref(alert.action)}
-            className="rounded-xl border border-brand-700 px-3 py-1.5 text-sm font-semibold text-brand-700 hover:bg-brand-50 focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2 focus-visible:outline-none"
+            className="rounded-xl border border-brand-700 px-3 py-1.5 text-sm font-semibold text-brand-text hover:bg-brand-50 focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2 focus-visible:outline-none"
           >
             {bn ? alert.action.label_bn : alert.action.label_en}
           </Link>

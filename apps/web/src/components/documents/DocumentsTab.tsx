@@ -20,7 +20,7 @@ import { DocStatusBadge } from "./DocStatusBadge";
 import { UploadPanel } from "./UploadPanel";
 
 const linkCls =
-  "font-semibold text-brand-700 underline focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2 focus-visible:outline-none";
+  "font-semibold text-brand-text underline focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2 focus-visible:outline-none";
 
 type Props = { deal: DealDetail; onChanged: () => void };
 

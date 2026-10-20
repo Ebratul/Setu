@@ -31,10 +31,11 @@ export function MilestoneStepper({
   const t = useT();
   const { lang } = useLang();
   const current = milestones.find((m) => OPEN_STATUSES.includes(m.status));
+  const firstUnsettled = milestones.find((m) => !["RELEASED", "REFUNDED", "CANCELLED"].includes(m.status));
   const fmt = (v: string, c: DealCurrency = currency) => formatMoney(v, c, lang);
 
   return (
-    <ol aria-label={t("ms.listLabel")} className="space-y-3">
+    <ol aria-label={t("ms.listLabel")} data-demo="milestone-stepper" className="space-y-3">
       {milestones.map((m) => {
         const meta = MILESTONE_META[m.status];
         const flag = m.can.can_release;
@@ -83,7 +84,7 @@ export function MilestoneStepper({
                   {t(`ms.ev.${m.evidence_status}`)}
                 </span>
               </p>
-              <ul className="mt-1 space-y-1">
+              <ul data-demo={firstUnsettled?.id === m.id ? "evidence-checklist" : undefined} className="mt-1 space-y-1">
                 {m.required_evidence.map((e) => {
                   const em = EVIDENCE_META[e.status];
                   return (
@@ -133,7 +134,7 @@ export function MilestoneStepper({
                 {t("ms.waitingApproval")}{" "}
                 <Link
                   href="/app/approvals"
-                  className="font-semibold text-brand-700 underline focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:outline-none"
+                  className="font-semibold text-brand-text underline focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:outline-none"
                 >
                   {t("ms.openApprovals")}
                 </Link>

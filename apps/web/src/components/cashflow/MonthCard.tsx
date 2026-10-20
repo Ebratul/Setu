@@ -45,7 +45,7 @@ export function MonthCard({ month, currency }: Props) {
       </dl>
       <Link
         href="/app/analysis?tab=monthly"
-        className="mt-3 inline-block font-semibold text-brand-700 underline focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:outline-none"
+        className="mt-3 inline-block font-semibold text-brand-text underline focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:outline-none"
       >
         {t("dash.monthLink")}
       </Link>

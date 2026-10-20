@@ -121,7 +121,7 @@ export function EvidenceDashboard() {
             </a>
             <Link
               href="/verify"
-              className="text-sm font-semibold text-brand-700 underline focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2 focus-visible:outline-none"
+              className="text-sm font-semibold text-brand-text underline focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2 focus-visible:outline-none"
             >
               {t("audit.evidence.verifyLink")}
             </Link>

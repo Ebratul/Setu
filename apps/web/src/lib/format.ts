@@ -3,8 +3,55 @@ export type FormatLang = "en" | "bn" | "zh";
 
 const SYMBOL: Record<Currency, string> = { USD: "$", BDT: "৳", CNY: "¥" };
 
+export type DigitsPref = "native" | "latin";
+export const DIGITS_KEY = "setu_digits";
+export const DIGITS_EVENT = "setu-digits";
+
+let digits: DigitsPref = "native";
+const digitListeners = new Set<() => void>();
+
+export function getDigits(): DigitsPref {
+  return digits;
+}
+
+function emitDigits() {
+  digitListeners.forEach((l) => l());
+  if (typeof window !== "undefined") window.dispatchEvent(new Event(DIGITS_EVENT));
+}
+
+/** Sets the Bangla digit style (bn only; en/zh are unaffected) and persists it. */
+export function setDigits(next: DigitsPref) {
+  digits = next;
+  try {
+    localStorage.setItem(DIGITS_KEY, next);
+  } catch {
+    /* storage unavailable */
+  }
+  emitDigits();
+}
+
+/** Reads the stored preference once on the client; call from an effect to avoid hydration mismatch. */
+export function loadDigits() {
+  try {
+    const v = localStorage.getItem(DIGITS_KEY);
+    if ((v === "latin" || v === "native") && v !== digits) {
+      digits = v;
+      emitDigits();
+    }
+  } catch {
+    /* storage unavailable */
+  }
+}
+
+export function subscribeDigits(cb: () => void) {
+  digitListeners.add(cb);
+  return () => {
+    digitListeners.delete(cb);
+  };
+}
+
 function locale(lang: FormatLang) {
-  if (lang === "bn") return "bn-BD";
+  if (lang === "bn") return digits === "latin" ? "bn-BD-u-nu-latn" : "bn-BD";
   return lang === "zh" ? "zh-CN" : "en-US";
 }
 
@@ -17,7 +64,7 @@ export function formatDecimal(
   maxFraction = 4,
 ): string {
   return new Intl.NumberFormat(locale(lang), {
-    minimumFractionDigits: 2,
+    minimumFractionDigits: Math.min(2, maxFraction),
     maximumFractionDigits: maxFraction,
   }).format(value as NumericString);
 }

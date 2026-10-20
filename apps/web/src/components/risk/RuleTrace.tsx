@@ -23,7 +23,7 @@ export function RuleTrace({ trace }: Props) {
   const notFired = trace.filter((i) => !i.fired);
   if (trace.length === 0) return <p className="text-sm text-muted">{t("risk.trace.none")}</p>;
   return (
-    <div className="space-y-2" data-testid="rule-trace">
+    <div className="space-y-2" data-testid="rule-trace" data-demo="risk-trace">
       {fired.length > 0 ? (
         <ul className="space-y-2">
           {fired.map((i) => (
@@ -37,7 +37,7 @@ export function RuleTrace({ trace }: Props) {
             type="button"
             aria-expanded={showAll}
             onClick={() => setShowAll((v) => !v)}
-            className="rounded-md text-sm font-semibold text-brand-700 underline focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2 focus-visible:outline-none"
+            className="rounded-md text-sm font-semibold text-brand-text underline focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2 focus-visible:outline-none"
           >
             {t(showAll ? "risk.trace.hideNot" : "risk.trace.showNot", { n: notFired.length })}
           </button>
@@ -78,7 +78,7 @@ function TraceRow({ item: i }: { item: TraceItem }) {
         <p className="font-semibold break-words text-ink">{pick(lang, i.label_en, i.label_bn)}</p>
         <p className="break-words text-muted">{pick(lang, i.value_en, i.value_bn)}</p>
         {highlight ? (
-          <p className="mt-1 text-xs font-bold text-brand-800">
+          <p className="mt-1 text-xs font-bold text-brand-text">
             <span aria-hidden="true">★ </span>
             {t(i.kind === "BLOCK" ? "risk.trace.decidingBlock" : "risk.trace.deciding")}
           </p>

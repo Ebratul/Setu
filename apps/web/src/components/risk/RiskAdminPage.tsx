@@ -35,7 +35,7 @@ export function RiskAdminPage() {
         <p className="text-muted">{t("risk.admin.intro")}</p>
         <Link
           href="/demo/risk-playground"
-          className="inline-block font-semibold text-brand-700 underline focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:outline-none"
+          className="inline-block font-semibold text-brand-text underline focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:outline-none"
         >
           {t("risk.admin.playground")}
         </Link>
@@ -174,7 +174,7 @@ function DecisionsChart({ series }: { series: RiskOverview["series"] }) {
             type="button"
             aria-expanded={table}
             onClick={() => setTable((v) => !v)}
-            className="rounded-md text-sm font-semibold text-brand-700 underline focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2 focus-visible:outline-none"
+            className="rounded-md text-sm font-semibold text-brand-text underline focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2 focus-visible:outline-none"
           >
             {t(table ? "risk.admin.chartTableHide" : "risk.admin.chartTable")}
           </button>
@@ -287,7 +287,7 @@ function RecentTable({ rows }: { rows: RiskEvent[] }) {
                         aria-expanded={expanded}
                         aria-controls={`trace-${e.id}`}
                         onClick={() => setOpen(expanded ? null : e.id)}
-                        className="rounded-md font-semibold whitespace-nowrap text-brand-700 underline focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2 focus-visible:outline-none"
+                        className="rounded-md font-semibold whitespace-nowrap text-brand-text underline focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2 focus-visible:outline-none"
                       >
                         {t(expanded ? "risk.admin.collapse" : "risk.admin.expand")}
                       </button>

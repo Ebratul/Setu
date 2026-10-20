@@ -152,13 +152,15 @@ function Loaded({
       <div>
         <Link
           href="/app/suppliers"
-          className="rounded text-sm font-semibold text-brand-700 underline focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2 focus-visible:outline-none"
+          className="rounded text-sm font-semibold text-brand-text underline focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2 focus-visible:outline-none"
         >
           ← {t("sup.back")}
         </Link>
         <div className="mt-2 flex flex-wrap items-center gap-3">
           <h1 className="text-2xl font-bold break-words text-ink">{co.legal_name}</h1>
-          <KybBadge status={kyb.status} />
+          <span data-demo="kyb-badge" className="inline-flex">
+            <KybBadge status={kyb.status} />
+          </span>
           <SimulatedBadge />
         </div>
       </div>
@@ -244,7 +246,7 @@ function Loaded({
                     <th scope="row" className={`${td} text-left font-semibold`}>
                       <Link
                         href={`/app/deals/${d.reference}`}
-                        className="rounded text-brand-700 underline focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:outline-none"
+                        className="rounded text-brand-text underline focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:outline-none"
                       >
                         {d.reference}
                       </Link>

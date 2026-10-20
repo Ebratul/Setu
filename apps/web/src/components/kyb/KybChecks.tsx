@@ -15,7 +15,7 @@ function Evidence({ evidence }: { evidence: Record<string, unknown> }) {
   const entries = Object.entries(evidence);
   return (
     <details className="mt-1 text-xs">
-      <summary className="cursor-pointer rounded font-semibold text-brand-700 focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2 focus-visible:outline-none">
+      <summary className="cursor-pointer rounded font-semibold text-brand-text focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2 focus-visible:outline-none">
         {t("sup.evidence")}
       </summary>
       {entries.length === 0 ? (

@@ -69,6 +69,7 @@ export function ChatPanel({ session, focusSignal = 0, className = "" }: Props) {
                 message={m}
                 onRetry={session.retry}
                 onRate={session.rate}
+                latest={m.id === messages.findLast((x) => x.role === "assistant")?.id}
               />
             ))}
           </ul>

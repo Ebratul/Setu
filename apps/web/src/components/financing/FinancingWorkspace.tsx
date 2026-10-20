@@ -169,6 +169,7 @@ export function FinancingWorkspace({ partyId, initial }: Props) {
               </div>
             ) : (
               <ul
+                data-demo="financing-options"
                 className={`grid gap-4 md:grid-cols-2 xl:grid-cols-3 ${busy ? "opacity-60" : ""}`}
               >
                 {shown.options.map((o) => (

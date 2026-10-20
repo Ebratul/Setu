@@ -57,7 +57,7 @@ export function EventsTable({
         </thead>
         <tbody className="divide-y divide-line">
           {rows.map((r) => (
-            <tr key={r.id} data-testid="event-row">
+            <tr key={r.id} data-testid="event-row" data-demo="injection-event">
               <td className={`${td} whitespace-nowrap`}>{fmtDateTime(r.ts, lang)}</td>
               <td className={td}>
                 <span className="rounded-full border border-line bg-surface-alt px-2 py-0.5 text-xs font-semibold">
@@ -70,7 +70,7 @@ export function EventsTable({
               </td>
               <td className={td}>
                 {r.deal_id ? (
-                  <Link href={`/app/deals/${r.deal_id}`} className={`font-semibold text-brand-700 underline ${focus}`}>
+                  <Link href={`/app/deals/${r.deal_id}`} className={`font-semibold text-brand-text underline ${focus}`}>
                     {r.deal_reference ?? r.deal_id}
                   </Link>
                 ) : (
@@ -154,7 +154,7 @@ export function SecurityAdminPage() {
         <p className="text-muted">{t("sec.admin.intro")}</p>
         <Link
           href="/demo/attack-console"
-          className={`inline-block font-semibold text-brand-700 underline ${focus}`}
+          className={`inline-block font-semibold text-brand-text underline ${focus}`}
         >
           {t("sec.admin.console")}
         </Link>

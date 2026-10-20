@@ -1,0 +1,80 @@
+{
+  "topbar": {
+    "search": "搜索",
+    "searchHint": "搜索页面、订单和供应商",
+    "menu": "打开菜单",
+    "closeMenu": "关闭菜单",
+    "menuTitle": "菜单",
+    "controls": "显示与账户设置"
+  },
+  "sidebar": {
+    "main": "工作区",
+    "tools": "工具",
+    "admin": "管理与安全",
+    "collapse": "收起侧边栏",
+    "expand": "展开侧边栏",
+    "documents": "单据"
+  },
+  "cmd": {
+    "title": "搜索与命令",
+    "placeholder": "搜索页面、订单、供应商或操作",
+    "label": "搜索",
+    "empty": "没有与“{q}”匹配的结果",
+    "hint": "上下键移动，回车打开，Esc 关闭",
+    "results": "{n} 个结果",
+    "groupPages": "页面",
+    "groupDeals": "订单",
+    "groupSuppliers": "供应商",
+    "groupActions": "快捷操作",
+    "newOrder": "新建订单",
+    "checkDoc": "检查单据",
+    "askSetu": "询问 Setu",
+    "loadingMore": "正在加载订单和供应商…"
+  },
+  "onboard": {
+    "title": "开始使用 Setu",
+    "sub": "试试这三件事。这里的一切均为模拟。",
+    "progress": "已完成 {done} / {total}",
+    "dismiss": "关闭",
+    "show": "重新显示清单",
+    "explore": "查看你的订单",
+    "exploreHint": "打开一个订单并查看其里程碑。",
+    "cashflow": "查看现金流预警",
+    "cashflowHint": "了解资金在哪里吃紧。",
+    "attack": "试用攻击控制台",
+    "attackHint": "看 Setu 如何拦截提示词注入攻击。",
+    "scam": "试用诈骗模拟器",
+    "scamHint": "付款前识别虚假的供应商请求。",
+    "done": "已完成",
+    "todo": "待办",
+    "allDone": "全部完成。你已了解 Setu 的主要功能。"
+  },
+  "digits": {
+    "label": "数字样式",
+    "bangla": "孟加拉数字 (১২৩)",
+    "latin": "拉丁数字 (123)",
+    "useLatin": "切换为拉丁数字 (123)",
+    "useBangla": "切换为孟加拉数字 (১২৩)"
+  },
+  "shortcuts": {
+    "title": "键盘快捷键",
+    "palette": "打开搜索与命令",
+    "chat": "打开 Ask Setu 聊天",
+    "close": "关闭对话框或面板",
+    "resize": "用左右方向键调整聊天面板大小"
+  },
+  "chatx": {
+    "resize": "调整聊天面板大小",
+    "p": {
+      "cashflow2": "哪一周需要支付的款项最大？",
+      "financing2": "为什么最便宜的方案最便宜？",
+      "analysis2": "哪些因素最推高了到岸成本？",
+      "analysis3": "这笔订单的利润率健康吗？",
+      "deal2": "下一个里程碑是什么，需要什么？",
+      "deal3": "这笔订单的单据是否一致？",
+      "approvals1": "有哪些事项在等我审批？",
+      "approvals2": "为什么付款需要审批？",
+      "approvals3": "三级审批是什么意思？"
+    }
+  }
+}

@@ -312,7 +312,7 @@ function Summary({ a }: { a: Approval }) {
         {a.supplier_name ? <span className="text-muted">· {a.supplier_name}</span> : null}
       </div>
       <div className="rounded-xl bg-brand-50 p-3" data-testid="what-happens">
-        <p className="text-xs font-bold tracking-wide text-brand-800 uppercase">{t("appr.whatHappens")}</p>
+        <p className="text-xs font-bold tracking-wide text-brand-text uppercase">{t("appr.whatHappens")}</p>
         <p className="font-medium">{whatHappens(a, lang)}</p>
       </div>
       {a.reasons.length > 0 ? (

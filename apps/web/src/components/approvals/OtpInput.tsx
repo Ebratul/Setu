@@ -76,7 +76,7 @@ export function OtpInput({ value, onChange, label, help, disabled, invalid, desc
   }
 
   return (
-    <div>
+    <div data-demo="otp-input">
       <p id={labelId} className="mb-1 text-sm font-medium text-ink">
         {label}
       </p>

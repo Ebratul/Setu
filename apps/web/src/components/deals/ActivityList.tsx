@@ -40,7 +40,7 @@ export function ActivityList({ activity }: { activity: ActivityOut }) {
                     onClick={() => setOpen(r.seq)}
                     aria-haspopup="dialog"
                     title={t("act.details")}
-                    className="rounded text-left font-semibold text-ink underline decoration-line underline-offset-2 hover:text-brand-700 focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2 focus-visible:outline-none"
+                    className="rounded text-left font-semibold text-ink underline decoration-line underline-offset-2 hover:text-brand-text focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2 focus-visible:outline-none"
                   >
                     {entryText(r, lang) || r.action}
                   </button>

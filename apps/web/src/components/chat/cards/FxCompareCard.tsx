@@ -77,7 +77,7 @@ export function FxCompareCard({ card }: { card: Card }) {
         {t("chat.fx.mock", { date: formatDate(d.as_of, lang) })}
       </p>
       <details className="text-xs text-ink">
-        <summary className="cursor-pointer rounded-md font-semibold text-brand-700 focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:outline-none">
+        <summary className="cursor-pointer rounded-md font-semibold text-brand-text focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:outline-none">
           {t("chat.fx.assumptions")}
         </summary>
         <ul className="mt-1 list-disc space-y-0.5 pl-5">

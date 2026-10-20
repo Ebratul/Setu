@@ -1,6 +1,6 @@
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it } from "vitest";
 
-import { formatMoney, formatPct } from "./format";
+import { formatDate, formatMoney, formatPct, getDigits, loadDigits, setDigits } from "./format";
 
 describe("formatMoney", () => {
   it("formats the three currencies with separators", () => {
@@ -18,5 +18,34 @@ describe("formatMoney", () => {
   });
   it("formats percents", () => {
     expect(formatPct("18.01")).toBe("18.01%");
+  });
+});
+
+describe("digits preference", () => {
+  afterEach(() => {
+    setDigits("native");
+    localStorage.clear();
+  });
+  it("defaults to native Bangla digits", () => {
+    expect(getDigits()).toBe("native");
+    expect(formatMoney("1200.5", "BDT", "bn")).toBe("৳১,২০০.৫০");
+  });
+  it("switches bn to Latin digits and persists", () => {
+    setDigits("latin");
+    expect(formatMoney("1200.5", "BDT", "bn")).toBe("৳1,200.50");
+    expect(formatDate("2026-10-20", "bn")).toMatch(/2026/);
+    expect(localStorage.getItem("setu_digits")).toBe("latin");
+  });
+  it("does not affect en or zh", () => {
+    const en = formatMoney("1200.5", "USD", "en");
+    const zh = formatMoney("1200.5", "USD", "zh");
+    setDigits("latin");
+    expect(formatMoney("1200.5", "USD", "en")).toBe(en);
+    expect(formatMoney("1200.5", "USD", "zh")).toBe(zh);
+  });
+  it("loads the stored value", () => {
+    localStorage.setItem("setu_digits", "latin");
+    loadDigits();
+    expect(getDigits()).toBe("latin");
   });
 });

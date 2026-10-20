@@ -36,7 +36,7 @@ export function UserMenu() {
       ) : null}
       <Link
         href="/login"
-        className="rounded-md px-2 py-1 font-semibold text-brand-700 underline focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:outline-none"
+        className="inline-flex min-h-11 items-center rounded-md px-2 py-1 font-semibold text-brand-text underline focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:outline-none"
       >
         {t("shell.switchUser")}
       </Link>

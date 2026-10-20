@@ -1,0 +1,80 @@
+{
+  "topbar": {
+    "search": "Search",
+    "searchHint": "Search pages, deals and suppliers",
+    "menu": "Open menu",
+    "closeMenu": "Close menu",
+    "menuTitle": "Menu",
+    "controls": "Display and account settings"
+  },
+  "sidebar": {
+    "main": "Workspace",
+    "tools": "Tools",
+    "admin": "Admin and security",
+    "collapse": "Collapse sidebar",
+    "expand": "Expand sidebar",
+    "documents": "Documents"
+  },
+  "cmd": {
+    "title": "Search and commands",
+    "placeholder": "Search pages, deals, suppliers or actions",
+    "label": "Search",
+    "empty": "No matches for \"{q}\"",
+    "hint": "Up and Down to move, Enter to open, Esc to close",
+    "results": "{n} results",
+    "groupPages": "Pages",
+    "groupDeals": "Deals",
+    "groupSuppliers": "Suppliers",
+    "groupActions": "Quick actions",
+    "newOrder": "New order",
+    "checkDoc": "Check a document",
+    "askSetu": "Ask Setu",
+    "loadingMore": "Loading deals and suppliers…"
+  },
+  "onboard": {
+    "title": "Get started with Setu",
+    "sub": "Three quick things to try. Everything here is simulated.",
+    "progress": "{done} of {total} done",
+    "dismiss": "Dismiss",
+    "show": "Show checklist again",
+    "explore": "Explore your order",
+    "exploreHint": "Open a deal and follow its milestones.",
+    "cashflow": "See your cash-flow alert",
+    "cashflowHint": "Find out where cash gets tight.",
+    "attack": "Try the Attack Console",
+    "attackHint": "Watch Setu stop a prompt-injection attack.",
+    "scam": "Try the Scam Simulator",
+    "scamHint": "Spot a fake supplier request before paying.",
+    "done": "Done",
+    "todo": "To do",
+    "allDone": "All done. You have seen the main parts of Setu."
+  },
+  "digits": {
+    "label": "Number style",
+    "bangla": "Bangla digits (১২৩)",
+    "latin": "Latin digits (123)",
+    "useLatin": "Switch to Latin digits (123)",
+    "useBangla": "Switch to Bangla digits (১২৩)"
+  },
+  "shortcuts": {
+    "title": "Keyboard shortcuts",
+    "palette": "Open search and commands",
+    "chat": "Open the Ask Setu chat",
+    "close": "Close a dialog or panel",
+    "resize": "Resize the chat panel with the Left and Right arrow keys"
+  },
+  "chatx": {
+    "resize": "Resize chat panel",
+    "p": {
+      "cashflow2": "Which week has the biggest payment due?",
+      "financing2": "Why is the cheapest option cheapest?",
+      "analysis2": "What drives the landed cost the most?",
+      "analysis3": "Is my margin healthy on this order?",
+      "deal2": "What is the next milestone and what does it need?",
+      "deal3": "Are the documents for this deal consistent?",
+      "approvals1": "What is waiting for my approval?",
+      "approvals2": "Why does a payment need approval?",
+      "approvals3": "What does a Tier 3 approval mean?"
+    }
+  }
+}

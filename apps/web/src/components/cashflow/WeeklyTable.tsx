@@ -13,7 +13,7 @@ export function WeeklyTable({ forecast }: Props) {
   const money = (v: string) => formatMoney(v, cur, lang);
   return (
     <details className="mt-2 text-sm">
-      <summary className="cursor-pointer font-semibold text-brand-700 focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:outline-none">
+      <summary className="cursor-pointer font-semibold text-brand-text focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:outline-none">
         {t("cf.showWeekly")}
       </summary>
       <div className="mt-2 overflow-x-auto">

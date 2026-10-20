@@ -17,6 +17,7 @@ export function HiddenTextPanel({ hidden }: { hidden: HiddenTextOut }) {
     <section
       aria-labelledby="hid-h"
       data-testid="hidden-panel"
+      data-demo="hidden-text"
       className="space-y-3 rounded-2xl border-2 border-danger bg-danger-soft p-4"
     >
       <h2 id="hid-h" className="text-base font-bold text-danger">

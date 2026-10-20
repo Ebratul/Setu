@@ -52,7 +52,7 @@ export function CardShell({
       {href && linkLabel ? (
         <Link
           href={href}
-          className="inline-block rounded-md text-sm font-semibold text-brand-700 underline focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2 focus-visible:outline-none"
+          className="inline-block rounded-md text-sm font-semibold text-brand-text underline focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2 focus-visible:outline-none"
         >
           {linkLabel} <span aria-hidden="true">→</span>
         </Link>

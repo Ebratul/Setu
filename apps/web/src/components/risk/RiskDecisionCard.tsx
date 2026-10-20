@@ -56,7 +56,7 @@ export function RiskDecisionCard({ risk, showApprovalLink = false, showSimulated
             })}{" "}
             <Link
               href="/app/approvals"
-              className="text-brand-700 underline focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:outline-none"
+              className="text-brand-text underline focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:outline-none"
             >
               {t("risk.card.openApprovals")}
             </Link>

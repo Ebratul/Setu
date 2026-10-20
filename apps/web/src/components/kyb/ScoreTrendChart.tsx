@@ -47,7 +47,7 @@ export function ScoreTrendChart({ points }: Props) {
         </ResponsiveContainer>
       </div>
       <details className="mt-2 text-sm">
-        <summary className="cursor-pointer rounded font-semibold text-brand-700 focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:outline-none">
+        <summary className="cursor-pointer rounded font-semibold text-brand-text focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:outline-none">
           {t("sup.trendTable")}
         </summary>
         <table className="mt-2 w-full min-w-60">

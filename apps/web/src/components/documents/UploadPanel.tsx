@@ -51,7 +51,7 @@ const POLL_MAX = 40;
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
 const linkCls =
-  "font-semibold text-brand-700 underline focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2 focus-visible:outline-none";
+  "font-semibold text-brand-text underline focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2 focus-visible:outline-none";
 
 export function UploadPanel({ dealId, allowedTypes = DOC_TYPES, supplier = false, onChanged }: Props) {
   const t = useT();

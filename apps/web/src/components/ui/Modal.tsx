@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect, useId, useRef, type ReactNode } from "react";
+import { useId, useRef, type ReactNode } from "react";
 
 import { useT } from "@/i18n";
+import { useDialog } from "@/lib/useDialog";
 
 type Props = {
   title: string;
@@ -12,74 +13,22 @@ type Props = {
   size?: "md" | "xl";
 };
 
-/** Open modals, innermost last: only the top one reacts to Esc / Tab. */
-const openModals: symbol[] = [];
-
-const FOCUSABLE =
-  'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
-
 /** Accessible modal: focus trap, Esc closes, focus returns to the opener. */
 export function Modal({ title, onClose, children, closeDisabled, size = "md" }: Props) {
   const t = useT();
   const titleId = useId();
   const panel = useRef<HTMLDivElement>(null);
-  const onCloseRef = useRef(onClose);
-  const disabledRef = useRef(closeDisabled);
-  useEffect(() => {
-    onCloseRef.current = onClose;
-    disabledRef.current = closeDisabled;
-  });
-
-  useEffect(() => {
-    const opener = document.activeElement as HTMLElement | null;
-    const el = panel.current;
-    el?.focus();
-    const me = Symbol("modal");
-    openModals.push(me);
-    function onKey(e: KeyboardEvent) {
-      if (!el || openModals[openModals.length - 1] !== me) return;
-      if (e.key === "Escape") {
-        if (!disabledRef.current) onCloseRef.current();
-        return;
-      }
-      if (e.key !== "Tab") return;
-      const items = Array.from(el.querySelectorAll<HTMLElement>(FOCUSABLE));
-      if (items.length === 0) {
-        e.preventDefault();
-        return;
-      }
-      const first = items[0];
-      const last = items[items.length - 1];
-      const active = document.activeElement;
-      if (e.shiftKey && (active === first || active === el)) {
-        e.preventDefault();
-        last.focus();
-      } else if (!e.shiftKey && active === last) {
-        e.preventDefault();
-        first.focus();
-      } else if (!el.contains(active)) {
-        e.preventDefault();
-        first.focus();
-      }
-    }
-    document.addEventListener("keydown", onKey);
-    return () => {
-      document.removeEventListener("keydown", onKey);
-      const at = openModals.indexOf(me);
-      if (at !== -1) openModals.splice(at, 1);
-      opener?.focus?.();
-    };
-  }, []);
+  useDialog(panel, onClose, closeDisabled);
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end justify-center bg-ink/50 p-0 sm:items-center sm:p-4">
+    <div className="fixed inset-0 z-50 flex items-end justify-center bg-scrim p-0 sm:items-center sm:p-4">
       <div
         ref={panel}
         role="dialog"
         aria-modal="true"
         aria-labelledby={titleId}
         tabIndex={-1}
-        className={`max-h-[92vh] w-full overflow-y-auto rounded-t-card bg-surface p-5 shadow-card-hover focus:outline-none ${size === "xl" ? "sm:max-w-5xl" : "sm:max-w-2xl"} sm:rounded-card`}
+        className={`max-h-[92vh] w-full overflow-y-auto rounded-t-card bg-surface p-5 shadow-pop focus:outline-none anim-pop ${size === "xl" ? "sm:max-w-5xl" : "sm:max-w-2xl"} sm:rounded-card`}
       >
         <div className="mb-4 flex items-start justify-between gap-3">
           <h2 id={titleId} className="text-lg font-bold text-ink">

@@ -50,6 +50,7 @@ export function AnalysisResults({
           label={t("analysis.kpi.landedCost")}
           value={money(data.landed_cost)}
           ariaLabel={`${money(data.landed_cost)} ${currency}`}
+          demo="landed-cost"
         />
         <KpiCard
           label={t("analysis.kpi.costPerUnit")}

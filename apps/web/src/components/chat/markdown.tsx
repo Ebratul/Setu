@@ -28,7 +28,7 @@ function CiteChip({ cite, onCite }: { cite: Citation; onCite: CiteCtx["onCite"] 
       data-cite={cite.cite_id}
       aria-label={t("chat.cite.label", { id: cite.cite_id, title: cite.title })}
       onClick={() => onCite(cite.cite_id)}
-      className="mx-0.5 inline-block rounded-md border border-brand-600 bg-brand-50 px-1 align-baseline text-xs font-bold text-brand-700 hover:bg-brand-100 focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:outline-none"
+      className="mx-0.5 inline-block rounded-md border border-brand-600 bg-brand-50 px-1 align-baseline text-xs font-bold text-brand-text hover:bg-brand-100 focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:outline-none"
     >
       [{cite.cite_id}]
     </button>
@@ -73,7 +73,7 @@ function inline(
         <Link
           key={key}
           href={href}
-          className="font-semibold text-brand-700 underline focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:outline-none"
+          className="font-semibold text-brand-text underline focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:outline-none"
         >
           {link[1]}
         </Link>

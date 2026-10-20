@@ -44,7 +44,7 @@ export function LandingPrivacy() {
               <td className="py-2 font-mono">
                 <span aria-hidden="true">→ </span>
                 <span
-                  className="priv-after inline-block rounded-sm bg-brand-50 px-1 font-semibold text-brand-800"
+                  className="priv-after inline-block rounded-sm bg-brand-50 px-1 font-semibold text-brand-text"
                   style={{ animationDelay: `${i * 0.4}s` }}
                 >
                   {r.after}
@@ -56,7 +56,7 @@ export function LandingPrivacy() {
       </table>
       <Link
         href="/demo/privacy-playground"
-        className="inline-block rounded-md font-semibold text-brand-700 underline focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2 focus-visible:outline-none"
+        className="inline-block rounded-md font-semibold text-brand-text underline focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2 focus-visible:outline-none"
       >
         {t("privacy.land.link")}
       </Link>

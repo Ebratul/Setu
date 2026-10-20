@@ -12,7 +12,7 @@ export function OrderAnalysisPage({ reference }: { reference: string }) {
     <div className="space-y-4">
       <Link
         href={`/app/deals/${reference}`}
-        className="text-sm font-semibold text-brand-700 underline focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:outline-none"
+        className="text-sm font-semibold text-brand-text underline focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:outline-none"
       >
         ← {reference}
       </Link>

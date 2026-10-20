@@ -28,6 +28,7 @@ import { ActivityList } from "./ActivityList";
 import { ApprovalTrail } from "./ApprovalTrail";
 import { DealActions, ReleaseDialog } from "./DealActions";
 import { DevEvidenceControl } from "./DevEvidenceControl";
+import { CreditRecordCard } from "./CreditRecordCard";
 import { EscrowPanel } from "./EscrowPanel";
 import { LenderCheckDemo } from "./LenderCheckDemo";
 import { LedgerTable } from "./LedgerTable";
@@ -35,7 +36,7 @@ import { MilestoneStepper } from "./MilestoneStepper";
 
 const KYB: KybBadgeStatus[] = ["VERIFIED", "WARNING", "BLOCKED", "PENDING"];
 const linkCls =
-  "font-semibold text-brand-700 underline focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2 focus-visible:outline-none";
+  "font-semibold text-brand-text underline focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2 focus-visible:outline-none";
 
 export function DealDetailPage({ reference }: { reference: string }) {
   const t = useT();
@@ -143,16 +144,21 @@ function Overview({ deal, reload }: { deal: DealDetail; reload: () => void }) {
           </section>
           <Confirmations deal={deal} />
           {deal.viewer_role !== "SUPPLIER" ? (
-            <ApprovalTrail reference={deal.reference} signature={sig} />
+            <div data-demo="risk-trace">
+              <ApprovalTrail reference={deal.reference} signature={sig} />
+            </div>
           ) : null}
           <LenderCheckDemo deal={deal} />
         </div>
         <div className="space-y-6">
-          <EscrowPanel
-            escrow={deal.escrow}
-            settlementCurrency={deal.settlement_currency}
-            milestones={deal.milestones}
-          />
+          <div data-demo="escrow-card">
+            <EscrowPanel
+              escrow={deal.escrow}
+              settlementCurrency={deal.settlement_currency}
+              milestones={deal.milestones}
+            />
+          </div>
+          {deal.status === "COMPLETED" ? <CreditRecordCard reference={deal.reference} /> : null}
           {deal.viewer_role !== "SUPPLIER" ? (
             <DealKybPanel supplierId={deal.supplier_id} />
           ) : null}
@@ -222,7 +228,7 @@ function AnalysisLinks({ deal }: { deal: DealDetail }) {
       </Link>
       <Link
         href={`/app/financing?deal=${ref}&mode=order`}
-        className="inline-block rounded-xl border border-brand-700 bg-surface px-5 py-3 font-semibold text-brand-700 hover:bg-brand-50 focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2 focus-visible:outline-none"
+        className="inline-block rounded-xl border border-brand-700 bg-surface px-5 py-3 font-semibold text-brand-text hover:bg-brand-50 focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2 focus-visible:outline-none"
       >
         {t("orders.financing")} →
       </Link>

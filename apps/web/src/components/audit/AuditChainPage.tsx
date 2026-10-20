@@ -55,7 +55,7 @@ export function AuditChainPage({ showEvidence = false }: Props) {
           <h2 id="chain-h" className="text-lg font-bold text-ink">
             {t("audit.chain.title")}
           </h2>
-          <span aria-live="polite" data-testid="chain-status">
+          <span aria-live="polite" data-testid="chain-status" data-demo="audit-verify">
             {live.data ? (
               live.data.ok ? (
                 <Badge tone="success" icon="✓">

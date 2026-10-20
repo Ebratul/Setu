@@ -20,7 +20,7 @@ const REG_TONE: Record<DocEvidence["registry"], { tone: Tone; icon: string }> = 
   UNKNOWN: { tone: "warning", icon: "?" },
 };
 const linkCls =
-  "font-semibold text-brand-700 underline focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2 focus-visible:outline-none";
+  "font-semibold text-brand-text underline focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2 focus-visible:outline-none";
 
 /** Everything a judge or approver needs on one card (read-only data from the API). */
 export function EvidenceSnapshot({ evidence }: { evidence: Evidence }) {

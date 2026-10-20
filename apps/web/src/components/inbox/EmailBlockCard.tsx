@@ -9,7 +9,7 @@ import { useLang, useT } from "@/i18n";
 import type { EmailCheck } from "@/lib/api/approvals";
 
 const linkCls =
-  "font-semibold text-brand-700 underline focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2 focus-visible:outline-none";
+  "font-semibold text-brand-text underline focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2 focus-visible:outline-none";
 
 /** Warning card for an email that asks to pay a different account. Icon + text, never colour alone. */
 export function EmailBlockCard({ email: e }: { email: EmailCheck }) {
@@ -23,7 +23,7 @@ export function EmailBlockCard({ email: e }: { email: EmailCheck }) {
       as="section"
       className={`space-y-4 border-2 ${warn ? "border-danger bg-danger-soft" : "border-success bg-success-soft"}`}
     >
-      <div role={warn ? "alert" : "status"} data-testid="email-result" data-verdict={e.verdict} className="space-y-4">
+      <div role={warn ? "alert" : "status"} data-testid="email-result" data-demo="email-verdict" data-verdict={e.verdict} className="space-y-4">
         <div className="space-y-1">
           <p className="inline-flex items-center gap-2 rounded-full border border-current px-3 py-0.5 text-sm font-bold text-ink">
             <span aria-hidden="true">{e.verdict === "BLOCKED" ? "⛔" : warn ? "⚠" : "✓"}</span>

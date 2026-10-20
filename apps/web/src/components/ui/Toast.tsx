@@ -12,6 +12,8 @@ import {
 
 import { useT } from "@/i18n";
 
+import { SuccessMark } from "./SuccessMark";
+
 type Tone = "success" | "danger" | "info";
 type ToastItem = { id: number; tone: Tone; text: string };
 type Push = (text: string, tone?: Tone) => void;
@@ -80,9 +82,13 @@ function ToastCard({
       data-tone={item.tone}
       className={`pointer-events-auto flex items-start gap-2 rounded-xl border-2 p-3 text-sm shadow-card-hover ${CLS[item.tone]}`}
     >
-      <span aria-hidden="true" className="font-bold">
-        {ICON[item.tone]}
-      </span>
+      {item.tone === "success" ? (
+        <SuccessMark size={16} />
+      ) : (
+        <span aria-hidden="true" className="font-bold">
+          {ICON[item.tone]}
+        </span>
+      )}
       <p className="min-w-0 flex-1">{item.text}</p>
       <button
         type="button"

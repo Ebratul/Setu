@@ -20,7 +20,7 @@ export function DealLinkRow({ deal, currency }: Props) {
       <th scope="row" className="py-2 text-left font-semibold">
         <Link
           href={`/app/orders/${deal.reference}/analysis`}
-          className="text-brand-700 underline focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:outline-none"
+          className="text-brand-text underline focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:outline-none"
         >
           {deal.reference}
         </Link>

@@ -53,7 +53,7 @@ export function Tabs({ label, tabs, selected, onSelect, children }: Props) {
               onKeyDown={(e) => onKeyDown(e, i)}
               className={`-mb-px shrink-0 border-b-2 px-4 py-2.5 text-sm font-semibold focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2 focus-visible:outline-none ${
                 active
-                  ? "border-brand-700 text-brand-700"
+                  ? "border-brand-700 text-brand-text"
                   : "border-transparent text-muted hover:text-ink"
               }`}
             >

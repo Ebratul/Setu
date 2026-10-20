@@ -36,7 +36,7 @@ export function ChecksList({ findings }: { findings: readonly FindingOut[] }) {
   const { lang } = useLang();
   if (findings.length === 0) return <p className="text-sm text-muted">{t("doc.checks.none")}</p>;
   return (
-    <ul className="divide-y divide-line" data-testid="checks-list">
+    <ul className="divide-y divide-line" data-testid="checks-list" data-demo="doc-checks">
       {findings.map((f) => {
         const m = META[f.status];
         return (

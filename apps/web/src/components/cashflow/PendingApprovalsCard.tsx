@@ -17,7 +17,7 @@ export function PendingApprovalsCard({ count }: Props) {
       <p className="mt-2 text-3xl font-bold text-ink">{count}</p>
       <Link
         href="/app/approvals"
-        className="mt-2 inline-block font-semibold text-brand-700 underline focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:outline-none"
+        className="mt-2 inline-block font-semibold text-brand-text underline focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:outline-none"
       >
         {t("dash.approvalsLink")}
       </Link>

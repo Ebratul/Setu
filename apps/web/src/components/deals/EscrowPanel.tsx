@@ -103,7 +103,8 @@ export function EscrowPanel({ escrow, settlementCurrency, milestones }: Props) {
         </strong>
       </p>
       {settlementCurrency && settlementCurrency !== c ? (
-        <p className="text-sm text-ink" data-testid="escrow-settlement">
+        <p className="text-sm text-ink" data-testid="escrow-settlement"
+          data-demo="settlement">
           {t("esc.settlement", { currency: settlementCurrency })}
           {fx?.fx_rate
             ? ` · ${t("esc.fx", { rate: fx.fx_rate, from: c, to: settlementCurrency })}`

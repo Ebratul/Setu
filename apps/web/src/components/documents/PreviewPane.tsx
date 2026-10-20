@@ -17,7 +17,7 @@ type Props = {
 };
 
 const linkCls =
-  "font-semibold text-brand-700 underline focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2 focus-visible:outline-none";
+  "font-semibold text-brand-text underline focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2 focus-visible:outline-none";
 
 export function PreviewPane({ doc, spans, onRefresh }: Props) {
   const t = useT();

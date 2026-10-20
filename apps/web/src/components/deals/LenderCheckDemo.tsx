@@ -47,7 +47,7 @@ export function LenderCheckDemo({ deal }: { deal: DealDetail }) {
   const purpose = t(`reg.purposeLower.${check?.already_registered_for ?? "FINANCING_COLLATERAL"}`);
 
   return (
-    <div data-testid="lender-check-demo">
+    <div data-testid="lender-check-demo" data-demo="registry-box">
     <Card as="section" labelledBy="lc-h" className="space-y-3">
       <div className="flex flex-wrap items-center gap-2">
         <h2 id="lc-h" className="text-base font-bold text-ink">

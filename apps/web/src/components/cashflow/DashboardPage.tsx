@@ -1,5 +1,6 @@
 "use client";
 
+import { OnboardingChecklist } from "@/components/shell/OnboardingChecklist";
 import { SimulatedBadge } from "@/components/ui/SimulatedBadge";
 import { useT } from "@/i18n";
 
@@ -14,6 +15,7 @@ export function DashboardPage() {
         <h1 className="text-2xl font-bold text-ink">{t("dash.title")}</h1>
         <SimulatedBadge />
       </div>
+      <OnboardingChecklist />
       <BuyerScopeGate>
         {(partyId) => <DashboardView partyId={partyId} />}
       </BuyerScopeGate>

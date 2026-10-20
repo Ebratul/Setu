@@ -37,7 +37,7 @@ export function QueryError({ error, onRetry }: Props) {
         action={
           <Link
             href="/app/deals"
-            className="font-semibold text-brand-700 underline focus-visible:ring-2 focus-visible:ring-brand-500"
+            className="font-semibold text-brand-text underline focus-visible:ring-2 focus-visible:ring-brand-500"
           >
             {t("nav.orders")}
           </Link>

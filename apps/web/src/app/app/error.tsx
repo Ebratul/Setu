@@ -1,7 +1,7 @@
 "use client";
 
-import { ErrorState } from "@/components/ui/ErrorState";
+import { RouteError } from "@/components/shell/RouteError";
 
-export default function Error({ reset }: { reset: () => void }) {
-  return <ErrorState onRetry={reset} />;
+export default function Error(props: { error: Error & { digest?: string }; reset: () => void }) {
+  return <RouteError {...props} />;
 }

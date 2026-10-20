@@ -171,7 +171,7 @@ export function ReceiptBody({ seq }: { seq: number }) {
           href={url}
           target="_blank"
           rel="noopener"
-          className="inline-flex items-center rounded-xl px-4 py-2 text-sm font-semibold text-brand-700 underline focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2 focus-visible:outline-none"
+          className="inline-flex items-center rounded-xl px-4 py-2 text-sm font-semibold text-brand-text underline focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2 focus-visible:outline-none"
         >
           {t("audit.receipt.open")}
         </a>

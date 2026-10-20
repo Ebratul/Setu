@@ -115,7 +115,7 @@ export function ApprovalCard({ approval: a, fetchedAt, now, onReview }: Props) {
         {pending ? (
           <p className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-ink">
             {a.cooling_off_until && a.seconds_to_cooling_off_end != null ? (
-              <span data-testid="card-cooling">
+              <span data-testid="card-cooling" data-demo="cooling-off">
                 <span aria-hidden="true">⏱ </span>
                 {left > 0 ? t("appr.coolingLeft", { time: formatDuration(left) }) : t("appr.coolingOver")}
               </span>
@@ -134,7 +134,7 @@ export function ApprovalCard({ approval: a, fetchedAt, now, onReview }: Props) {
             type="button"
             aria-expanded={showEvidence}
             onClick={() => setShowEvidence((v) => !v)}
-            className="rounded-md text-sm font-semibold text-brand-700 underline focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2 focus-visible:outline-none"
+            className="rounded-md text-sm font-semibold text-brand-text underline focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2 focus-visible:outline-none"
           >
             {t("appr.ev.title")}
           </button>
@@ -153,7 +153,7 @@ export function ApprovalCard({ approval: a, fetchedAt, now, onReview }: Props) {
 
         {pending ? (
           <div className="flex justify-end">
-            <Button onClick={() => onReview(a)} data-testid="review-btn">
+            <Button onClick={() => onReview(a)} data-testid="review-btn" data-demo="approve-button">
               {t("appr.review")}
             </Button>
           </div>

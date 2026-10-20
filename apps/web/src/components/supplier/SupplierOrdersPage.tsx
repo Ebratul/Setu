@@ -40,7 +40,7 @@ export function SupplierOrdersPage() {
                 <div className="min-w-0">
                   <Link
                     href={`/supplier/${encodeURIComponent(d.reference)}`}
-                    className="font-bold text-brand-700 underline focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2 focus-visible:outline-none"
+                    className="font-bold text-brand-text underline focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2 focus-visible:outline-none"
                   >
                     {d.reference}
                   </Link>

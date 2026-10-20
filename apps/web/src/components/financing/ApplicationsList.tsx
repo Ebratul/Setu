@@ -28,7 +28,7 @@ export function ApplicationsList({
   const t = useT();
   const { lang } = useLang();
   return (
-    <section aria-labelledby="fin-apps-h" className="space-y-3">
+    <section aria-labelledby="fin-apps-h" data-demo="financing-applied" className="space-y-3">
       <h2 id="fin-apps-h" className="text-lg font-bold text-ink">
         {t("fin.apps.title")}
       </h2>

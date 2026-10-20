@@ -63,7 +63,7 @@ export function AlertsCard({ card }: { card: Card }) {
                 {href ? (
                   <Link
                     href={href}
-                    className="inline-block rounded-md text-xs font-semibold text-brand-700 underline focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:outline-none"
+                    className="inline-block rounded-md text-xs font-semibold text-brand-text underline focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:outline-none"
                   >
                     {t("chat.alerts.open")} <span aria-hidden="true">→</span>
                   </Link>
