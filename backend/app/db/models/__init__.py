@@ -18,7 +18,15 @@ from app.db.models.finance import (
     FxLock,
     FxRate,
 )
-from app.db.models.identity import BankAccount, KybCheck, KybRun, Party, User
+from app.db.models.identity import (
+    BankAccount,
+    KybCheck,
+    KybRun,
+    OnboardingReview,
+    Party,
+    PartyMember,
+    User,
+)
 from app.db.models.privacy import PrivacyRecord
 from app.db.models.trust import (
     ApprovalEvent,
@@ -63,7 +71,9 @@ __all__ = [
     "LlmCache",
     "Milestone",
     "MilestoneConfirmation",
+    "OnboardingReview",
     "Party",
+    "PartyMember",
     "PrivacyRecord",
     "RiskEvent",
     "SupplierScore",

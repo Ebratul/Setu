@@ -16,6 +16,7 @@ from sqlalchemy.orm import Session
 
 from app.audit.timeline import describe_entry
 from app.auth.deps import CurrentUser
+from app.config import get_settings
 from app.db import tenancy
 from app.db.enums import (
     ApprovalAction,
@@ -25,6 +26,7 @@ from app.db.enums import (
     DealStatus,
     DocStatus,
     EvidenceStatus,
+    KybStatus,
     LedgerKind,
     MilestoneStatus,
     PartyKind,
@@ -156,6 +158,13 @@ def create_deal(db: Session, user: CurrentUser, req: CreateDealRequest) -> Deal:
     supplier = db.get(Party, req.supplier_id)
     if supplier is None or supplier.kind != PartyKind.SUPPLIER:
         raise NotFound("supplier not found")
+    if get_settings().auth_mode == "neon" and supplier.kyb_status in (
+        KybStatus.PENDING,
+        KybStatus.FAILED,
+    ):
+        raise DomainError(
+            "this supplier has not passed onboarding verification yet", "SUPPLIER_NOT_VERIFIED"
+        )
 
     quantity, unit_price = _dec(req.quantity), _dec(req.unit_price)
     if quantity <= ZERO or unit_price <= ZERO:

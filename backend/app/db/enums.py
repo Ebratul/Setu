@@ -14,6 +14,18 @@ class UserStatus(StrEnum):
     SUSPENDED = "SUSPENDED"
 
 
+class MemberRole(StrEnum):
+    OWNER = "OWNER"
+    FINANCE = "FINANCE"
+    VIEWER = "VIEWER"
+
+
+class OnboardingStatus(StrEnum):
+    PENDING = "PENDING"
+    APPROVED = "APPROVED"
+    REJECTED = "REJECTED"
+
+
 class Language(StrEnum):
     EN = "en"
     BN = "bn"

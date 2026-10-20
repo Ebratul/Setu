@@ -27,6 +27,16 @@ Two modes, chosen by `AUTH_MODE` on the agent (`backend/app/config.py`):
 ## Schema
 `users` gained `auth_subject` (unique), `status` (`PENDING|ACTIVE|SUSPENDED`, default `ACTIVE` so seeded users are unchanged), `last_login_at`, `mfa_enabled` (migration `e7a3c1d9b5f4`; MFA enforcement is step C).
 
+## Onboarding (phase p24, step B; neon mode)
+A verified identity with no account calls `POST /onboarding`. The server creates, in one transaction, a Party (`kyb_status=PENDING`), the owner User (`status=PENDING`, role from `account_type`: BUYER or SUPPLIER only, never ADMIN/JUDGE), a `party_members` OWNER row, the bank account (`PENDING_CHANGE`) and an `onboarding_reviews` row with automatic checks from `app/domain/onboarding_kyb.py` (pure code, no LLM: sanctions screen of legal and holder names, holder-vs-legal name match, account type, country allow-list, tax-id format). Result: score and `AUTO_CLEAR | NEEDS_REVIEW | BLOCK`.
+- Until approved the user gets 403 `ACCOUNT_PENDING` on everything except `GET /onboarding/status`, `/auth/session` and `/auth/logout`: no deals, approvals or analysis before KYB. A rejected user is `SUSPENDED` (403 `ACCOUNT_SUSPENDED`), party `kyb_status=FAILED`.
+- Admin queue (ADMIN only; judges get 403): `GET /admin/onboarding?status=`, `GET /admin/onboarding/{id}`, `POST .../approve`, `POST .../reject {reason >= 10 chars}`. Approve activates the user, marks the party VERIFIED and the bank account ACTIVE. A decision is final (409 `ONBOARDING_DECIDED`); an admin cannot decide their own review (403 `SELF_DECISION`). Audit: `onboarding.submitted|approved|rejected|blocked` (ids only, no names or account numbers).
+- Auto-approval: `ONBOARDING_AUTO_APPROVE=true` approves a clean `AUTO_CLEAR` submission at once (actor `system`). A sanctions hit (`BLOCK`) never auto-approves; the applicant is not told why (the sanctions check is hidden from `GET /onboarding/status`).
+- Settings: `ONBOARDING_COUNTRIES` (default `BD,CN`), `ONBOARDING_AUTO_APPROVE` (default `false`).
+- Members: `GET|POST /parties/{id}/members`, `DELETE /parties/{id}/members/{user_id}` for the party's OWNER and ADMIN. An invite pre-creates an ACTIVE account (no auth subject) that links on the invitee's first verified sign-in. Party roles: OWNER, FINANCE, VIEWER; a VIEWER is refused (403 `VIEWER_READ_ONLY`) on writes. A user with a party and no member row is treated as OWNER (seeded demo users). The last OWNER cannot be removed; a removed member is suspended and detached from the party.
+- In neon mode a deal cannot use a supplier whose `kyb_status` is PENDING or FAILED (400 `SUPPLIER_NOT_VERIFIED`). Demo mode is unchanged.
+- First admin: `python -m app.admin_cli create-admin --email X --name Y` (refuses when `AUTH_MODE=demo` unless `--force`).
+
 ## Environments and Neon branches
 Neon Auth is branch-aware: each Neon branch has its own users and Auth URL.
 - `production` branch: `https://ep-late-recipe-b5xcv6vj.neonauth.c-7.us-east-2.aws.neon.tech/neondb/auth` (holds the judge-deployment data; keep `AUTH_MODE=demo` there until the real launch).

@@ -9,7 +9,7 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, Query, Response
 from sqlalchemy.orm import Session
 
-from app.auth.deps import CurrentUser, current_user
+from app.auth.deps import CurrentUser, current_user, not_viewer
 from app.config import get_settings
 from app.db.enums import DealStatus, EvidenceStatus
 from app.db.session import get_db
@@ -44,11 +44,12 @@ router = APIRouter(tags=["deals"])
 
 Db = Annotated[Session, Depends(get_db)]
 User = Annotated[CurrentUser, Depends(current_user)]
+Writer = Annotated[CurrentUser, Depends(not_viewer)]
 DealRef = Annotated[str, Query(max_length=64, pattern=r"^[A-Za-z0-9-]+$")]
 
 
 @router.post("/deals", response_model=DealDetail, status_code=201)
-def create_deal(body: CreateDealRequest, db: Db, user: User) -> DealDetail:
+def create_deal(body: CreateDealRequest, db: Db, user: Writer) -> DealDetail:
     """Create a DRAFT deal and run KYB on the supplier for it (buyer or admin)."""
     deal = deals.create_deal(db, user, body)
     return deals.detail(db, user, deal)
@@ -67,7 +68,7 @@ def get_deal(deal_id: str, db: Db, user: User) -> DealDetail:
 
 
 @router.post("/deals/{deal_id}/milestones/propose", response_model=DealDetail)
-def propose(deal_id: str, body: ProposeRequest, db: Db, user: User) -> DealDetail:
+def propose(deal_id: str, body: ProposeRequest, db: Db, user: Writer) -> DealDetail:
     """Propose the 30/60/10 template or custom percents; resets any confirmations."""
     deal = deals.find_deal(db, user, deal_id)
     deals.propose_milestones(db, user, deal.id, body)
@@ -75,7 +76,7 @@ def propose(deal_id: str, body: ProposeRequest, db: Db, user: User) -> DealDetai
 
 
 @router.post("/deals/{deal_id}/milestones/confirm", response_model=DealDetail)
-def confirm(deal_id: str, body: ConfirmRequest, db: Db, user: User) -> DealDetail:
+def confirm(deal_id: str, body: ConfirmRequest, db: Db, user: Writer) -> DealDetail:
     """Confirm the proposed schedule for your side; the deal is CONFIRMED when both have."""
     deal = deals.find_deal(db, user, deal_id)
     deals.confirm_milestones(db, user, deal.id, body.party_role)
@@ -83,7 +84,7 @@ def confirm(deal_id: str, body: ConfirmRequest, db: Db, user: User) -> DealDetai
 
 
 @router.post("/deals/{deal_id}/escrow/fund", response_model=DealDetail)
-def fund(deal_id: str, body: FundRequest, db: Db, user: User) -> DealDetail:
+def fund(deal_id: str, body: FundRequest, db: Db, user: Writer) -> DealDetail:
     """Deposit into the simulated escrow (buyer or admin). Omit `amount` for the next tranche."""
     deal = deals.find_deal(db, user, deal_id)
     amount = None if body.amount is None else Decimal(body.amount)
@@ -111,7 +112,7 @@ def _risk(d: RiskDecision) -> RiskOut:
     responses={202: {"model": FxLockResult, "description": "Waiting for human approval"}},
 )
 def lock_fx(
-    deal_id: str, body: FxLockRequest, response: Response, db: Db, user: User
+    deal_id: str, body: FxLockRequest, response: Response, db: Db, user: Writer
 ) -> FxLockResult:
     """Lock today's simulated FX rate (Tier 2: a person's own request is the one-tap)."""
     deal = deals.find_deal(db, user, deal_id)
@@ -137,7 +138,7 @@ def lock_fx(
     responses={202: {"model": ChangeBeneficiaryResult, "description": "Waiting for approval"}},
 )
 def change_beneficiary(
-    deal_id: str, body: ChangeBeneficiaryRequest, response: Response, db: Db, user: User
+    deal_id: str, body: ChangeBeneficiaryRequest, response: Response, db: Db, user: Writer
 ) -> ChangeBeneficiaryResult:
     """Ask to change the receiving account. Always Tier 3 (OTP + cooling-off): this only creates
     the approval request; nothing changes until a person approves it."""
@@ -166,7 +167,7 @@ def deal_activity(deal_id: str, db: Db, user: User) -> ActivityOut:
 
 
 @router.post("/deals/{deal_id}/refund", response_model=RefundResult)
-def refund_deal(deal_id: str, body: RefundRequest, db: Db, user: User) -> RefundResult:
+def refund_deal(deal_id: str, body: RefundRequest, db: Db, user: Writer) -> RefundResult:
     """Admin dispute path: return the whole escrow balance to the buyer and cancel the deal."""
     deal = deals.find_deal(db, user, deal_id)
     out = escrow.refund(db, user, reason=body.reason, deal_id=deal.id)
@@ -179,7 +180,7 @@ def refund_deal(deal_id: str, body: RefundRequest, db: Db, user: User) -> Refund
     responses={202: {"model": ReleaseResult, "description": "Waiting for human approval"}},
 )
 def release(
-    milestone_id: uuid.UUID, body: ReleaseRequest, response: Response, db: Db, user: User
+    milestone_id: uuid.UUID, body: ReleaseRequest, response: Response, db: Db, user: Writer
 ) -> ReleaseResult:
     """Release a tranche to the supplier (buyer or admin). Idempotent per `idempotency_key`.
     202 when the risk engine requires approval: no money moves until a human approves."""
@@ -192,7 +193,7 @@ def release(
 
 @router.post("/milestones/{milestone_id}/refund", response_model=RefundResult)
 def refund_milestone(
-    milestone_id: uuid.UUID, body: RefundRequest, db: Db, user: User
+    milestone_id: uuid.UUID, body: RefundRequest, db: Db, user: Writer
 ) -> RefundResult:
     """Admin dispute path: return one funded, unreleased tranche to the buyer."""
     ms, _ = deals.find_milestone(db, user, milestone_id)
@@ -202,7 +203,7 @@ def refund_milestone(
 
 @router.post("/milestones/{milestone_id}/evidence", response_model=EvidenceResult)
 def set_evidence(
-    milestone_id: uuid.UUID, body: EvidenceRequest, db: Db, user: User
+    milestone_id: uuid.UUID, body: EvidenceRequest, db: Db, user: Writer
 ) -> EvidenceResult:
     """DEV/TEST ONLY (404 unless ENABLE_DEV_EVIDENCE=true and APP_ENV is not prod): set the
     evidence verdict that Phase 14's document pipeline will set."""

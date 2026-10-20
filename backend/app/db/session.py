@@ -38,14 +38,14 @@ def get_engine() -> Engine | None:
     if settings.database_url is None:
         return None
     timeout_ms = int(settings.db_check_timeout_seconds * 1000)
-    engine = create_engine(
-        normalize_url(settings.database_url.get_secret_value()),
-        pool_pre_ping=True,
-        connect_args={
-            "connect_timeout": max(1, int(settings.db_check_timeout_seconds)),
-            "options": f"-c statement_timeout={timeout_ms}",
-        },
-    )
+    url = normalize_url(settings.database_url.get_secret_value())
+    connect_args: dict[str, object] = {
+        "connect_timeout": max(1, int(settings.db_check_timeout_seconds))
+    }
+    if "-pooler" not in (make_url(url).host or ""):
+        # transaction poolers (Neon -pooler, pgbouncer) reject startup options
+        connect_args["options"] = f"-c statement_timeout={timeout_ms}"
+    engine = create_engine(url, pool_pre_ping=True, connect_args=connect_args)
     tenancy.install(engine)
     return engine
 

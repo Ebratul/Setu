@@ -161,6 +161,14 @@ class Settings(BaseSettings):
     demo_session_secret: SecretStr | None = None
     demo_cookie_secure: bool = False
 
+    # Self-service onboarding (app/services/onboarding.py).
+    onboarding_countries: str = "BD,CN"  # comma list of ISO-2 codes a party may register from
+    onboarding_auto_approve: bool = False  # approve clean (AUTO_CLEAR) submissions without an admin
+
+    @property
+    def onboarding_country_list(self) -> list[str]:
+        return [c.strip().upper() for c in self.onboarding_countries.split(",") if c.strip()]
+
     @property
     def neon_auth_origin(self) -> str | None:
         """Issuer and audience of Neon Auth JWTs: the scheme+host of the Auth URL."""

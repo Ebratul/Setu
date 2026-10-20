@@ -12,6 +12,7 @@ from sqlalchemy import (
     Integer,
     String,
     Text,
+    UniqueConstraint,
     Uuid,
 )
 from sqlalchemy.dialects.postgresql import JSONB
@@ -23,6 +24,8 @@ from app.db.enums import (
     AccountType,
     KybStatus,
     Language,
+    MemberRole,
+    OnboardingStatus,
     PartyKind,
     Role,
     UserStatus,
@@ -49,6 +52,8 @@ class Party(Base):
     kyb_status: Mapped[KybStatus] = mapped_column(
         str_enum(KybStatus, "kyb_status"), default=KybStatus.PENDING
     )
+    tax_id: Mapped[str | None] = mapped_column(String(32))
+    onboarded_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     created_at: Mapped[Created]
 
 
@@ -136,4 +141,46 @@ class KybRun(Base):
     checked_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), index=True)
 
 
-__all__ = ["BankAccount", "KybCheck", "KybRun", "Party", "User"]
+class PartyMember(Base):
+    """A user's party-level role. A user with a `party_id` and no row here counts as OWNER (seeded
+    demo users), so existing behaviour is unchanged."""
+
+    __tablename__ = "party_members"
+    __table_args__ = (UniqueConstraint("party_id", "user_id"),)
+
+    id: Mapped[UUIDPk]
+    party_id: Mapped[uuid.UUID] = mapped_column(Uuid, ForeignKey("parties.id"), index=True)
+    user_id: Mapped[uuid.UUID] = mapped_column(Uuid, ForeignKey("users.id"), index=True)
+    member_role: Mapped[MemberRole] = mapped_column(str_enum(MemberRole, "member_role"))
+    created_at: Mapped[Created]
+
+
+class OnboardingReview(Base):
+    """Self-service onboarding submission and its KYB result. `checks` is a list of
+    {code, status, detail}; the decision is an admin's (or the system's when auto-approved)."""
+
+    __tablename__ = "onboarding_reviews"
+
+    id: Mapped[UUIDPk]
+    user_id: Mapped[uuid.UUID] = mapped_column(Uuid, ForeignKey("users.id"), index=True)
+    party_id: Mapped[uuid.UUID] = mapped_column(Uuid, ForeignKey("parties.id"), index=True)
+    status: Mapped[OnboardingStatus] = mapped_column(
+        str_enum(OnboardingStatus, "onboarding_status"), default=OnboardingStatus.PENDING
+    )
+    checks: Mapped[list[dict[str, Any]]] = mapped_column(JSONB, default=list)
+    score: Mapped[int] = mapped_column(Integer)
+    submitted_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    decided_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    decided_by: Mapped[uuid.UUID | None] = mapped_column(Uuid, ForeignKey("users.id"))
+    reason: Mapped[str | None] = mapped_column(Text)
+
+
+__all__ = [
+    "BankAccount",
+    "KybCheck",
+    "KybRun",
+    "OnboardingReview",
+    "Party",
+    "PartyMember",
+    "User",
+]

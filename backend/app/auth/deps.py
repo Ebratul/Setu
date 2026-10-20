@@ -21,8 +21,8 @@ from app.audit.writer import current_actor_id, write_audit
 from app.auth import neon
 from app.auth.demo import COOKIE_NAME, parse_token
 from app.config import get_settings
-from app.db.enums import Role, UserStatus
-from app.db.models import AuditLog, User
+from app.db.enums import MemberRole, Role, UserStatus
+from app.db.models import AuditLog, PartyMember, User
 from app.db.session import get_db
 from app.errors import DomainError, Forbidden, ServiceUnavailable, Unauthorized
 
@@ -37,16 +37,34 @@ class CurrentUser:
     role: Role
     language: str
     party_id: uuid.UUID | None
+    member_role: MemberRole = MemberRole.OWNER
 
     @property
     def reads_all(self) -> bool:
         return self.role in READ_ALL_ROLES
 
 
-def to_current(user: User) -> CurrentUser:
+def to_current(user: User, member_role: MemberRole = MemberRole.OWNER) -> CurrentUser:
     return CurrentUser(
-        user.id, user.email, user.display_name, user.role, user.language, user.party_id
+        user.id, user.email, user.display_name, user.role, user.language, user.party_id, member_role
     )
+
+
+def member_role_of(db: Session, user: User) -> MemberRole:
+    """Party-level role from `party_members`; a user with a party and no row (seeded demo users)
+    is the OWNER, so nothing existing changes."""
+    if user.party_id is None:
+        return MemberRole.OWNER
+    role = db.scalar(
+        select(PartyMember.member_role).where(
+            PartyMember.party_id == user.party_id, PartyMember.user_id == user.id
+        )
+    )
+    return role or MemberRole.OWNER
+
+
+def current_of(db: Session, user: User) -> CurrentUser:
+    return to_current(user, member_role_of(db, user))
 
 
 def _bearer(request: Request) -> str | None:
@@ -151,13 +169,13 @@ def record_login(db: Session, user: User) -> None:
 
 def _resolve(request: Request, db: Session) -> CurrentUser:
     if get_settings().auth_mode == "neon":
-        return to_current(require_active(local_user(db, verified_identity(request))))
+        return current_of(db, require_active(local_user(db, verified_identity(request))))
     token = request.cookies.get(COOKIE_NAME)
     uid = parse_token(token) if token else None
     user = db.scalar(select(User).where(User.id == uid, User.is_demo.is_(True))) if uid else None
     if user is None:
         raise Unauthorized("sign in with a demo user first")
-    return to_current(user)
+    return current_of(db, user)
 
 
 def current_user(request: Request, db: Annotated[Session, Depends(get_db)]) -> CurrentUser:
@@ -218,8 +236,25 @@ def can_read_party(user: CurrentUser, party_id: uuid.UUID) -> bool:
 
 def require_writer(user: Annotated[CurrentUser, Depends(current_user)]) -> CurrentUser:
     """Buyers (own data) and admins may change alert state; judges are read-only."""
+    if user.member_role == MemberRole.VIEWER:
+        raise Forbidden("viewers can read but not change anything", code="VIEWER_READ_ONLY")
     if user.role == Role.BUYER and user.party_id is not None:
         return user
     if user.role == Role.ADMIN:
         return user
     raise Forbidden("this demo user is read-only")
+
+
+def not_viewer(user: Annotated[CurrentUser, Depends(current_user)]) -> CurrentUser:
+    """Any signed-in user except a party VIEWER (for mutating endpoints with their own role
+    checks in the service layer)."""
+    if user.member_role == MemberRole.VIEWER:
+        raise Forbidden("viewers can read but not change anything", code="VIEWER_READ_ONLY")
+    return user
+
+
+def require_admin(user: Annotated[CurrentUser, Depends(current_user)]) -> CurrentUser:
+    """ADMIN only (judges read everything but never decide anything)."""
+    if user.role != Role.ADMIN:
+        raise Forbidden("administrators only")
+    return user

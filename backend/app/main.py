@@ -2,6 +2,7 @@ from fastapi import Depends, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.api import (
+    admin_onboarding,
     analysis,
     approvals,
     audit,
@@ -17,6 +18,8 @@ from app.api import (
     inbox,
     injection,
     kyb,
+    members,
+    onboarding,
     privacy,
     registry,
     risk,
@@ -85,6 +88,9 @@ def create_app() -> FastAPI:
     app.include_router(auth.router)
     if settings.auth_mode == "demo":
         app.include_router(auth.demo_router)
+    app.include_router(onboarding.router)
+    app.include_router(admin_onboarding.router)
+    app.include_router(members.router)
     app.include_router(analysis.router)
     app.include_router(cashflow.router)
     app.include_router(financing.router)
