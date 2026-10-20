@@ -112,6 +112,8 @@ def kb_hash_embedder(monkeypatch: pytest.MonkeyPatch) -> Iterator[None]:
 def default_to_mock_llm(monkeypatch: pytest.MonkeyPatch) -> Iterator[None]:
     """A real key in a developer's .env must never make the tests call a model."""
     monkeypatch.setenv("AGENT_MOCK_MODE", "true")
+    for key in ("ANTHROPIC_API_KEY", "OPENROUTER_API_KEY", "XAI_API_KEY"):
+        monkeypatch.setenv(key, "")
     get_settings.cache_clear()
     yield
     get_settings.cache_clear()
