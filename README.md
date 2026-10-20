@@ -1,22 +1,44 @@
 # Setu (সেতু) — AI SME Finance Copilot
 
-FinTechathon 2026 International Track, **Topic E**. Setu helps Bangladeshi SMEs that import from Chinese suppliers.
-It compares financing options, forecasts cash flow, analyses order cost, checks supplier and trade documents,
-and pays suppliers through milestone escrow with risk-tiered human approval.
+**Setu** (Bangla: *bridge*) is an AI copilot for Bangladeshi small and medium businesses that **import from Chinese suppliers**.
+It answers the questions an importer faces before and during every order: *Can I afford this order? Which financing is cheapest?
+Will my cash run out before the goods arrive? Are this supplier and these documents genuine? Is this "new bank account" email a scam?*
+Then it pays the supplier through **milestone escrow** with **risk-tiered human approval**.
+
+Built for **FinTechathon 2026, International Track, Topic E**.
 
 > **All money movement is a simulated sandbox. No real payment rails, no real lenders, no real people.
 > All data (people, companies, banks, rates, lenders) is fictional or mock. No model was trained.**
-> The only external payment service is an optional, off-by-default **PayPal Sandbox** (test mode) checkout that can
-> fund the simulated escrow.
 > Claude models are called only to explain results and to fill missing document fields.
-> Every number comes from deterministic Python code.
+> **The LLM explains, code executes:** every number (cost, margin, gap, FX, fraud score, permission tier) comes from deterministic Python.
 
-- **Live demo:** [TO FILL: live URL]
-- **Judge page:** [TO FILL: live URL]/judges (the page exists in the code: `frontend/src/app/judges`)
-- **Demo video (≤ 5 min):** [TO FILL: video URL]
-- **Status page:** [TO FILL: status URL]
-- **Source:** [TO FILL: repository URL]
-- **Team:** [TO FILL: team name, members, universities]
+| | |
+|---|---|
+| **Live demo** | https://setu-rouge-omega.vercel.app (demo mode; the deployment is behind Vercel Authentication, so access is on request) |
+| **Judge page** | `/judges` on the live demo |
+| **Demo video (≤ 5 min)** | [TO FILL: video URL] |
+| **Status page** | [TO FILL: status URL] |
+| **Source** | https://github.com/Ebratul/Setu |
+| **Team** | [TO FILL: team name, members, universities] |
+
+## Contents
+[The problem](#the-problem) · [What it does](#what-it-does) · [Who uses it](#who-uses-it) · [Accounts, onboarding and verification](#accounts-onboarding-and-verification) ·
+[Security model](#security-model-summary) · [Architecture](#architecture) · [Measured results](#measured-results) · [Run locally](#run-locally) ·
+[Configuration](#configuration) · [Deployment](#deployment) · [Documentation](#documentation) · [Tests](#tests-and-evaluation) ·
+[Project structure](#project-structure) · [Limitations](#limitations-and-known-risks) · [Licences](#third-party-licences)
+
+## The problem
+
+A Bangladeshi garment or trading SME that imports fabric, accessories or machinery from China typically faces four problems at once:
+
+1. **Financing gaps.** The supplier wants an advance, the buyer's cash arrives weeks later, and the options (bank LC, supplier credit,
+   invoice financing, overdraft) are hard to compare on real total cost.
+2. **Cash-flow timing.** Duty, freight, FX moves and deadlines pile up on specific days, and a shortfall is only noticed when it hits.
+3. **Supplier and document risk.** Fake or tampered bills of lading, invoices that were already financed elsewhere, and names that
+   almost match but do not.
+4. **Payment-redirect fraud.** An urgent email "from the supplier" says the bank account changed and asks to pay today.
+
+Setu puts all four in one place, in English, Bangla and Chinese, and never lets an AI model move money on its own.
 
 ## What it does
 
@@ -39,10 +61,45 @@ IDs come from [`docs/REQUIREMENTS.md`](docs/REQUIREMENTS.md) (the stand-in for t
 | FR-7 | USD vs CNY route + rate lock | Route comparison (spreads and fees are labelled MOCK) and a mock FX lock (Tier 2) | chat, deal page |
 | FR-8 | Signed credit record | Ed25519-signed JSON record when escrow completes; verify endpoint | deal page, `/api/credit-records/...` |
 | FR-9 | Multilingual explained chat | EN and BN chat (ZH for the supplier view), "Why" line on answers, cited knowledge base | `/app/chat` |
-| (extra) | Accounts and onboarding | Neon Auth sign-in (`AUTH_MODE=neon`), self-service company onboarding with automatic KYB and an admin review queue, party members | `/register`, `/onboarding`, `/app/admin/onboarding` |
-| (extra) | PayPal Sandbox checkout | Test-mode payment that can fund the simulated escrow through the risk gate (off unless `PAYPAL_SANDBOX_ENABLED=true`) | deal page, `docs/paypal-sandbox.md` |
+| (extra) | Real accounts | Sign in with Google (through Neon Auth) or email and password; role-based onboarding with automatic checks, an admin verification queue and a hard "not verified" lock on every money action | `/login`, `/onboarding`, `/app/admin/verifications` |
+| (extra) | Documentation Center | 50+ role-based guides (buyer, supplier, admin, judge, security, FAQ, glossary), EN and BN, ZH for the supplier guide; client-side search; in-app "?" help; the chat assistant can cite them | `/docs` |
+| (extra) | Guided demo and judge sandboxes | 12-step scripted walkthrough that replays recorded AI answers offline; per-judge sandbox data | `/demo`, `/judges` |
 
 Not built or partly built: see [Limitations](#limitations-and-known-risks).
+
+## Who uses it
+
+| Role | Who | What they can do |
+|---|---|---|
+| **Buyer** | A Bangladeshi importer (SME) | Everything above for their own company: analysis, financing, cash flow, deals and escrow, document checks, team members |
+| **Supplier** | A Chinese exporter | See their deals, propose or confirm milestones, upload evidence, request a payout-account change (always a Tier 3 approval) |
+| **Admin** | Setu staff | Review company verifications (approve, request changes, reject, suspend), KYB, registry, audit log. Needs authenticator-app (TOTP) 2FA |
+| **Judge** | A competition judge | Read-only tour with their own sandbox data; cannot move money or reach admin decisions |
+
+## Accounts, onboarding and verification
+
+Setu supports two sign-in shapes (`AUTH_MODE`): **demo** (pick a pre-made account, no password; the judge deployment) and **neon**
+(real accounts through Neon Auth: Google, or email and password). With `AUTH_MODE=neon` the demo login is off unless a
+staging-only flag turns it on, and production refuses to start with it on.
+
+```mermaid
+flowchart LR
+  G["Continue with Google<br/>(email must be verified)"] --> R["Choose role<br/>buyer or supplier<br/>(admin = allowlist, judge = invite code)"]
+  R --> C["Contact + phone OTP"] --> B["Business details<br/>(role-specific, validated)"]
+  B --> D["Upload documents<br/>(magic-byte check, private storage)"] --> K["Consent + optional TOTP 2FA"]
+  K --> S["Review and submit"] --> A["Automatic checks<br/>duplicate company, sanctions,<br/>KYB, document reuse"]
+  A --> Q["Admin queue<br/>approve / request changes /<br/>reject / suspend"] --> OK["ACTIVE<br/>money actions unlocked"]
+```
+
+- **Until a human approves the account it stays `PENDING_VERIFICATION`.** The user can read their own workspace, but every money action
+  (create a deal, fund or release escrow, FX lock, payout-account change, financing application, approvals) returns `403 ACCOUNT_NOT_VERIFIED`.
+  The check runs in the API layer and again in the service layer.
+- **Buyer fields:** legal and trade name, trade licence (number, authority, expiry), IRC, TIN, address, business type, imports, volume range.
+  **Supplier fields:** legal name in English and Chinese, Unified Social Credit Code (18 characters, official checksum), address, scope, export experience, bank account.
+- **Sensitive values** (phone, licence, TIN, USCC, bank account) are encrypted at rest, shown masked, and never sent to a model.
+- **Admin review:** decisions need a fresh authenticator code (email codes are not accepted), revealing a sensitive field needs a written reason,
+  nobody can decide their own account, and every step is in the signed audit log.
+- Why we ask for these details: see the in-app guide *Why Setu asks for these details* (`/docs`).
 
 ## Security model (summary)
 
@@ -54,7 +111,9 @@ Not built or partly built: see [Limitations](#limitations-and-known-risks).
 | Injection defence | SR-3 | Five switchable or fixed layers: structural wrapping, detector, capability control (money tools only propose; flagged documents force Tier 3), tool gating, output guard. |
 | Audit log | SR-5 | Every agent, user and system action is an Ed25519-signed, hash-chained row. Anyone with the public key can verify an export (`pnpm audit:verify`, `/verify`). |
 | Duplicate registry | SR-6 | Exact (file hash) and semantic (invoice fields) fingerprints across contexts and lenders. |
-| Sandbox only | SR-8 | Every money action is labelled "Simulated". The escrow and ledger are internal. The only external payment code is the PayPal Sandbox adapter (fixed sandbox host, off by default). |
+| Account verification | SR-1 | `ACCOUNT_NOT_VERIFIED` gate on every money action; admin decisions need a TOTP step-up; suspending or rejecting a company freezes the whole business. |
+| Data at rest | SR-4 | Application-level encryption (Fernet) for phone, licence, TIN, USCC and bank numbers; masked in every API response; revealing a field is audited. |
+| Sandbox only | SR-8 | Every money action is labelled "Simulated". The escrow and ledger are internal; there is no external payment code. |
 
 Details: [`docs/submission/SECURITY_SELF_ASSESSMENT.md`](docs/submission/SECURITY_SELF_ASSESSMENT.md).
 
@@ -117,7 +176,9 @@ flowchart LR
 The same diagram is saved as [`docs/architecture.mmd`](docs/architecture.mmd). No SVG/PNG image was generated
 (Mermaid CLI is not installed in this repo and was not fetched). GitHub renders the Mermaid block above.
 
-Stack: Next.js 16 (App Router, TypeScript, Tailwind v4) · FastAPI on Python 3.13 · LangGraph + LangChain ·
+### Stack
+
+Next.js 16 (App Router, TypeScript, Tailwind v4) · FastAPI on Python 3.13 · LangGraph + LangChain ·
 SQLAlchemy 2 + Alembic · PostgreSQL 16 + pgvector. Models: `claude-haiku-5-5` (router, agent, answers) and
 `claude-sonnet-5-5` (document tasks), through Anthropic or OpenRouter. With no key the service runs an offline
 deterministic mock model. Full description: [`docs/submission/TECHNICAL_DOCUMENTATION.md`](docs/submission/TECHNICAL_DOCUMENTATION.md).
@@ -196,7 +257,7 @@ The RAG embedding model is downloaded once by `pnpm run kb:index` (about 240 MB)
 Open http://localhost:3000/demo for the guided 12-step walkthrough, or log in with "Login as"
 (`/login`). The offline replay check runs without a network: `pnpm run demo:check`.
 For the simulated SMS panel and the scam simulator, set `DEMO_MODE=true` (with `APP_ENV` = `dev` and `AUTH_MODE=demo`; see
-`docs/demo.md`). Real sign-in (`AUTH_MODE=neon`) needs a Neon Auth project: see `docs/auth.md`.
+`docs/demo.md`). Real sign-in (`AUTH_MODE=neon`, including Google) needs a Neon Auth project: see `docs/auth.md` and the Google section below.
 
 ### Google sign-in (real accounts)
 
@@ -216,6 +277,19 @@ appear in our env files. Design and API: [`docs/p30-design.md`](docs/p30-design.
    `DEMO_MODE=false` (backend).
 5. First admin: put the admin's Google email in `ADMIN_EMAIL_ALLOWLIST`; they must enable TOTP before any admin access.
 
+## Configuration
+
+Names only. See the `.env.example` files (repo root, `backend/`, `frontend/`, `rag_agent/`). Never commit real values.
+
+| Area | Variables |
+|---|---|
+| Database | `DATABASE_URL` (use a **local** URL for migrate, seed and tests) |
+| Models | `OPENROUTER_API_KEY`, `ANTHROPIC_API_KEY`, `XAI_API_KEY` (none set = offline mock model), `SETU_MODEL_FAST`, `SETU_MODEL_REASONING` |
+| Auth | `AUTH_MODE` (`demo` or `neon`), `DEMO_MODE`, `NEON_AUTH_BASE_URL`, `NEON_AUTH_COOKIE_SECRET` (web), `DEMO_COOKIE_IN_NEON` (staging only) |
+| Onboarding | `FIELD_ENCRYPTION_KEY`, `ADMIN_EMAIL_ALLOWLIST`, `JUDGE_INVITE_CODES` (16+ characters each), `TERMS_VERSION`, `SMS_PROVIDER`, `SMS_WEBHOOK_URL`, `SMS_WEBHOOK_TOKEN` |
+| Secrets | `AUDIT_SIGNING_KEY`, `DEMO_SESSION_SECRET`, `DOCUMENT_URL_SECRET`, `OTP_SECRET_SEED`, `CRON_SECRET` |
+| Safety rails | With `APP_ENV=prod` the agent refuses to start unless `AUTH_MODE=neon`, `DEMO_MODE=false`, strong secrets, an https webhook SMS provider and `FIELD_ENCRYPTION_KEY` are all set |
+
 ## Deployment
 
 Runbook with variable names only: [`docs/deploy-prod.md`](docs/deploy-prod.md). Two shapes are supported:
@@ -232,7 +306,25 @@ Facts to know:
   (`GET /api/audit/public-key` reports `matches_committed_key`).
 - Never commit `.env*` files. Use `.env.example` for placeholders.
 - Smoke test of a running deployment: `BASE_URL=https://... scripts/smoke_prod`.
-- **Nothing is recorded as deployed** in `docs/PROGRESS.md`. Live URL: [TO FILL].
+- **Current production deployment (Vercel, demo mode):** `scripts/deploy_vercel.sh` stages a bundle (the agent root is `backend/`, so
+  `rag_agent/`, `data/demo` and the audit public key are copied inside it; `.env*`, keys, tests and uploaded files are excluded) and runs
+  `vercel deploy --prod`. Google sign-in is not active on that deployment until the Neon Auth variables are set.
+- Database migrations are never run by a deploy. Run `alembic upgrade head` deliberately, against the right database, after taking a
+  Neon snapshot or branch.
+
+## Documentation
+
+| Where | What |
+|---|---|
+| In the app: `/docs` | Role-based user guides (buyer, supplier, admin, judge, security, FAQ, glossary) |
+| [`docs/REQUIREMENTS.md`](docs/REQUIREMENTS.md) | Requirements (stand-in for the SRS) |
+| [`docs/PLAN.md`](docs/PLAN.md), [`docs/PROGRESS.md`](docs/PROGRESS.md) | Phase plan and the running handoff log |
+| [`docs/p30-design.md`](docs/p30-design.md), [`docs/p30-api-shapes.md`](docs/p30-api-shapes.md) | Google sign-in, onboarding and verification: design and API |
+| [`docs/auth.md`](docs/auth.md), [`docs/prod-auth-plan.md`](docs/prod-auth-plan.md) | Authentication and the production plan |
+| [`docs/risk.md`](docs/risk.md), [`docs/approvals.md`](docs/approvals.md), [`docs/escrow.md`](docs/escrow.md), [`docs/kyb.md`](docs/kyb.md) | Tier engine, approvals, escrow, KYB |
+| [`docs/forensics.md`](docs/forensics.md), [`docs/registry.md`](docs/registry.md), [`docs/injection.md`](docs/injection.md), [`docs/privacy.md`](docs/privacy.md), [`docs/audit.md`](docs/audit.md) | Document forensics, duplicate registry, injection defence, Privacy Gateway, audit log |
+| [`docs/deploy-prod.md`](docs/deploy-prod.md), [`docs/secrets-rotation.md`](docs/secrets-rotation.md) | Deployment runbook and secret rotation |
+| [`docs/submission/`](docs/submission) | Submission documents (technical documentation, security self-assessment, checklist) |
 
 ## Tests and evaluation
 
@@ -251,11 +343,12 @@ Facts to know:
 | `uv run --directory backend python -m synthetic.generator --clean 100 --tampered 100 --seed 42` | regenerate the synthetic trade-document set (git-ignored output) |
 | `pnpm run audit:verify` / `audit:export` | verify the audit chain / export the operation log (see `docs/submission/EXECUTION_EVIDENCE.md`) |
 
-Last recorded runs in `docs/PROGRESS.md` (not re-run when this README was edited): pytest 1,313 passed with 23 registry
-tests failing when no migrated database is available, Vitest 433 passed (P23); Playwright `p22.spec.ts` 5/5 (P22).
-Some earlier Playwright specs (`approvals`, `chat`, `deals`) failed in the P22 run and were not re-checked. Tests added
-after P23 (auth, onboarding, payments) have no recorded full-suite result. **Do not run DB tests against a hosted
-`DATABASE_URL`**; use the local compose database.
+Last recorded runs (2026-10-21, local Postgres): backend pytest **1,636 passed, 2 skipped** (the whole suite except `tests/demo`;
+3 demo-replay tests fail until the recorded fixtures are refreshed with `pnpm demo:record`); frontend Vitest **704 passed**;
+Playwright `playwright.p30.config.ts` (mock Neon Auth server, real backend) **11 passed**: buyer onboarding through to approval,
+supplier in Chinese, unverified email, demo-login visibility, validation errors, axe checks. Some older Playwright specs
+(`approvals`, `chat`, `deals`) failed in an earlier run and were not re-checked.
+**Do not run DB tests against a hosted `DATABASE_URL`**; use the local compose database.
 
 ## Project structure
 
@@ -264,12 +357,12 @@ frontend/                 Next.js app (src/app routes, src/components, src/i18n,
 backend/
   app/api/                FastAPI routers
   app/domain/             deterministic money logic (landed cost, financing, cash flow, FX, escrow, KYB)
-  app/services/           orchestration, risk engine (services/risk), approvals, registry, credit record, payments/
+  app/services/           orchestration, risk engine (services/risk), approvals, registry, credit record, onboarding, MFA, SMS
   app/forensics/          PDF extraction, hidden-text detector, cross-checks, scoring, dev evaluation
-  app/security/           tiers, policy, injection/ (layers 1-6), email guard
+  app/security/           tiers, policy, injection/ (layers 1-6), email guard, field encryption, TOTP
   app/privacy/            Privacy Gateway (detectors, vault, gateway, eval)
   app/audit/              signed hash-chained audit log (scheme, writer, verify, export)
-  app/auth/               demo login and Neon Auth JWT verification
+  app/auth/               demo login, Neon Auth JWT verification, account-status gate
   app/llm/                the only place models are called (+ replay fixtures)
   app/demo/               guided demo runner and judge sandboxes
   app/db/, alembic/       SQLAlchemy models and migrations (single schema owner)
@@ -297,7 +390,7 @@ independently verified, and are marked "verify with the official circular". Noth
 ## Limitations and known risks
 
 The full list with sources is in `docs/submission/SECURITY_SELF_ASSESSMENT.md`. Main points:
-the judge deployment uses demo login (real Neon Auth sign-in exists but has no recorded security review), no real payment or SMS provider (PayPal Sandbox is test-mode only), synthetic-only evaluation (test split run once), the injection test uses a mock model,
+the judge deployment uses demo login (Google and email sign-in through Neon Auth exist; the P30 code had two internal security-review passes and no external audit), no real payment rails and no live SMS provider (a generic webhook provider exists but is not connected to a service), synthetic-only evaluation (test split run once), the injection test uses a mock model,
 Bangla and Chinese text not reviewed by native speakers, `/app` Lighthouse mobile performance about 77 (target was 85),
 no on-chain registry anchor, audit-table owner can truncate the table (use a non-owner DB role in production).
 
@@ -308,7 +401,6 @@ build machine, except where marked.
 
 **Web (`frontend`)**
 - `@neondatabase/auth` 0.6.0-beta (Neon Auth client) — Apache-2.0
-- PayPal JS SDK: loaded from PayPal at run time only when the Sandbox checkout is enabled; not bundled; used under PayPal developer terms
 - Next.js 16.4.1, React 19.3.0, React DOM, Tailwind CSS 4.3.3, Recharts 3.10.1 (charts), `qrcode` 1.5.4 (receipt QR codes), `@noble/ed25519` 3.0.0 (browser verification fallback) — MIT
 - TypeScript 5.9.3, Playwright 1.64.1 (dev), jsQR 1.4.0 (dev, QR tests) — Apache-2.0
 - `@axe-core/playwright` 4.14.0 (dev only, accessibility tests) — MPL-2.0
@@ -318,7 +410,7 @@ build machine, except where marked.
 - The Colorlib "Pexcon" template was visual inspiration only; no code, CSS, text or images were copied.
 
 **Agent (`backend`)**
-- PyJWT 2.15.1 (Neon Auth token verification), langchain-xai 1.3.0 (last-resort model provider) — MIT; httpx 0.28.1 (PayPal and mail calls; installed with `fastapi[standard]`) — BSD-3-Clause
+- PyJWT 2.15.1 (Neon Auth token verification), langchain-xai 1.3.0 (last-resort model provider) — MIT; httpx 0.28.1 (mail and SMS-webhook calls; installed with `fastapi[standard]`) — BSD-3-Clause
 - FastAPI 0.143.3, Alembic 1.20.0, SQLAlchemy 2.1.4, pydantic-settings 2.16.0, LangChain 1.4.6, LangChain-core 1.6.12, langchain-anthropic 1.7.6, LangGraph 1.2.15, langgraph-checkpoint 4.3.0, langgraph-checkpoint-postgres 3.2.0, LangSmith SDK 0.14.11, pgvector (Python) 0.5.1, pyotp 2.10.0, PyYAML 6.0.3, rapidfuzz 3.14.6 — MIT
 - structlog 26.1.0 — MIT OR Apache-2.0
 - cryptography 50.0.2 — Apache-2.0 OR BSD-3-Clause
