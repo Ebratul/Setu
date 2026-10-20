@@ -34,6 +34,7 @@ data/generated/
 .vercel/
 .DS_Store
 *.log
+document_for_test/
 
 # Playwright output
 frontend/test-results/
