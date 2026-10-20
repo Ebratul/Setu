@@ -163,6 +163,11 @@ class ApprovalRequest(Base):
     otp_verified_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     decision_note: Mapped[str | None] = mapped_column(String(300))
     superseded_by: Mapped[uuid.UUID | None] = mapped_column(Uuid)
+    # The signed-in person whose HTTP request created this approval (four-eyes). NULL when the
+    # agent or the system created it.
+    requested_by_user_id: Mapped[uuid.UUID | None] = mapped_column(
+        Uuid, ForeignKey("users.id", ondelete="SET NULL")
+    )
 
 
 class ApprovalEvent(Base):

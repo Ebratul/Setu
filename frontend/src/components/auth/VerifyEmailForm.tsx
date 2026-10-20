@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/Button";
 import { FormField, inputClass } from "@/components/ui/FormField";
 import { useT } from "@/i18n";
 import { getAccessToken, getAuthClient } from "@/lib/auth/client";
-import { attempt, authErrorKey, classifyApiError, finishSignIn } from "@/lib/auth/flow";
+import { attempt, authErrorKey, classifyApiError, finishSignIn, statusPath } from "@/lib/auth/flow";
 
 import { authLinkClass } from "./AuthShell";
 
@@ -44,7 +44,7 @@ export function VerifyEmailForm() {
         router.replace(await finishSignIn(next));
       } catch (err) {
         const problem = classifyApiError(err);
-        if (problem.kind === "status") router.replace(`/account-status?reason=${problem.reason}`);
+        if (problem.kind === "status") router.replace(statusPath(problem.reason));
         else router.replace("/login?verified=1");
       }
     } catch {

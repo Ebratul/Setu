@@ -399,6 +399,8 @@ def test_lists_are_scoped_and_filterable(seeded_db: str) -> None:
 def test_evidence_endpoint_needs_the_explicit_flag(
     seeded_db: str, monkeypatch: pytest.MonkeyPatch
 ) -> None:
+    monkeypatch.setenv("DEMO_SESSION_SECRET", "s" * 40)  # prod has no dev cookie secret
+    get_settings.cache_clear()
     karim, admin = as_user(KARIM), as_user(ADMIN)
     d = funded_deal(karim)
     ms = d["milestones"][0]["id"]

@@ -406,6 +406,7 @@ def _request(
         ],
         status=ApprovalStatus.PENDING,
         requested_by=Actor.LLM if ctx.origin == Origin.AGENT else Actor.USER,
+        requested_by_user_id=user.id if ctx.origin == Origin.USER_UI else None,
         otp_required=tier == 3,
         cooling_off_until=approval_otp.cooling_off_until(now, tier),
         created_at=now,

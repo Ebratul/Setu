@@ -6,6 +6,9 @@ import { useState } from "react";
 import { Alert } from "@/components/ui/Alert";
 import { Button } from "@/components/ui/Button";
 import { useT } from "@/i18n";
+import { getOnboardingStatus } from "@/lib/api/onboarding";
+import { useApi } from "@/lib/useApi";
+import { useAuthMode } from "@/lib/auth/useAuthMode";
 import { signOutEverywhere, type StatusReason } from "@/lib/auth/flow";
 
 import { AuthShell } from "./AuthShell";
@@ -22,6 +25,10 @@ export function AccountStatusScreen() {
   const raw = useSearchParams().get("reason") as StatusReason | null;
   const reason = REASONS[raw ?? ""] ?? REASONS.not_onboarded;
   const [busy, setBusy] = useState(false);
+  const mode = useAuthMode().mode;
+  // A rejected applicant is suspended; the review reason is still readable from the status endpoint.
+  const review = useApi((s) => getOnboardingStatus(s), "account-status-review", mode === "neon" && reason.key === "suspended");
+  const rejected = review.data?.status === "REJECTED" ? review.data : null;
 
   async function onSignOut() {
     setBusy(true);
@@ -35,6 +42,11 @@ export function AccountStatusScreen() {
         <Alert tone={reason.tone} title={t(`auth.status.${reason.key}.title`)}>
           {t(`auth.status.${reason.key}.body`)}
         </Alert>
+        {rejected ? (
+          <Alert tone="danger" title={t("auth.status.rejected.title")}>
+            {rejected.reason ?? t("auth.status.rejected.noReason")}
+          </Alert>
+        ) : null}
         <Button variant="secondary" onClick={onSignOut} loading={busy}>
           {busy ? t("auth.status.signingOut") : t("auth.status.signOut")}
         </Button>

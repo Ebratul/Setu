@@ -30,6 +30,7 @@ from app.db.enums import (
     ApprovalAction,
     ApprovalStatus,
     FxLockStatus,
+    MemberRole,
     Role,
 )
 from app.db.models import (
@@ -47,7 +48,7 @@ from app.db.models import (
     RiskEvent,
 )
 from app.domain.money import q2
-from app.errors import DomainError, Forbidden, NotFound
+from app.errors import DomainError, Forbidden, NotFound, ServiceUnavailable
 from app.schemas.approvals import (
     ApprovalList,
     ApprovalOut,
@@ -63,7 +64,7 @@ from app.schemas.approvals import (
     TimelineStep,
 )
 from app.schemas.deals import ProposeRequest, TraceItemOut
-from app.services import approval_otp
+from app.services import approval_otp, stepup
 from app.services import beneficiary as beneficiary_service
 from app.services import deals as deals_service
 from app.services import escrow as escrow_service
@@ -89,24 +90,7 @@ FEED_KINDS = (
 )
 MAX_RESENDS = 5
 
-ACTION_LABELS: dict[ApprovalAction, tuple[str, str]] = {
-    ApprovalAction.RELEASE_MILESTONE: ("Release a payment tranche", "পেমেন্ট কিস্তি ছাড় করা"),
-    ApprovalAction.CHANGE_BENEFICIARY: (
-        "Change the supplier's receiving account",
-        "সরবরাহকারীর প্রাপক অ্যাকাউন্ট বদল",
-    ),
-    ApprovalAction.LOCK_FX_RATE: ("Lock the FX rate", "বিনিময় হার লক করা"),
-    ApprovalAction.CHANGE_MILESTONE_SCHEDULE: (
-        "Set the milestone schedule",
-        "মাইলস্টোন সূচি নির্ধারণ",
-    ),
-    ApprovalAction.CONFIRM_MILESTONES: (
-        "Confirm the milestone schedule",
-        "মাইলস্টোন সূচি নিশ্চিত করা",
-    ),
-    ApprovalAction.FUND_ESCROW: ("Deposit into escrow", "এসক্রোতে জমা"),
-    ApprovalAction.ACCEPT_FINANCING: ("Accept a financing offer", "অর্থায়ন প্রস্তাব গ্রহণ"),
-}
+ACTION_LABELS = approval_otp.ACTION_LABELS
 ENGINE_ACTION = {
     ApprovalAction.RELEASE_MILESTONE: "RELEASE_TRANCHE",
     ApprovalAction.CHANGE_BENEFICIARY: "CHANGE_BENEFICIARY",
@@ -149,11 +133,20 @@ def _load(
         raise NotFound("approval not found")
     role = escrow_service.viewer_role(user, deal)
     if decide:
+        if user.member_role == MemberRole.VIEWER:
+            raise Forbidden("viewers can read but not change anything", code="VIEWER_READ_ONLY")
         if role not in DECIDER_ROLES:
             raise Forbidden("only the buyer of this deal (or an admin) can decide this approval")
     elif role not in ("BUYER", "ADMIN", "JUDGE"):
         raise NotFound("approval not found")
-    return appr, deal, role or ""
+    return appr, deal, _seen_as(user, role or "")
+
+
+def _seen_as(user: CurrentUser, role: str) -> str:
+    """A party VIEWER sees the buyer's approvals but is never a decider."""
+    if role == "BUYER" and user.member_role == MemberRole.VIEWER:
+        return "VIEWER"
+    return role
 
 
 def _requested_via(appr: ApprovalRequest) -> str | None:
@@ -579,7 +572,7 @@ def list_approvals(
     rows = db.execute(stmt.order_by(ApprovalRequest.created_at.desc()).limit(200)).all()
     items: list[ApprovalOut] = []
     for appr, deal in rows:
-        role = escrow_service.viewer_role(user, deal) or ""
+        role = _seen_as(user, escrow_service.viewer_role(user, deal) or "")
         if appr.tier == 3 and appr.status == ApprovalStatus.PENDING and role in DECIDER_ROLES:
             _ensure_otp(db, appr, deal, now)
         items.append(to_out(db, appr, deal, role, now))
@@ -605,7 +598,7 @@ def _ensure_otp(db: Session, appr: ApprovalRequest, deal: Deal, now: datetime) -
         appr.expires_at = approval_otp.expiry(now)
     if appr.otp_hash is None and _requested_via(appr) != "email":
         appr.cooling_off_until = approval_otp.cooling_off_until(now, 3)
-        approval_otp.issue_otp(db, appr, deal, now)
+        approval_otp.issue_otp_quietly(db, appr, deal, now)
     db.commit()
 
 
@@ -725,6 +718,7 @@ def approve(
     approval_id: uuid.UUID,
     otp: str | None = None,
     *,
+    stepup_token: str | None = None,
     now: datetime | None = None,
 ) -> ApproveResult:
     now = now or utcnow()
@@ -751,7 +745,11 @@ def approve(
             "BENEFICIARY_VIA_EMAIL",
         )
 
+    waived = False
     if appr.status == ApprovalStatus.PENDING:
+        if appr.tier == 2:
+            stepup.require(db, user, stepup_token)  # Tier 3 has its own OTP: no double prompt
+        waived = _four_eyes(db, appr, deal, user, now)
         if appr.tier == 3:
             _check_step_up(db, appr, deal, user, otp, now)
         appr.status = ApprovalStatus.APPROVED
@@ -767,6 +765,7 @@ def approve(
             now,
             otp_verified=appr.tier == 3,
             role=role,
+            **({"four_eyes_waived": True} if waived else {}),
         )
         approval_otp.emit(
             db,
@@ -786,6 +785,24 @@ def approve(
         )
         db.commit()
     return _execute(db, user, appr, deal, role, now)
+
+
+def _four_eyes(
+    db: Session, appr: ApprovalRequest, deal: Deal, user: CurrentUser, now: datetime
+) -> bool:
+    """The person who asked for this approval may not approve it, if someone else could. Returns
+    True when the rule was waived because the requester is the party's only OWNER/FINANCE member
+    (so a one-person company is not deadlocked); the caller records that in the audit row."""
+    if not get_settings().four_eyes_active or appr.requested_by_user_id != user.id:
+        return False
+    others = [u for u in approval_otp.approvers(db, deal.buyer_id) if u.id != user.id]
+    if others:
+        _audit(db, deal, "APPROVAL_FOUR_EYES_REFUSED", appr, user, "FOUR_EYES", now)
+        db.commit()
+        raise Forbidden(
+            "you asked for this action, so a colleague must approve it", code="FOUR_EYES"
+        )
+    return True
 
 
 def _check_step_up(
@@ -997,14 +1014,18 @@ def resend_otp(
     sent = (
         db.scalar(
             select(func.count())
-            .select_from(DemoPhoneMessage)
-            .where(DemoPhoneMessage.approval_id == appr.id)
+            .select_from(ApprovalEvent)
+            .where(ApprovalEvent.approval_id == appr.id, ApprovalEvent.kind == "OTP_SENT")
         )
         or 0
     )
-    if sent > MAX_RESENDS:
+    if sent >= MAX_RESENDS:
         raise Refusal("too many codes were requested", "OTP_RESEND_LIMIT")
-    approval_otp.issue_otp(db, appr, deal, now)
+    try:
+        approval_otp.issue_otp(db, appr, deal, now)
+    except ServiceUnavailable:
+        db.rollback()  # the old code stays valid; the person can try "resend" again
+        raise
     seq = _audit(db, deal, "APPROVAL_OTP_SENT", appr, user, "SENT", now)
     approval_otp.emit(
         db,
@@ -1015,7 +1036,11 @@ def resend_otp(
         parties=[None],
         tier=appr.tier,
         actor="user",
-        title=("New code sent to the demo phone", "ডেমো ফোনে নতুন কোড পাঠানো হয়েছে"),
+        title=(
+            ("New code sent by email", "ইমেইলে নতুন কোড পাঠানো হয়েছে")
+            if get_settings().auth_mode == "neon"
+            else ("New code sent to the demo phone", "ডেমো ফোনে নতুন কোড পাঠানো হয়েছে")
+        ),
         audit_seq=seq,
     )
     db.commit()

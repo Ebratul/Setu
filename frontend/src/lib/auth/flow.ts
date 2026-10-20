@@ -17,6 +17,13 @@ export async function finishSignIn(next: string | null): Promise<string> {
 
 export type StatusReason = "not_onboarded" | "pending" | "suspended";
 
+/** Where a signed-in user with a non-active account belongs. */
+export function statusPath(reason: StatusReason): string {
+  if (reason === "not_onboarded") return "/onboarding";
+  if (reason === "pending") return "/onboarding/status";
+  return "/account-status?reason=suspended";
+}
+
 export type SignInProblem =
   | { kind: "unverified" }
   | { kind: "status"; reason: StatusReason }

@@ -23,6 +23,11 @@ class FileToken:
 
 def _secret() -> bytes:
     s = get_settings()
+    if s.app_env == "prod":
+        key = s.document_url_secret
+        if key is None or len(key.get_secret_value()) < 32:
+            raise RuntimeError("DOCUMENT_URL_SECRET (>= 32 chars) is required when APP_ENV=prod")
+        return hashlib.sha256(b"doc-url:" + key.get_secret_value().encode()).digest()
     for candidate in (s.document_url_secret, s.demo_session_secret):
         if candidate is not None and candidate.get_secret_value():
             return hashlib.sha256(b"doc-url:" + candidate.get_secret_value().encode()).digest()

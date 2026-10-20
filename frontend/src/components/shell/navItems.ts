@@ -23,6 +23,13 @@ export const MAIN_ITEMS: readonly NavItem[] = [
   { href: "/app/chat", key: "nav.chat", icon: "chat" },
 ];
 
+export const TEAM: NavItem = { href: "/app/team", key: "nav.team", icon: "users" };
+
+/** Only ADMIN reviews new companies (JUDGE has read access elsewhere but cannot decide). */
+export const ADMIN_ONLY_ITEMS: readonly NavItem[] = [
+  { href: "/app/admin/onboarding", key: "nav.onboarding", icon: "shield" },
+];
+
 export const SIMULATOR: NavItem = { href: "/demo/scam-simulator", key: "nav.simulator", icon: "play" };
 
 export const ADMIN_ITEMS: readonly NavItem[] = [
@@ -43,8 +50,12 @@ export type NavGroup = { id: "main" | "tools" | "admin"; labelKey: string; items
 /** Nav sections for a role. Staff (ADMIN/JUDGE) get the admin section; buyers also get the scam simulator. */
 export function navGroups(role: string | undefined): NavGroup[] {
   const staff = role === "ADMIN" || role === "JUDGE";
-  const groups: NavGroup[] = [{ id: "main", labelKey: "sidebar.main", items: MAIN_ITEMS }];
-  if (staff) groups.push({ id: "admin", labelKey: "sidebar.admin", items: ADMIN_ITEMS });
+  const main = role === "BUYER" ? [...MAIN_ITEMS, TEAM] : MAIN_ITEMS;
+  const groups: NavGroup[] = [{ id: "main", labelKey: "sidebar.main", items: main }];
+  if (staff) {
+    const items = role === "ADMIN" ? [...ADMIN_ONLY_ITEMS, ...ADMIN_ITEMS] : ADMIN_ITEMS;
+    groups.push({ id: "admin", labelKey: "sidebar.admin", items });
+  }
   else if (role === "BUYER") groups.push({ id: "tools", labelKey: "sidebar.tools", items: [SIMULATOR] });
   return groups;
 }

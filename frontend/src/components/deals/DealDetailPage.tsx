@@ -29,6 +29,7 @@ import { ApprovalTrail } from "./ApprovalTrail";
 import { DealActions, ReleaseDialog } from "./DealActions";
 import { DevEvidenceControl } from "./DevEvidenceControl";
 import { CreditRecordCard } from "./CreditRecordCard";
+import { PaypalCheckout } from "@/components/payments/PaypalCheckout";
 import { EscrowPanel } from "./EscrowPanel";
 import { LenderCheckDemo } from "./LenderCheckDemo";
 import { LedgerTable } from "./LedgerTable";
@@ -124,6 +125,7 @@ function Overview({ deal, reload }: { deal: DealDetail; reload: () => void }) {
       <div className="grid gap-6 lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
         <div className="space-y-6">
           <DealActions deal={deal} onChanged={reload} />
+          <PaypalCheckout deal={deal} onChanged={reload} />
           <section aria-labelledby="ms-h" className="space-y-3">
             <h2 id="ms-h" className="text-lg font-bold text-ink">
               {t("ms.title")}

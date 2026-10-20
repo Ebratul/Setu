@@ -18,6 +18,13 @@ PROD_ENV = {
     "DEMO_COOKIE_SECURE": "true",
     "DEMO_MODE": "false",
     "COOLING_OFF_SECONDS": "600",
+    "OTP_SECRET_SEED": "o" * 40,
+    "DOCUMENT_URL_SECRET": "d" * 40,
+    "CRON_SECRET": "c" * 40,
+    "MAIL_PROVIDER": "resend",
+    "MAIL_RESEND_API_KEY": "re_test_key",
+    "MAIL_FROM": "Setu <no-reply@setu.example>",
+    "SANDBOXES_ENABLED": "false",
 }
 
 

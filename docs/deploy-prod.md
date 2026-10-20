@@ -15,7 +15,7 @@ Everything money-related stays **simulated**. This file lists variable **names o
 | `APP_ENV` | `dev` (the guided demo needs the simulated SMS inbox and scam simulator) | `prod` |
 | `DEMO_MODE` | `true` | `false` (required by `APP_ENV=prod`; no OTP is ever shown) |
 | `DEMO_REPLAY` | `true` (identical AI answers, works with no key) | `false` |
-| Startup checks | CORS list is exact, cookie secret set (below) | the agent **refuses to start** unless `AUTH_MODE=neon`, `NEON_AUTH_BASE_URL` (https), `DEMO_SESSION_SECRET` >= 32 chars, `DEMO_COOKIE_SECURE=true`, `DEMO_MODE=false`, `DEMO_COOLING_OFF_SECONDS` >= 600, and `ALLOWED_ORIGINS` is an exact list (no `*`, not empty) |
+| Startup checks | CORS list is exact, cookie secret set (below) | the agent **refuses to start** unless `AUTH_MODE=neon`, `NEON_AUTH_BASE_URL` (https), `DEMO_SESSION_SECRET`, `OTP_SECRET_SEED`, `DOCUMENT_URL_SECRET`, `CRON_SECRET` are each >= 32 chars, `DEMO_COOKIE_SECURE=true`, `DEMO_MODE=false`, `DEMO_COOLING_OFF_SECONDS` >= 600, `MAIL_PROVIDER=resend` with `MAIL_RESEND_API_KEY` and `MAIL_FROM`, `ALLOWED_ORIGINS` is an exact list of `https://` origins (no `*`, not empty), and none of `DEMO_REPLAY`, `SANDBOXES_ENABLED`, `ENABLE_DEV_EVIDENCE`, `ONBOARDING_AUTO_APPROVE` is true and neither `STEPUP_REQUIRED` nor `FOUR_EYES_ENFORCE` is false (`check_prod_settings` in `backend/app/main.py`; one test per refusal in `backend/tests/test_prod_guard.py`) |
 | `Strict-Transport-Security` | not sent by the agent (Vercel / Caddy add it) | sent by the agent |
 
 Even on the judge deployment keep `ALLOWED_ORIGINS` an exact list and `DEMO_COOKIE_SECURE=true` (the site is HTTPS).
@@ -31,14 +31,19 @@ Even on the judge deployment keep `ALLOWED_ORIGINS` an exact list and `DEMO_COOK
 | `NEON_AUTH_BASE_URL` | agent, web | Neon Auth URL of the branch (`https://ep-….neonauth.<region>.aws.neon.tech/neondb/auth`). Public. The agent derives issuer, audience and JWKS from it |
 | `NEON_AUTH_COOKIE_SECRET` | web | >= 32 random chars (`openssl rand -base64 32`); signs the session-cache cookie of the `/neon-auth/*` proxy. Secret |
 | `DEMO_SESSION_SECRET` | agent | >= 32 random chars; signs the demo login and sandbox cookies and document links |
-| `OTP_SECRET_SEED` | agent | random string; seeds the Tier 3 one-time codes |
+| `OTP_SECRET_SEED` | agent | >= 32 random chars; HMAC key of the Tier 3 codes, the step-up codes and the `X-Stepup` token. **Required in prod** (no fallback) |
+| `DOCUMENT_URL_SECRET` | agent | >= 32 random chars; signs short-lived document download links. **Required in prod** (no fallback) |
+| `MAIL_PROVIDER` | agent | `resend` (required in prod) or `console` (dev/test: logs a message id and the recipient domain only, never the code) |
+| `MAIL_RESEND_API_KEY`, `MAIL_FROM` | agent | Resend API key and a verified sender, e.g. `Setu <no-reply@your-domain>`. Secret / public. Both required when `MAIL_PROVIDER=resend` |
+| `STEPUP_REQUIRED` | agent | email-code step-up for admin decisions, Tier 2 approvals and member changes. Default on with `AUTH_MODE=neon`; `false` is refused in prod |
+| `FOUR_EYES_ENFORCE` | agent | the requester of an approval cannot approve it (waived for a one-person company). Default on with `AUTH_MODE=neon`; `false` is refused in prod |
 | `DEMO_COOKIE_SECURE` | agent | `true` |
 | `DEMO_MODE`, `DEMO_REPLAY` | agent | see section 0 |
 | `DEMO_COOLING_OFF_SECONDS` (alias `COOLING_OFF_SECONDS`) | agent | `30` for the judge deployment, `600` (the real 10-minute rule) when `APP_ENV=prod` |
 | `ANTHROPIC_API_KEY` | agent | optional with replay; needed for "Use live AI" and `pnpm demo:record`. Set a **spending cap** (section 6) |
 | `MODEL_FAST`, `MODEL_SMART` | agent | default `claude-haiku-5-5`, `claude-sonnet-5-5` |
 | `LANGSMITH_API_KEY`, `LANGSMITH_TRACING`, `LANGSMITH_PROJECT` | agent | optional tracing; PII is masked before it reaches the model |
-| `CRON_SECRET` | agent | Bearer secret for `POST /demo/cleanup`; leave empty to disable the endpoint |
+| `CRON_SECRET` | agent | Bearer secret for `POST /demo/cleanup`; >= 32 chars and required in prod (the endpoint is not even mounted when `AUTH_MODE=neon`) |
 | `SANDBOX_TTL_HOURS`, `SANDBOX_MAX_ACTIVE`, `SANDBOX_CREATES_PER_HOUR_PER_IP`, `SANDBOX_LIVE_AI_BUDGET` | agent | sandbox capacity and the per-sandbox live-AI call cap (server-side) |
 | `THREAD_TOKEN_BUDGET` | agent | per chat thread token budget, enforced server-side (default 60000) |
 | `RATE_LIMIT_ENABLED`, `RATE_LIMIT_CHAT_PER_MINUTE` (20), `RATE_LIMIT_UPLOAD_PER_MINUTE` (10), `RATE_LIMIT_SANDBOX_CREATE_PER_MINUTE` (5), `RATE_LIMIT_GLOBAL_PER_MINUTE` (300) | agent | in-process sliding windows, **per process**: with `UVICORN_WORKERS=2` or several serverless instances the real ceiling is N x the number. `/health` is exempt |
@@ -48,6 +53,8 @@ Even on the judge deployment keep `ALLOWED_ORIGINS` an exact list and `DEMO_COOK
 | `AGENT_URL`, `NEXT_PUBLIC_API_BASE` | web | `AGENT_URL` is the server-side `/api` proxy target (VPS: `http://agent:8000`, baked at web build time); `NEXT_PUBLIC_API_BASE=/api` |
 | `SITE_ADDRESS`, `ACME_EMAIL` | VPS | Caddy hostname and the Let's Encrypt contact |
 | `UVICORN_WORKERS`, `GRACEFUL_TIMEOUT`, `PORT` | VPS container | default 2 / 20 / 8000 |
+
+Rotation of every secret: `docs/secrets-rotation.md`.
 
 Generate random values with `openssl rand -base64 48` (secrets) and `python -m app.audit.keygen` (signing key).
 

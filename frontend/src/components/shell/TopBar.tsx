@@ -55,6 +55,14 @@ export function TopBar({ variant = "app", showBell = false, onSearch }: Props) {
               <kbd className="hidden rounded border border-line px-1.5 text-xs lg:inline">Ctrl K</kbd>
             </button>
           ) : null}
+          {supplier ? (
+            <Link
+              href="/supplier/team"
+              className="inline-flex min-h-11 items-center rounded-md px-2 text-sm font-semibold text-brand-text underline focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2 focus-visible:outline-none"
+            >
+              {t("nav.team")}
+            </Link>
+          ) : null}
           <LanguageToggle withZh={supplier} />
           <DigitsToggle />
           <ThemeToggle />

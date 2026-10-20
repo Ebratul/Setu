@@ -47,6 +47,14 @@ class Settings(BaseSettings):
     trusted_proxies: str = ""
     max_body_bytes: int = Field(1024 * 1024, gt=0)  # every non-upload request body
 
+    # PayPal Sandbox checkout (app/services/payments). Sandbox only: the API host is a constant in
+    # the adapter, there is no setting for it, so live credentials can never be pointed at live.
+    paypal_sandbox_enabled: bool = False
+    paypal_sandbox_client_id: str | None = None
+    paypal_sandbox_client_secret: SecretStr | None = None
+    paypal_sandbox_webhook_id: str | None = None
+    paypal_sandbox_timeout_seconds: float = Field(10.0, gt=0, le=60)
+
     anthropic_api_key: SecretStr | None = None
     # OpenRouter's Anthropic-compatible endpoint (same Claude models, routed via openrouter.ai).
     openrouter_api_key: SecretStr | None = None
@@ -134,6 +142,19 @@ class Settings(BaseSettings):
     otp_ttl_seconds: int = Field(300, gt=0)
     otp_max_attempts: int = Field(3, gt=0, le=10)
     otp_secret_seed: SecretStr | None = None  # falls back to the demo session secret / dev value
+    # Four-eyes: the person who asked for an approval may not approve it (unless they are the only
+    # OWNER/FINANCE member). None = on when AUTH_MODE=neon, off in the demo.
+    four_eyes_enforce: bool | None = None
+    # Email-code step-up for admin actions, Tier 2 approvals and member changes (AUTH_MODE=neon).
+    # None = on in neon mode. Refused as false when APP_ENV=prod.
+    stepup_required: bool | None = None
+    stepup_code_ttl_seconds: int = Field(300, gt=0, le=900)
+    stepup_token_ttl_seconds: int = Field(600, gt=0, le=3600)
+
+    # Outgoing mail (app/services/mail.py): console logs only, resend sends via api.resend.com.
+    mail_provider: Literal["console", "resend"] = "console"
+    mail_from: str | None = None
+    mail_resend_api_key: SecretStr | None = None
 
     # Guided demo (app/demo). DEMO_REPLAY serves every LLM call from recorded fixtures keyed by the
     # masked prompt, so a run is identical and works offline. DEMO_RECORD calls the real model and
@@ -164,6 +185,18 @@ class Settings(BaseSettings):
     # Self-service onboarding (app/services/onboarding.py).
     onboarding_countries: str = "BD,CN"  # comma list of ISO-2 codes a party may register from
     onboarding_auto_approve: bool = False  # approve clean (AUTO_CLEAR) submissions without an admin
+
+    @property
+    def four_eyes_active(self) -> bool:
+        if self.four_eyes_enforce is not None:
+            return self.four_eyes_enforce
+        return self.auth_mode == "neon"
+
+    @property
+    def stepup_enabled(self) -> bool:
+        if self.auth_mode != "neon":
+            return False
+        return True if self.stepup_required is None else self.stepup_required
 
     @property
     def onboarding_country_list(self) -> list[str]:
@@ -230,6 +263,16 @@ class Settings(BaseSettings):
     @property
     def use_mock_llm(self) -> bool:
         return self.agent_mock_mode or self.active_llm_provider is None
+
+    @property
+    def paypal_sandbox_ready(self) -> bool:
+        secret = self.paypal_sandbox_client_secret
+        return bool(
+            self.paypal_sandbox_enabled
+            and (self.paypal_sandbox_client_id or "").strip()
+            and secret is not None
+            and secret.get_secret_value().strip()
+        )
 
     @property
     def trusted_proxy_list(self) -> list[str]:

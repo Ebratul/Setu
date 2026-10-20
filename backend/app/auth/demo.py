@@ -19,8 +19,13 @@ DEV_SECRET = b"setu-dev-demo-session-not-secret"
 
 
 def _secret() -> bytes:
-    secret = get_settings().demo_session_secret
-    return secret.get_secret_value().encode() if secret else DEV_SECRET
+    settings = get_settings()
+    secret = settings.demo_session_secret
+    if secret is not None and secret.get_secret_value():
+        return secret.get_secret_value().encode()
+    if settings.app_env == "prod":
+        raise RuntimeError("DEMO_SESSION_SECRET is required when APP_ENV=prod")
+    return DEV_SECRET
 
 
 def _sign(payload: str) -> bytes:

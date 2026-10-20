@@ -99,16 +99,16 @@ describe("LoginScreen", () => {
   });
 
   it.each([
-    ["ACCOUNT_NOT_ONBOARDED", "not_onboarded"],
-    ["ACCOUNT_PENDING", "pending"],
-    ["ACCOUNT_SUSPENDED", "suspended"],
-  ])("routes %s to the status screen", async (code, reason) => {
+    ["ACCOUNT_NOT_ONBOARDED", "/onboarding"],
+    ["ACCOUNT_PENDING", "/onboarding/status"],
+    ["ACCOUNT_SUSPENDED", "/account-status?reason=suspended"],
+  ])("routes %s to its screen", async (code, path) => {
     mode.mockResolvedValue("neon");
     startSession.mockRejectedValue(apiErr(403, code));
     renderI18n(<LoginScreen />);
     await screen.findByLabelText("Password");
     fill();
-    await waitFor(() => expect(replace).toHaveBeenCalledWith(`/account-status?reason=${reason}`));
+    await waitFor(() => expect(replace).toHaveBeenCalledWith(path));
   });
 
   it("signs out and shows a message on TOKEN_INVALID", async () => {

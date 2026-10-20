@@ -1,0 +1,229 @@
+{
+  "onb": {
+    "title": "设置您的公司账户",
+    "lead": "请介绍您的企业。账户激活前，Setu 的工作人员会逐一审核每家公司。",
+    "notice": "Setu 中的所有资金流动均为模拟，不会转移真实资金。激活前由人工审核每家公司，因此可能需要一些时间。",
+    "steps": "注册步骤",
+    "optional": "可选",
+    "choose": "请选择...",
+    "next": "下一步",
+    "back": "上一步",
+    "submit": "提交审核",
+    "submitting": "提交中...",
+    "toStatus": "查看审核状态",
+    "reviewNote": "请核对您的信息。提交后将由人工审核您的公司。您可随时重新登录查看状态。",
+    "step": {
+      "type": "账户类型与您的姓名",
+      "company": "公司",
+      "bank": "银行账户",
+      "review": "核对并提交"
+    },
+    "type": {
+      "BUYER": "买方（我从供应商进口）",
+      "SUPPLIER": "供应商（我向买方销售）"
+    },
+    "bankType": {
+      "CORPORATE": "对公账户（公司账户）",
+      "PERSONAL": "个人账户"
+    },
+    "country": {
+      "BD": "孟加拉国",
+      "CN": "中国"
+    },
+    "lang": {
+      "en": "English",
+      "bn": "বাংলা",
+      "zh": "中文"
+    },
+    "f": {
+      "accountType": "我是",
+      "displayName": "您的姓名",
+      "legalName": "公司法定名称",
+      "licenseName": "营业执照上的名称",
+      "licenseNo": "营业执照号码",
+      "taxId": "税号（TIN / BIN）",
+      "city": "城市",
+      "country": "国家",
+      "language": "语言",
+      "bankName": "银行名称",
+      "bankCountry": "银行所在国家（两位代码）",
+      "accountNumber": "账号",
+      "holderName": "账户持有人姓名",
+      "currency": "币种",
+      "bankAccountType": "账户类型"
+    },
+    "h": {
+      "displayName": "将使用此账户的人。",
+      "licenseName": "仅在与法定名称不同时填写。",
+      "taxId": "孟加拉国买方需填写 9 至 13 位数字的 TIN。",
+      "bankCountry": "例如 BD 或 CN。",
+      "accountNumber": "8 至 34 位字母或数字，不含空格。",
+      "holderName": "必须与公司法定名称一致。不一致将进入更严格的审核。"
+    },
+    "v": {
+      "required": "此项为必填。",
+      "length": "请输入 {min} 至 {max} 个字符。",
+      "tin": "孟加拉国买方的 TIN 必须为 9 至 13 位数字。",
+      "iso2": "请输入两位国家代码，例如 BD。",
+      "account": "请输入 8 至 34 位字母或数字，不含空格。",
+      "simAccount": "演示账号（SIM-）不能用于真实账户。",
+      "server": "服务器未接受此值，请检查。"
+    },
+    "err": {
+      "ONBOARDING_EXISTS": "您已提交过此申请。",
+      "EMAIL_IN_USE": "此邮箱已属于另一个 Setu 账户。",
+      "COUNTRY_NOT_SUPPORTED": "Setu 暂不支持该国家的公司。",
+      "LICENSE_EXISTS": "使用此执照号码的公司已注册。"
+    },
+    "checkStatus": {
+      "PASS": "通过",
+      "WARN": "需关注",
+      "FAIL": "未通过"
+    },
+    "check": {
+      "TAX_ID_FORMAT": "税号格式",
+      "HOLDER_NAME_MATCH": "账户持有人与公司名称一致",
+      "ACCOUNT_TYPE": "银行账户类型",
+      "LICENSE_NAME_MATCH": "执照名称与公司名称一致",
+      "COUNTRY_ALLOWED": "公司所在国家受支持",
+      "BANK_COUNTRY": "银行所在国家",
+      "SANCTIONS_SCREEN": "制裁名单筛查"
+    },
+    "st": {
+      "title": "您的申请",
+      "loadFailed": "无法加载您的状态，请重试。",
+      "pending": {
+        "title": "等待审核",
+        "body": "Setu 工作人员正在审核您的公司。您可以离开此页面；页面会自动检查更新，审核通过后会带您进入应用。"
+      },
+      "approved": {
+        "title": "已通过",
+        "body": "您的公司已通过审核，正在带您进入 Setu..."
+      },
+      "activateFailed": "您已通过审核，但无法开启会话，请重试。",
+      "company": "公司",
+      "checks": "自动检查",
+      "polling": "此页面打开时约每 20 秒自动刷新。"
+    }
+  },
+  "auth": {
+    "status": {
+      "rejected": {
+        "title": "申请未获批准",
+        "noReason": "未记录原因，请联系支持人员。"
+      }
+    }
+  },
+  "adm": {
+    "onb": {
+      "title": "公司注册审核",
+      "intro": "在新公司使用 Setu 之前进行审核。决定一经作出即为最终。",
+      "filter": "按状态筛选",
+      "tab": {
+        "PENDING": "待审核",
+        "APPROVED": "已通过",
+        "REJECTED": "已拒绝",
+        "ALL": "全部"
+      },
+      "status": {
+        "PENDING": "待审核",
+        "APPROVED": "已通过",
+        "REJECTED": "已拒绝"
+      },
+      "empty": "此处没有申请。",
+      "adminOnly": "只有管理员可以审核公司申请。",
+      "col": {
+        "company": "公司",
+        "applicant": "申请人",
+        "recommendation": "自动结果",
+        "status": "状态",
+        "submitted": "提交日期",
+        "action": "操作"
+      },
+      "open": "审核",
+      "rec": {
+        "AUTO_CLEAR": "无异常",
+        "NEEDS_REVIEW": "需人工审核",
+        "BLOCK": "已拦截"
+      },
+      "applicant": "申请人",
+      "score": "风险评分",
+      "bank": "银行账户（已脱敏）",
+      "noBank": "未登记银行账户。",
+      "approve": "批准",
+      "reject": "拒绝",
+      "approveTitle": "批准该公司？",
+      "approveBody": "{name} 将被激活，其银行账户将启用。此操作无法撤销。",
+      "rejectTitle": "拒绝该公司？",
+      "rejectBody": "{name} 将被停用，并向其显示您的理由。此操作无法撤销。",
+      "reason": "理由",
+      "reasonHint": "至少 {min} 个字符。申请人可以看到。",
+      "done": {
+        "approve": "{name} 已批准。",
+        "reject": "{name} 已拒绝。"
+      },
+      "err": {
+        "ONBOARDING_DECIDED": "该申请已有决定，列表已刷新。",
+        "SELF_DECISION": "您不能审批自己的申请。"
+      }
+    }
+  },
+  "team": {
+    "title": "团队",
+    "intro": "可代表贵公司登录的人员。所有者负责管理团队。",
+    "members": "成员",
+    "invite": "邀请成员",
+    "noEmail": "不会发送邮件。请让对方使用此邮箱地址注册；首次以已验证邮箱登录时，其账户将自动关联。",
+    "inviteSubmit": "添加成员",
+    "inviting": "添加中...",
+    "invited": "已添加 {email}。对方现在可用此地址注册。",
+    "removed": "已移除 {email}。",
+    "remove": "移除",
+    "removeLabel": "移除 {name}",
+    "removeTitle": "移除该成员？",
+    "removeBody": "{name}（{email}）将失去访问贵公司账户的权限。",
+    "noParty": "此账户未关联公司，因此没有团队。",
+    "signedIn": "已登录过",
+    "notSignedIn": "尚未登录",
+    "col": {
+      "person": "成员",
+      "role": "角色",
+      "signedIn": "是否登录过",
+      "action": "操作"
+    },
+    "f": {
+      "email": "邮箱地址",
+      "name": "姓名",
+      "role": "角色"
+    },
+    "role": {
+      "OWNER": "所有者",
+      "FINANCE": "财务",
+      "VIEWER": "只读"
+    },
+    "roleHelp": {
+      "OWNER": "可管理团队及其他所有事务。",
+      "FINANCE": "可处理交易与付款。",
+      "VIEWER": "仅可查看，不能更改任何内容。"
+    },
+    "v": {
+      "email": "请输入有效的邮箱地址。"
+    },
+    "err": {
+      "EMAIL_IN_USE": "此邮箱已属于一个 Setu 账户。",
+      "PARTY_NOT_VERIFIED": "贵公司通过审核后才能添加成员。",
+      "LAST_OWNER": "公司至少需要一位所有者。请先指定其他所有者。"
+    }
+  },
+  "nav": {
+    "team": "团队",
+    "onboarding": "公司审核"
+  },
+  "dealErr": {
+    "VIEWER_READ_ONLY": "您的角色为只读，无法进行更改。请联系公司所有者。",
+    "ACCOUNT_NOT_ONBOARDED": "请先完成公司账户设置。",
+    "ACCOUNT_PENDING": "您的账户仍在等待审核。",
+    "ACCOUNT_SUSPENDED": "您的账户已被停用。",
+    "EMAIL_NOT_VERIFIED": "请先验证您的邮箱地址。"
+  }
+}

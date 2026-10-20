@@ -6,7 +6,7 @@ import uuid
 from typing import Annotated, Literal
 
 from fastapi import APIRouter, Depends, Request, Response
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
@@ -25,6 +25,7 @@ from app.config import get_settings
 from app.db.models import Party, User
 from app.db.session import get_db
 from app.errors import DomainError, Forbidden, NotFound
+from app.services import stepup
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 demo_router = APIRouter(prefix="/auth", tags=["auth"])
@@ -152,3 +153,49 @@ def logout(request: Request, response: Response, db: Db) -> Response:
         response.delete_cookie(COOKIE_NAME, path="/")
     response.status_code = 204
     return response
+
+
+class StepupStarted(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    sent: Literal[True] = True
+    expires_in_seconds: int
+    starts_left: int
+
+
+class StepupVerifyIn(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    code: str = Field(pattern=r"^\d{6}$")
+
+
+class StepupToken(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    token: str
+    expires_in_seconds: int
+    header: Literal["X-Stepup"] = "X-Stepup"
+
+
+def _neon_only() -> None:
+    if get_settings().auth_mode != "neon":
+        raise NotFound("not available in demo mode")
+
+
+@router.post("/stepup/start", response_model=StepupStarted)
+def stepup_start(db: Db, user: Annotated[CurrentUser, Depends(current_user)]) -> StepupStarted:
+    """Email a 6-digit confirmation code to the signed-in user's verified address. The code is in
+    no response. 429 STEPUP_RATE_LIMIT after 3 codes in 15 minutes; 503 if the mail did not go."""
+    _neon_only()
+    ttl, left = stepup.start(db, user)
+    return StepupStarted(expires_in_seconds=ttl, starts_left=left)
+
+
+@router.post("/stepup/verify", response_model=StepupToken)
+def stepup_verify(
+    body: StepupVerifyIn, db: Db, user: Annotated[CurrentUser, Depends(current_user)]
+) -> StepupToken:
+    """Exchange the emailed code for a 10-minute `X-Stepup` token bound to this user."""
+    _neon_only()
+    token, ttl = stepup.verify(db, user, body.code)
+    return StepupToken(token=token, expires_in_seconds=ttl)

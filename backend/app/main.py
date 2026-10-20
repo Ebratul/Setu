@@ -1,5 +1,6 @@
 from fastapi import Depends, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from pydantic import SecretStr
 
 from app.api import (
     admin_onboarding,
@@ -20,6 +21,7 @@ from app.api import (
     kyb,
     members,
     onboarding,
+    payments,
     privacy,
     registry,
     risk,
@@ -35,8 +37,14 @@ from app.demo.middleware import SandboxMiddleware
 from app.errors import install_handlers
 
 
+def _long_secret(name: str, value: SecretStr | None) -> None:
+    if value is None or len(value.get_secret_value()) < 32:
+        raise RuntimeError(f"{name} (>= 32 chars) is required when APP_ENV=prod")
+
+
 def check_prod_settings(settings: Settings) -> None:
-    """Refuse to start in prod with the demo auth stub's dev fallbacks."""
+    """Refuse to start in prod with the demo auth stub's dev fallbacks, demo switches left on,
+    missing secrets or an unconfigured mail provider."""
     if settings.auth_mode == "neon" and not settings.neon_auth_base_url:
         raise RuntimeError("NEON_AUTH_BASE_URL is required when AUTH_MODE=neon")
     if settings.app_env != "prod":
@@ -59,6 +67,30 @@ def check_prod_settings(settings: Settings) -> None:
         raise RuntimeError("DEMO_MODE=false is required when APP_ENV=prod (no OTP in clear)")
     if settings.cooling_off_seconds < 600:
         raise RuntimeError("COOLING_OFF_SECONDS must be >= 600 when APP_ENV=prod (SR-9)")
+    _long_secret("OTP_SECRET_SEED", settings.otp_secret_seed)
+    _long_secret("DOCUMENT_URL_SECRET", settings.document_url_secret)
+    _long_secret("CRON_SECRET", settings.cron_secret)
+    if settings.mail_provider != "resend":
+        raise RuntimeError("MAIL_PROVIDER=resend is required when APP_ENV=prod (codes are emailed)")
+    key = settings.mail_resend_api_key
+    if key is None or not key.get_secret_value().strip():
+        raise RuntimeError("MAIL_RESEND_API_KEY is required when APP_ENV=prod")
+    if not (settings.mail_from or "").strip():
+        raise RuntimeError("MAIL_FROM is required when APP_ENV=prod")
+    if any(not o.startswith("https://") for o in settings.cors_origins):
+        raise RuntimeError("ALLOWED_ORIGINS must be https:// origins only when APP_ENV=prod")
+    for name, on in (
+        ("DEMO_REPLAY", settings.demo_replay),
+        ("SANDBOXES_ENABLED", settings.sandboxes_enabled),
+        ("ENABLE_DEV_EVIDENCE", settings.enable_dev_evidence),
+        ("ONBOARDING_AUTO_APPROVE", settings.onboarding_auto_approve),
+    ):
+        if on:
+            raise RuntimeError(f"{name}=false is required when APP_ENV=prod")
+    if settings.stepup_required is False:
+        raise RuntimeError("STEPUP_REQUIRED=false is not allowed when APP_ENV=prod")
+    if settings.four_eyes_enforce is False:
+        raise RuntimeError("FOUR_EYES_ENFORCE=false is not allowed when APP_ENV=prod")
 
 
 def create_app() -> FastAPI:
@@ -98,6 +130,7 @@ def create_app() -> FastAPI:
     app.include_router(kyb.router)
     app.include_router(suppliers.router)
     app.include_router(deals.router)
+    app.include_router(payments.router)
     app.include_router(credit_records.router)
     app.include_router(documents.router)
     app.include_router(registry.router)

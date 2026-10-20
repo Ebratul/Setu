@@ -115,6 +115,10 @@ export function apiPost<T>(
   });
 }
 
+export function apiDelete<T>(path: string, init?: RequestInit): Promise<T> {
+  return request<T>("DELETE", path, init);
+}
+
 /** multipart/form-data POST; the browser sets the boundary header itself. */
 export function apiPostForm<T>(
   path: string,

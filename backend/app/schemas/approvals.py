@@ -140,6 +140,7 @@ class RejectResult(Out):
 class ResendResult(Out):
     approval: ApprovalOut
     delivered_to_demo_phone: bool
+    delivered_by_email: bool = False
 
 
 class PhoneMessage(Out):

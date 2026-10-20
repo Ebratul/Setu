@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/Button";
 import { FormField, inputClass } from "@/components/ui/FormField";
 import { useT } from "@/i18n";
 import { getAuthClient } from "@/lib/auth/client";
-import { attempt, authErrorKey, classifyApiError, finishSignIn, isUnverified, signOutEverywhere } from "@/lib/auth/flow";
+import { attempt, authErrorKey, classifyApiError, finishSignIn, isUnverified, signOutEverywhere, statusPath } from "@/lib/auth/flow";
 
 import { authLinkClass } from "./AuthShell";
 
@@ -53,7 +53,7 @@ export function SignInForm() {
           await attempt(() => auth.emailOtp.sendVerificationOtp({ email, type: "email-verification" }));
           goVerify();
         } else if (problem.kind === "status") {
-          router.replace(`/account-status?reason=${problem.reason}`);
+          router.replace(statusPath(problem.reason));
         } else {
           await signOutEverywhere();
           setErrorKey(problem.key);

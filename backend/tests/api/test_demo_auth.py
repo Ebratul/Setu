@@ -57,6 +57,19 @@ def test_non_ascii_cookie_is_401_problem_json(client: TestClient) -> None:
     assert res.headers["content-type"].startswith("application/problem+json")
 
 
+PROD_REST = {
+    "OTP_SECRET_SEED": "o" * 40,
+    "DOCUMENT_URL_SECRET": "d" * 40,
+    "CRON_SECRET": "c" * 40,
+    "MAIL_PROVIDER": "resend",
+    "MAIL_RESEND_API_KEY": "re_test_key",
+    "MAIL_FROM": "Setu <no-reply@setu.example>",
+    "SANDBOXES_ENABLED": "false",
+    "ENABLE_DEV_EVIDENCE": "false",
+    "ALLOWED_ORIGINS": "https://setu.example",
+}
+
+
 def test_prod_requires_real_secret_and_secure_cookie(monkeypatch: pytest.MonkeyPatch) -> None:
     from app.config import get_settings
     from app.main import create_app
@@ -86,6 +99,8 @@ def test_prod_requires_real_secret_and_secure_cookie(monkeypatch: pytest.MonkeyP
         with pytest.raises(RuntimeError, match="COOLING_OFF_SECONDS"):
             create_app()  # SR-9: at least 10 minutes in prod
         monkeypatch.setenv("COOLING_OFF_SECONDS", "600")
+        for name, value in PROD_REST.items():
+            monkeypatch.setenv(name, value)
         get_settings.cache_clear()
         create_app()
     finally:

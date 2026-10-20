@@ -1,9 +1,11 @@
 #!/usr/bin/env bash
-# Run Setu locally: local Postgres container + API (mock AI) on :8000 + web on :3000.
+# Run Setu locally: API (mock AI) on :8000 + web on :3000.
+# Database: $DATABASE_URL, else DATABASE_URL from the root .env (e.g. Neon), else the local Postgres container.
 # Safe to run from any folder and to run twice (it stops old copies first).
 set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-DB_URL="${DATABASE_URL:-postgresql://setu:setu@localhost:5437/setu_dev}"
+ENV_DB_URL="$(grep -m1 '^DATABASE_URL=' "$ROOT/.env" 2>/dev/null | cut -d= -f2- | sed -e 's/^["'\'']//' -e 's/["'\'']$//' || true)"
+DB_URL="${DATABASE_URL:-${ENV_DB_URL:-postgresql://setu:setu@localhost:5437/setu_dev}}"
 
 docker start setu-p17-test >/dev/null 2>&1 || true
 fuser -k 8000/tcp 3000/tcp >/dev/null 2>&1 || true

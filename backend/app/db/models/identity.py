@@ -10,6 +10,7 @@ from sqlalchemy import (
     DateTime,
     ForeignKey,
     Integer,
+    SmallInteger,
     String,
     Text,
     UniqueConstraint,
@@ -184,3 +185,18 @@ __all__ = [
     "PartyMember",
     "User",
 ]
+
+
+class StepupChallenge(Base):
+    """An emailed step-up code (HMAC only). One row per code sent; `attempts` caps wrong guesses and
+    `consumed_at` makes a code single-use."""
+
+    __tablename__ = "stepup_challenges"
+
+    id: Mapped[UUIDPk]
+    user_id: Mapped[uuid.UUID] = mapped_column(Uuid, ForeignKey("users.id"), index=True)
+    code_hash: Mapped[str] = mapped_column(CHAR(64))
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    attempts: Mapped[int] = mapped_column(SmallInteger, default=0, server_default="0")
+    consumed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
