@@ -14,6 +14,7 @@ from typing import Any, cast
 from sqlalchemy import select, text
 from sqlalchemy.orm import Session
 
+from app.audit.timeline import describe_entry
 from app.auth.deps import CurrentUser
 from app.db.enums import (
     ApprovalAction,
@@ -928,23 +929,26 @@ def activity(db: Session, user: CurrentUser, deal: Deal) -> ActivityOut:
         .order_by(AuditLog.seq.desc())
         .limit(ACTIVITY_LIMIT)
     ).all()
-    return ActivityOut(
-        deal_id=deal.id,
-        rows=[
+    out: list[ActivityRow] = []
+    for r in rows:
+        # suppliers see what happened, not the buyer-private payload behind it
+        text = describe_entry(r.action, {} if is_supplier else r.payload, r.decision)
+        out.append(
             ActivityRow(
                 seq=r.seq,
                 ts=r.ts,
                 actor=r.actor.value,  # type: ignore[arg-type]
                 action=r.action,
                 tier=r.tier,
-                result="" if is_supplier else r.result,
-                params_hash="" if is_supplier else r.params_hash,
+                result="" if is_supplier else r.decision,
+                text_en=text["en"],
+                text_bn=text["bn"],
+                payload_hash="" if is_supplier else r.payload_hash,
                 entry_hash="" if is_supplier else r.entry_hash,
                 key_id="" if is_supplier else r.key_id,
             )
-            for r in rows
-        ],
-    )
+        )
+    return ActivityOut(deal_id=deal.id, rows=out)
 
 
 def risk_out(risk: RiskResult) -> RiskOut:

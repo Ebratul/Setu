@@ -15,6 +15,7 @@ from fastapi.concurrency import run_in_threadpool
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
+from app.audit import write_audit
 from app.auth.deps import CurrentUser, current_user
 from app.db.models import Deal, InjectionEvent
 from app.db.session import get_db
@@ -30,7 +31,6 @@ from app.schemas.injection import (
     ModeStats,
     ScoreboardOut,
 )
-from app.security.audit import write_audit
 from app.security.injection import console, suite
 from app.security.injection.gallery import GALLERY
 

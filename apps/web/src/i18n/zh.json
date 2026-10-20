@@ -277,7 +277,9 @@
     "privacy": "隐私",
     "privacyPlayground": "隐私演练场",
     "security": "安全",
-    "attackConsole": "攻击控制台"
+    "attackConsole": "攻击控制台",
+    "audit": "审计日志",
+    "auditDemo": "审计链演示"
   },
   "chg": {
     "title": "更改收款账户",
@@ -641,6 +643,151 @@
         "name": "防护",
         "desc": "回答在你看到之前先被检查"
       }
+    }
+  },
+  "act": {
+    "details": "查看已签名的审计条目"
+  },
+  "audit": {
+    "title": "已签名审计日志",
+    "intro": "每个操作都写入哈希链日志，并用 Ed25519 签名。改动任何一个字符，链就会断裂。此处所有资金均为模拟。",
+    "copy": "复制",
+    "copied": "已复制",
+    "copyField": "复制 {field}",
+    "land": {
+      "line": "每个操作都已签名并链接 —— 自己验证"
+    },
+    "reason": {
+      "hash_mismatch": "条目内容与哈希不再一致",
+      "bad_signature": "签名与密钥不匹配",
+      "missing_seq": "缺少一个条目",
+      "reordered": "条目顺序错乱",
+      "broken_link": "与前一条目的链接已断",
+      "malformed": "条目格式错误",
+      "unknown": "未知问题"
+    },
+    "explain": {
+      "hash_mismatch": "此条目写入后被人改动，其指纹（哈希）与签名时不再一致。",
+      "bad_signature": "哈希相互一致，但数字签名不是由此公钥产生。该条目并非 Setu 签名，或您选择了其他密钥。",
+      "missing_seq": "本应在此处的编号条目不见了。删除记录会在序号上留下缺口。",
+      "reordered": "条目出现的顺序与写入顺序不同。",
+      "broken_link": "此条目没有指向前一个条目，说明它是事后插入或改写的。",
+      "malformed": "某一行不是完整的已签名条目（缺少字段或类型不对）。",
+      "unknown": "日志未通过验证。"
+    },
+    "result": {
+      "ok": "验证通过 ✓ {n} 个条目，seq {a}..{b}",
+      "broken": "在 seq {seq} 处断裂：{reason}"
+    },
+    "chain": {
+      "title": "实时链",
+      "help": "每个方块是一条审计记录；连线是与前一条的哈希链接。新条目出现在右侧。选择方块查看详情。",
+      "label": "审计链，可横向滚动",
+      "empty": "暂无审计条目。",
+      "refresh": "立即刷新",
+      "blockLabel": "条目 {seq}，{action}。打开详情",
+      "missing": "缺少 seq {seq}",
+      "broken": "已断裂",
+      "intact": "完好"
+    },
+    "drawer": {
+      "title": "审计条目 #{seq}",
+      "verified": "已验证 ✓",
+      "notVerified": "未通过验证",
+      "canonical": "规范化载荷（被哈希的确切字节）",
+      "payloadHash": "payload_hash",
+      "prevHash": "prev_hash",
+      "entryHash": "entry_hash",
+      "signature": "签名 (Ed25519)"
+    },
+    "evidence": {
+      "title": "证据",
+      "total": "日志条目数",
+      "head": "最新：seq {seq}",
+      "byTier": "按等级统计",
+      "byAction": "按操作统计",
+      "lastVerify": "最近一次验证",
+      "never": "尚未验证。",
+      "ok": "验证通过 ✓ {n} 个条目",
+      "broken": "在 seq {seq} 处断裂",
+      "verifyNow": "立即验证",
+      "verifying": "验证中…",
+      "fingerprint": "公钥指纹",
+      "copyFingerprint": "复制公钥指纹",
+      "export": "导出操作日志",
+      "verifyLink": "打开公开验证器"
+    },
+    "tamper": {
+      "title": "篡改试试看",
+      "intro": "在日志副本中修改、删除或交换条目，看验证如何发现。真实日志不会被改动。",
+      "entry": "条目",
+      "modeLabel": "改动方式",
+      "field": "字段",
+      "value": "新值",
+      "was": "当前：{value}",
+      "mode": {
+        "edit": "修改某个值",
+        "delete": "删除该条目",
+        "reorder": "与下一条交换"
+      },
+      "deleteHelp": "该条目将从副本中移除。",
+      "reorderHelp": "该条目与其后一条交换位置。",
+      "run": "篡改副本",
+      "running": "检查中…",
+      "noEntries": "等待审计条目。",
+      "banner": "这是副本 —— 真实日志没有被改动。",
+      "stillOk": "仍然通过验证。没有做出日志能检测到的改动。",
+      "chainLabel": "被篡改的链副本",
+      "restore": "恢复实时链"
+    },
+    "receipt": {
+      "button": "回执",
+      "title": "已签名回执",
+      "deal": "交易",
+      "amount": "金额",
+      "tier": "权限等级",
+      "approver": "批准人",
+      "time": "时间",
+      "seq": "审计条目",
+      "hash": "条目哈希",
+      "signature": "签名",
+      "qrAlt": "打开此回执公开验证器的二维码",
+      "qrHelp": "扫描即可在公开验证器中核对此回执。其中只含已签名条目，没有机密。",
+      "png": "下载 PNG",
+      "pdf": "打印 / 另存为 PDF",
+      "open": "打开验证链接",
+      "copyHash": "复制条目哈希",
+      "copySig": "复制签名"
+    },
+    "verify": {
+      "title": "验证 Setu 操作日志",
+      "intro": "自己检查导出的日志：用公布的公钥核对每个哈希、每个签名和链的顺序。",
+      "privacy": "您的文件只在此浏览器中读取，不会上传或发送到任何地方。",
+      "uploadTitle": "检查日志文件",
+      "logLabel": "操作日志 (.jsonl)",
+      "dropHint": "选择文件，或拖放到此框中。",
+      "keyDefault": "使用 Setu 公布的审计公钥。指纹：",
+      "keyCustom": "使用您的密钥：{name}",
+      "advanced": "高级：使用其他公钥 (PEM)",
+      "keyLabel": "公钥文件 (.pem)",
+      "resultTitle": "结果",
+      "waiting": "尚未检查任何文件。",
+      "checkedWith": "已用密钥 {fp}… 检查 {file}。",
+      "noKey": "无法加载公钥。",
+      "badKey": "这不是有效的 PEM 公钥。",
+      "empty": "文件中没有审计条目。",
+      "parseError": "无法读取文件：{detail}。",
+      "readError": "无法读取该文件。",
+      "partial": "部分导出：缺少 {n} 个 seq 编号。现有条目均真实，但部分导出无法证明没有遗漏。",
+      "notAnchored": "日志不是从 seq 1 开始，因此其起点未与创世哈希绑定。",
+      "receiptTitle": "回执检查",
+      "checking": "正在检查回执…",
+      "receiptOk": "回执有效 ✓ 条目 #{seq} 由 Setu 签名",
+      "singleNote": "单个条目只能证明自身内容和签名，无法证明周围条目未被移除；请上传完整日志。",
+      "hashDiffers": "条目哈希与回执上的哈希不一致",
+      "receiptInstructions": "此回执对应审计条目 #{seq}。请在下方上传导出的日志以查找并检查它。",
+      "highlightFound": "条目 #{seq} 在您的日志中，且其哈希与回执一致。",
+      "highlightMissing": "此日志中没有条目 #{seq}。"
     }
   }
 }

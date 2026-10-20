@@ -1,8 +1,14 @@
 "use client";
 
+import { useState } from "react";
+
+import { EntryDrawer } from "@/components/audit/EntryDrawer";
+import { ReceiptButton } from "@/components/audit/ReceiptButton";
+import { entryText } from "@/components/audit/auditText";
 import { Card } from "@/components/ui/Card";
 import { useLang, useT } from "@/i18n";
 import type { ActivityOut } from "@/lib/api/deals";
+import { isReceiptAction } from "@/lib/audit/receipt";
 
 const TIER: Record<number, { icon: string; cls: string }> = {
   0: { icon: "○", cls: "border-line bg-surface-alt text-ink" },
@@ -14,6 +20,7 @@ const TIER: Record<number, { icon: string; cls: string }> = {
 export function ActivityList({ activity }: { activity: ActivityOut }) {
   const t = useT();
   const { lang } = useLang();
+  const [open, setOpen] = useState<number | null>(null);
   return (
     <Card as="section" labelledBy="act-h" className="space-y-3">
       <h2 id="act-h" className="text-lg font-bold text-ink">
@@ -28,17 +35,26 @@ export function ActivityList({ activity }: { activity: ActivityOut }) {
             return (
               <li key={r.seq} data-testid="activity-row" className="space-y-1 py-3 text-sm">
                 <div className="flex flex-wrap items-center gap-2">
-                  <span className="font-semibold text-ink">{r.action}</span>
+                  <button
+                    type="button"
+                    onClick={() => setOpen(r.seq)}
+                    aria-haspopup="dialog"
+                    title={t("act.details")}
+                    className="rounded text-left font-semibold text-ink underline decoration-line underline-offset-2 hover:text-brand-700 focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2 focus-visible:outline-none"
+                  >
+                    {entryText(r, lang) || r.action}
+                  </button>
                   <span
                     className={`inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-xs font-semibold ${tier.cls}`}
                   >
                     <span aria-hidden="true">{tier.icon}</span>
                     {t("act.tier", { tier: r.tier })}
                   </span>
-                  <span className="text-xs text-muted">
-                    {t(`act.actor.${r.actor}`)} · {r.result}
-                  </span>
+                  {isReceiptAction(r.action) ? <ReceiptButton seq={r.seq} /> : null}
                 </div>
+                <p className="text-xs text-muted">
+                  {r.action} · {t(`act.actor.${r.actor}`)} · {r.result}
+                </p>
                 <p className="text-xs text-muted">
                   #{r.seq} ·{" "}
                   {new Intl.DateTimeFormat(lang === "bn" ? "bn-BD" : "en-US", {
@@ -54,6 +70,7 @@ export function ActivityList({ activity }: { activity: ActivityOut }) {
           })}
         </ul>
       )}
+      {open ? <EntryDrawer seq={open} onClose={() => setOpen(null)} /> : null}
     </Card>
   );
 }

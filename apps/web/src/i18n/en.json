@@ -47,7 +47,9 @@
     "privacy": "Privacy",
     "privacyPlayground": "Privacy playground",
     "security": "Security",
-    "attackConsole": "Attack console"
+    "attackConsole": "Attack console",
+    "audit": "Audit log",
+    "auditDemo": "Audit chain demo"
   },
   "role": {
     "BUYER": "Buyer",
@@ -900,7 +902,8 @@
       "user": "Person",
       "llm": "Assistant",
       "system": "System"
-    }
+    },
+    "details": "Show the signed audit entry"
   },
   "act2": {
     "title": "Actions",
@@ -1967,6 +1970,148 @@
         "name": "Guard",
         "desc": "The answer is checked before you see it"
       }
+    }
+  },
+  "audit": {
+    "title": "Signed audit log",
+    "intro": "Every action is written to a hash-chained log and signed with Ed25519. Change one character and the chain breaks. All money here is simulated.",
+    "copy": "Copy",
+    "copied": "Copied",
+    "copyField": "Copy {field}",
+    "land": {
+      "line": "Every action is signed and chained — verify it yourself"
+    },
+    "reason": {
+      "hash_mismatch": "entry contents no longer match the hash",
+      "bad_signature": "signature does not match the key",
+      "missing_seq": "an entry is missing",
+      "reordered": "entries are out of order",
+      "broken_link": "the link to the previous entry is broken",
+      "malformed": "the entry is malformed",
+      "unknown": "unknown problem"
+    },
+    "explain": {
+      "hash_mismatch": "Someone changed the contents of this entry after it was written, so its fingerprint (hash) no longer matches what was signed.",
+      "bad_signature": "The hashes are consistent, but the digital signature was not made by this public key. The entry was not signed by Setu, or you chose a different key.",
+      "missing_seq": "A numbered entry that should sit here is gone. A deleted record leaves a gap that the sequence numbers reveal.",
+      "reordered": "Entries appear in a different order than they were written.",
+      "broken_link": "This entry does not point at the entry before it, so it was inserted or rewritten after the fact.",
+      "malformed": "A line is not a complete signed entry (a field is missing or has the wrong shape).",
+      "unknown": "The log did not pass verification."
+    },
+    "result": {
+      "ok": "Verified ✓ {n} entries, seq {a}..{b}",
+      "broken": "Broken at seq {seq}: {reason}"
+    },
+    "chain": {
+      "title": "Live chain",
+      "help": "Each block is one audit entry; the line is the hash link to the one before it. New entries appear on the right. Select a block for details.",
+      "label": "Audit chain, scroll horizontally",
+      "empty": "No audit entries yet.",
+      "refresh": "Refresh now",
+      "blockLabel": "Entry {seq}, {action}. Open details",
+      "missing": "seq {seq} is missing",
+      "broken": "Broken",
+      "intact": "Intact"
+    },
+    "drawer": {
+      "title": "Audit entry #{seq}",
+      "verified": "Verified ✓",
+      "notVerified": "Not verified",
+      "canonical": "Canonical payload (the exact bytes hashed)",
+      "payloadHash": "payload_hash",
+      "prevHash": "prev_hash",
+      "entryHash": "entry_hash",
+      "signature": "signature (Ed25519)"
+    },
+    "evidence": {
+      "title": "Evidence",
+      "total": "Entries in the log",
+      "head": "Head: seq {seq}",
+      "byTier": "Entries by tier",
+      "byAction": "Entries by action",
+      "lastVerify": "Last verification",
+      "never": "Not verified yet.",
+      "ok": "Verified ✓ {n} entries",
+      "broken": "Broken at seq {seq}",
+      "verifyNow": "Verify now",
+      "verifying": "Verifying…",
+      "fingerprint": "Public key fingerprint",
+      "copyFingerprint": "Copy public key fingerprint",
+      "export": "Export operation log",
+      "verifyLink": "Open the public verifier"
+    },
+    "tamper": {
+      "title": "Tamper and see",
+      "intro": "Change, delete or swap an entry in a copy of the log and watch verification catch it. The real log is never touched.",
+      "entry": "Entry",
+      "modeLabel": "Change",
+      "field": "Field",
+      "value": "New value",
+      "was": "Currently: {value}",
+      "mode": {
+        "edit": "Edit a value",
+        "delete": "Delete the entry",
+        "reorder": "Swap with the next entry"
+      },
+      "deleteHelp": "The entry is removed from the copy.",
+      "reorderHelp": "The entry swaps places with the one after it.",
+      "run": "Tamper with the copy",
+      "running": "Checking…",
+      "noEntries": "Waiting for audit entries.",
+      "banner": "This is a copy — the real log was not changed.",
+      "stillOk": "Still verifies. Nothing was changed that the log can detect.",
+      "chainLabel": "Tampered copy of the chain",
+      "restore": "Restore the live chain"
+    },
+    "receipt": {
+      "button": "Receipt",
+      "title": "Signed receipt",
+      "deal": "Deal",
+      "amount": "Amount",
+      "tier": "Permission tier",
+      "approver": "Approved by",
+      "time": "Time",
+      "seq": "Audit entry",
+      "hash": "Entry hash",
+      "signature": "Signature",
+      "qrAlt": "QR code that opens the public verifier for this receipt",
+      "qrHelp": "Scan to check this receipt in the public verifier. It carries only the signed entry, no secrets.",
+      "png": "Download PNG",
+      "pdf": "Print / save as PDF",
+      "open": "Open verifier link",
+      "copyHash": "Copy entry hash",
+      "copySig": "Copy signature"
+    },
+    "verify": {
+      "title": "Verify the Setu operation log",
+      "intro": "Check an exported log yourself: every hash, every signature and the chain order, with the published public key.",
+      "privacy": "Your file is read in this browser only. Nothing is uploaded or sent anywhere.",
+      "uploadTitle": "Check a log file",
+      "logLabel": "Operation log (.jsonl)",
+      "dropHint": "Choose a file, or drop it on this box.",
+      "keyDefault": "Using the published Setu audit public key. Fingerprint:",
+      "keyCustom": "Using your key: {name}",
+      "advanced": "Advanced: use another public key (PEM)",
+      "keyLabel": "Public key file (.pem)",
+      "resultTitle": "Result",
+      "waiting": "No file checked yet.",
+      "checkedWith": "Checked {file} with key {fp}…",
+      "noKey": "The public key could not be loaded.",
+      "badKey": "That is not a valid PEM public key.",
+      "empty": "The file has no audit entries.",
+      "parseError": "Cannot read the file: {detail}.",
+      "readError": "The file could not be read.",
+      "partial": "Partial export: {n} seq numbers are absent. Every entry present is genuine, but a partial export cannot prove that nothing was left out.",
+      "notAnchored": "The log does not start at seq 1, so its start is not tied to the genesis hash.",
+      "receiptTitle": "Receipt check",
+      "checking": "Checking the receipt…",
+      "receiptOk": "Receipt valid ✓ entry #{seq} is signed by Setu",
+      "singleNote": "A single entry proves its own contents and signature. It cannot prove that no entries around it were removed; upload the full log for that.",
+      "hashDiffers": "The entry hash does not match the one on the receipt",
+      "receiptInstructions": "This receipt refers to audit entry #{seq}. Upload the exported log below to find and check it.",
+      "highlightFound": "Entry #{seq} is in your log and its hash matches the receipt.",
+      "highlightMissing": "Entry #{seq} is not in this log."
     }
   }
 }

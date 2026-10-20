@@ -103,7 +103,7 @@ def test_buyer_isolation_and_bad_input(db: Session) -> None:
 
 
 def test_verify_party_writes_nothing(db: Session) -> None:
-    tables = ["kyb_runs", "kyb_checks", "audit_log", "alerts", "bank_accounts", "documents"]
+    tables = ["kyb_runs", "kyb_checks", "alerts", "bank_accounts", "documents"]
 
     def state() -> tuple[dict[str, int], list[tuple[str, str]]]:
         counts = {t: db.scalar(text(f"SELECT count(*) FROM {t}")) for t in tables}
@@ -113,6 +113,9 @@ def test_verify_party_writes_nothing(db: Session) -> None:
         return counts, statuses  # type: ignore[return-value]
 
     before = state()
+    audits_before = db.scalar(
+        text("SELECT count(*) FROM audit_log WHERE action = 'TOOL:verify_party'")
+    )
     for email, args in [
         (RAHIMA, {"deal_id": DEAL}),
         (KARIM, {"supplier_id": "guangzhou-huameng"}),
@@ -121,6 +124,11 @@ def test_verify_party_writes_nothing(db: Session) -> None:
         assert run(db, email, args).ok
     assert not db.new and not db.dirty
     assert state() == before  # no rollback: nothing was even flushed
+    # the only trace is the audit entry for each tool call (the call itself writes no data)
+    tool_calls = db.scalar(
+        text("SELECT count(*) FROM audit_log WHERE action = 'TOOL:verify_party'")
+    )
+    assert tool_calls == audits_before + 3
 
 
 def test_chat_routes_kyb_questions_to_the_tool(client: TestClient) -> None:

@@ -1,24 +1,19 @@
-"""Signed, hash-chained audit history and Ed25519-signed credit records for past deals.
+"""Signed, hash-chained audit history (scheme setu-audit-v2) and Ed25519-signed credit records.
 
-Signing key: AUDIT_SIGNING_KEY from env if set, otherwise a dev key generated on first seed run
-and kept in the git-ignored `keys/audit_dev_ed25519.key`. Ed25519 signatures are deterministic,
-so re-seeding with the same key reproduces identical rows.
+Signing key: the configured AUDIT_SIGNING_KEY if set, otherwise a dev key generated on first seed
+run and kept in the git-ignored `keys/audit_dev_ed25519.key`. Ed25519 signatures are
+deterministic, so re-seeding with the same key reproduces identical rows.
 """
 
 from dataclasses import dataclass
 from datetime import datetime
 
+from app.audit.keys import key_id, load_signing_key, sign_hash
+from app.audit.mask import clean_payload
+from app.audit.writer import PendingEntry, build_chain
 from app.db.enums import Actor, DealStatus
 from app.db.models import AuditLog, CreditRecord
-from app.security.audit import (
-    build_chain,
-    canonical_json,
-    key_id,
-    load_signing_key,
-    params_hash,
-    sha256_hex,
-    sign_hash,
-)
+from app.security.audit import canonical_json, sha256_hex
 from seed.alerts_approvals import APPROVAL_T2, APPROVAL_T3, approvals
 from seed.common import Ctx, Row, Rows, sid
 from seed.deals import DEALS, MAIN_DEAL, DealSpec, deal_id
@@ -200,26 +195,22 @@ def build(ctx: Ctx) -> Rows:
     chain = build_chain(
         key,
         [
-            (e.ts, e.actor.value, e.action, e.tier, e.bound_hash or params_hash(e.params), e.result)
+            PendingEntry(
+                ts=e.ts,
+                actor_type=e.actor.value,
+                actor_id="system" if e.actor == Actor.SYSTEM else "demo-user",
+                deal_id=deal_id(str(e.params["deal_ref"])) if "deal_ref" in e.params else None,
+                action=e.action,
+                tier=e.tier,
+                decision=e.result,
+                payload=clean_payload(
+                    {**e.params, **({"binding_hash": e.bound_hash} if e.bound_hash else {})}
+                ),
+            )
             for e in events(ctx)
         ],
     )
-    audit_rows = [
-        {
-            "seq": e.fields.seq,
-            "ts": e.fields.ts,
-            "actor": e.fields.actor,
-            "action": e.fields.action,
-            "tier": e.fields.tier,
-            "params_hash": e.fields.params_hash,
-            "result": e.fields.result,
-            "prev_hash": e.fields.prev_hash,
-            "entry_hash": e.entry_hash,
-            "signature": e.signature,
-            "key_id": e.key_id,
-        }
-        for e in chain
-    ]
+    audit_rows = list(chain)
     credit_rows = []
     for spec in DEALS:
         if spec.status != DealStatus.COMPLETED or spec.completed_on is None:

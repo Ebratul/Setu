@@ -9,6 +9,7 @@ from datetime import datetime
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
+from app.audit import write_audit
 from app.auth.deps import CurrentUser
 from app.config import REPO_ROOT, get_settings
 from app.db.enums import (
@@ -22,7 +23,6 @@ from app.db.enums import (
 from app.db.models import Alert, ApprovalRequest, Deal
 from app.errors import Forbidden, NotFound
 from app.schemas.approvals import EmailCheckOut, SignalOut
-from app.security.audit import write_audit
 from app.security.email_guard import EmailReading, read_email
 from app.services import approval_otp
 from app.services import escrow as escrow_service

@@ -478,7 +478,7 @@ def test_a_supplier_sees_its_deal_without_the_buyers_business_details() -> None:
     feed = huaxin.get(f"/deals/{d['id']}/activity").json()["rows"]
     assert feed and {r["action"] for r in feed} >= {"ESCROW_FUNDED", "MILESTONES_CONFIRMED"}
     assert all(
-        r["result"] == r["params_hash"] == r["entry_hash"] == r["key_id"] == "" for r in feed
+        r["result"] == r["payload_hash"] == r["entry_hash"] == r["key_id"] == "" for r in feed
     )
     buyer_feed = karim.get(f"/deals/{d['id']}/activity").json()["rows"]
     assert all(r["entry_hash"] and r["result"] for r in buyer_feed)

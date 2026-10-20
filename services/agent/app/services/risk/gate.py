@@ -24,6 +24,7 @@ import structlog
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
+from app.audit import write_audit
 from app.auth.deps import CurrentUser
 from app.db.enums import (
     Actor,
@@ -36,7 +37,6 @@ from app.db.enums import (
 from app.db.models import Alert, ApprovalRequest, Deal, RiskEvent
 from app.errors import Conflict
 from app.security.approvals import approval_binding_hash
-from app.security.audit import write_audit
 from app.security.policy import load_policy
 from app.security.risk_hook import RiskDecision as Verdict
 from app.services import approval_otp

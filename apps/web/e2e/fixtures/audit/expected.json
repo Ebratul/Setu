@@ -1,0 +1,27 @@
+{
+  "release_seq": 10,
+  "good": {
+    "ok": true,
+    "broken_seq": null,
+    "reason": null,
+    "entries_checked": 12
+  },
+  "tampered-amount": {
+    "ok": false,
+    "broken_seq": 10,
+    "reason": "hash_mismatch",
+    "entries_checked": 9
+  },
+  "tampered-missing": {
+    "ok": false,
+    "broken_seq": 5,
+    "reason": "missing_seq",
+    "entries_checked": 4
+  },
+  "tampered-reordered": {
+    "ok": false,
+    "broken_seq": 3,
+    "reason": "reordered",
+    "entries_checked": 2
+  }
+}

@@ -347,7 +347,9 @@ class ActivityRow(Out):
     action: str
     tier: int
     result: str
-    params_hash: str
+    text_en: str
+    text_bn: str
+    payload_hash: str
     entry_hash: str
     key_id: str
 

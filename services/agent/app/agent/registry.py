@@ -17,10 +17,13 @@ import structlog
 from langchain_core.runnables import RunnableConfig
 from langchain_core.tools import StructuredTool
 from pydantic import BaseModel, ValidationError
+from sqlalchemy import text as sql_text
 from sqlalchemy.orm import Session
 
 from app.agent.state import Intent
+from app.audit import write_audit
 from app.auth.deps import CurrentUser
+from app.db.session import get_engine
 from app.errors import DomainError, Forbidden, NotFound
 from app.security.audit import record_event
 from app.security.injection.detector import Detection, scan
@@ -214,6 +217,64 @@ class ToolRegistry:
         return [spec.definition() for spec in wanted.values()]
 
     def guard(
+        self,
+        name: str,
+        args: dict[str, Any],
+        ctx: ToolContext,
+        config: RunnableConfig | None = None,
+        allowed: frozenset[str] | None = None,
+    ) -> ToolOutcome:
+        """Run one model-requested tool call and append it to the signed audit log."""
+        outcome = self._guard(name, args, ctx, config, allowed)
+        self._audit(name, ctx, outcome)
+        return outcome
+
+    def _audit(self, name: str, ctx: ToolContext, outcome: ToolOutcome) -> None:
+        if ctx.db is None:  # evaluation harness: no database, structured events only
+            return
+        spec = self.get(outcome.name)
+        decision = (
+            ("OK_FLAGGED" if outcome.injection else "OK")
+            if outcome.ok
+            else f"REFUSED:{(outcome.error or {}).get('code', 'error')}"
+        )
+        action = f"TOOL:{outcome.name}"[:64]
+        params = {
+            "tool": outcome.name,
+            "args": outcome.args_summary,
+            "caller": ctx.caller,
+            "on_behalf_of": str(ctx.user.id),
+            "thread_id": ctx.thread_id or "",
+            "deal_ref": ctx.deal_ref or "",
+        }
+        tier = int(spec.max_tier) if spec else 0
+        # Own short transaction: the entry survives a rollback of the chat turn, and the audit
+        # lock is not held while the model is still talking. If the turn itself holds the lock
+        # (it wrote an audit row earlier) the wait times out and the entry joins the turn.
+        try:
+            engine = get_engine()
+            if engine is None:
+                raise RuntimeError("no database engine")
+            with Session(engine, expire_on_commit=False) as own:
+                own.execute(sql_text("SET LOCAL lock_timeout = '2s'"))
+                write_audit(
+                    own, actor="llm", action=action, tier=tier, params=params, result=decision,
+                    actor_id="agent",
+                )  # fmt: skip
+                own.commit()
+            return
+        except Exception as exc:
+            log.warning("tool_audit_own_session_failed", tool=name, error=type(exc).__name__)
+        try:
+            with ctx.db.begin_nested():
+                write_audit(
+                    ctx.db, actor="llm", action=action, tier=tier, params=params, result=decision,
+                    actor_id="agent",
+                )  # fmt: skip
+        except Exception as exc:  # a read-only tool call must not fail because logging did
+            log.error("tool_audit_failed", tool=name, error=type(exc).__name__)
+
+    def _guard(
         self,
         name: str,
         args: dict[str, Any],

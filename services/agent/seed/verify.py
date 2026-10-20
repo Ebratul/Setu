@@ -14,6 +14,9 @@ from decimal import Decimal
 from sqlalchemy import case, func, select, text
 from sqlalchemy.orm import Session
 
+from app.audit.export import line_of
+from app.audit.keys import load_signing_key
+from app.audit.verify import describe, verify_lines
 from app.db.enums import ApprovalStatus, FlowDirection, FxKind, KybStatus, LedgerDirection
 from app.db.models import (
     Alert,
@@ -33,7 +36,6 @@ from app.db.models import (
 )
 from app.db.session import batch_session
 from app.domain.money import q2
-from app.security.audit import AuditFields, SignedEntry, load_signing_key, verify_chain
 from seed.cli import DEMO_TABLES, seed
 from seed.common import default_ctx
 from seed.deals import MAIN_DEAL
@@ -201,22 +203,12 @@ def run_checks(session: Session) -> list[Check]:
     ).all()
     add("ledger transactions balanced", 0, len(unbalanced))
 
-    entries = [
-        SignedEntry(
-            AuditFields(
-                a.seq, a.ts, a.actor.value, a.action, a.tier, a.params_hash, a.result, a.prev_hash
-            ),
-            a.entry_hash,
-            a.signature,
-            a.key_id,
-        )
-        for a in session.scalars(select(AuditLog).order_by(AuditLog.seq))
-    ]
-    problems = verify_chain(load_signing_key().public_key(), entries)
+    lines = [line_of(a) for a in session.scalars(select(AuditLog).order_by(AuditLog.seq))]
+    report = verify_lines(lines, load_signing_key().public_key())
     add(
-        f"audit chain valid ({len(entries)} entries)",
-        "no problems",
-        "; ".join(problems[:3]) or "no problems",
+        f"audit chain valid ({report.entries_checked} entries)",
+        "OK",
+        "OK" if report.ok else describe(report),
     )
     return checks
 

@@ -144,7 +144,7 @@ def test_inline_preview_serves_only_validated_files_with_a_tight_policy(
         flags = [
             r
             for r in s.scalars(
-                select(AuditLog.params_hash).where(AuditLog.action == "DOC_DOWNLOADED")
+                select(AuditLog.payload_hash).where(AuditLog.action == "DOC_DOWNLOADED")
             )
         ]
     assert len(flags) >= 2

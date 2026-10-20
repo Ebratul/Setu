@@ -71,7 +71,10 @@ def test_tool_is_tier0_and_allow_listed() -> None:
 def test_tool_reads_without_writing_and_card_has_no_document_text(forged: dict) -> None:
     before = counts()
     out = run_tool("rahima@demo.setu", {"deal_id": DEAL})
-    assert counts() == before, "check_documents must not write anything"
+    after = counts()
+    # the only trace of a read-only tool is its own signed audit entry
+    assert (after[0], after[2], after[3]) == (before[0], before[2], before[3])
+    assert after[1] == before[1] + 1, "check_documents must write only its TOOL audit entry"
     assert out.ok, out.error
     card = out.data
     assert card["card_type"] == "document_check" and card["simulated"] is True

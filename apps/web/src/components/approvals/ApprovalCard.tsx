@@ -16,6 +16,7 @@ import { useApi } from "@/lib/useApi";
 
 import { secondsLeft } from "./approvalLogic";
 import { actionLabel, formatDuration, isEmailOnly, pickLang } from "./approvalText";
+import { ApprovalReceipt } from "./ApprovalReceipt";
 import { EvidenceSnapshot } from "./EvidenceSnapshot";
 
 type Props = { approval: Approval; fetchedAt: number; now: number; onReview: (a: Approval) => void };
@@ -143,6 +144,12 @@ export function ApprovalCard({ approval: a, fetchedAt, now, onReview }: Props) {
             </div>
           ) : null}
         </div>
+
+        {a.status === "APPROVED" || a.status === "EXECUTED" ? (
+          <div className="flex justify-end">
+            <ApprovalReceipt approval={a} />
+          </div>
+        ) : null}
 
         {pending ? (
           <div className="flex justify-end">

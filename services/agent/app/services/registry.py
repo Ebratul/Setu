@@ -10,6 +10,7 @@ from dataclasses import dataclass
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
+from app.audit import write_audit
 from app.auth.deps import CurrentUser
 from app.db.enums import DocType, RegistryPurpose, RegistryStatus, Role
 from app.db.models import Deal, Document, HashRegistry
@@ -24,7 +25,6 @@ from app.schemas.registry import (
     RegistryStatsOut,
     SemanticFields,
 )
-from app.security.audit import write_audit
 from app.services import alerts, hash_registry
 from app.services.documents import read
 from app.services.documents.extract_text import extract_text

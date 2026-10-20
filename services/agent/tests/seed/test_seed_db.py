@@ -43,7 +43,13 @@ def test_reset_demo_restores_canonical_rows(migrated_db: str) -> None:
     seed(reset=True)
     with batch_session() as s:
         after = {t: n for t, (n, _) in snapshot(s).items()}
+    # the reset itself is logged: one extra, signed DEMO_RESET entry at the end of the chain
+    assert after.pop("audit_log") == before.pop("audit_log") + 1
     assert before == after
+    with batch_session() as s:
+        assert s.scalar(select(AuditLog.action).order_by(AuditLog.seq.desc()).limit(1)) == (
+            "DEMO_RESET"
+        )
 
 
 def test_reseed_never_rewrites_decided_approvals_or_audit(migrated_db: str) -> None:

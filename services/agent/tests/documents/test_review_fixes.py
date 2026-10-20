@@ -274,7 +274,7 @@ def test_concurrent_checks_and_sync_never_let_a_stale_verified_overwrite_rejecte
         trail = [
             r
             for (act, r) in s.execute(
-                select(AuditLog.action, AuditLog.result)
+                select(AuditLog.action, AuditLog.decision)
                 .where(AuditLog.deal_id == uuid.UUID(deal["id"]))
                 .order_by(AuditLog.seq)
             )

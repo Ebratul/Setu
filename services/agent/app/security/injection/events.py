@@ -15,8 +15,9 @@ import structlog
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
+from app.audit import write_audit
 from app.db.models import Deal, Document, InjectionEvent
-from app.security.audit import record_event, write_audit
+from app.security.audit import record_event
 from app.security.injection.detector import Detection
 from app.security.tiers import Tier
 

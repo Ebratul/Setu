@@ -5,20 +5,16 @@ so tests do not depend on order; state-changing scenarios live in test_kyb_lifec
 import uuid
 
 import pytest
-from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
 from fastapi.testclient import TestClient
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
+from app.audit.export import line_of
+from app.audit.keys import load_signing_key
+from app.audit.verify import verify_lines
 from app.db.enums import AlertType
 from app.db.models import Alert, AuditLog, KybCheck, KybRun, Party
 from app.db.session import get_engine
-from app.security.audit import (
-    AuditFields,
-    SignedEntry,
-    load_signing_key,
-    verify_chain,
-)
 from tests.api.conftest import login
 
 pytestmark = pytest.mark.db
@@ -213,27 +209,10 @@ def test_rerun_is_idempotent_and_audited(client: TestClient, seeded_db: str) -> 
     with Session(get_engine()) as s:
         rows = s.scalars(select(AuditLog).order_by(AuditLog.seq)).all()
         last = rows[-1]
-        assert last.action == "KYB_CHECKED" and last.result == "WARNING" and last.tier == 0
-        entries = [
-            SignedEntry(
-                AuditFields(
-                    r.seq,
-                    r.ts,
-                    r.actor.value,
-                    r.action,
-                    r.tier,
-                    r.params_hash,
-                    r.result,
-                    r.prev_hash,
-                ),
-                r.entry_hash,
-                r.signature,
-                r.key_id,
-            )
-            for r in rows
-        ]
-        key: Ed25519PrivateKey = load_signing_key()
-        assert verify_chain(key.public_key(), entries) == [], "seeded + appended chain stays valid"
+        assert last.action == "KYB_CHECKED" and last.decision == "WARNING" and last.tier == 0
+        lines = [line_of(r) for r in rows]
+        report = verify_lines(lines, load_signing_key().public_key())
+        assert report.ok, "seeded + appended chain stays valid"
         run = s.scalars(select(KybRun).order_by(KybRun.checked_at.desc())).first()
         assert run is not None and run.audit_seq == last.seq
 

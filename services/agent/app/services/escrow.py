@@ -28,6 +28,7 @@ import structlog
 from sqlalchemy import func, or_, select
 from sqlalchemy.orm import Session
 
+from app.audit import write_audit
 from app.auth.deps import CurrentUser
 from app.db.enums import (
     AccountStatus,
@@ -60,7 +61,7 @@ from app.domain.money import CURRENCIES, ZERO, Currency, Money, q2
 from app.errors import Conflict, DomainError, Forbidden, NotFound, ServiceUnavailable
 from app.security import risk_hook
 from app.security.approvals import approval_binding_hash
-from app.security.audit import sha256_hex, write_audit
+from app.security.audit import sha256_hex
 from app.security.policy import TIER1_MAX_USD, load_policy
 from app.security.risk_hook import ReleaseContext, RiskAction, RiskDecision, RiskHook, RiskResult
 from app.services import alerts as alert_service

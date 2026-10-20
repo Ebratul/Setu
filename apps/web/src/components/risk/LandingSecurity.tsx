@@ -55,6 +55,15 @@ export function LandingSecurity() {
           {t("sec.land.link")}
         </Link>
       </div>
+      <p className="border-t border-line pt-3 text-sm font-semibold text-ink">
+        <span aria-hidden="true">🔏 </span>
+        <Link
+          href="/verify"
+          className="text-brand-700 underline focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2 focus-visible:outline-none"
+        >
+          {t("audit.land.line")}
+        </Link>
+      </p>
       <Link
         href="/demo/risk-playground"
         className="inline-block font-semibold text-brand-700 underline focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2 focus-visible:outline-none"

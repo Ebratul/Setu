@@ -1701,6 +1701,142 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/audit/public-key": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Public Key
+         * @description The key that verifies every entry. Also committed at docs/submission/audit-public-key.pem.
+         */
+        get: operations["public_key_audit_public_key_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/audit/entries": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Entries
+         * @description Entries with seq > `after`, oldest first (poll with the last seq you saw). Without
+         *     `after`, the latest `limit` entries.
+         */
+        get: operations["list_entries_audit_entries_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/audit/entries/{seq}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Entry Detail */
+        get: operations["entry_detail_audit_entries__seq__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/audit/summary": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Summary */
+        get: operations["summary_audit_summary_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/audit/verify": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Verify
+         * @description Re-walk the chain: continuity, every hash, every signature.
+         */
+        get: operations["verify_audit_verify_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/audit/export": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Export
+         * @description The sandbox operation log: a header line, then one signed entry per line.
+         */
+        get: operations["export_audit_export_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/audit/tamper-demo": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Tamper Demo
+         * @description Change, delete or reorder an entry of an in-memory COPY and verify it. The real table is
+         *     only read, on a read-only connection.
+         */
+        post: operations["tamper_demo_audit_tamper_demo_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -1869,8 +2005,12 @@ export interface components {
             tier: number;
             /** Result */
             result: string;
-            /** Params Hash */
-            params_hash: string;
+            /** Text En */
+            text_en: string;
+            /** Text Bn */
+            text_bn: string;
+            /** Payload Hash */
+            payload_hash: string;
             /** Entry Hash */
             entry_hash: string;
             /** Key Id */
@@ -2722,6 +2862,13 @@ export interface components {
              * @example 11200.00
              */
             share_pct: string;
+        };
+        /** CountOut */
+        CountOut: {
+            /** Key */
+            key: string;
+            /** Count */
+            count: number;
         };
         /** Counters */
         Counters: {
@@ -3768,6 +3915,104 @@ export interface components {
              * @constant
              */
             simulated: true;
+        };
+        /** EntriesOut */
+        EntriesOut: {
+            /** Head Seq */
+            head_seq: number;
+            /** Head Hash */
+            head_hash: string | null;
+            /** Rows */
+            rows: components["schemas"]["EntryOut"][];
+        };
+        /** EntryDetailOut */
+        EntryDetailOut: {
+            /** Seq */
+            seq: number;
+            /** Ts */
+            ts: string;
+            /**
+             * Actor Type
+             * @enum {string}
+             */
+            actor_type: "user" | "llm" | "system";
+            /** Actor Id */
+            actor_id: string;
+            /** Deal Id */
+            deal_id: string | null;
+            /** Action */
+            action: string;
+            /** Tier */
+            tier: number;
+            /** Decision */
+            decision: string;
+            /** Payload */
+            payload: {
+                [key: string]: unknown;
+            };
+            /** Payload Hash */
+            payload_hash: string;
+            /** Prev Hash */
+            prev_hash: string;
+            /** Entry Hash */
+            entry_hash: string;
+            /** Signature */
+            signature: string;
+            /** Key Id */
+            key_id: string;
+            /** Text En */
+            text_en: string;
+            /** Text Bn */
+            text_bn: string;
+            /**
+             * Canonical
+             * @description The exact bytes hashed into payload_hash
+             */
+            canonical: string;
+            /** Verified */
+            verified: boolean;
+            /** Verify Reason */
+            verify_reason?: string | null;
+        };
+        /** EntryOut */
+        EntryOut: {
+            /** Seq */
+            seq: number;
+            /** Ts */
+            ts: string;
+            /**
+             * Actor Type
+             * @enum {string}
+             */
+            actor_type: "user" | "llm" | "system";
+            /** Actor Id */
+            actor_id: string;
+            /** Deal Id */
+            deal_id: string | null;
+            /** Action */
+            action: string;
+            /** Tier */
+            tier: number;
+            /** Decision */
+            decision: string;
+            /** Payload */
+            payload: {
+                [key: string]: unknown;
+            };
+            /** Payload Hash */
+            payload_hash: string;
+            /** Prev Hash */
+            prev_hash: string;
+            /** Entry Hash */
+            entry_hash: string;
+            /** Signature */
+            signature: string;
+            /** Key Id */
+            key_id: string;
+            /** Text En */
+            text_en: string;
+            /** Text Bn */
+            text_bn: string;
         };
         /** EscrowCard */
         EscrowCard: {
@@ -5892,6 +6137,21 @@ export interface components {
              */
             percents?: string[] | null;
         };
+        /** PublicKeyOut */
+        PublicKeyOut: {
+            /** Scheme */
+            scheme: string;
+            /** Genesis */
+            genesis: string;
+            /** Fingerprint */
+            fingerprint: string;
+            /** Key Id */
+            key_id: string;
+            /** Pem */
+            pem: string;
+            /** Matches Committed Key */
+            matches_committed_key: boolean;
+        };
         /** ReasonOut */
         ReasonOut: {
             /** Code */
@@ -6657,19 +6917,6 @@ export interface components {
                 [key: string]: unknown;
             };
         };
-        /** SummaryOut */
-        SummaryOut: {
-            /** Protected */
-            protected: number;
-            /** Leaked */
-            leaked: number;
-            /** Calls */
-            calls: number;
-            /** By Type */
-            by_type: {
-                [key: string]: number;
-            };
-        };
         /** SupplierCompany */
         SupplierCompany: {
             /** Legal Name */
@@ -6924,6 +7171,44 @@ export interface components {
             /** Facts */
             facts: string[];
         };
+        /** TamperIn */
+        TamperIn: {
+            /**
+             * Mode
+             * @enum {string}
+             */
+            mode: "edit" | "delete" | "reorder";
+            /** Seq */
+            seq: number;
+            /** Field */
+            field?: string | null;
+            /** Value */
+            value?: string | null;
+            /** Other Seq */
+            other_seq?: number | null;
+            /** Window From */
+            window_from?: number | null;
+            /** Window To */
+            window_to?: number | null;
+        };
+        /** TamperOut */
+        TamperOut: {
+            /**
+             * Simulated
+             * @default true
+             * @constant
+             */
+            simulated: true;
+            /**
+             * Real Table Changed
+             * @default false
+             * @constant
+             */
+            real_table_changed: false;
+            report: components["schemas"]["VerifyOut"];
+            /** Entries */
+            entries: components["schemas"]["EntryOut"][];
+        };
         /** TargetPrice */
         TargetPrice: {
             /**
@@ -7166,6 +7451,36 @@ export interface components {
             /** Checked At */
             checked_at?: string | null;
         };
+        /** VerifyOut */
+        VerifyOut: {
+            /** Ok */
+            ok: boolean;
+            /** Entries Checked */
+            entries_checked: number;
+            /** First Seq */
+            first_seq: number | null;
+            /** Last Seq */
+            last_seq: number | null;
+            /** Broken Seq */
+            broken_seq: number | null;
+            /** Reason */
+            reason: string | null;
+            /** Detail */
+            detail: string | null;
+            /** Anchored */
+            anchored: boolean;
+            /** Missing Seqs */
+            missing_seqs: number;
+            /** Scheme */
+            scheme: string;
+            /** Public Key Fingerprint */
+            public_key_fingerprint: string;
+            /**
+             * Verified At
+             * Format: date-time
+             */
+            verified_at: string;
+        };
         /** WeekOut */
         WeekOut: {
             /**
@@ -7220,6 +7535,24 @@ export interface components {
             left: components["schemas"]["LeftBlock"][];
             /** Right */
             right: components["schemas"]["RightBlock"][];
+        };
+        /** SummaryOut */
+        app__api__audit__SummaryOut: {
+            /** Total */
+            total: number;
+            /** Head Seq */
+            head_seq: number;
+            /** Head Hash */
+            head_hash: string | null;
+            /** By Action */
+            by_action: components["schemas"]["CountOut"][];
+            /** By Tier */
+            by_tier: components["schemas"]["CountOut"][];
+            /** Fingerprint */
+            fingerprint: string;
+            /** Scheme */
+            scheme: string;
+            last_verification: components["schemas"]["VerifyOut"] | null;
         };
         /** DayPoint */
         app__api__risk__DayPoint: {
@@ -7427,6 +7760,19 @@ export interface components {
             protected: number;
             /** Leaked */
             leaked: number;
+        };
+        /** SummaryOut */
+        app__schemas__privacy__SummaryOut: {
+            /** Protected */
+            protected: number;
+            /** Leaked */
+            leaked: number;
+            /** Calls */
+            calls: number;
+            /** By Type */
+            by_type: {
+                [key: string]: number;
+            };
         };
     };
     responses: never;
@@ -9946,7 +10292,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["SummaryOut"];
+                    "application/json": components["schemas"]["app__schemas__privacy__SummaryOut"];
                 };
             };
             /** @description Validation Error */
@@ -10187,6 +10533,210 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["InjectionEventOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    public_key_audit_public_key_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PublicKeyOut"];
+                };
+            };
+        };
+    };
+    list_entries_audit_entries_get: {
+        parameters: {
+            query?: {
+                after?: number;
+                limit?: number;
+                deal_id?: string | null;
+                action?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EntriesOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    entry_detail_audit_entries__seq__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                seq: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EntryDetailOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    summary_audit_summary_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["app__api__audit__SummaryOut"];
+                };
+            };
+        };
+    };
+    verify_audit_verify_get: {
+        parameters: {
+            query?: {
+                from?: number | null;
+                to?: number | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["VerifyOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    export_audit_export_get: {
+        parameters: {
+            query?: {
+                deal_id?: string | null;
+                from?: number | null;
+                to?: number | null;
+                format?: "jsonl";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    tamper_demo_audit_tamper_demo_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["TamperIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TamperOut"];
                 };
             };
             /** @description Validation Error */

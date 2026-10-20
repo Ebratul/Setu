@@ -15,8 +15,9 @@ from sqlalchemy import select, text
 from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.orm import Session
 
+from app.audit import write_audit
 from app.db.enums import PartyKind
-from app.db.models import DemoState, Party
+from app.db.models import AuditLog, DemoState, Party
 from app.db.session import batch_session, database_url, is_local_url
 from seed import (
     alerts_approvals,
@@ -134,10 +135,31 @@ def seed(
             raise SeedError(
                 f"DEMO_TODAY changed ({stored} -> {ctx.today}); run `pnpm run db:reset-demo`"
             )
+        previous_head = (
+            session.execute(
+                select(AuditLog.seq, AuditLog.entry_hash).order_by(AuditLog.seq.desc()).limit(1)
+            ).first()
+            if reset
+            else None
+        )
         if reset:
             wipe(session)
         counts = upsert(session, rows)
         counts["alerts (engine)"] = recompute_alerts(session)
+        if reset:
+            write_audit(
+                session,
+                actor="system",
+                action="DEMO_RESET",
+                tier=0,
+                params={
+                    "anchor_date": ctx.today.isoformat(),
+                    "rows": sum(counts.values()),
+                    "previous_head_seq": previous_head[0] if previous_head else 0,
+                    "previous_head_hash": previous_head[1] if previous_head else "",
+                },
+                result="OK",
+            )
         return counts
 
 

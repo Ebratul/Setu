@@ -155,3 +155,39 @@ body {
     animation: sec-step-in 0.35s ease-out forwards;
   }
 }
+
+@keyframes audit-block-in {
+  from {
+    opacity: 0;
+    transform: translateX(24px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .audit-new {
+    animation: audit-block-in 0.4s ease-out;
+  }
+}
+
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  .receipt-print,
+  .receipt-print * {
+    visibility: visible;
+  }
+  .receipt-print {
+    position: fixed;
+    inset: 0;
+    padding: 24px;
+    background: var(--color-surface);
+  }
+  .no-print {
+    display: none !important;
+  }
+}

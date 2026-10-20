@@ -30,6 +30,7 @@ import structlog
 from sqlalchemy import Select, func, or_, select
 from sqlalchemy.orm import Session
 
+from app.audit import write_audit
 from app.auth.deps import CurrentUser, can_read_party
 from app.config import get_settings
 from app.db.enums import AccountStatus, CheckStatus, DealStatus, DocType, KybStatus, PartyKind
@@ -45,7 +46,6 @@ from app.schemas.kyb import (
     KybThresholds,
     PendingAccountResult,
 )
-from app.security.audit import write_audit
 from app.security.injection import detect_instructions
 from app.services import alerts as alert_service
 from app.services.scope import demo_today

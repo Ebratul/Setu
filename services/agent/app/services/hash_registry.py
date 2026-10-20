@@ -30,11 +30,11 @@ from sqlalchemy import and_, or_, select, text
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
+from app.audit import write_audit
 from app.db.enums import DocStatus, DocType, RegistryPurpose, RegistryStatus
 from app.db.models import Deal, Document, HashRegistry, Party
 from app.errors import NotFound
 from app.forensics.canonical import canonical_bl_hash, canonical_invoice_hash
-from app.security.audit import write_audit
 
 NEW = "NEW"
 SAME_CONTEXT = "SAME_CONTEXT"

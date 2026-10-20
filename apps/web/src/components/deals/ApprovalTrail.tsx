@@ -1,6 +1,7 @@
 "use client";
 
 import { CopyChip } from "@/components/approvals/CopyChip";
+import { ReceiptButton } from "@/components/audit/ReceiptButton";
 import { Card } from "@/components/ui/Card";
 import { QueryError } from "@/components/ui/QueryError";
 import { Skeleton } from "@/components/ui/Skeleton";
@@ -61,6 +62,9 @@ export function ApprovalTrail({ reference, signature }: Props) {
                         ariaLabel={t("trail.copy", { seq: s.audit_seq })}
                         copiedLabel={t("trail.copied")}
                       />
+                    ) : null}
+                    {s.audit_seq != null && s.state === "DONE" && (s.key === "HUMAN" || s.key === "EXECUTED") ? (
+                      <ReceiptButton seq={s.audit_seq} />
                     ) : null}
                   </p>
                 </div>

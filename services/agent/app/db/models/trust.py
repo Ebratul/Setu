@@ -212,22 +212,25 @@ class DemoPhoneMessage(Base):
 
 
 class AuditLog(Base):
-    """Append-only, hash-chained, Ed25519-signed log (SR-5). See app/security/audit.py."""
+    """Append-only, hash-chained, Ed25519-signed log (SR-5). Scheme: app/audit/scheme.py.
+    A database trigger rejects UPDATE and DELETE. `payload` is PII-masked before it is signed."""
 
     __tablename__ = "audit_log"
 
     seq: Mapped[int] = mapped_column(BigInteger, primary_key=True, autoincrement=False)
     ts: Mapped[datetime] = mapped_column(DateTime(timezone=True))
-    actor: Mapped[Actor] = mapped_column(str_enum(Actor, "audit_actor"))
-    action: Mapped[str] = mapped_column(String(64))
+    actor: Mapped[Actor] = mapped_column(str_enum(Actor, "audit_actor"))  # actor_type
+    actor_id: Mapped[str] = mapped_column(String(64))
+    deal_id: Mapped[uuid.UUID | None] = mapped_column(Uuid, index=True)
+    action: Mapped[str] = mapped_column(String(64), index=True)
     tier: Mapped[int] = mapped_column(SmallInteger)
-    params_hash: Mapped[str] = mapped_column(CHAR(64))
-    result: Mapped[str] = mapped_column(String(64))
+    decision: Mapped[str] = mapped_column(String(64))
+    payload: Mapped[dict[str, Any]] = mapped_column(JSONB, default=dict)
+    payload_hash: Mapped[str] = mapped_column(CHAR(64))
     prev_hash: Mapped[str] = mapped_column(CHAR(64))
     entry_hash: Mapped[str] = mapped_column(CHAR(64), unique=True)
     signature: Mapped[str] = mapped_column(String(128))
     key_id: Mapped[str] = mapped_column(String(32))
-    deal_id: Mapped[uuid.UUID | None] = mapped_column(Uuid, index=True)  # unsigned, for listings
     created_at: Mapped[Created]
 
 

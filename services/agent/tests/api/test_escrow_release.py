@@ -10,6 +10,9 @@ import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy import func, select, update
 
+from app.audit.export import line_of
+from app.audit.keys import load_signing_key
+from app.audit.verify import verify_lines
 from app.db.enums import (
     AccountStatus,
     ApprovalAction,
@@ -35,12 +38,6 @@ from app.domain.money import q2
 from app.errors import Conflict
 from app.security import risk_hook
 from app.security.approvals import approval_binding_hash
-from app.security.audit import (
-    AuditFields,
-    SignedEntry,
-    load_signing_key,
-    verify_chain,
-)
 from app.security.risk_hook import (
     ReleaseContext,
     RiskAction,
@@ -246,17 +243,8 @@ def test_full_lifecycle_with_cny_settlement_and_invariants(seeded_db: str) -> No
     # the deal's signed audit rows are part of one valid chain
     with batch_session() as s:
         rows = s.scalars(select(AuditLog).order_by(AuditLog.seq)).all()
-        entries = [
-            SignedEntry(
-                AuditFields(
-                    a.seq, a.ts, a.actor.value, a.action, a.tier,
-                    a.params_hash, a.result, a.prev_hash,
-                ),
-                a.entry_hash, a.signature, a.key_id,
-            )
-            for a in rows
-        ]  # fmt: skip
-    assert verify_chain(load_signing_key().public_key(), entries) == []
+        lines = [line_of(a) for a in rows]
+    assert verify_lines(lines, load_signing_key().public_key()).ok
 
 
 def test_usd_account_has_no_fx_fields(seeded_db: str) -> None:

@@ -6,6 +6,7 @@ from typing import Any
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
+from app.audit import write_audit
 from app.auth.deps import CurrentUser
 from app.db.models import BankAccount, Deal, PrivacyRecord
 from app.privacy.detectors import ACCT, NAME
@@ -80,6 +81,21 @@ def persist_calls(
         )
         c.persisted = True
         n += 1
+        if c.stats.leaked_count:
+            write_audit(
+                db,
+                actor="system",
+                action="PRIVACY_LEAK_ALERT",
+                tier=3,
+                params={
+                    "node": c.node,
+                    "model": c.model,
+                    "source": source,
+                    "leaked": c.stats.leaked_count,
+                    "sent": c.sent,
+                },
+                result="BLOCKED" if not c.sent else "SENT_WITH_LEAK",
+            )
     if n:
         db.flush()
     return n
