@@ -104,6 +104,24 @@ class Settings(BaseSettings):
     otp_max_attempts: int = Field(3, gt=0, le=10)
     otp_secret_seed: SecretStr | None = None  # falls back to the demo session secret / dev value
 
+    # Guided demo (app/demo). DEMO_REPLAY serves every LLM call from recorded fixtures keyed by the
+    # masked prompt, so a run is identical and works offline. DEMO_RECORD calls the real model and
+    # writes fixtures (pnpm demo:record). Judge sandboxes are one Postgres schema each.
+    demo_replay: bool = False
+    demo_record: bool = False
+    demo_fixtures_dir: Path = REPO_ROOT / "data" / "demo" / "fixtures"
+    demo_steps_path: Path = REPO_ROOT / "data" / "demo" / "demo_steps.yaml"
+    sandboxes_enabled: bool = True
+    sandbox_ttl_hours: float = Field(4.0, gt=0, le=72)
+    sandbox_max_active: int = Field(40, ge=1)
+    sandbox_requests_per_minute: int = Field(600, ge=10)
+    sandbox_chat_per_minute: int = Field(12, ge=1)
+    sandbox_upload_per_minute: int = Field(12, ge=1)
+    sandbox_live_ai_budget: int = Field(25, ge=0)
+    sandbox_creates_per_hour_per_ip: int = Field(12, ge=1)
+    cron_secret: SecretStr | None = None  # Bearer secret of POST /demo/cleanup
+    demo_step_timeout_seconds: float = Field(60.0, gt=0)
+
     # Demo "login as" stub (app/auth/demo.py). Replace with real auth before any non-demo use.
     demo_session_secret: SecretStr | None = None
     demo_cookie_secure: bool = False

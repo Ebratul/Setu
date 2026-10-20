@@ -31,6 +31,7 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from app.audit import write_audit
+from app.db import tenancy
 from app.db.enums import DocStatus, DocType, RegistryPurpose, RegistryStatus
 from app.db.models import Deal, Document, HashRegistry, Party
 from app.errors import NotFound
@@ -486,7 +487,10 @@ def invoice_subjects(db: Session, deal: Deal) -> list[tuple[Document, Subject]]:
 
 
 def lock_registry(db: Session) -> None:
-    db.execute(text("SELECT pg_advisory_xact_lock(hashtextextended('registry', 0))"))
+    db.execute(
+        text("SELECT pg_advisory_xact_lock(hashtextextended(:k, 0))"),
+        {"k": f"registry:{tenancy.current_schema() or ''}"},
+    )
 
 
 def invoice_gate(db: Session, deal: Deal, lender_id: uuid.UUID) -> tuple[Verdict, Subject | None]:

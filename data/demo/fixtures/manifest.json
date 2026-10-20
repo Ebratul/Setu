@@ -1,0 +1,56 @@
+{
+  "script": "5cad8c9e35e15425",
+  "prompts": "448646e83f3b8eb8",
+  "recorded_at": "2026-10-20T05:00:45+00:00",
+  "fixtures": [
+    {
+      "key": "653708c2e40f0ed35e4ce48f109668e6763c54989a1d69bd5cf17d9dd6de2243",
+      "scene": "1.1",
+      "kind": "structured",
+      "model": "claude-haiku-5-5",
+      "source": "real"
+    },
+    {
+      "key": "3a34ee152ca2c54d4f35b491d4b9f13a16ddb4e265b8d49ae6eb01bedb5b43b9",
+      "scene": "1.1",
+      "kind": "chat",
+      "model": "claude-haiku-5-5",
+      "source": "real"
+    },
+    {
+      "key": "36204a1655a7927fb131edada707b23b7a464e45edea0a796a3046026f2b3961",
+      "scene": "1.1",
+      "kind": "chat",
+      "model": "claude-haiku-5-5",
+      "source": "real"
+    },
+    {
+      "key": "ee8bd73dc330377e8770ed5ef73611ae5c4cc81404355242c58d84a2bec64e63",
+      "scene": "1.1",
+      "kind": "chat",
+      "model": "claude-haiku-5-5",
+      "source": "real"
+    },
+    {
+      "key": "5b633a6b3f5a0f1a0d26f1cdf50af5e36b1f181010e4fe64156d42c5e2140de6",
+      "scene": "9.3",
+      "kind": "structured",
+      "model": "claude-haiku-5-5",
+      "source": "real"
+    },
+    {
+      "key": "70b1c1af2d27bbf05c9e67d8f684589fb9e28b5e11ad33de4a2427e3f7771471",
+      "scene": "9.3",
+      "kind": "chat",
+      "model": "claude-sonnet-5-5",
+      "source": "real"
+    },
+    {
+      "key": "139d3a8799d67b1a3985161b8d0716befaed8ef9c3dfa3cb0b0f0f01b90a7400",
+      "scene": "9.3",
+      "kind": "chat",
+      "model": "claude-sonnet-5-5",
+      "source": "real"
+    }
+  ]
+}

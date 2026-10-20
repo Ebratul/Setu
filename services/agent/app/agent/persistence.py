@@ -22,6 +22,7 @@ from sqlalchemy.orm import Session
 from app.agent.state import DealBrief, Lang
 from app.auth.deps import CurrentUser, can_read_party
 from app.config import get_settings
+from app.db import tenancy
 from app.db.enums import ChatRole, DealStatus, Language
 from app.db.models import ChatMessage, ChatThread, Deal
 from app.db.session import normalize_url
@@ -37,6 +38,13 @@ def now() -> datetime:
 
 
 # --- threads & messages ---------------------------------------------------------------------
+
+
+def checkpoint_key(thread_id: uuid.UUID | str) -> str:
+    """Checkpoint rows live in `public`; inside a sandbox the key carries the schema, so a thread
+    id that exists in every sandbox (the seeded chat) never shares a checkpoint."""
+    schema = tenancy.current_schema()
+    return f"{schema}:{thread_id}" if schema else str(thread_id)
 
 
 def get_thread(db: Session, user: CurrentUser, thread_id: uuid.UUID) -> ChatThread:
@@ -93,7 +101,7 @@ def delete_thread(db: Session, user: CurrentUser, thread_id: uuid.UUID) -> None:
     """Deletes the thread, its messages (FK cascade) and its LangGraph checkpoints."""
     thread = get_thread(db, user, thread_id)
     # Checkpoints (raw conversation state) go first, so a failure never leaves them orphaned.
-    get_checkpointer().delete_thread(str(thread_id))
+    get_checkpointer().delete_thread(checkpoint_key(thread_id))
     db.delete(thread)
     db.commit()
 

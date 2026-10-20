@@ -7,6 +7,7 @@ from sqlalchemy.engine import make_url
 from sqlalchemy.orm import Session, sessionmaker
 
 from app.config import get_settings
+from app.db import tenancy
 
 
 def database_url() -> str:
@@ -37,7 +38,7 @@ def get_engine() -> Engine | None:
     if settings.database_url is None:
         return None
     timeout_ms = int(settings.db_check_timeout_seconds * 1000)
-    return create_engine(
+    engine = create_engine(
         normalize_url(settings.database_url.get_secret_value()),
         pool_pre_ping=True,
         connect_args={
@@ -45,6 +46,8 @@ def get_engine() -> Engine | None:
             "options": f"-c statement_timeout={timeout_ms}",
         },
     )
+    tenancy.install(engine)
+    return engine
 
 
 def ping() -> bool:
@@ -63,7 +66,9 @@ def ping() -> bool:
 @lru_cache
 def get_batch_engine() -> Engine:
     """Engine for migrations/seed/scripts: no short statement timeout."""
-    return create_engine(database_url(), pool_pre_ping=True)
+    engine = create_engine(database_url(), pool_pre_ping=True)
+    tenancy.install(engine)
+    return engine
 
 
 @contextmanager

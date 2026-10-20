@@ -23,6 +23,7 @@ from app.audit.scheme import (
     compute_payload_hash,
     fmt_ts,
 )
+from app.db import tenancy
 
 if TYPE_CHECKING:
     from sqlalchemy.orm import Session
@@ -151,7 +152,7 @@ def write_audit(
         decision=result[:64],
         payload=payload,
     )
-    db.execute(text("SELECT pg_advisory_xact_lock(:k)"), {"k": AUDIT_LOCK_KEY})
+    db.execute(text("SELECT pg_advisory_xact_lock(:k)"), {"k": tenancy.lock_key(AUDIT_LOCK_KEY)})
     head = db.execute(
         select(AuditLog.seq, AuditLog.entry_hash).order_by(AuditLog.seq.desc()).limit(1)
     ).first()

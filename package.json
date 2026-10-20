@@ -25,7 +25,12 @@
     "lint": "pnpm --dir apps/web lint && pnpm --dir apps/web typecheck && uv run --directory services/agent ruff check . && uv run --directory services/agent ruff format --check .",
     "format": "pnpm --dir apps/web format && uv run --directory services/agent ruff format . && uv run --directory services/agent ruff check --fix .",
     "test": "uv run --directory services/agent pytest -q && pnpm --dir apps/web test",
-    "types": "pnpm --dir apps/web types"
+    "types": "pnpm --dir apps/web types",
+    "demo:run": "uv run --directory services/agent python -m app.demo.cli run",
+    "demo:check": "uv run --directory services/agent python -m app.demo.cli check",
+    "demo:record": "uv run --directory services/agent python -m app.demo.cli record",
+    "demo:cleanup": "uv run --directory services/agent python -m app.demo.cli cleanup",
+    "demo:verify": "uv run --directory services/agent python -m app.demo.cli verify"
   },
   "devDependencies": {
     "concurrently": "^10.0.6"

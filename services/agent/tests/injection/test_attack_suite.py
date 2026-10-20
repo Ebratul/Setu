@@ -142,4 +142,4 @@ def test_summary_and_dev_numbers_are_printed(capsys: pytest.CaptureFixture[str])
 def test_every_defence_toggle_restores_after_a_run() -> None:
     with defences(False):
         pass
-    assert prompts.SYSTEM_PROMPT_VERSION == "system@2"
+    assert prompts.SYSTEM_PROMPT_VERSION == "system@3"

@@ -66,7 +66,7 @@ def snapshot(session: Session) -> dict[str, tuple[int, str]]:
     return out
 
 
-def run_checks(session: Session) -> list[Check]:
+def run_checks(session: Session, profile: str = "standard") -> list[Check]:
     checks: list[Check] = []
 
     def add(name: str, expected: object, actual: object, ok: bool | None = None) -> None:
@@ -171,13 +171,16 @@ def run_checks(session: Session) -> list[Check]:
     ).all()
     by_tier = dict(pending)
     add("pending Tier 2 approvals", 1, by_tier.get(2, 0))
-    add("pending Tier 3 approvals", 1, by_tier.get(3, 0))
-    t3 = session.scalars(select(ApprovalRequest).where(ApprovalRequest.tier == 3)).first()
-    add(
-        "Tier 3 has OTP + cooling-off",
-        True,
-        bool(t3 and t3.otp_required and t3.cooling_off_until is not None),
-    )
+    if profile == "demo":  # the guided demo raises the Tier 3 request live (step 8)
+        add("pending Tier 3 approvals (demo profile)", 0, by_tier.get(3, 0))
+    else:
+        add("pending Tier 3 approvals", 1, by_tier.get(3, 0))
+        t3 = session.scalars(select(ApprovalRequest).where(ApprovalRequest.tier == 3)).first()
+        add(
+            "Tier 3 has OTP + cooling-off",
+            True,
+            bool(t3 and t3.otp_required and t3.cooling_off_until is not None),
+        )
 
     pi_sha = session.scalar(select(Document.sha256).where(Document.key == PI_KEY))
     lender_a = session.scalar(select(Party.id).where(Party.code == LENDER_A))

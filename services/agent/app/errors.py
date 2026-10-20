@@ -45,6 +45,16 @@ class UnsupportedMedia(DomainError):
     title = "Unsupported media type"
 
 
+class Gone(DomainError):
+    status = 410
+    title = "Gone"
+
+
+class TooManyRequests(DomainError):
+    status = 429
+    title = "Too many requests"
+
+
 class ServiceUnavailable(DomainError):
     status = 503
     title = "Service unavailable"
@@ -67,6 +77,14 @@ def problem(status: int, title: str, detail: str, code: str | None = None) -> JS
 
 
 def install_handlers(app: FastAPI) -> None:
+    from app.db.tenancy import SchemaMissing
+
+    @app.exception_handler(SchemaMissing)
+    async def _gone(_: Request, __: SchemaMissing) -> JSONResponse:
+        return problem(
+            410, "Gone", "this sandbox is being rebuilt or has expired; reload", "SANDBOX_EXPIRED"
+        )
+
     @app.exception_handler(DomainError)
     async def _domain(_: Request, exc: DomainError) -> JSONResponse:
         return problem(exc.status, exc.title, exc.detail, exc.code)

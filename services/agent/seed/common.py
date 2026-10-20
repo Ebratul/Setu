@@ -41,6 +41,9 @@ def usd(value: str | int) -> Decimal:
 @dataclass(frozen=True, slots=True)
 class Ctx:
     today: date
+    # "demo" = the judge-sandbox start state: identical, except the fake-email Tier 3 request is not
+    # pre-seeded (the guided demo raises it live), so it cannot freeze the M1 release before step 8.
+    profile: str = "standard"
 
     def day(self, offset: int) -> date:
         return self.today + timedelta(days=offset)
@@ -55,5 +58,5 @@ class Ctx:
         return date(index // 12, index % 12 + 1, 1)
 
 
-def default_ctx() -> Ctx:
-    return Ctx(today=get_settings().demo_today)
+def default_ctx(profile: str = "standard") -> Ctx:
+    return Ctx(today=get_settings().demo_today, profile=profile)

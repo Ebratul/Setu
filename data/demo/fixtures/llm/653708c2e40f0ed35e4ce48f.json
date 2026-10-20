@@ -1,0 +1,18 @@
+{
+  "key": "653708c2e40f0ed35e4ce48f109668e6763c54989a1d69bd5cf17d9dd6de2243",
+  "kind": "structured",
+  "model": "claude-haiku-5-5",
+  "tools": [],
+  "source": "real",
+  "recorded_at": "2026-10-20T05:00:16+00:00",
+  "request": {
+    "system": "Classify the user's latest message for Setu, an SME import-finance copilot.\n\nintent, one of:\n- greeting: hello, thanks, small talk about Setu itself\n- analysis:",
+    "last_user": "আমার নতুন ফেব্রিক অর্ডারের (SETU-2026-0001) মোট ল্যান্ডেড খরচ কত ডলার এবং গ্রস মার্জিন কত?"
+  },
+  "response": {
+    "parsed": {
+      "intent": "analysis",
+      "needs_smart_model": false
+    }
+  }
+}

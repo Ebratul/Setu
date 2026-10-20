@@ -13,6 +13,7 @@ from sqlalchemy import select, text
 from sqlalchemy.orm import Session
 
 from app.auth.deps import CurrentUser
+from app.db import tenancy
 from app.db.enums import CheckStatus, DocStatus, EvidenceStatus, Role
 from app.db.models import Deal, Document, Milestone
 from app.domain import escrow as rules
@@ -57,7 +58,8 @@ STRICTNESS = {
 def lock_deal_documents(db: Session, deal_id: uuid.UUID) -> None:
     """One document operation per deal at a time (transaction-scoped, re-entrant per session)."""
     db.execute(
-        text("SELECT pg_advisory_xact_lock(hashtextextended(:k, 0))"), {"k": f"docs:{deal_id}"}
+        text("SELECT pg_advisory_xact_lock(hashtextextended(:k, 0))"),
+        {"k": f"docs:{tenancy.current_schema() or ''}:{deal_id}"},
     )
 
 

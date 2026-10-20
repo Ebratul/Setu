@@ -1,0 +1,54 @@
+{
+  "key": "36204a1655a7927fb131edada707b23b7a464e45edea0a796a3046026f2b3961",
+  "kind": "chat",
+  "model": "claude-haiku-5-5",
+  "tools": [
+    "get_dashboard_snapshot",
+    "get_deal_summary",
+    "explain_how_setu_works",
+    "analyze_order",
+    "landed_cost_what_if",
+    "forecast_cashflow",
+    "compare_fx_route",
+    "get_monthly_summary",
+    "get_supplier_scorecard",
+    "search_knowledge",
+    "verify_party"
+  ],
+  "source": "real",
+  "recorded_at": "2026-10-20T05:00:22+00:00",
+  "request": {
+    "system": "You are Setu (সেতু), an AI SME finance copilot for Bangladeshi importers who buy from Chinese suppliers. All data in Setu is simulated demo data, and every paym",
+    "last_user": "আমার নতুন ফেব্রিক অর্ডারের (SETU-2026-0001) মোট ল্যান্ডেড খরচ কত ডলার এবং গ্রস মার্জিন কত?"
+  },
+  "response": {
+    "content": [
+      {
+        "signature": "CAQSigsKEAgTGAI4AUIIdGhpbmtpbmcSDK2JE6fKiR+QhmVlJRoMv+cJszowEOOcc04iIjCFg4MXc0DvwuNCZbhRg5vP6TEvPBLFCkvccqOtQULfD/cv48OXuKltJ8Cv0RElztYqpwodO4ef2P5VPeKhY5Sb0JKFX6HMqbank2KW4DLl2ITEPfzKscP7S1bu3Askg+sAYtx3rti4YjjDiPRONxyzU+jJDs29rUjBYoHVfBKf33Pbl8CWmOp2Efxjg6/z3TUhjWrWjbbuLjihW44pH83kIyJX19m8VmVmczjtnOEyWCMqwMY4LtiElWEW27Zyzj3vHCFiIDqT/4XftY2IFOSKLNEJQyl3BzzXwjwpjYDC3cDF8XkUXOqtJ1ygYqkKUZrLvnLzRFSl82AY4dmVfKhkIOW2CdJbb5SL2laf44/PrdEIQO62J5G+aNWTvVgthKRN+SUJyL5960DSMPXdPslDMY9cfPocQdTfH7nHP8EWf27gwALgckhAuPFningBaalNido6auHvhy+/hgI3I2QBOsH07zdAvsutr4S/DPIn96BI3KLJYSGBqOo+4yVqNWYIY5kCtsOsSDntyyNYJX4cfE1nCFD1WJyGF4dpQch3HmYnxhoVE7yIu3Yl4A1ku2esVWFc5wez8YGlhwtY/25VmUHMgGOVigAJm56T7nqHQ6fcU/yd+1dNfkyGs5Ds7rC3E7hgici/2MjQ8nd3wNn6rMh5RdnLCR7s+WISHcsoWdtUC/AL1YLPLRLfRrs9lrbRjB3kB3pyr7JQGM0T2+f6wMSAj7bLtrvp/QC2BBgA8TucWVIM4R3T0ChhezIjUTV6Z25YsSIlP0HPkxRG0VFlId9ajni2/KTfPkNmII6fOUPrvKhBLCWywABLwyMpDOgt/GMoPMpqJEiocNhD8QGMhm5F801Biv9wzSkn2ex7IUC3KdQdBp9Ykr/sHfFyTjBT9J+iVn771IkPtPBzd+9ZzxI1SM0xxhCBJX2Las7XXF9JntyqtpEVv9bj9c1TtTu4Poz7B7Skn0uRsZ6ANgSGHGaAk1OruGeMzbgKA/jBptDBliTfy1iOEVPayiVqvFprahbn4Z4nWgLgtgnjIjeEtHoYPj406yLjCDt7xrmAmdrGStluTagBF/tsBwecVvGVI1Lf2hD6OJ4pdrUtchVPi39jVRHMVvQBeV+IQnSJgkdbWdxHG1GtqcolreURIYGzn6tdXgdH0U5+YI5LbnLn7qIQezn2yXC1PyV9Mwk4uur63Hd8gxZH+ux3nYTY7zO9Vg0LDZC9RDQd7HeHAARTSci5C11pbNZxZRSJwPPM+5HNkNxbhaG30Hp5FIQA4i06Tjb/yrTKTg5CB1aMJiIu9POPMXuCpkiWNe2J56oa25+Mo+uLkdDdc8cM/QdZ240t7p+VMVxIH5O9yRn0qzBpmq2WPkh9Cf/QfGG7+9S6GyZSBZjDH37y3NRFQC9Dp0UH0mRE/7/qlOkLOl7123P+dHXciZavcxCmNdq8Ut66ZjyRK8n9D71YDriSbdY4ZeVxmtc6gYL00FXkcZ2eLfreX+uH1Ej/wXo/wozufW5Jj3EGswUN5ezC0Il08cq721VlCvDwK/dKb8Q3KxRMsZd2nQzRSTH5aragdxywWksU7uyVka8cgotrr3HKFmyckk2TWf+Xx3CUWxR7BRGxY+wJBWupOF/+A5o9xMIYZEzqAAnU7dIQfMWvlYbRO01zaTYFA+Ggi2aXjr6HPoLWljdyc5QjdFjkG/HyMVt8lMQW4sUkw6nAjK32Os3s8o/ds4CtPYHI2B9dgWvviyHGN3KZ9aMc/9/0ToVtMbPxyIYH6vldfdC6blIC4ijeg0zTIjLT3y1E+TMxjGkPDOjRl1P5DQdOEB5M5JSJGRgB.eyJlbmRwb2ludF9zbHVnIjoiYW50aHJvcGljL2NsYXVkZS1oYWlrdS01LjUtMjAyNjEwMDd8Y2xhdWRlLW9uLWF3cyJ9",
+        "thinking": "",
+        "type": "thinking"
+      },
+      {
+        "citations": [],
+        "text": "আপনার অর্ডার **SETU-2026-0001** (ডাইড কটন জার্সি ফেব্রিক, ৮,০০০ মিটার) এর হিসাব:\n\n- **মোট ল্যান্ডেড খরচ:** USD ⟦AMT_5⟧ (BDT ⟦AMT_6⟧)\n- **প্রত্যাশিত আয়:** USD 13,660.00\n- **গ্রস মার্জিন:** ১৮.০১% (USD ⟦AMT_4⟧)। এটি স্বাস্থ্যকর সীমা (১৫% বা তার বেশি) এর মধ্যে পড়ে।\n\nমোট ল্যান্ডেড খরচে পণ্যের মূল্য ছাড়াও অতিরিক্ত খরচ USD 1,600.00 যুক্ত আছে। এর মধ্যে আছে সমুদ্রপথের ফ্রেইট (FOB শর্তে আপনাকে বহন করতে হবে), মেরিন ইনস্যুরেন্স, কাস্টমস ডিউটি (আগমনের ৫ দিন পরে দেয়) এবং ব্যাংক চার্জ। বিস্তারিত ভাগ দেখতে অর্ডারের বিশ্লেষণ পাতা খুলতে পারেন।",
+        "type": "text"
+      }
+    ],
+    "tool_calls": [],
+    "usage": {
+      "input_tokens": 6006,
+      "output_tokens": 864,
+      "total_tokens": 6870,
+      "input_token_details": {
+        "cache_read": 0,
+        "cache_creation": 0,
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_token_details": {
+        "reasoning": 390
+      }
+    },
+    "seconds": 4.58
+  }
+}

@@ -134,6 +134,8 @@ def approvals(ctx: Ctx) -> list[Row]:
             "decided_by_user_id": None,
         },
     ]
+    if ctx.profile == "demo":
+        rows = [r for r in rows if r["action"] != ApprovalAction.CHANGE_BENEFICIARY]
     for row in rows:
         row["params_hash"] = binding_hash(row)
     return rows

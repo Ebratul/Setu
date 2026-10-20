@@ -20,8 +20,8 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.auth.deps import CurrentUser
-from app.db.enums import CheckStatus, DocStatus, DocType, Role
-from app.db.models import Deal, Document, ForensicFinding
+from app.db.enums import CheckStatus, DocStatus, DocType, EvidenceStatus, Role
+from app.db.models import Deal, Document, ForensicFinding, Milestone
 from app.errors import DomainError, NotFound
 from app.forensics.analyze import analyze_photo, build_scan_view
 from app.forensics.canonical import canonical_invoice_hash
@@ -326,6 +326,77 @@ def process_document(
                 ts=now,
             )
     evidence.sync(db, deal, actor=user if admin else None, now=now, commit=False)
+    db.commit()
+    db.refresh(doc)
+    return doc
+
+
+HELD = (EvidenceStatus.FLAGGED, EvidenceStatus.REJECTED)
+
+
+def reject_document(
+    db: Session, document_id: uuid.UUID, user: CurrentUser, reason: str
+) -> Document:
+    """A buyer or admin withdraws an uploaded file (forged, wrong, replaced). It stops counting as
+    evidence (the checks, flags and evidence verdict only look at UPLOADED files), an admin also
+    clears its FRAUD alert, and the milestone is judged again. The file, its findings and the
+    injection event stay on record; a signed audit row is written. Never deletes anything."""
+    doc = db.get(Document, document_id)
+    if doc is None or doc.status != DocStatus.UPLOADED:
+        raise NotFound("document not found")
+    deal = db.get(Deal, doc.deal_id)
+    if deal is None:
+        raise NotFound("deal not found")
+    lock_deal_documents(db, deal.id)
+    db.refresh(doc)
+    if doc.status != DocStatus.UPLOADED:
+        raise NotFound("document not found")
+    admin = user.role == Role.ADMIN
+    now = utcnow()
+    doc.status = DocStatus.REJECTED
+    escrow_service.audit(
+        db,
+        deal,
+        "DOC_REJECTED",
+        2,
+        {
+            "document_id": str(doc.id),
+            "doc_type": doc.doc_type.value,
+            "sha256": doc.sha256,
+            "was": doc.check_status.value,
+            "reason": reason[:200],
+            "user_id": str(user.id),
+        },
+        "REJECTED",
+        actor="user",
+        ts=now,
+    )
+    alerts.sync_document_alert(
+        db,
+        deal,
+        document_id=doc.id,
+        doc_type=doc.doc_type.value,
+        failed=False,
+        score=None,
+        reason_codes=[],
+        labels=LABELS,
+        instruction=False,
+        milestone_id=doc.milestone_id,
+        allow_resolve=admin,
+    )
+    evidence.sync(db, deal, actor=user if admin else None, now=now, commit=False)
+    if admin and doc.milestone_id is not None:
+        ms = db.get(Milestone, doc.milestone_id)
+        left = db.scalar(
+            select(Document.id)
+            .where(Document.milestone_id == doc.milestone_id, Document.status == DocStatus.UPLOADED)
+            .limit(1)
+        )
+        # nothing left to judge: an admin's withdrawal clears a held verdict (sync skips empty ones)
+        if ms is not None and left is None and ms.evidence_status in HELD:
+            escrow_service.set_evidence_status(
+                db, ms.id, EvidenceStatus.PENDING, actor=user, now=now, commit=False
+            )
     db.commit()
     db.refresh(doc)
     return doc

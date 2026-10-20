@@ -117,7 +117,7 @@ def _deal_events(ctx: Ctx, spec: DealSpec) -> list[Event]:
 
 def _main_deal_events(ctx: Ctx) -> list[Event]:
     approval_hashes = {r["key"]: r["params_hash"] for r in approvals(ctx)}
-    return [
+    evs = [
         Event(
             ctx.at(-8, 14, 35),
             Actor.SYSTEM,
@@ -158,9 +158,12 @@ def _main_deal_events(ctx: Ctx) -> list[Event]:
             3,
             {"deal_ref": MAIN_DEAL, "action": "CHANGE_BENEFICIARY"},
             "PENDING",
-            approval_hashes[APPROVAL_T3],
+            approval_hashes.get(APPROVAL_T3),
         ),
     ]
+    if ctx.profile == "demo":  # the fake-email Tier 3 request is raised live in the guided demo
+        evs = [e for e in evs if e.params.get("action") != "CHANGE_BENEFICIARY"]
+    return evs
 
 
 def events(ctx: Ctx) -> list[Event]:

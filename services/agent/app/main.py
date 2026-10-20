@@ -8,7 +8,9 @@ from app.api import (
     auth,
     cashflow,
     chat,
+    credit_records,
     deals,
+    demo,
     documents,
     financing,
     health,
@@ -23,6 +25,7 @@ from app.api import (
 from app.api.body_limit import UploadBodyLimit
 from app.audit.middleware import AuditActorMiddleware
 from app.config import Settings, get_settings
+from app.demo.middleware import SandboxMiddleware
 from app.errors import install_handlers
 
 
@@ -52,6 +55,7 @@ def create_app() -> FastAPI:
         description="Setu AI SME Finance Copilot. All money movement is simulated.",
     )
     app.add_middleware(AuditActorMiddleware)
+    app.add_middleware(SandboxMiddleware)
     app.add_middleware(UploadBodyLimit)  # inside CORS, so a 413 still carries CORS headers
     app.add_middleware(
         CORSMiddleware,
@@ -70,10 +74,12 @@ def create_app() -> FastAPI:
     app.include_router(kyb.router)
     app.include_router(suppliers.router)
     app.include_router(deals.router)
+    app.include_router(credit_records.router)
     app.include_router(documents.router)
     app.include_router(registry.router)
     app.include_router(risk.router)
     app.include_router(approvals.router)
+    app.include_router(demo.router)
     app.include_router(inbox.router)
     app.include_router(privacy.router)
     app.include_router(injection.router)

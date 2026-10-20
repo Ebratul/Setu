@@ -1,0 +1,42 @@
+{
+  "key": "139d3a8799d67b1a3985161b8d0716befaed8ef9c3dfa3cb0b0f0f01b90a7400",
+  "kind": "chat",
+  "model": "claude-sonnet-5-5",
+  "tools": [],
+  "source": "real",
+  "recorded_at": "2026-10-20T05:00:44+00:00",
+  "request": {
+    "system": "You are Setu (সেতু), an AI SME finance copilot for Bangladeshi importers who buy from Chinese suppliers. All data in Setu is simulated demo data, and every paym",
+    "last_user": "User: ⟦NAME_2⟧ (BUYER). Active deals: SETU-2026-0006, SETU-2026-0001.\n\n<untrusted src=\"tool:get_deal_summary\" id=\"<id>\">\n<tool_result name=\"get_deal_summary\" ok=\"true\" untrusted=\"true\">\n{\"currency\": \"USD\", \"escrow_balance\": \"⟦AMT_2⟧\", \"escr"
+  },
+  "response": {
+    "content": [
+      {
+        "signature": "CAQS0AoKEAgTGAI4AUIIdGhpbmtpbmcSDNXuyP+3lZzjXrjv+BoMqjmSvEJtCWluAg7/IjAKDF4ol+snrh/baLjMlmJ0Bus6OZhH/+FIOEnadazHGP30mOQ4Fs6t+MJs5iQSlZwq7Qld1vFWsq8bUOla9ESZvp4btnbvv2+grXk5XFRIeeV9al6bgW0rYbkfOK5/co82sF22QZkCMLHJKbl3Z74PbqciqGJbs70YKw4lqkOjX3uuLQc1z7FUG3Tkb3F8YD97nIodkkx8MxwTN4o4xaTCGPtpDu0Wr87eeiYIVIvK3ocm2xi4Jwe/jsiB80J+8k6YbLVz28+jr7524FgHL5fUPtBFkgnssvkCtCYoUxkaVRj7sn9LRjymt5VL2JCLy0l4GhIERyovARc8Nv4BI2NtrdKpbdJTjQVUrt9rt0tX8UNu/uCN+1pZWm3VftMIqF9FSvF7QthKWka2adqYBfIDBlNWKTsl5Yd2d8aYK/aLc6gNRVIfm2sGcSRLt9OMr7bcxu3bNRfAQyA0f1U2xM/ZDwJHmUSdP0q/vCC8qUm3hOjkeWmgE2FjqXJHh8UE9VayEPQduYQsxQ1Gt925qjTE8A8275nTAfZPfStRDXWkzOHHfoluuDHBQJADAVFRfhr9oYt87fFHSp1F6IYW51BIHYKRQjSBlhJXAwz1xysuqxdg6FLcgl0kshrYV5TScxRTcFkDX1f3L5PR3xdpcQcydBcZ7HkN9ZBSpTMBmIeCRbp52wcRyOMYYlfFrBYcmnCOIL93jBNHmsYPXdDiG5uZEfQa2/zdFMSZHt8ZursMst7Lmoij7lDsrhRnMEUP3diV9oSHu8PjvaxzVDJQh+A9FASaLEZ7ZlDb2KkbiecZDznbeP9SDlUppbHihR4r9URYUDZcYA7+ri3oe64I5Ib8anz/cYFxIOgbosvs0+y5aCn3uojF6yUQPoO4gK9b2LUy40MQIjQ1f5f252EARqR9LHScLaVy5MAVmbGA8+qOq5zNg/qQZncGKNnU2xCgYH/lBmnoAHz17o8Q536m98XrTWlwAweUElfDFkwgexEAWiAc6I+iiCbYUyBzNBvujUtqf83u5YCKagnbtGwnl12O53n6ZZdxa9QrefXctfXMtTZSScA3faBtKcJ5tPbzATz9dY/UpxhsfeWml5KkWPYAqwjbd8Xd0hJcr/UMxd7QOztE58rdp0NpVKotPxf7ChFwGlE+LNKr92CAcqpK1tYReysEAD1rlOE3tgqGEAk9MWpvALt2Z4KNINrgWh6LENX+4OUu0oy7iCXcYbrK0Z/lsvTXmdM0FqoGAZUQeQ/tzNXL1Bq5iWEWu6qERkmeSv1+DyTJ5nvu1DU9zkCO66JaEhCLVhuIHKmucbWzs8Uhzr1YiPn/fOR4x36IvkANw1KlhM1onzqDvHLPvfXH4kGWKuyqoC2VrlGmdL1PndmC4zBEgYZHGNIMLkSmx8T4cN7LvPfdwif9bMByhUvitN6ZS9ToN1fDpCSQ6Db8aKsLDpBRH2GB7CteN6iLIlyCp8vxFivrB6K/wUki6BpOzRlbID12r4EhE5wJltiaq8INdUfpOG3XAFnTd2V6pAM3Ln4sAS+BNbNLvziIsvWZ5O5oXXo4RL6hJb68J2DdZt8yxk7DO+J0WJjw3/bRvg3WQY4lkzy2jTtL6Wwbu+X23qYSDB1MXx5dTkZJ/sVlWPPhzsx1X0a+5bxTJRi0GPEyclFxocljbfI/5tsuZkXtlN9uOTCFDzufcm4ypzpyKw3Ad0LfxImbiCa2LJ7qtZwtIumLnXXuiBENNesXYVpXFidZGAE=.eyJlbmRwb2ludF9zbHVnIjoiYW50aHJvcGljL2NsYXVkZS1zb25uZXQtNS41LTIwMjYwOTI4fGNsYXVkZS1vbi1hd3MifQ",
+        "thinking": "I should flag that the document contains a hidden instruction Setu ignored, and this needs human review—it's not safe to release as-is given the vessel/voyage mismatch and the unverified beneficiary account change. Milestone 2 looks READY to trigger shipment at ⟦AMT_2⟧, but I can't confirm the 60% figure from the tool output, so I shouldn't state that number as verified.\n\n",
+        "type": "thinking"
+      },
+      {
+        "citations": [],
+        "text": "No, I wouldn't release it yet. The bill of lading for SETU-2026-0001 failed the document check: it contains a hidden instruction that Setu ignored, and a human should review it. The vessel or voyage also doesn't match the booking. The supplier is verified, but a new receiving account is pending and not yet trusted, so the shipment milestone (⟦AMT_2⟧, currently READY) should wait until these are cleared. Nothing has moved, and all figures here are simulated demo data.\n\nWhy: The bill of lading failed (HIDDEN_INSTRUCTION, FAILED) and the supplier has a pending beneficiary account change (PENDING_BENEFICIARY_CHANGE), so the shipment evidence isn't reliable yet.",
+        "type": "text"
+      }
+    ],
+    "tool_calls": [],
+    "usage": {
+      "input_tokens": 4180,
+      "output_tokens": 559,
+      "total_tokens": 4739,
+      "input_token_details": {
+        "cache_read": 0,
+        "cache_creation": 0,
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_token_details": {
+        "reasoning": 307
+      }
+    },
+    "seconds": 5.02
+  }
+}

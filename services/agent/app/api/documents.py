@@ -6,6 +6,7 @@ import uuid
 from typing import Annotated
 
 from fastapi import APIRouter, BackgroundTasks, Depends, File, Form, Query, Response, UploadFile
+from pydantic import BaseModel, ConfigDict, Field
 from sqlalchemy.orm import Session
 
 from app.auth.deps import CurrentUser, current_user
@@ -122,6 +123,22 @@ def accept_reference(document_id: uuid.UUID, db: Db, user: User) -> DocumentDeta
     doc, deal = read.find_document(db, user, document_id)
     escrow_service.authorize(db, user, deal, "DOC_ACCEPT_REFERENCE")
     doc = pipeline.accept_reference(db, doc.id, user)
+    return read.detail(db, user, doc, deal)
+
+
+class RejectIn(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    reason: Annotated[str, Field(min_length=3, max_length=200)]
+
+
+@router.post("/documents/{document_id}/reject", response_model=DocumentDetail)
+def reject(document_id: uuid.UUID, body: RejectIn, db: Db, user: User) -> DocumentDetail:
+    """Withdraw an uploaded file (forged, wrong or replaced) so it no longer counts as evidence.
+    Buyer of the deal or admin; audited. The file and its findings stay on record."""
+    doc, deal = read.find_document(db, user, document_id)
+    escrow_service.authorize(db, user, deal, "DOC_REJECT")
+    doc = pipeline.reject_document(db, doc.id, user, body.reason)
     return read.detail(db, user, doc, deal)
 
 

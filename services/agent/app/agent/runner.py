@@ -25,6 +25,7 @@ from app.agent.nodes import AgentDeps
 from app.agent.persistence import (
     add_tokens,
     append_message,
+    checkpoint_key,
     create_thread,
     get_checkpointer,
     get_thread,
@@ -101,7 +102,7 @@ def start_turn(db: Session, user: CurrentUser, req: ChatRequest) -> Turn:
     gateway = new_gateway(db, user)
     deps = AgentDeps(user=user, db=db, thread_id=str(thread.id), gateway=gateway)
     config: RunnableConfig = {
-        "configurable": {"thread_id": str(thread.id), "deps": deps},
+        "configurable": {"thread_id": checkpoint_key(thread.id), "deps": deps},
         "callbacks": callbacks,
         "run_id": run_id,
         "run_name": "setu-chat",

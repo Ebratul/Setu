@@ -16,6 +16,7 @@ from sqlalchemy.orm import Session
 
 from app.audit.timeline import describe_entry
 from app.auth.deps import CurrentUser
+from app.db import tenancy
 from app.db.enums import (
     ApprovalAction,
     ApprovalStatus,
@@ -167,7 +168,7 @@ def create_deal(db: Session, user: CurrentUser, req: CreateDealRequest) -> Deal:
             "the goods value is too large (limit 1,000,000,000,000)", "INVALID_AMOUNT"
         )
 
-    db.execute(text("SELECT pg_advisory_xact_lock(:k)"), {"k": REF_LOCK_KEY})
+    db.execute(text("SELECT pg_advisory_xact_lock(:k)"), {"k": tenancy.lock_key(REF_LOCK_KEY)})
     today = demo_today(db)
     last = db.scalar(
         select(Deal.reference)

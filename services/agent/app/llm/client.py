@@ -85,7 +85,12 @@ def structured_call[T: BaseModel](
     messages, call = gw.protect(
         [SystemMessage(system), HumanMessage(user)], node=node, model=provider_model_id(name)
     )
+    from app.agent.mock_llm import MockChatModel
+    from app.llm import replay
+
     chat = anthropic_chat_model(name)
+    if settings.sandboxes_enabled or settings.demo_replay or settings.demo_record:
+        chat = replay.wrap(chat, name, fallback=MockChatModel(model_name="mock-smart"))
     runnable = chat.with_structured_output(schema, method="json_schema")
     out = runnable.invoke(messages, config={"tags": ["setu", *(tags or [])]})
     result = schema.model_validate(out)

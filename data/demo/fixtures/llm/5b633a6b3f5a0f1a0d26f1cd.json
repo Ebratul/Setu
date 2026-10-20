@@ -1,0 +1,18 @@
+{
+  "key": "5b633a6b3f5a0f1a0d26f1cdf50af5e36b1f181010e4fe64156d42c5e2140de6",
+  "kind": "structured",
+  "model": "claude-haiku-5-5",
+  "tools": [],
+  "source": "real",
+  "recorded_at": "2026-10-20T05:00:31+00:00",
+  "request": {
+    "system": "Classify the user's latest message for Setu, an SME import-finance copilot.\n\nintent, one of:\n- greeting: hello, thanks, small talk about Setu itself\n- analysis:",
+    "last_user": "I got the bill of lading for SETU-2026-0001. Is everything fine to release the 60% payment now?"
+  },
+  "response": {
+    "parsed": {
+      "intent": "documents",
+      "needs_smart_model": true
+    }
+  }
+}

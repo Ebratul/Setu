@@ -1,0 +1,42 @@
+{
+  "key": "ee8bd73dc330377e8770ed5ef73611ae5c4cc81404355242c58d84a2bec64e63",
+  "kind": "chat",
+  "model": "claude-haiku-5-5",
+  "tools": [],
+  "source": "real",
+  "recorded_at": "2026-10-20T05:00:27+00:00",
+  "request": {
+    "system": "You are Setu (সেতু), an AI SME finance copilot for Bangladeshi importers who buy from Chinese suppliers. All data in Setu is simulated demo data, and every paym",
+    "last_user": "User: ⟦NAME_2⟧ (BUYER). Active deals: SETU-2026-0006, SETU-2026-0001.\n\n<untrusted src=\"tool:analyze_order\" id=\"<id>\">\n<tool_result name=\"analyze_order\" ok=\"true\" untrusted=\"true\">\n{\"card_type\": \"landed_cost\", \"data\": {\"analysis_route\": \"/ap"
+  },
+  "response": {
+    "content": [
+      {
+        "signature": "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.eyJlbmRwb2ludF9zbHVnIjoiYW50aHJvcGljL2NsYXVkZS1oYWlrdS01LjUtMjAyNjEwMDd8Y2xhdWRlLW9uLWF3cyJ9",
+        "thinking": "",
+        "type": "thinking"
+      },
+      {
+        "citations": [],
+        "text": "SETU-2026-0001 (ডায়িং করা কটন জার্সি ফেব্রিক, ৮০০০ m)-এর মোট ল্যান্ডেড খরচ ⟦AMT_5⟧ USD। প্রত্যাশিত আয় USD 13660.00-এর বিপরীতে গ্রস মার্জিন ⟦AMT_4⟧ USD, অর্থাৎ 18.01%। এই হিসাব সিমুলেটেড ডেটার ওপর ভিত্তি করে, আর বাড়তি খরচের মধ্যে সবচেয়ে বড় হলো শুল্ক, যা আগমনের ৫ দিন পরে দিতে হবে। বিস্তারিত দেখতে আপনি Setu-এর অর্ডার analysis পেজে যেতে পারেন।\n\nকারণ: গ্রস মার্জিন 18.01% থাকায় এটি \"স্বাস্থ্যকর\" ব্যান্ডে আছে (১৫% বা বেশি), আর মোট বাড়তি খরচ USD 1600.00 এই হিসাবে ধরা হয়েছে।",
+        "type": "text"
+      }
+    ],
+    "tool_calls": [],
+    "usage": {
+      "input_tokens": 2267,
+      "output_tokens": 1083,
+      "total_tokens": 3350,
+      "input_token_details": {
+        "cache_read": 0,
+        "cache_creation": 0,
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_token_details": {
+        "reasoning": 675
+      }
+    },
+    "seconds": 5.41
+  }
+}

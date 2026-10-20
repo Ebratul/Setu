@@ -9,6 +9,7 @@ from app.db.models.deals import (
     MilestoneConfirmation,
     SupplierScore,
 )
+from app.db.models.demo import DemoSandbox
 from app.db.models.finance import (
     Alert,
     CashflowItem,
@@ -44,6 +45,7 @@ __all__ = [
     "Deal",
     "DealCost",
     "DemoPhoneMessage",
+    "DemoSandbox",
     "DemoState",
     "Document",
     "EscrowAccount",
