@@ -25,6 +25,7 @@ from app.db.enums import (
     Language,
     PartyKind,
     Role,
+    UserStatus,
 )
 
 
@@ -52,7 +53,8 @@ class Party(Base):
 
 
 class User(Base):
-    """Demo users only. No passwords are stored: demo mode uses a server-side 'login as' switch."""
+    """Application account. Credentials live in Neon Auth (`auth_subject` is its stable user id);
+    demo users have no `auth_subject` and no passwords (server-side 'login as' switch)."""
 
     __tablename__ = "users"
 
@@ -63,7 +65,21 @@ class User(Base):
     language: Mapped[Language] = mapped_column(str_enum(Language, "user_language"))
     party_id: Mapped[uuid.UUID | None] = mapped_column(Uuid, ForeignKey("parties.id"))
     is_demo: Mapped[bool] = mapped_column(Boolean, default=True)
+    auth_subject: Mapped[str | None] = mapped_column(String(128), unique=True)
+    status: Mapped[UserStatus] = mapped_column(
+        str_enum(UserStatus, "user_status"),
+        default=UserStatus.ACTIVE,
+        server_default=UserStatus.ACTIVE.value,
+    )
+    last_login_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    mfa_enabled: Mapped[bool] = mapped_column(Boolean, default=False, server_default="false")
     created_at: Mapped[Created]
+
+    def __init__(self, **kw: Any) -> None:
+        """Real (non-demo) accounts start PENDING until activated; seeded demo users are ACTIVE."""
+        if not kw.get("is_demo", True):
+            kw.setdefault("status", UserStatus.PENDING)
+        super().__init__(**kw)
 
 
 class BankAccount(Base):

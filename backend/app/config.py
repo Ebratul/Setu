@@ -3,6 +3,7 @@ from decimal import Decimal
 from functools import lru_cache
 from pathlib import Path
 from typing import Literal
+from urllib.parse import urlsplit
 
 from pydantic import AliasChoices, Field, SecretStr
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -152,9 +153,27 @@ class Settings(BaseSettings):
     cron_secret: SecretStr | None = None  # Bearer secret of POST /demo/cleanup
     demo_step_timeout_seconds: float = Field(60.0, gt=0)
 
-    # Demo "login as" stub (app/auth/demo.py). Replace with real auth before any non-demo use.
+    # AUTH_MODE=demo: the "login as" stub (app/auth/demo.py), judge deployment only.
+    # AUTH_MODE=neon: Neon Auth (Managed Better Auth) JWTs verified via its JWKS (app/auth/neon.py).
+    auth_mode: Literal["demo", "neon"] = "demo"
+    neon_auth_base_url: str | None = None
+    neon_auth_jwks_ttl_seconds: int = Field(600, ge=30)
     demo_session_secret: SecretStr | None = None
     demo_cookie_secure: bool = False
+
+    @property
+    def neon_auth_origin(self) -> str | None:
+        """Issuer and audience of Neon Auth JWTs: the scheme+host of the Auth URL."""
+        if not self.neon_auth_base_url:
+            return None
+        parts = urlsplit(self.neon_auth_base_url)
+        return f"{parts.scheme}://{parts.netloc}"
+
+    @property
+    def neon_auth_jwks_url(self) -> str | None:
+        if not self.neon_auth_base_url:
+            return None
+        return f"{self.neon_auth_base_url.rstrip('/')}/.well-known/jwks.json"
 
     @property
     def kyb_sanctions_file(self) -> Path:

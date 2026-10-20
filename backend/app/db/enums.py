@@ -8,6 +8,12 @@ class Role(StrEnum):
     JUDGE = "JUDGE"
 
 
+class UserStatus(StrEnum):
+    PENDING = "PENDING"
+    ACTIVE = "ACTIVE"
+    SUSPENDED = "SUSPENDED"
+
+
 class Language(StrEnum):
     EN = "en"
     BN = "bn"

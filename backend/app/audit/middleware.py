@@ -18,7 +18,11 @@ class AuditActorMiddleware:
             await self.app(scope, receive, send)
             return
         from app.auth.demo import COOKIE_NAME, parse_token
+        from app.config import get_settings
 
+        if get_settings().auth_mode != "demo":  # bind_actor sets the actor from the bearer
+            await self.app(scope, receive, send)
+            return
         raw = dict(scope["headers"]).get(b"cookie", b"").decode("latin-1")
         cookie: SimpleCookie = SimpleCookie()
         try:

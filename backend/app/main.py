@@ -1,4 +1,4 @@
-from fastapi import FastAPI
+from fastapi import Depends, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.api import (
@@ -26,6 +26,7 @@ from app.api.body_limit import BodyLimit
 from app.api.ratelimit import RateLimit
 from app.api.security_headers import SecurityHeaders
 from app.audit.middleware import AuditActorMiddleware
+from app.auth.deps import bind_actor
 from app.config import Settings, get_settings
 from app.demo.middleware import SandboxMiddleware
 from app.errors import install_handlers
@@ -33,8 +34,14 @@ from app.errors import install_handlers
 
 def check_prod_settings(settings: Settings) -> None:
     """Refuse to start in prod with the demo auth stub's dev fallbacks."""
+    if settings.auth_mode == "neon" and not settings.neon_auth_base_url:
+        raise RuntimeError("NEON_AUTH_BASE_URL is required when AUTH_MODE=neon")
     if settings.app_env != "prod":
         return
+    if settings.auth_mode != "neon":
+        raise RuntimeError("AUTH_MODE=neon is required when APP_ENV=prod (the demo login is open)")
+    if not (settings.neon_auth_base_url or "").startswith("https://"):
+        raise RuntimeError("NEON_AUTH_BASE_URL must be an https URL when APP_ENV=prod")
     if "*" in settings.cors_origins or not settings.cors_origins:
         raise RuntimeError(
             "ALLOWED_ORIGINS must be an exact list of origins (no '*', not empty) when "
@@ -58,6 +65,7 @@ def create_app() -> FastAPI:
         title="Setu Agent API",
         version=settings.app_version,
         description="Setu AI SME Finance Copilot. All money movement is simulated.",
+        dependencies=[Depends(bind_actor)],
     )
     app.add_middleware(AuditActorMiddleware)
     app.add_middleware(SandboxMiddleware)
@@ -75,6 +83,8 @@ def create_app() -> FastAPI:
     install_handlers(app)
     app.include_router(health.router)
     app.include_router(auth.router)
+    if settings.auth_mode == "demo":
+        app.include_router(auth.demo_router)
     app.include_router(analysis.router)
     app.include_router(cashflow.router)
     app.include_router(financing.router)
@@ -87,7 +97,8 @@ def create_app() -> FastAPI:
     app.include_router(registry.router)
     app.include_router(risk.router)
     app.include_router(approvals.router)
-    app.include_router(demo.router)
+    if settings.auth_mode == "demo":
+        app.include_router(demo.router)
     app.include_router(inbox.router)
     app.include_router(privacy.router)
     app.include_router(injection.router)

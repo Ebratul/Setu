@@ -15,7 +15,7 @@ Everything money-related stays **simulated**. This file lists variable **names o
 | `APP_ENV` | `dev` (the guided demo needs the simulated SMS inbox and scam simulator) | `prod` |
 | `DEMO_MODE` | `true` | `false` (required by `APP_ENV=prod`; no OTP is ever shown) |
 | `DEMO_REPLAY` | `true` (identical AI answers, works with no key) | `false` |
-| Startup checks | CORS list is exact, cookie secret set (below) | the agent **refuses to start** unless `DEMO_SESSION_SECRET` >= 32 chars, `DEMO_COOKIE_SECURE=true`, `DEMO_MODE=false`, `DEMO_COOLING_OFF_SECONDS` >= 600, and `ALLOWED_ORIGINS` is an exact list (no `*`, not empty) |
+| Startup checks | CORS list is exact, cookie secret set (below) | the agent **refuses to start** unless `AUTH_MODE=neon`, `NEON_AUTH_BASE_URL` (https), `DEMO_SESSION_SECRET` >= 32 chars, `DEMO_COOKIE_SECURE=true`, `DEMO_MODE=false`, `DEMO_COOLING_OFF_SECONDS` >= 600, and `ALLOWED_ORIGINS` is an exact list (no `*`, not empty) |
 | `Strict-Transport-Security` | not sent by the agent (Vercel / Caddy add it) | sent by the agent |
 
 Even on the judge deployment keep `ALLOWED_ORIGINS` an exact list and `DEMO_COOKIE_SECURE=true` (the site is HTTPS).
@@ -27,6 +27,9 @@ Even on the judge deployment keep `ALLOWED_ORIGINS` an exact list and `DEMO_COOK
 | `DATABASE_URL` | agent | Neon. **Direct** (non-pooled) host for the agent: judge sandboxes use a per-session `search_path`, which a transaction pooler breaks (the agent returns `SANDBOX_POOLER` for a `-pooler` host). Use the pooled URL only if sandboxes are switched off (`SANDBOXES_ENABLED=false`) |
 | `ALLOWED_ORIGINS` | agent | exact origins, comma separated, e.g. the public https origin of the web app |
 | `AUDIT_SIGNING_KEY` | agent | base64/hex 32-byte Ed25519 seed. Its public half must match the fingerprint of the committed `docs/submission/audit-public-key.pem` (check `GET /api/audit/public-key` -> `matches_committed_key: true`), or generate a new key and commit the new PEM (section 7) |
+| `AUTH_MODE` | agent | `demo` (judge deployment) or `neon` (real accounts; mandatory with `APP_ENV=prod`). In `neon` mode `/auth/demo-*` do not exist and the API only accepts `Authorization: Bearer <Neon Auth JWT>` |
+| `NEON_AUTH_BASE_URL` | agent, web | Neon Auth URL of the branch (`https://ep-….neonauth.<region>.aws.neon.tech/neondb/auth`). Public. The agent derives issuer, audience and JWKS from it |
+| `NEON_AUTH_COOKIE_SECRET` | web | >= 32 random chars (`openssl rand -base64 32`); signs the session-cache cookie of the `/neon-auth/*` proxy. Secret |
 | `DEMO_SESSION_SECRET` | agent | >= 32 random chars; signs the demo login and sandbox cookies and document links |
 | `OTP_SECRET_SEED` | agent | random string; seeds the Tier 3 one-time codes |
 | `DEMO_COOKIE_SECURE` | agent | `true` |

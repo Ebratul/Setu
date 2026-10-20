@@ -1,21 +1,33 @@
-"""Demo "login as" endpoints (stub; see app/auth/demo.py). Demo users only, no passwords."""
+"""Auth endpoints. `router` is always mounted: /auth/config, /auth/session (neon), /auth/me and
+/auth/logout. `demo_router` (demo "login as", no passwords; see app/auth/demo.py) is mounted only
+when AUTH_MODE=demo."""
 
 import uuid
 from typing import Annotated, Literal
 
-from fastapi import APIRouter, Depends, Response
+from fastapi import APIRouter, Depends, Request, Response
 from pydantic import BaseModel, ConfigDict
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.auth.demo import COOKIE_NAME, MAX_AGE_SECONDS, make_token
-from app.auth.deps import CurrentUser, current_user, to_current
+from app.auth.deps import (
+    CurrentUser,
+    audit_once,
+    current_user,
+    local_user,
+    record_login,
+    require_active,
+    to_current,
+    verified_identity,
+)
 from app.config import get_settings
 from app.db.models import Party, User
 from app.db.session import get_db
-from app.errors import NotFound
+from app.errors import DomainError, Forbidden, NotFound
 
 router = APIRouter(prefix="/auth", tags=["auth"])
+demo_router = APIRouter(prefix="/auth", tags=["auth"])
 
 Db = Annotated[Session, Depends(get_db)]
 RoleOut = Literal["BUYER", "SUPPLIER", "ADMIN", "JUDGE"]
@@ -60,14 +72,14 @@ def _out(db: Session, u: CurrentUser) -> DemoUserOut:
     )
 
 
-@router.get("/demo-users", response_model=DemoUsers)
+@demo_router.get("/demo-users", response_model=DemoUsers)
 def demo_users(db: Db) -> DemoUsers:
     """Seeded demo users for the "Login as" screen."""
     users = db.scalars(select(User).where(User.is_demo.is_(True)).order_by(User.email)).all()
     return DemoUsers(users=[_out(db, to_current(u)) for u in users])
 
 
-@router.post("/demo-login", response_model=DemoUserOut)
+@demo_router.post("/demo-login", response_model=DemoUserOut)
 def demo_login(body: DemoLoginIn, response: Response, db: Db) -> DemoUserOut:
     user = db.scalar(select(User).where(User.email == body.email, User.is_demo.is_(True)))
     if user is None:
@@ -89,8 +101,54 @@ def me(db: Db, user: Annotated[CurrentUser, Depends(current_user)]) -> DemoUserO
     return _out(db, user)
 
 
+class AuthConfig(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    mode: Literal["demo", "neon"]
+
+
+@router.get("/config", response_model=AuthConfig)
+def auth_config() -> AuthConfig:
+    """Which sign-in the web app should show. Public; reveals no secrets."""
+    return AuthConfig(mode=get_settings().auth_mode)
+
+
+@router.post("/session", response_model=DemoUserOut)
+def start_session(request: Request, db: Db) -> DemoUserOut:
+    """Called once after a Neon sign-in: checks the bearer token, the account and its status,
+    stamps `last_login_at` and writes the audit entry. Garbage tokens are rejected without an
+    audit row (otherwise anyone could grow the chain)."""
+    if get_settings().auth_mode != "neon":
+        raise NotFound("not available in demo mode")
+    identity = verified_identity(request)
+    user = local_user(db, identity)
+    try:
+        user = require_active(user)
+    except Forbidden as exc:
+        if user is not None:  # no local actor yet (not onboarded) means nothing to attribute
+            audit_once(db, user, "auth.login", "denied", {"reason": exc.code or ""})
+            db.commit()
+        raise
+    record_login(db, user)
+    audit_once(db, user, "auth.login", "ok", {}, within_s=60)
+    db.commit()
+    return _out(db, to_current(user))
+
+
 @router.post("/logout", status_code=204)
-def logout(response: Response) -> Response:
-    response.delete_cookie(COOKIE_NAME, path="/")
+def logout(request: Request, response: Response, db: Db) -> Response:
+    """Demo: drop the cookie. Neon: the browser ends the Neon session; this only records it."""
+    if get_settings().auth_mode == "neon":
+        try:
+            user = current_user(request, db)
+        except DomainError:
+            pass
+        else:
+            row = db.get(User, user.id)
+            if row is not None:
+                audit_once(db, row, "auth.logout", "ok", {}, within_s=60)
+                db.commit()
+    else:
+        response.delete_cookie(COOKIE_NAME, path="/")
     response.status_code = 204
     return response

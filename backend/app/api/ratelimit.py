@@ -86,7 +86,11 @@ def _is_internal(scope: Scope) -> bool:
 
 
 def _session_key(scope: Scope) -> str:
-    raw = dict(scope["headers"]).get(b"cookie", b"").decode("latin-1")
+    headers = dict(scope["headers"])
+    bearer = headers.get(b"authorization", b"").decode("latin-1")
+    if get_settings().auth_mode == "neon" and bearer.lower().startswith("bearer "):
+        return hashlib.sha256(bearer[7:].strip().encode()).hexdigest()[:16]
+    raw = headers.get(b"cookie", b"").decode("latin-1")
     if not raw:
         return ""
     jar: SimpleCookie = SimpleCookie()

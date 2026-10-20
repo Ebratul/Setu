@@ -11,6 +11,8 @@ from app.main import create_app
 ORIGIN = "http://localhost:3000"
 PROD_ENV = {
     "APP_ENV": "prod",
+    "AUTH_MODE": "neon",
+    "NEON_AUTH_BASE_URL": "https://ep-test.neonauth.example/neondb/auth",
     "ALLOWED_ORIGINS": "https://setu.example",
     "DEMO_SESSION_SECRET": "x" * 40,
     "DEMO_COOKIE_SECURE": "true",

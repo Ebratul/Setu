@@ -65,6 +65,11 @@ def test_prod_requires_real_secret_and_secure_cookie(monkeypatch: pytest.MonkeyP
     monkeypatch.delenv("DEMO_SESSION_SECRET", raising=False)
     get_settings.cache_clear()
     try:
+        with pytest.raises(RuntimeError, match="AUTH_MODE=neon"):
+            create_app()  # the open demo login must not exist in prod
+        monkeypatch.setenv("AUTH_MODE", "neon")
+        monkeypatch.setenv("NEON_AUTH_BASE_URL", "https://ep-test.neonauth.example/neondb/auth")
+        get_settings.cache_clear()
         with pytest.raises(RuntimeError, match="DEMO_SESSION_SECRET"):
             create_app()
         monkeypatch.setenv("DEMO_SESSION_SECRET", "x" * 32)
