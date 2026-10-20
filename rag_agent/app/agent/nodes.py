@@ -150,7 +150,8 @@ def render_tool_result(
         src = "kb"
         docs = [
             f'<retrieved_document cite_id="{html.escape(s["cite_id"], quote=True)}" '
-            f'source_id="{html.escape(s["source_id"], quote=True)}">\n'
+            f'source_id="{html.escape(s["source_id"], quote=True)}" '
+            f'source_type="{html.escape(s.get("source_type", ""), quote=True)}">\n'
             + escape_prose(gw.mask_text(f"{s['heading_path']}\n{s['content']}"))
             + "\n</retrieved_document>"
             for s in data["data"]["snippets"]

@@ -10,6 +10,7 @@ from app.agent.registry import ToolContext, ToolError
 from app.agent.tools.readonly import REGISTRY
 from app.rag.embed import get_embedder
 from app.rag.retrieve import search
+from app.rag.userguide import guide_url
 from app.schemas.cards import CitationsCard, CitationsData, CitationSnippet, Withheld
 from app.security.tiers import Tier
 
@@ -31,7 +32,8 @@ class SearchKnowledgeIn(BaseModel):
 )
 def search_knowledge(args: SearchKnowledgeIn, ctx: ToolContext) -> CitationsCard:
     """Search Setu's knowledge base (Bangladesh Bank import rules summary, Incoterms basics, trade
-    document fields, how Setu works, financing glossary and catalogue, Bangla FAQ). Returns up to 4
+    document fields, how Setu works, financing glossary and catalogue, Bangla FAQ, and the in-app
+    user guide for how-to questions). Returns up to 4
     passages with cite ids S1..S4 for rule, definition and process questions."""
     if ctx.db is None:
         raise ToolError("unavailable", "database is not available")
@@ -48,6 +50,11 @@ def search_knowledge(args: SearchKnowledgeIn, ctx: ToolContext) -> CitationsCard
             original_reference=str(s.meta.get("original_reference", "")),
             last_reviewed=str(s.meta.get("last_reviewed", "")),
             disclaimer=str(s.meta.get("disclaimer", "")),
+            guide_url=guide_url(
+                str(s.meta.get("source_type", "")),
+                str(s.meta.get("original_reference", "")),
+                str(s.meta.get("anchor", "")),
+            ),
             score=s.score,
         )
         for i, s in enumerate(res.snippets, start=1)

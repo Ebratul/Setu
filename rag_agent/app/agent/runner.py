@@ -292,6 +292,7 @@ def citations_of(state: AgentState) -> list[Citation]:
                     original_reference=s.original_reference,
                     last_reviewed=s.last_reviewed,
                     disclaimer=s.disclaimer,
+                    guide_url=s.guide_url,
                 )
     return [by_id[c] for c in state.citations if c in by_id]
 

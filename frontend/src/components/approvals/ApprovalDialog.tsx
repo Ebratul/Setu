@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 
+import { InfoTip } from "@/components/docs/InfoTip";
 import { TierBadge } from "@/components/risk/TierBadge";
 import { Button } from "@/components/ui/Button";
 import { Modal } from "@/components/ui/Modal";
@@ -203,6 +204,7 @@ export function ApprovalDialog({ id, onClose, onChanged }: Props) {
               {a.cooling_off_until ? (
                 <div className="flex flex-wrap items-center gap-4">
                   <CoolingRing left={left} total={a.cooling_off_total_seconds} />
+                  <InfoTip topic="cooling" doc="security/permission-tiers#what-it-is" />
                   <p className="min-w-0 flex-1 text-sm text-ink" data-testid="why-pause">
                     {pickLang(lang, a.why_pause_en ?? t("appr.t3.pauseDefault"), a.why_pause_bn ?? t("appr.t3.pauseDefault"))}
                   </p>

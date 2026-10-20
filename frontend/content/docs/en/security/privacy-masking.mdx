@@ -1,0 +1,67 @@
+---
+title: Privacy masking
+summary: What the Privacy Gateway hides before any text reaches an AI model, and what it does not hide.
+section: security
+order: 30
+roles: [buyer, supplier, admin, judge]
+routes: []
+related: [buyer/documents, security/why-code-decides, security/injection-defence]
+updated: 2026-10-20
+---
+
+## What it is \{#what-it-is}
+
+The **Privacy Gateway** sits in front of every model call. It replaces personal and sensitive financial identifiers with placeholder tokens. The AI sees the tokens. Setu's own code keeps working on the real values and puts them back in the final answer.
+
+Masking is a form of **privacy masking**: a bank account number becomes a token such as `⟦ACCT_1⟧`.
+
+## What gets masked \{#what}
+
+| Type | Examples |
+|---|---|
+| National ID | Bangladesh NID numbers |
+| Passport | Passport numbers |
+| Phone | Bangladesh and China mobile numbers |
+| Bank account | Account numbers, IBAN (with a checksum test), SWIFT/BIC codes |
+| Email | Email addresses |
+| Person names | Names already known to Setu, and lines labelled "Account holder" or "Beneficiary" |
+| Amounts | Amounts in documents and money values in tool results (on by default) |
+
+Detection copes with tricks: Bangla and Chinese digits, zero-width characters, and digits split by spaces.
+
+## How it works \{#how}
+
+<Steps>
+<Step title="Mask">Before a model call, the gateway swaps each sensitive value for a token. The same value always gets the same token inside one request.</Step>
+<Step title="Re-scan">The outgoing text is scanned again. A value that slipped through is counted as a leak and masked.</Step>
+<Step title="Call the model">The model reads and answers using tokens only.</Step>
+<Step title="Restore">Setu's code replaces tokens with the real values in the answer you see.</Step>
+</Steps>
+
+The map between tokens and real values (the "vault") lives in memory for one request. It is never stored, logged or sent to the model.
+
+## What the results mean \{#results}
+
+- With amounts masked, the model cannot add or compare amounts. The numbers in an answer are tokens restored by code.
+- Setu's tools work on real values. Only the model sees masked text.
+- Stored privacy records keep the masked text and counters, never the vault.
+
+## Limits \{#limits}
+
+<Callout type="warning" title="Known limits">
+Company names, addresses and goods descriptions are not treated as personal identifiers. Detectors use patterns and validation, so an unlabelled 16-digit number in free chat text is not masked. Tokens from earlier chat turns cannot be restored in later turns and show as "[protected ACCT]".
+</Callout>
+
+## Related security notes \{#security}
+
+<Callout type="security">
+Admins and judges can see masking activity on the admin privacy page at `/app/admin/privacy`, and try it on sample text in the privacy playground at `/demo/privacy-playground`. The playground does not store anything or call a model.
+</Callout>
+
+{/* REVIEW: Doc says PRIVACY_ENABLED defaults to true; the production setting was not checked. */}
+
+## Related pages \{#related}
+
+- [Why code decides](/docs/en/security/why-code-decides)
+- [Documents and emails are data](/docs/en/security/injection-defence)
+- [Glossary](/docs/en/glossary/glossary)

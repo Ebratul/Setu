@@ -1,0 +1,95 @@
+---
+title: Frequently asked questions
+summary: Short answers for buyers, suppliers, admins and judges.
+section: faq
+order: 10
+roles: [buyer, supplier, admin, judge]
+routes: []
+related: [security/what-is-simulated, security/permission-tiers, glossary/glossary]
+updated: 2026-10-20
+---
+
+## What it is \{#what-it-is}
+
+Quick answers, grouped by role. Open a question to read the answer. For terms such as KYB or escrow, see the [Glossary](/docs/en/glossary/glossary).
+
+## For everyone \{#everyone}
+
+<FAQ>
+<FAQItem q="Is any real money moved?">
+No. Payments, escrow and bank accounts are simulated. Money screens show a "Simulated" label. See [What is simulated](/docs/en/security/what-is-simulated).
+</FAQItem>
+<FAQItem q="Did you train an AI model?">
+No. Setu uses ready-made language models to explain results and read documents. All numbers and decisions come from ordinary tested code.
+</FAQItem>
+<FAQItem q="Can the AI release a payment?">
+No. The AI can only run read-only tools and queue a request. A person must approve it. See [Permission tiers](/docs/en/security/permission-tiers).
+</FAQItem>
+<FAQItem q="Which languages are supported?">
+English and Bangla in this documentation. The app also has a Chinese interface.
+</FAQItem>
+</FAQ>
+
+{/* REVIEW: Documentation languages here are EN and BN; ZH exists only for supplier and getting-started pages per AUTHORING.md. The app UI having Chinese was seen in src/i18n/zh.json. */}
+
+## For buyers \{#buyers}
+
+<FAQ>
+<FAQItem q="Why did Setu ask me to approve a payment?">
+Open the request and read "Why Setu asked you". Common reasons: first deal with this supplier, a document warning, or an FX rate that is not locked (Tier 2). See [Approvals](/docs/en/buyer/approvals).
+</FAQItem>
+<FAQItem q="What is the difference between Tier 2 and Tier 3?">
+Tier 2 is one tap. Tier 3 needs a 6-digit code and a 10-minute cooling-off pause, and you can cancel during the pause.
+</FAQItem>
+<FAQItem q="Why is my release limited to USD 20,000?">
+Releases up to USD 20,000.00 can go through automatically (Tier 1) if everything is verified and unchanged. Above that, the release is Tier 3.
+</FAQItem>
+<FAQItem q="What if the OTP code does not work?">
+Three wrong codes lock the request. Reject it and start a new one. A code lives 5 minutes, and you can ask for a new code up to 5 times.
+</FAQItem>
+<FAQItem q="A supplier emailed me new bank details. What should I do?">
+Do not pay. Setu never accepts account changes from email. Paste the email into the email check, or ask the supplier to request the change inside their Setu portal. You then approve it at Tier 3.
+</FAQItem>
+<FAQItem q="Why was a document flagged?">
+Setu checks documents for hidden text, mismatches between documents, and duplicates already used on another deal or lender. See [Documents](/docs/en/buyer/documents).
+</FAQItem>
+</FAQ>
+
+## For suppliers \{#suppliers}
+
+<FAQ>
+<FAQItem q="How do I change my receiving bank account?">
+Use the account change request in the supplier portal. The buyer must verify it (Tier 3). Payments keep going to your current account until they do.
+</FAQItem>
+<FAQItem q="When do I get paid?">
+Each milestone tranche is released when the required documents are verified and the right approval is done. Money is simulated in this build.
+</FAQItem>
+<FAQItem q="Can I see the buyer's risk details?">
+No. Suppliers see a reduced view. Fields such as KYB score, reason codes and selling price are hidden.
+</FAQItem>
+</FAQ>
+
+## For admins \{#admins}
+
+<FAQ>
+<FAQItem q="Where do I see what happened and who did it?">
+In the audit log. Every action is signed and chained. See [Audit log](/docs/en/admin/audit-log) and [Signed audit log](/docs/en/security/signed-audit-log).
+</FAQItem>
+<FAQItem q="Can I override a tier?">
+No. Tiers come from the risk engine and the thresholds in a config file. An admin can decide approvals, but cannot change what tier an action gets.
+</FAQItem>
+</FAQ>
+
+## For judges \{#judges}
+
+<FAQ>
+<FAQItem q="How can I check the audit log myself?">
+Export the log and drop it on the public [/verify](/verify) page. Your browser checks every signature. Nothing is uploaded.
+</FAQItem>
+<FAQItem q="Can I try an attack on the AI?">
+Yes. The attack console at /demo/attack-console runs sample injection attacks with defences ON or OFF. Money safety stays on in both modes. See [Documents and emails are data](/docs/en/security/injection-defence).
+</FAQItem>
+<FAQItem q="Can judges approve payments?">
+No. Judges are read-only. The Demo phone is also hidden from judges.
+</FAQItem>
+</FAQ>

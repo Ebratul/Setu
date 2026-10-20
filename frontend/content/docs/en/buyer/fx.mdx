@@ -1,0 +1,96 @@
+---
+title: USD vs CNY payment and FX rate lock
+summary: Compare the cost of paying a Chinese supplier in USD or in CNY, and ask for a rate lock.
+section: buyer
+order: 110
+roles: [buyer]
+routes: ["/app/chat"]
+tryIt: "/app/chat"
+related: [buyer/chat, buyer/approvals, buyer/financing, security/permission-tiers]
+updated: 2026-10-20
+---
+
+## What it is \{#what-it-is}
+You can pay a Chinese supplier through a USD route or directly in CNY. **FX** means foreign exchange. Each route has bank spreads and fees, so the total cost in BDT differs. Setu compares both routes and shows the cheaper one.
+
+There is no separate FX page. The comparison appears as a card in the chat assistant. A **rate lock** holds today's rate for 24 hours. You ask for it in chat, and you approve it on the Approvals page.
+
+All rates, spreads and fees are mock demo values. No real money moves.
+
+{/* REVIEW: the REST endpoint POST /deals/ID/fx-lock exists, but no button in the web app calls it. The only UI path found is chat -> Approvals. */}
+
+## Who uses it \{#who}
+<RoleBadge role="buyer" />
+
+## When to use it \{#when}
+- Before paying a milestone to a supplier.
+- When the next payment is large and a rate move would hurt.
+
+## Step by step \{#how-to}
+<Steps>
+<Step title="Open Chat">
+Choose **Chat** in the left menu, or press <Kbd>/</Kbd> on any page to open **Ask Setu**.
+
+<Screenshot name="buyer/fx-1" route="/app/chat" as="buyer" alt="Chat page with the Ask Setu title and suggested questions" caption="The suggested questions include the USD versus CNY question." />
+</Step>
+<Step title="Ask for the comparison">
+Pick **How much would I save paying in CNY instead of USD?** or type your own, for example with an amount. You can set **About deal:** to a deal first. Without an amount, Setu uses the deal's next unpaid milestone.
+
+<Screenshot name="buyer/fx-2" route="/app/chat" as="buyer" alt="Chat message asking how much would be saved paying in CNY instead of USD" caption="Ask in English or Bangla." />
+</Step>
+<Step title="Read the USD vs CNY payment card">
+Two boxes, **Pay in USD** and **Pay in CNY**, each show **Sent**, **Rate used**, **Conversion**, **Fees** and **Total**. The cheaper route has a **Cheaper** badge. A line below says how much you save. Open **Assumptions** to see the mock spreads and fees.
+
+<Screenshot name="buyer/fx-3" route="/app/chat" as="buyer" alt="USD vs CNY payment card with two route boxes, a Cheaper badge and the saving line" caption="The cheaper route is highlighted." />
+</Step>
+<Step title="Ask for a rate lock">
+Type, for example, "Lock the FX rate for SETU-2026-0001". The assistant can only send a request. It cannot lock the rate itself.
+
+<Screenshot name="buyer/fx-4" route="/app/chat" as="buyer" alt="Chat reply saying a rate lock request was sent to approvals" caption="The request goes to Approvals." />
+{/* REVIEW: exact reply wording for propose_fx_lock was not read; screenshot shows whatever the assistant answers. */}
+</Step>
+<Step title="Approve the lock">
+Open **Approvals** and approve the request with one tap (Tier 2). The approval's evidence shows the **FX rate** and whether it is **locked** or **not locked**.
+
+<Screenshot name="buyer/fx-5" route="/app/approvals" as="buyer" alt="Approvals page with an FX rate lock request waiting for approval" caption="A person approves the lock." />
+</Step>
+</Steps>
+
+## What the results mean \{#results}
+- **Sent**: the amount sent in the route currency before fees.
+- **Rate used**: the BDT per unit of that currency, including the bank spread.
+- **Conversion**: BDT cost of the conversion.
+- **Fees**: SWIFT and correspondent fees on the USD route, a flat transfer fee on the CNY route.
+- **Total**: Conversion plus Fees in BDT.
+- The supplier must receive the CNY value of the invoice. On the USD route, you send enough USD to cover the supplier bank's conversion loss.
+
+Mock assumptions used today in the code:
+
+| Item | Value |
+|---|---|
+| Bank sells USD | mid rate + 0.50% |
+| Supplier bank converts USD to CNY | mid rate - 0.60% |
+| USD route fees | SWIFT USD 20 + correspondent USD 15 |
+| Bank sells CNY | mid rate + 0.80% |
+| CNY route fee | BDT 1,000 |
+
+A lock holds the rate for 24 hours for the amount you asked. If no amount is given, it covers the unreleased milestones.
+
+## Tips and common mistakes \{#tips}
+- A lock only makes sense when the supplier account is in a different currency from the deal.
+- While a lock is active, a conversion release does not need the extra Tier 2 approval for "rate not locked".
+- The saving can be small. Check the total, not just the rate.
+- A second lock on the same deal cancels the first.
+
+## Related security notes \{#security}
+<Callout type="security" title="Locking a rate is Tier 2">
+The AI can only ask. A person approves with one tap. The request is bound to the deal, the amount and the currencies, and it is written to the signed audit log. See [Permission tiers](/docs/en/security/permission-tiers).
+</Callout>
+
+## Try it \{#try-it}
+<TryItButton href="/app/chat" />
+
+## Related pages \{#related}
+- [Chat assistant](/docs/en/buyer/chat)
+- [Approvals](/docs/en/buyer/approvals)
+- [Financing](/docs/en/buyer/financing)

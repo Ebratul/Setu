@@ -1,0 +1,73 @@
+---
+title: 已收款项
+summary: 查看托管中的资金，以及已经付给您的里程碑款项。
+section: supplier
+order: 40
+roles: [supplier]
+routes: ["/supplier/[id]"]
+tryIt: "/supplier"
+related: [supplier/confirm-milestones, supplier/payout-account, glossary/glossary]
+updated: 2026-10-20
+---
+
+## 这是什么 \{#what-it-is}
+
+订单页有两个区域显示您的资金：绿色的 **托管账户中已确保资金** 框，和 **已收款项** 表格。所有数据均为模拟，不会有真实资金流动。
+
+## 谁使用 \{#who}
+
+<RoleBadge role="supplier" /> 只读。只有买方可以注资和放款。
+
+## 何时使用 \{#when}
+
+想确认买方是否已注资，或查看每个里程碑付了多少时。
+
+## 操作步骤 \{#how-to}
+
+<Steps>
+<Step title="查看托管框">
+订单顶部的绿色框显示为您保管的金额。说明文字提示：证明材料核验通过后，资金按里程碑逐笔支付给您。
+<Screenshot name="supplier/escrow-box" route="/supplier/SETU-2026-0001" as="supplier" alt="绿色框，显示托管账户中已确保的资金金额" caption="托管账户中已确保资金。" />
+</Step>
+<Step title="关注里程碑">
+每个里程碑都有状态。**已放款** 表示已付款。**可放款** 表示证明材料已验证，买方可以付款。
+<Screenshot name="supplier/milestone-status" route="/supplier/SETU-2026-0001" as="supplier" alt="带状态标签的里程碑卡片" caption="里程碑状态。" wait="[data-testid='milestone']" />
+</Step>
+<Step title="查看已收款项">
+每一行是一笔已付的里程碑：**里程碑**、**金额**、**外汇付款** 和 **入账时间**。外汇付款显示换成您币种时的汇率。
+<Screenshot name="supplier/payments-table" route="/supplier/SETU-2026-0001" as="supplier" alt="已收款项表格，含里程碑、金额、外汇付款和入账时间" caption="已收款项。" wait="[data-testid='payments']" />
+</Step>
+</Steps>
+
+## 结果说明 \{#results}
+
+| 项目 | 含义 |
+|---|---|
+| 里程碑 | 已付款的里程碑序号。 |
+| 金额 | 记入您账户的金额。 |
+| 外汇付款 | 换算后的金额和所用汇率。横线表示无需换汇。 |
+| 入账时间 | 付款日期。 |
+| 尚未收到款项 | 还没有里程碑被放款。 |
+
+## 提示与常见错误 \{#tips}
+
+- 里程碑可能显示 **等待批准** 或 **已冻结**，这是买方一侧在核查，属于安全步骤，不是拒绝。
+- 证明材料缺失或存疑会延迟放款，请先处理单据。
+- 款项只会付到您当前有效的收款账户，见[收款账户](/docs/zh/supplier/payout-account)。
+
+## 相关安全说明 \{#security}
+
+<Callout type="security">
+金额大或不寻常的放款需要买方人工批准（第2级一键批准；第3级需 OTP 验证码和10分钟冷静期）。系统不会要求您输入验证码。见[权限等级](/docs/zh/security/permission-tiers)。
+</Callout>
+
+{/* REVIEW: the "Waiting for approval" note on the supplier order page links to the buyer-only /app/approvals page and has no ZH text in the app. */}
+
+## 试一试 \{#try-it}
+
+<TryItButton href="/supplier" />
+
+## 相关页面 \{#related}
+
+- [确认付款里程碑](/docs/zh/supplier/confirm-milestones)
+- [更改收款账户](/docs/zh/supplier/payout-account)

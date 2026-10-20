@@ -1,0 +1,92 @@
+---
+title: 角色与登录
+summary: Setu 的四种角色，以及登录、注册、验证邮箱、重置密码和查看公司审核状态的方法。
+section: getting-started
+order: 20
+roles: [buyer, supplier, admin, judge]
+routes: ["/login", "/register", "/forgot-password", "/reset-password", "/verify-email", "/onboarding", "/onboarding/status", "/account-status"]
+tryIt: "/login"
+related: [getting-started/simulated-sandbox, getting-started/two-minute-tour]
+updated: 2026-10-20
+---
+
+## 简介 \{#what-it-is}
+
+Setu 有四种角色，角色决定你能看到和操作的内容。进入方式有两种：**演示登录**（选择预置账号，无需密码）和**真实登录**（邮箱和密码）。
+
+## 适用对象 \{#who}
+
+| 角色 | 用途 |
+|---|---|
+| <RoleBadge role="buyer" /> | 进口商。订单、现金流、融资、托管、审批、聊天。进入 `/app`。 |
+| <RoleBadge role="supplier" /> | 中国供应商。确认里程碑计划、上传单据。进入 `/supplier`。 |
+| <RoleBadge role="admin" /> | 审核新公司、事件、登记库和审计日志。 |
+| <RoleBadge role="judge" /> | 只读演示用户，可查看全部演示数据，不能确认里程碑计划。 |
+
+## 演示登录还是真实登录 \{#modes}
+
+`/login` 页面会检查部署使用哪种模式。
+
+- **演示模式。** 标题为“Log in as a demo user”（以演示用户身份登录）。列出预置沙盒账号，每个账号有“Log in”按钮，无需密码。页面注明此屏幕在真实部署中不存在。
+- **真实登录。** 标题为“登录”。输入邮箱和密码。
+
+`/register`、`/forgot-password`、`/reset-password`、`/verify-email`、`/onboarding`、`/onboarding/status` 和 `/account-status` 只有在启用真实登录时才可用。演示模式下它们只显示一条简短说明和前往演示登录的链接。
+
+{/* REVIEW: 演示登录页（login.* 键）的界面文字在 zh.json 中未翻译，当前显示英文；本页对其使用英文原文。 */}
+
+<Steps>
+<Step title="打开登录页">
+访问 `/login`。演示模式下选择一个账号并点击“Log in”。买方进入 `/app`，供应商进入 `/supplier`。
+<Screenshot name="getting-started/login-demo" route="/login" as="judge" alt="演示登录页，列出预置账号，每个账号有登录按钮。" caption="演示登录：选择账号，无需密码。" />
+</Step>
+<Step title="创建登录账号（真实模式）">
+点击“创建登录账号”。填写姓名、邮箱和密码。强度指示条显示弱、一般或强。密码长度 8 到 128 个字符。
+<Screenshot name="getting-started/register" route="/register" as="buyer" alt="创建登录账号表单，含姓名、邮箱、密码和密码强度指示。" caption="注册：只创建您的个人登录账号。" />
+</Step>
+<Step title="验证邮箱">
+我们会发送 6 位验证码。在“验证您的邮箱”页面输入。丢失可点击“重新发送验证码”。然后登录。
+<Screenshot name="getting-started/verify-email" route="/verify-email" as="buyer" alt="验证您的邮箱页面，含 6 位验证码输入框。" caption="输入邮件中的 6 位验证码。" />
+</Step>
+<Step title="重置忘记的密码">
+点击“忘记密码?”，输入邮箱并点击“发送重置链接”。链接会打开“设置新密码”页面，输入两次后点击“保存密码”。
+<Screenshot name="getting-started/forgot-password" route="/forgot-password" as="buyer" alt="重置密码页面，含邮箱输入框和发送重置链接按钮。" caption="申请重置链接。" />
+</Step>
+</Steps>
+
+## 公司入驻与 KYB 状态 \{#onboarding}
+
+KYB 即“了解你的企业”（know your business），用于核实公司是否真实。在 Setu 工作人员批准公司之前，新登录账号无法使用贸易功能。
+
+1. 在 `/onboarding` 填写四步：账户类型与您的姓名（买方或供应商）、公司、银行账户、核对并提交。
+2. 点击“提交审核”。Setu 运行自动检查，并在 `/onboarding/status` 显示。
+3. 状态页打开时约每 20 秒自动刷新。显示“已通过”后，Setu 会为您开启会话。
+
+<Screenshot name="getting-started/onboarding-status" route="/onboarding/status" as="buyer" alt="申请状态页，显示等待审核及带有通过或需关注标签的自动检查列表。" caption="审核状态与自动检查。" />
+
+检查项包括税号格式、账户持有人是否与公司名称一致、银行账户类型、执照名称、公司所在国家和银行所在国家。账户持有人必须与公司法定名称一致，否则申请会进入更严格的审核。系统还会进行制裁名单筛查，但不会显示在申请人的列表中。
+
+`/account-status` 说明您暂时无法进入的原因：尚无 Setu 账户、等待验证或已暂停。被拒绝的申请会显示审核人给出的原因。
+
+{/* REVIEW: /account-status 上“尚无 Setu 账户”的文字仍写着“公司入驻功能即将推出”，但入驻功能已存在。文字来自应用 i18n，请确认或更新。 */}
+{/* REVIEW: 未核实没有公司的已登录用户会被自动跳转到哪里；仅根据页面文字描述。 */}
+
+## 提示与常见错误 \{#tips}
+
+- “尝试次数过多”：请等待几分钟。
+- “您的邮箱尚未验证”：请先完成 6 位验证码步骤。
+- 入驻时不能选择管理员和评委，这两类账号不能自助创建。
+
+## 相关安全说明 \{#security}
+
+<Callout type="security">
+演示账号只存在于沙盒中。评委账号是只读的，不能批准或转移模拟资金。
+</Callout>
+
+## 试一试 \{#try-it}
+
+<TryItButton href="/login" />
+
+## 相关页面 \{#related}
+
+- [模拟沙盒](/docs/zh/getting-started/simulated-sandbox)
+- [两分钟导览](/docs/zh/getting-started/two-minute-tour)

@@ -1,0 +1,64 @@
+---
+title: জ্ঞানভান্ডার পুনঃইনডেক্স
+summary: এআই জ্ঞানভান্ডার কীভাবে হালনাগাদ হয়। এটি কমান্ড-লাইনের কাজ, ওয়েব পাতা নয়।
+section: admin
+order: 80
+roles: [admin]
+routes: []
+related: [admin/overview, admin/evaluation]
+updated: 2026-10-20
+---
+
+## What it is \{#what-it-is}
+
+জ্ঞানভান্ডারে (KB) চ্যাট সহকারীর খোঁজা ছোট গাইডগুলো থাকে, যেমন Incoterms, অর্থায়নের পরিভাষা ও বাণিজ্য নথির ঘর। ইনডেক্স করা মানে গাইডগুলো খণ্ডে ভাগ করে তাদের embedding (অর্থের সংখ্যাভিত্তিক ছাপ) ডাটাবেসে রাখা, যাতে খোঁজা যায়।
+
+{/* REVIEW: There is no admin web page or HTTP endpoint for re-indexing. This page documents the command-line tools in rag_agent/app/rag/cli.py only. */}
+
+## Who uses it \{#who}
+
+<RoleBadge role="admin" /> যিনি সার্ভার চালান। প্রকল্পে কমান্ড-লাইন প্রবেশাধিকার লাগবে।
+
+## When to use it \{#when}
+
+- `rag_agent/kb/sources/`-এর কোনো ফাইল বদলানোর পর।
+- অর্থায়নের ক্যাটালগ বদলালে এবং KB-তে তা চাইলে।
+
+## Step by step \{#how-to}
+
+<Steps>
+<Step title="অর্থায়ন ক্যাটালগ সিঙ্ক করুন">
+`pnpm kb:sync` (বা `make kb-sync`) চালান। এটি বর্তমান অর্থায়ন ক্যাটালগ `rag_agent/kb/sources/generated`-এ একটি উৎস ফাইল হিসেবে লেখে, অথবা "unchanged" জানায়।
+<Screenshot name="admin/kb-sync" route="/app/admin/audit" as="admin" alt="ওয়েব অ্যাপের অ্যাডমিন অংশ। জ্ঞানভান্ডার সিঙ্কের এখানে কোনো স্ক্রিন নেই, এটি টার্মিনালে চলে।" caption="এই কাজের কোনো ওয়েব স্ক্রিন নেই।" />
+</Step>
+<Step title="উৎস ইনডেক্স করুন">
+`pnpm kb:index` (বা `make kb-index`) চালান। কমান্ড সারসংক্ষেপ ছাপে: কতটি উৎস, কতটি খণ্ড, কতটি embed হলো, অপরিবর্তিত বা বাদ গেল।
+<Screenshot name="admin/kb-index" route="/app/admin/audit" as="admin" alt="ওয়েব অ্যাপের অ্যাডমিন অংশ। ইনডেক্স কমান্ডের এখানে কোনো স্ক্রিন নেই, সারসংক্ষেপ টার্মিনালে ছাপা হয়।" caption="সারসংক্ষেপ টার্মিনালে ছাপা হয়।" />
+</Step>
+</Steps>
+
+## What the results mean \{#results}
+
+| আউটপুট | মানে |
+|---|---|
+| +N embedded | নতুন বা বদলানো খণ্ড embed হয়েছে। |
+| N unchanged | অপরিবর্তিত খণ্ড রেখে দেওয়া হয়েছে। |
+| -N removed | যে খণ্ডের উৎস লেখা নেই, তা মুছেছে। |
+
+ইনডেক্স idempotent: দুবার চালালেও একই ফল হয়।
+
+## Tips and common mistakes \{#tips}
+
+- embedding মডেল না পেলে কমান্ড "embedding model unavailable; cannot index" বলে থেমে যায়।
+- জ্ঞানভান্ডার তথ্য মাত্র। KB লেখার ভেতরের নির্দেশ সহকারী কখনো মানে না।
+- চ্যাটের সংখ্যা আসে কোড-টুল থেকে, KB থেকে নয়।
+
+## Related security notes \{#security}
+
+<Callout type="security">
+KB অংশ মডেলের কাছে যাওয়ার আগে অবিশ্বস্ত বিষয়বস্তু হিসেবে মোড়ানো হয়। দেখুন [নিরাপত্তা ঘটনা](/docs/bn/admin/security-events)।
+</Callout>
+
+## Related pages \{#related}
+
+- [অ্যাডমিন কনসোলের পরিচিতি](/docs/bn/admin/overview)

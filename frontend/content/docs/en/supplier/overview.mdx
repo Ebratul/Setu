@@ -1,0 +1,76 @@
+---
+title: Supplier portal overview
+summary: Your list of orders, the order page, and where to confirm milestones, upload documents and see payments.
+section: supplier
+order: 10
+roles: [supplier]
+routes: ["/supplier", "/supplier/[id]"]
+tryIt: "/supplier"
+related: [supplier/confirm-milestones, supplier/upload-documents, supplier/payments-received, security/permission-tiers, glossary/glossary]
+updated: 2026-10-20
+---
+
+## What it is \{#what-it-is}
+
+The supplier portal is the part of Setu made for you, the seller. You see each order from your buyer, the money held for you in escrow, and what the buyer needs from you. Escrow means the buyer's money is held safely and released to you step by step. All money here is simulated sandbox data. No real payment is made.
+
+## Who uses it \{#who}
+
+<RoleBadge role="supplier" /> Supplier staff only. Other roles are sent to the buyer app. Page labels show English and Chinese side by side.
+
+## When to use it \{#when}
+
+- After your buyer opens an order with you.
+- When you need to check the payment plan, send documents or see what you were paid.
+
+## Step by step \{#how-to}
+
+<Steps>
+<Step title="Open your orders">
+Sign in. The first page is **Orders** (订单). Each card shows the order reference, the buyer, **Order value**, **Secured in escrow** and the **Next milestone** with its due date.
+<Screenshot name="supplier/orders-list" route="/supplier" as="supplier" alt="Supplier orders page with order cards showing buyer, order value, secured in escrow and next milestone" caption="The Orders list. Click the order reference to open it." />
+</Step>
+<Step title="Open one order">
+Click the reference. The order page opens at the order route. The green box says **Funds secured in escrow** with the amount.
+<Screenshot name="supplier/order-detail" route="/supplier/SETU-2026-0001" as="supplier" alt="Supplier order page with the funds secured box, payment milestones, documents and payments received" caption="One order: escrow, milestones, documents, payments, payout account." />
+</Step>
+<Step title="Work down the page">
+The order page has these blocks, top to bottom: escrow status, **Payment milestones**, **Documents**, **Payments received**, **Change payout account**, **Order details**. Use **All orders** to go back.
+<Screenshot name="supplier/order-sections" route="/supplier/SETU-2026-0001" as="supplier" alt="Lower part of the supplier order page with payments received, change payout account form and order details" caption="Scroll down for payments, payout account and order details." />
+</Step>
+</Steps>
+
+{/* REVIEW: the screenshot route uses the seed reference SETU-2026-0001; confirm it is a deal of the demo supplier. */}
+
+## What the results mean \{#results}
+
+| Item | Meaning |
+|---|---|
+| Order value | Goods value of the order. |
+| Secured in escrow | Money the buyer has already put in escrow for this order. |
+| Next milestone | The next payment step and its due date. A dash means none is open. |
+| Funds secured in escrow | Same amount, shown on the order page. |
+
+## Tips and common mistakes \{#tips}
+
+- If the list is empty ("No orders yet"), your buyer has not opened an order with you.
+- Use the bell at the top for news about your payout account requests.
+- The **Team** link at the top is for your company staff. See [Team](/docs/en/supplier/team).
+- The page language can be switched at the top: English, Bangla or Chinese.
+
+## Related security notes \{#security}
+
+<Callout type="security">
+You only see your own orders. You can send documents and confirm the plan. You cannot fund escrow, release payments or see any risk score. See [permission tiers](/docs/en/security/permission-tiers).
+</Callout>
+
+## Try it \{#try-it}
+
+<TryItButton href="/supplier" />
+
+## Related pages \{#related}
+
+- [Confirm milestones](/docs/en/supplier/confirm-milestones)
+- [Upload documents](/docs/en/supplier/upload-documents)
+- [Payments received](/docs/en/supplier/payments-received)
+- [Glossary](/docs/en/glossary/glossary)

@@ -4,7 +4,8 @@ import { useRouter, usePathname } from "next/navigation";
 import { useEffect, useId, useMemo, useRef, useState } from "react";
 
 import { Icon, type IconName } from "@/components/ui/Icon";
-import { useT } from "@/i18n";
+import { useLang, useT } from "@/i18n";
+import { loadIndex, type DocHit } from "@/lib/docs/search";
 import { getMe } from "@/lib/api/auth";
 import { listDeals } from "@/lib/api/deals";
 import { getSuppliers } from "@/lib/api/kyb";
@@ -17,7 +18,7 @@ import { navGroups } from "./navItems";
 
 type Entry = {
   id: string;
-  group: "cmd.groupActions" | "cmd.groupPages" | "cmd.groupDeals" | "cmd.groupSuppliers";
+  group: "cmd.groupActions" | "cmd.groupPages" | "cmd.groupDeals" | "cmd.groupSuppliers" | "docs.cmd.group";
   label: string;
   hint?: string;
   icon: IconName;
@@ -31,6 +32,7 @@ const MAX_RESULTS = 24;
 /** Ctrl/Cmd+K palette: an ARIA combobox over pages, deals, suppliers and quick actions. */
 export default function CommandPalette({ onClose }: Props) {
   const t = useT();
+  const { lang } = useLang();
   const router = useRouter();
   const pathname = usePathname();
   const baseId = useId();
@@ -98,6 +100,20 @@ export default function CommandPalette({ onClose }: Props) {
     return list;
   }, [t, me.data?.role, deals.data, suppliers.data, router, onClose, pathname]);
 
+  const [docHits, setDocHits] = useState<DocHit[]>([]);
+  useEffect(() => {
+    const q = query.trim();
+    if (q.length < 2) return;
+    let alive = true;
+    loadIndex(lang).then(
+      (idx) => alive && setDocHits(idx.search(q, 5)),
+      () => alive && setDocHits([]),
+    );
+    return () => {
+      alive = false;
+    };
+  }, [query, lang]);
+
   const results = useMemo(() => {
     const scored: { e: Entry; score: number }[] = [];
     for (const e of entries) {
@@ -105,8 +121,21 @@ export default function CommandPalette({ onClose }: Props) {
       if (score !== null) scored.push({ e, score });
     }
     if (query.trim()) scored.sort((a, b) => b.score - a.score);
-    return scored.slice(0, MAX_RESULTS).map((x) => x.e);
-  }, [entries, query]);
+    const base = scored.slice(0, MAX_RESULTS).map((x) => x.e);
+    if (query.trim().length < 2) return base;
+    const docs: Entry[] = docHits.map((h) => ({
+      id: `doc-${h.id}`,
+      group: "docs.cmd.group",
+      label: h.title,
+      hint: t(`docs.section.${h.section}`),
+      icon: "file",
+      run: () => {
+        onClose();
+        router.push(h.url);
+      },
+    }));
+    return [...base, ...docs];
+  }, [entries, query, docHits, t, router, onClose]);
 
   const current = results.length ? Math.min(active, results.length - 1) : -1;
   const optId = (i: number) => `${baseId}-opt-${i}`;

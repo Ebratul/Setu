@@ -1,24 +1,30 @@
 """KB commands: `python -m app.rag.cli sync` (export the financing catalogue) and
+`python -m app.rag.cli userguide` (docs MDX -> KB sources, EN+BN) and
 `python -m app.rag.cli index` (chunk + embed; idempotent).
 Root scripts: npm run kb:sync / npm run kb:index."""
 
 import argparse
 import sys
 
-from app.config import RAG_AGENT_DIR
+from app.config import RAG_AGENT_DIR, REPO_ROOT
 from app.db.session import batch_session
-from app.rag import catalogue, ingest
+from app.rag import catalogue, ingest, userguide
 from app.rag.embed import get_embedder
 from app.services.scope import demo_today
 
 SOURCES = RAG_AGENT_DIR / "kb" / "sources"
 GENERATED = SOURCES / "generated"
+DOCS = REPO_ROOT / "frontend" / "content" / "docs"
 
 
 def main(argv: list[str] | None = None) -> int:
     p = argparse.ArgumentParser(prog="kb")
-    p.add_argument("command", choices=["sync", "index"])
+    p.add_argument("command", choices=["sync", "index", "userguide"])
     args = p.parse_args(argv)
+    if args.command == "userguide":  # no DB: MDX -> kb/sources/generated/user-guide/*.md
+        written, removed = userguide.generate(DOCS, GENERATED)
+        print(f"user guide: {written} written, {removed} removed")
+        return 0
     with batch_session() as db:
         if args.command == "sync":
             path, changed = catalogue.sync(db, GENERATED, demo_today(db).isoformat())

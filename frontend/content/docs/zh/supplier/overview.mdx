@@ -1,0 +1,76 @@
+---
+title: 供应商门户概览
+summary: 查看您的订单列表和订单详情页，了解在哪里确认里程碑、上传单据和查看收款。
+section: supplier
+order: 10
+roles: [supplier]
+routes: ["/supplier", "/supplier/[id]"]
+tryIt: "/supplier"
+related: [supplier/confirm-milestones, supplier/upload-documents, supplier/payments-received, security/permission-tiers, glossary/glossary]
+updated: 2026-10-20
+---
+
+## 这是什么 \{#what-it-is}
+
+供应商门户是专为您（卖方）准备的页面。您可以看到买方下的每一笔订单、为您托管的资金，以及买方需要您提供什么。托管（escrow）是指买方的钱先由系统保管，再按里程碑逐笔支付给您。这里所有资金都是模拟沙盒数据，不会发生真实付款。
+
+## 谁使用 \{#who}
+
+<RoleBadge role="supplier" /> 仅供应商员工使用。其他角色会被转到买方应用。页面标题同时显示英文和中文。
+
+## 何时使用 \{#when}
+
+- 买方给您创建订单之后。
+- 需要查看付款计划、上传单据或查看已收款项时。
+
+## 操作步骤 \{#how-to}
+
+<Steps>
+<Step title="打开订单列表">
+登录后首页是 **订单**。每张卡片显示订单编号、买方、**订单金额**、**托管中的资金** 和 **下一个里程碑**（含到期日）。
+<Screenshot name="supplier/orders-list" route="/supplier" as="supplier" alt="供应商订单页，卡片显示买方、订单金额、托管中的资金和下一个里程碑" caption="订单列表。点击订单编号进入订单。" />
+</Step>
+<Step title="打开一笔订单">
+点击订单编号。绿色框显示 **托管账户中已确保资金** 及金额。
+<Screenshot name="supplier/order-detail" route="/supplier/SETU-2026-0001" as="supplier" alt="供应商订单页，含托管资金框、付款里程碑、单据和已收款项" caption="订单页：托管、里程碑、单据、收款、收款账户。" />
+</Step>
+<Step title="从上到下查看">
+订单页从上到下依次是：托管状态、**付款里程碑**、**单据**、**已收款项**、**更改收款账户**、**订单详情**。点击 **全部订单** 返回列表。
+<Screenshot name="supplier/order-sections" route="/supplier/SETU-2026-0001" as="supplier" alt="供应商订单页下半部分，含已收款项、更改收款账户表单和订单详情" caption="向下滚动查看收款、收款账户和订单详情。" />
+</Step>
+</Steps>
+
+{/* REVIEW: screenshot route uses seed reference SETU-2026-0001; confirm it belongs to the demo supplier. */}
+
+## 结果说明 \{#results}
+
+| 项目 | 含义 |
+|---|---|
+| 订单金额 | 订单的货款总额。 |
+| 托管中的资金 | 买方已为该订单存入托管的金额。 |
+| 下一个里程碑 | 下一个付款节点及到期日。显示横线表示暂无。 |
+| 托管账户中已确保资金 | 订单页上显示的同一金额。 |
+
+## 提示与常见错误 \{#tips}
+
+- 列表为空（“暂无订单”）说明买方还没有给您创建订单。
+- 顶部的铃铛会提示收款账户变更申请的进展。
+- 顶部的 **团队** 链接用于管理公司员工，见[团队](/docs/zh/supplier/team)。
+- 页面右上角可切换英文、孟加拉文和中文。
+
+## 相关安全说明 \{#security}
+
+<Callout type="security">
+您只能看到自己的订单。您可以上传单据、确认付款计划，但不能注资、放款，也看不到任何风险评分。见[权限等级](/docs/zh/security/permission-tiers)。
+</Callout>
+
+## 试一试 \{#try-it}
+
+<TryItButton href="/supplier" />
+
+## 相关页面 \{#related}
+
+- [确认付款里程碑](/docs/zh/supplier/confirm-milestones)
+- [上传单据](/docs/zh/supplier/upload-documents)
+- [已收款项](/docs/zh/supplier/payments-received)
+- [术语表](/docs/zh/glossary/glossary)

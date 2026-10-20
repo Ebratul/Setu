@@ -1,10 +1,13 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import Link from "next/link";
+import { usePathname, useRouter } from "next/navigation";
 import { useEffect, type ReactNode } from "react";
 
+import { DocHint } from "@/components/docs/DocHint";
 import { TopBar } from "@/components/shell/TopBar";
 import { QueryError } from "@/components/ui/QueryError";
+import { BackButton } from "@/components/ui/BackButton";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { ToastProvider } from "@/components/ui/Toast";
 import { useT } from "@/i18n";
@@ -17,6 +20,7 @@ import { useEmbed } from "@/lib/useEmbed";
 export function SupplierShell({ children }: { children: ReactNode }) {
   const t = useT();
   const router = useRouter();
+  const pathname = usePathname();
   const me = useApi((s) => getMe(s), "me");
   const [digits] = useDigits();
   const embed = useEmbed();
@@ -52,6 +56,10 @@ export function SupplierShell({ children }: { children: ReactNode }) {
       </a>
       <TopBar variant="supplier" showBell={me.data?.role === "SUPPLIER"} />
       <main id="main" className="mx-auto w-full max-w-5xl min-w-0 flex-1 px-4 py-6">
+        {pathname !== "/supplier" ? (
+          <BackButton fallbackHref="/supplier" className="-ml-2 mb-2" />
+        ) : null}
+        <DocHint userId={me.data?.id} />
         {me.error ? (
           <QueryError error={me.error} onRetry={me.reload} />
         ) : me.loading || wrongRole ? (
@@ -61,7 +69,10 @@ export function SupplierShell({ children }: { children: ReactNode }) {
         )}
       </main>
       <footer className="px-4 py-6 text-center text-sm text-muted">
-        {t("common.footer")}
+        {t("common.footer")}{" "}
+        <Link href="/docs" className="font-semibold text-brand-text underline">
+          {t("docs.title")}
+        </Link>
       </footer>
     </ToastProvider>
   );

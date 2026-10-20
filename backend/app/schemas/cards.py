@@ -388,6 +388,9 @@ class CitationSnippet(_M):
     original_reference: str
     last_reviewed: str
     disclaimer: str
+    guide_url: str | None = Field(
+        None, description="user_guide sources only: public doc URL, with #anchor when known."
+    )
     score: float
 
 

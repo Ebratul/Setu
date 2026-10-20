@@ -1,0 +1,69 @@
+---
+title: 模拟沙盒
+summary: “模拟”标签的含义：Setu 的哪些部分是模拟的，哪些部分是真实运行的软件。
+section: getting-started
+order: 30
+roles: [buyer, supplier, admin, judge]
+routes: []
+related: [getting-started/what-is-setu, getting-started/two-minute-tour, security/permission-tiers]
+updated: 2026-10-20
+---
+
+## 简介 \{#what-it-is}
+
+Setu 是参赛原型。所有资金流动都是**模拟沙盒**记录。金额旁有“模拟”标签，演示中有“Simulated sandbox – fictional data”横幅，页脚写有“Simulated sandbox — no real payments”。没有训练任何模型：Setu 调用托管的语言模型，且只用于解释结果。
+
+<Callout type="warning" title="没有真实资金">
+没有真实支付通道、银行、贷款方或短信服务商。请勿输入真实银行信息或个人数据。
+</Callout>
+
+## 适用对象 \{#who}
+
+<RoleBadge role="buyer" /> <RoleBadge role="supplier" /> <RoleBadge role="admin" /> <RoleBadge role="judge" />
+
+所有人看到的标签相同。
+
+## 哪些是模拟的 \{#simulated}
+
+| 部分 | 含义 |
+|---|---|
+| 资金 | 托管存入、释放、汇兑和贷款都是模拟复式账本中的记录。账本把每笔金额记为互相对应的借方和贷方。 |
+| 人物与公司 | Rahima Knitwear、中国供应商和贷款方都是虚构的。 |
+| 贷款方 | Lender A、Lender B、供应商信用和托管担保贷款均为模拟。 |
+| 短信与 OTP | 一次性密码出现在屏幕上的“Demo phone”，而不是真实手机。 |
+| 时间跳跃 | 演示第 12 步会记入模拟的客户回款，以便支付最后一笔。该跳跃有明确标注并写入审计。 |
+| 演示中的 AI 回答 | 沙盒默认回放已录制的回答，因此每次结果一致，离线也能运行。服务器有密钥时，“Use live AI”可在有限额度内调用真实模型。 |
+
+## 哪些是真实的 \{#real}
+
+做出决定的软件是真实的，并在每次操作时运行。
+
+- **计算。** 到岸成本、毛利、现金缺口、融资排序和汇率由 Python 代码用精确小数计算。
+- **风险级别。** 每个操作的级别由代码决定，而不是 AI。
+- **单据取证。** PDF 真实解析，隐藏文字真实检出，哈希真实比对。
+- **隐私网关。** 调用模型前，标识信息真实被遮蔽。
+- **审计日志。** 条目真实地经 Ed25519 签名并哈希串联。您可以在 [/verify](/docs/zh/judge/verify) 自行验证导出文件。
+
+## 您自己的沙盒 \{#own}
+
+在演示中，每位评委都有数据的私有副本。您的操作不影响他人，可以重置，数小时后会过期。
+{/* REVIEW: 过期时间是服务器设置（docs/demo.md 默认 4 小时）；请确认已部署的取值。评委页面本身只提供 EN/BN 文档。 */}
+
+## 提示与常见错误 \{#tips}
+
+- 没有“模拟”标签的页面不显示资金。
+
+## 相关安全说明 \{#security}
+
+<Callout type="security">
+Tier 2 和 Tier 3 操作只能由真人通过审批页面执行，AI 无法执行。见[权限级别](/docs/zh/security/permission-tiers)。
+</Callout>
+
+## 试一试 \{#try-it}
+
+<TryItButton href="/demo" />
+
+## 相关页面 \{#related}
+
+- [什么是 Setu](/docs/zh/getting-started/what-is-setu)
+- [两分钟导览](/docs/zh/getting-started/two-minute-tour)

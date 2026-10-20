@@ -1,0 +1,79 @@
+---
+title: অ্যাডমিন কনসোলের পরিচিতি
+summary: অ্যাডমিন সাইডবারে কী দেখেন এবং কোন পাতা কী কাজ করে।
+section: admin
+order: 10
+roles: [admin]
+routes: []
+tryIt: "/app/admin/audit"
+related: [admin/audit-log, admin/onboarding-review, security/permission-tiers, judge/five-minute-guide]
+updated: 2026-10-20
+---
+
+## What it is \{#what-it-is}
+
+অ্যাডমিন কনসোল হলো সেতুর সেই অংশ, যেখানে দেখা যায় সিস্টেম কীভাবে অর্থ ও তথ্য সুরক্ষিত রাখে। এটি সাইডবারের **অ্যাডমিন ও নিরাপত্তা** শিরোনামের নিচে কয়েকটি পাতার সমষ্টি। সেতুর সব অর্থ সিমুলেটেড, প্রতিটি পাতায় "Simulated" ব্যাজ আছে।
+
+## Who uses it \{#who}
+
+<RoleBadge role="admin" /> অ্যাডমিন নিচের সব পাতা দেখেন। বিচারকও একই গ্রুপ দেখেন, তবে **কোম্পানি যাচাই** দেখেন না এবং নিরাপত্তা ঘটনা নিষ্পত্তি করতে পারেন না।
+
+## When to use it \{#when}
+
+- নতুন কোম্পানি যোগ দিতে চেয়েছে এবং KYB (কোম্পানির পরিচয় যাচাই) সিদ্ধান্ত দরকার।
+- অডিট লগ বদলায়নি, তার প্রমাণ দেখাতে চান।
+- কেন একটি পেমেন্ট আটকানো বা অনুমোদনে গেল, তা দেখতে চান।
+- এআই-এর কাছে ব্যক্তিগত তথ্য যায়নি কি না যাচাই করতে চান।
+
+## Step by step \{#how-to}
+
+<Steps>
+<Step title="অ্যাডমিন হিসেবে সাইন ইন করুন">
+অ্যাপ খুলুন। **অ্যাডমিন ও নিরাপত্তা** গ্রুপ শুধু অ্যাডমিন ও বিচারকের অ্যাকাউন্টে দেখা যায়।
+<Screenshot name="admin/overview-sidebar" route="/app/admin/audit" as="admin" alt="সেতুর সাইডবারে অ্যাডমিন ও নিরাপত্তা গ্রুপ খোলা, তাতে কোম্পানি যাচাই, রেজিস্ট্রি, ঝুঁকি ইঞ্জিন, প্রাইভেসি, নিরাপত্তা ও অডিট লগ আছে।" caption="সাইডবারের অ্যাডমিন ও নিরাপত্তা গ্রুপ।" />
+</Step>
+<Step title="গ্রুপ থেকে একটি পাতা বেছে নিন">
+প্রতিটি আইটেম /app/admin বা /demo-র নিচের একটি পাতা খোলে।
+<Screenshot name="admin/overview-audit" route="/app/admin/audit" as="admin" alt="সাইডবার থেকে খোলা স্বাক্ষরিত অডিট লগ পাতা।" caption="সাইডবার থেকে খোলা অডিট লগ।" />
+</Step>
+</Steps>
+
+## What the results mean \{#results}
+
+| সাইডবার আইটেম | পাতা | গাইড |
+|---|---|---|
+| কোম্পানি যাচাই (শুধু অ্যাডমিন) | `/app/admin/onboarding` | [অনবোর্ডিং যাচাই](/docs/bn/admin/onboarding-review) |
+| রেজিস্ট্রি | `/app/admin/registry` | [রেজিস্ট্রি](/docs/bn/admin/registry) |
+| ঝুঁকি ইঞ্জিন | `/app/admin/risk` | [ঝুঁকি সিদ্ধান্ত](/docs/bn/admin/risk-decisions) |
+| ঝুঁকি প্লেগ্রাউন্ড | `/demo/risk-playground` | [ঝুঁকি সিদ্ধান্ত](/docs/bn/admin/risk-decisions) |
+| প্রাইভেসি | `/app/admin/privacy` | [প্রাইভেসি ড্যাশবোর্ড](/docs/bn/admin/privacy-dashboard) |
+| প্রাইভেসি প্লেগ্রাউন্ড | `/demo/privacy-playground` | [প্রাইভেসি ড্যাশবোর্ড](/docs/bn/admin/privacy-dashboard) |
+| নিরাপত্তা | `/app/admin/security` | [নিরাপত্তা ঘটনা](/docs/bn/admin/security-events) |
+| আক্রমণ কনসোল | `/demo/attack-console` | [নিরাপত্তা ঘটনা](/docs/bn/admin/security-events) |
+| অডিট লগ | `/app/admin/audit` | [অডিট লগ](/docs/bn/admin/audit-log) |
+| অডিট চেইন ডেমো | `/demo/audit` | [অডিট লগ](/docs/bn/admin/audit-log) |
+| প্রতারণা সিমুলেটর | `/demo/scam-simulator` | গাইডেড ডেমোর অংশ |
+
+কিছু অ্যাডমিন কাজের ওয়েব পাতা নেই। জ্ঞানভান্ডার পুনঃইনডেক্স ও মূল্যায়ন চালানো কমান্ড-লাইনের কাজ: দেখুন [জ্ঞানভান্ডার](/docs/bn/admin/knowledge-base) ও [মূল্যায়ন](/docs/bn/admin/evaluation)। ডেমো স্যান্ডবক্স আছে [ডেমো স্যান্ডবক্স](/docs/bn/admin/demo-sandboxes) পাতায়।
+
+## Tips and common mistakes \{#tips}
+
+- `/demo`-র পাতাগুলো অ্যাপের একই তথ্য ব্যবহার করে, তবে প্লেগ্রাউন্ড টুল যোগ করে। এগুলো দেখানোর জন্য, দৈনন্দিন কাজের জন্য নয়।
+- "প্রবেশাধিকার নেই" বার্তা এলে আপনার অ্যাকাউন্ট অ্যাডমিন অ্যাকাউন্ট নয়।
+- Tier (টিয়ার) ২ ও ৩ পেমেন্ট অনুমোদন এই গ্রুপে নেই। ক্রেতারা সেগুলো অনুমোদন করেন: দেখুন [অনুমোদন](/docs/bn/buyer/approvals)।
+
+## Related security notes \{#security}
+
+<Callout type="security" title="এখান থেকে অ্যাডমিন টাকা সরাতে পারেন না">
+কোনো অ্যাডমিন পাতা অর্থ ছাড় করে না। পেমেন্ট চলে অনুমতি স্তর (Tier) মেনে, আর Tier ৩-এ OTP ও ১০ মিনিটের কুলিং-অফ লাগে। দেখুন [অনুমতি স্তর](/docs/bn/security/permission-tiers)।
+</Callout>
+
+## Try it \{#try-it}
+
+<TryItButton href="/app/admin/audit" />
+
+## Related pages \{#related}
+
+- [অডিট লগ](/docs/bn/admin/audit-log)
+- [অনবোর্ডিং যাচাই](/docs/bn/admin/onboarding-review)
+- [অনুমতি স্তর](/docs/bn/security/permission-tiers)

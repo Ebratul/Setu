@@ -19,6 +19,7 @@ import { formatDate, formatDecimal, formatMoney, formatPct } from "@/lib/format"
 import { useApi } from "@/lib/useApi";
 
 import { KybBadge } from "./KybBadge";
+import { InfoTip } from "@/components/docs/InfoTip";
 import { KybChecks } from "./KybChecks";
 import { RerunButton } from "./RerunButton";
 import { ScoreBar } from "./ScoreBar";
@@ -38,8 +39,9 @@ function Section({
 }) {
   return (
     <Card as="section" labelledBy={id} className="space-y-3">
-      <h2 id={id} className="text-lg font-bold text-ink">
+      <h2 id={id} className="flex items-center gap-2 text-lg font-bold text-ink">
         {title}
+        {id === "status-h" ? <InfoTip topic="kyb" doc="buyer/suppliers-kyb#what-it-is" /> : null}
       </h2>
       {children}
     </Card>

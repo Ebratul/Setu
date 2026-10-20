@@ -1,0 +1,69 @@
+---
+title: Simulated sandbox
+summary: 'What the "Simulated" label means, which parts of Setu are simulated and which parts are real working software.'
+section: getting-started
+order: 30
+roles: [buyer, supplier, admin, judge]
+routes: []
+related: [getting-started/what-is-setu, getting-started/two-minute-tour, security/permission-tiers]
+updated: 2026-10-20
+---
+
+## What it is \{#what-it-is}
+
+Setu is a competition prototype. Every money movement is a **simulated sandbox** entry. You see the label "Simulated" next to money, the banner "Simulated sandbox – fictional data" in the demo, and a footer line "Simulated sandbox — no real payments". No model was trained: Setu calls hosted language models, and only to explain results.
+
+<Callout type="warning" title="No real money">
+There are no real payment rails, no real bank, no real lender and no real SMS provider. Do not enter real bank details or real personal data.
+</Callout>
+
+## Who uses it \{#who}
+
+<RoleBadge role="buyer" /> <RoleBadge role="supplier" /> <RoleBadge role="admin" /> <RoleBadge role="judge" />
+
+Everyone sees the same label.
+
+## What is simulated \{#simulated}
+
+| Part | What this means |
+|---|---|
+| Money | Escrow deposits, releases, FX conversion and loans are entries in a simulated double-entry ledger. A ledger records each amount as a matching debit and credit. |
+| People and companies | Rahima Knitwear, the Chinese suppliers and the lenders are fictional. |
+| Lenders | Lender A, Lender B, supplier credit and the escrow-backed loan are mock lenders. |
+| SMS and OTP | One-time passwords arrive in an on-screen "Demo phone", not a real phone. |
+| Time skips | The demo can credit simulated customer payments in step 12 so the last tranche can be funded. This is a labelled and audited time skip. |
+| AI answers in the demo | By default a sandbox replays recorded answers, so every run is the same and works offline. "Use live AI" switches to a live model when the server has a key, up to a limited budget. |
+
+## What is real \{#real}
+
+The software that makes the decisions is real and runs on every action.
+
+- **Calculations.** Landed cost, margin, cash gap, financing ranking and FX are computed by Python code with exact decimals.
+- **Risk tiers.** The tier of every action is decided by code, not by the AI.
+- **Document forensics.** PDFs are really parsed, hidden text is really found, hashes are really compared.
+- **Privacy Gateway.** Identifiers are really masked before any model call.
+- **Audit log.** Entries are really signed (Ed25519) and hash-chained. You can verify an export yourself on [/verify](/docs/en/judge/verify).
+
+## Your own sandbox \{#own}
+
+In the demo each judge gets a private copy of the data. Nothing you do affects anyone else, you can reset it, and it expires after some hours.
+{/* REVIEW: expiry time is a server setting (docs/demo.md says 4 hours by default); confirm the deployed value. */}
+
+## Tips and common mistakes \{#tips}
+
+- If a screen is not labelled "Simulated", it does not show money.
+
+## Related security notes \{#security}
+
+<Callout type="security">
+Tier 2 and Tier 3 actions can only be executed by a person through the approval screens. The AI cannot execute them. See [Permission tiers](/docs/en/security/permission-tiers).
+</Callout>
+
+## Try it \{#try-it}
+
+<TryItButton href="/demo" />
+
+## Related pages \{#related}
+
+- [What is Setu](/docs/en/getting-started/what-is-setu)
+- [Two-minute tour](/docs/en/getting-started/two-minute-tour)

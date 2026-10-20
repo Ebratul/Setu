@@ -11,6 +11,8 @@ import { DecidedByCode } from "./DecidedByCode";
 import { RiskHints } from "./RiskHints";
 import { pick } from "./riskText";
 import { RuleTrace } from "./RuleTrace";
+import { InfoTip } from "@/components/docs/InfoTip";
+
 import { TierBadge } from "./TierBadge";
 
 type Props = { risk: RiskOut; showApprovalLink?: boolean; showSimulated?: boolean };
@@ -38,6 +40,7 @@ export function RiskDecisionCard({ risk, showApprovalLink = false, showSimulated
             {t(blocked ? "risk.card.blockedTitle" : "risk.card.title")}
           </h2>
           <TierBadge tier={risk.tier} decision={risk.decision} />
+          <InfoTip topic="fraud" doc="admin/risk-decisions#what-it-is" />
           <span className="text-sm font-semibold text-ink" data-testid="risk-decision">
             {t(`risk.decision.${risk.decision}`)}
           </span>

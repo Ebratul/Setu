@@ -1,0 +1,79 @@
+---
+title: Admin console overview
+summary: What an administrator sees in the sidebar and which page does what.
+section: admin
+order: 10
+roles: [admin]
+routes: []
+tryIt: "/app/admin/audit"
+related: [admin/audit-log, admin/onboarding-review, security/permission-tiers, judge/five-minute-guide]
+updated: 2026-10-20
+---
+
+## What it is \{#what-it-is}
+
+The admin console is the part of Setu that shows how the system protects money and data. It is a group of pages under the sidebar heading **Admin and security**. All money in Setu is simulated, and each page carries a "Simulated" badge.
+
+## Who uses it \{#who}
+
+<RoleBadge role="admin" /> Administrators see every page below. Judges see the same group except **Company review**, and they cannot resolve security events.
+
+## When to use it \{#when}
+
+- A new company asked to join and needs a KYB decision (KYB means "know your business": checking who a company is).
+- You want proof that the audit log was not changed.
+- You want to see why a payment was blocked or sent for approval.
+- You want to check that no personal data reached the AI.
+
+## Step by step \{#how-to}
+
+<Steps>
+<Step title="Sign in as an administrator">
+Open the app. The sidebar shows the group **Admin and security** only for admin and judge accounts.
+<Screenshot name="admin/overview-sidebar" route="/app/admin/audit" as="admin" alt="The Setu sidebar with the Admin and security group expanded, listing Company review, Registry, Risk engine, Privacy, Security and Audit log." caption="The Admin and security group in the sidebar." />
+</Step>
+<Step title="Pick a page from the group">
+The group lists these items, in this order.
+<Screenshot name="admin/overview-audit" route="/app/admin/audit" as="admin" alt="The Signed audit log page opened from the sidebar." caption="Every item opens a page under /app/admin or /demo." />
+</Step>
+</Steps>
+
+## What the results mean \{#results}
+
+| Sidebar item | Page | Guide |
+|---|---|---|
+| Company review (admin only) | `/app/admin/onboarding` | [Onboarding review](/docs/en/admin/onboarding-review) |
+| Registry | `/app/admin/registry` | [Registry](/docs/en/admin/registry) |
+| Risk engine | `/app/admin/risk` | [Risk decisions](/docs/en/admin/risk-decisions) |
+| Risk playground | `/demo/risk-playground` | [Risk decisions](/docs/en/admin/risk-decisions) |
+| Privacy | `/app/admin/privacy` | [Privacy dashboard](/docs/en/admin/privacy-dashboard) |
+| Privacy playground | `/demo/privacy-playground` | [Privacy dashboard](/docs/en/admin/privacy-dashboard) |
+| Security | `/app/admin/security` | [Security events](/docs/en/admin/security-events) |
+| Attack console | `/demo/attack-console` | [Security events](/docs/en/admin/security-events) |
+| Audit log | `/app/admin/audit` | [Audit log](/docs/en/admin/audit-log) |
+| Audit chain demo | `/demo/audit` | [Audit log](/docs/en/admin/audit-log) |
+| Scam simulator | `/demo/scam-simulator` | Part of the guided demo |
+
+Some admin work has no web page. Knowledge-base re-indexing and the evaluation run are command-line tasks: see [Knowledge base](/docs/en/admin/knowledge-base) and [Evaluation](/docs/en/admin/evaluation). Demo sandboxes are covered in [Demo sandboxes](/docs/en/admin/demo-sandboxes).
+
+## Tips and common mistakes \{#tips}
+
+- Pages under `/demo` use the same data as the app but add playground tools. They are meant for showing, not for daily work.
+- If a page says you have no access, your account is not an admin account.
+- Tier 2 and Tier 3 payment approvals are not in this group. Buyers approve them: see [Approvals](/docs/en/buyer/approvals).
+
+## Related security notes \{#security}
+
+<Callout type="security" title="Admins cannot move money from here">
+No admin page releases funds. Payments follow the permission tiers, and Tier 3 needs an OTP and a 10-minute cooling-off. See [Permission tiers](/docs/en/security/permission-tiers).
+</Callout>
+
+## Try it \{#try-it}
+
+<TryItButton href="/app/admin/audit" />
+
+## Related pages \{#related}
+
+- [Audit log](/docs/en/admin/audit-log)
+- [Onboarding review](/docs/en/admin/onboarding-review)
+- [Permission tiers](/docs/en/security/permission-tiers)

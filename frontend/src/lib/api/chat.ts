@@ -8,7 +8,10 @@ export type ChatResponse = S["ChatResponse"];
 export type ChatMessage = S["MessageOut"];
 export type ChatThread = S["ThreadOut"];
 export type ChatCardData = NonNullable<ChatResponse["cards"]>[number];
-export type Citation = components["schemas"]["Citation"];
+export type Citation = components["schemas"]["Citation"] & { guide_url?: string | null };
+
+/** Only same-site documentation links are ever rendered as links. */
+export const GUIDE_URL = /^\/docs\/(en|bn|zh)\/[\w-]+\/[\w-]+(#[\w-]+)?$/;
 export type CardType = ChatCardData["card_type"];
 export type ChatLanguage = "en" | "bn";
 
@@ -127,7 +130,10 @@ export function sanitizeCitations(v: unknown): Citation[] {
     if (!isObj(c) || !/^S\d+$/.test(str(c.cite_id))) continue;
     const item = {} as Record<string, string>;
     for (const k of keys) item[k] = str(c[k]);
-    out.push(item as unknown as Citation);
+    const guide = str(c.guide_url);
+    const cite = item as unknown as Citation;
+    cite.guide_url = GUIDE_URL.test(guide) ? guide : null;
+    out.push(cite);
   }
   return out;
 }

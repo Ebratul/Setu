@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 
+import { InfoTip } from "@/components/docs/InfoTip";
 import { TierBadge } from "@/components/risk/TierBadge";
 import { Badge, type Tone } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
@@ -59,6 +60,7 @@ export function ApprovalCard({ approval: a, fetchedAt, now, onReview }: Props) {
             {actionLabel(a, lang)}
           </h2>
           <TierBadge tier={a.tier} />
+          <InfoTip topic="tier" doc="security/permission-tiers#what-it-is" />
           <Badge tone={STATUS_TONE[a.status]}>{t(`appr.status.${a.status}`)}</Badge>
           <SimulatedBadge />
         </div>

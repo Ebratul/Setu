@@ -1,0 +1,42 @@
+---
+title: Funding the escrow
+summary: Deposit money into a deal's simulated escrow account.
+section: buyer
+order: 40
+roles: [buyer]
+routes: ["/app/deals/[id]"]
+tryIt: "/app/deals"
+updated: 2026-10-20
+---
+
+{/* REVIEW: check the button label */}
+
+## What it is \{#what-it-is}
+
+Funding the escrow reserves your payment for a deal. <RoleBadge role="buyer" /> only.
+
+## Step by step \{#how-to}
+
+<Steps>
+<Step title="Open Deals">
+Choose **Deals** in the sidebar, then pick the deal.
+<Screenshot name="buyer/deals" route="/app/deals" as="buyer" alt="The deals list" />
+</Step>
+<Step title="Fund the escrow">
+Press <Kbd>Fund</Kbd> to create a <TierBadge tier={2} /> approval.
+</Step>
+</Steps>
+
+<Callout type="security" title="Simulated">
+No real money moves.
+</Callout>
+
+## FAQ \{#faq}
+
+<FAQ>
+<FAQItem q="Can I undo a deposit?">
+Ask for a refund from the deal page.
+</FAQItem>
+</FAQ>
+
+<TryItButton href="/app/deals" />

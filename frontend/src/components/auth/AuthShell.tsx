@@ -3,7 +3,9 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 
+import { PublicFooter } from "@/components/landing/PublicFooter";
 import { Alert } from "@/components/ui/Alert";
+import { BackButton } from "@/components/ui/BackButton";
 import { Button } from "@/components/ui/Button";
 import { LanguageToggle } from "@/components/shell/LanguageToggle";
 import { Skeleton } from "@/components/ui/Skeleton";
@@ -59,12 +61,14 @@ export function AuthShell({ title, lead, neonOnly = false, children }: Props) {
         </div>
       </header>
       <main id="main" className="mx-auto w-full max-w-2xl flex-1 px-4 py-10">
+        <BackButton fallbackHref="/" className="-ml-2 mb-4" />
         <h1 className="text-2xl font-bold text-ink">{title}</h1>
         {lead && mode === "neon" ? <p className="mt-2 text-sm text-muted">{lead}</p> : null}
         <div className="mt-6" aria-busy={mode === null && !failed}>
           {body}
         </div>
       </main>
+      <PublicFooter />
     </>
   );
 }

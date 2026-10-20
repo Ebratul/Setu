@@ -1,0 +1,69 @@
+---
+title: 什么是 Setu
+summary: Setu 是一个 AI 财务助手，帮助从中国进口的孟加拉国中小企业完成融资、现金流、单据核查和里程碑托管。
+section: getting-started
+order: 10
+roles: [buyer, supplier, admin, judge]
+routes: []
+related: [getting-started/simulated-sandbox, getting-started/roles-and-login, getting-started/two-minute-tour]
+updated: 2026-10-20
+---
+
+## 简介 \{#what-it-is}
+
+Setu（সেতু，意为“桥梁”）服务于向中国供应商采购的孟加拉国小型企业。它计算订单的真实成本，提示现金何时吃紧，比较融资方案，并通过**里程碑托管**（milestone escrow）分阶段向供应商付款。托管是指资金由中立账户保管，收到约定的证明后才释放。
+
+高风险操作始终由人来决定。AI 只负责解释，计算和规则执行由代码完成。
+
+<Callout type="security" title="所有资金均为模拟">
+Setu 中的每笔付款、托管余额和贷款都是模拟沙盒记录。没有真实资金流动，也没有训练任何模型。见[模拟沙盒](/docs/zh/getting-started/simulated-sandbox)。
+</Callout>
+
+## 适用对象 \{#who}
+
+<RoleBadge role="buyer" /> <RoleBadge role="supplier" /> <RoleBadge role="admin" /> <RoleBadge role="judge" />
+
+买方（进口商）和供应商用于贸易。管理员审核公司和事件。评委查看演示数据的私有只读副本。见[角色与登录](/docs/zh/getting-started/roles-and-login)。
+
+## 解决什么问题 \{#problem}
+
+从中国进货的孟加拉国进口商通常同时面对四个问题。
+
+| 问题 | Setu 的做法 |
+|---|---|
+| 真实成本不清楚（运费、关税、银行费用、汇率） | 按订单分析到岸成本和毛利 |
+| 两次付款之间现金吃紧 | 90 天现金流日历，含缺口和到期提醒 |
+| 贷款难以比较 | 按总成本和利率比较融资方案 |
+| 向境外陌生方付款风险高：假供应商、伪造单据、被更改的银行账户 | 供应商核查（KYB）、单据取证、里程碑托管、分级审批 |
+
+信用证（LC）能提供这类保护，但小额订单成本偏高。Setu 希望以更低成本提供类似的保护。
+
+## 安全模型 \{#safety}
+
+- **Tier 0 和 Tier 1**（权限级别）自动执行，Tier 1 附带通知。
+- **Tier 2** 需要真人一键批准。
+- **Tier 3** 需要一次性密码（OTP）和 10 分钟冷静期。
+
+级别由代码根据数据库中的事实判定。单据或邮件中的文字只是数据，绝不是指令。详见[权限级别](/docs/zh/security/permission-tiers)。
+
+## 下一步 \{#next}
+
+<Steps>
+<Step title="看一遍导览">
+阅读[两分钟导览](/docs/zh/getting-started/two-minute-tour)。
+</Step>
+<Step title="亲自试用">
+打开引导式演示并点击开始。
+<Screenshot name="getting-started/demo-landing" route="/demo" as="judge" alt="Setu 引导式演示的起始页，有三个按钮：观看引导式演示、开始我自己的沙盒和演示者模式。" caption="引导式演示起始页。" />
+</Step>
+</Steps>
+
+## 试一试 \{#try-it}
+
+<TryItButton href="/demo" />
+
+## 相关页面 \{#related}
+
+- [角色与登录](/docs/zh/getting-started/roles-and-login)
+- [模拟沙盒](/docs/zh/getting-started/simulated-sandbox)
+- [两分钟导览](/docs/zh/getting-started/two-minute-tour)

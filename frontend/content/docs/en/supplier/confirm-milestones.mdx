@@ -1,0 +1,80 @@
+---
+title: Confirm the payment milestones
+summary: Agree to the payment schedule your buyer proposed, so the buyer can fund the escrow.
+section: supplier
+order: 20
+roles: [supplier]
+routes: ["/supplier/[id]"]
+tryIt: "/supplier"
+related: [supplier/overview, supplier/upload-documents, security/permission-tiers]
+updated: 2026-10-20
+---
+
+## What it is \{#what-it-is}
+
+Your buyer proposes a payment schedule: milestones such as **Production start**, **Shipment** and **Arrival**, each with an amount and the documents needed. Both sides must confirm it. Only then can the buyer put money in escrow.
+
+## Who uses it \{#who}
+
+<RoleBadge role="supplier" /> The supplier confirms its own side. The buyer confirms separately.
+
+## When to use it \{#when}
+
+When an order is **Proposed** and you accept the amounts, dates and required documents.
+
+## Step by step \{#how-to}
+
+<Steps>
+<Step title="Open the order">
+Go to **Orders** and click the order reference.
+<Screenshot name="supplier/orders-list" route="/supplier" as="supplier" alt="Supplier orders list" caption="Pick the order." />
+</Step>
+<Step title="Read the milestones">
+Under **Payment milestones** each card shows the milestone, the amount with its percent, the due date and the **Evidence** list of documents you must provide.
+<Screenshot name="supplier/milestones" route="/supplier/SETU-2026-0001" as="supplier" alt="Payment milestones with amounts, due dates and the evidence checklist" caption="Check amounts, dates and evidence before you agree." wait="[data-testid='milestone']" />
+</Step>
+<Step title="Press Confirm schedule">
+Click **Confirm schedule**. A box asks "Confirm the payment schedule?" and says you agree to the milestones, amounts and evidence shown. Confirm again. You see "Schedule confirmed."
+<Screenshot name="supplier/confirm-dialog" route="/supplier/SETU-2026-0001" as="supplier" click="[data-testid='action-confirm']" alt="Dialog asking to confirm the payment schedule" caption="The confirmation dialog." />
+</Step>
+<Step title="Check the confirmation list">
+A list shows Buyer and Supplier with **Confirmed** or **Not yet confirmed**. When both are confirmed, the order becomes **Confirmed**.
+<Screenshot name="supplier/confirmations" route="/supplier/SETU-2026-0001" as="supplier" alt="List of party confirmations showing buyer and supplier status" caption="Both sides must be confirmed." />
+</Step>
+</Steps>
+
+## What the results mean \{#results}
+
+| Status | Meaning |
+|---|---|
+| Proposed | Waiting for confirmation. |
+| Locked | Schedule agreed. The step is waiting for funding and evidence. |
+| Ready to release | Evidence is verified. The buyer can release the payment. |
+| Waiting for approval | The buyer's release needs a human approval first. |
+| Released | Paid to you (simulated). |
+| Frozen | Paused for safety. |
+
+Evidence badges: Missing, Pending, Verified, Flagged, Rejected.
+
+## Tips and common mistakes \{#tips}
+
+- The button is greyed out when you already confirmed, or when there is no proposed schedule. The reason shows under the button.
+- If the amounts are wrong, do not confirm. Ask your buyer to propose again. A new proposal resets confirmations.
+- You cannot change amounts yourself.
+
+## Related security notes \{#security}
+
+<Callout type="security">
+Confirming is recorded in the signed audit log. Money only moves after the buyer funds the escrow and the rules allow a release. See [permission tiers](/docs/en/security/permission-tiers).
+</Callout>
+
+{/* REVIEW: it is not verified whether confirming can ever need an extra approval for a supplier (the code runs a risk gate). Page says nothing about that. */}
+
+## Try it \{#try-it}
+
+<TryItButton href="/supplier" />
+
+## Related pages \{#related}
+
+- [Portal overview](/docs/en/supplier/overview)
+- [Upload documents](/docs/en/supplier/upload-documents)

@@ -1,0 +1,79 @@
+---
+title: 上传单据
+summary: 为订单上传形式发票、生产照片、装箱单和提单。
+section: supplier
+order: 30
+roles: [supplier]
+routes: ["/supplier/[id]"]
+tryIt: "/supplier"
+related: [supplier/document-failures, supplier/confirm-milestones, glossary/glossary]
+updated: 2026-10-20
+---
+
+## 这是什么 \{#what-it-is}
+
+订单页上的 **单据** 区域用来上传证明每个里程碑完成的文件。Setu 会自动检查每个文件，您只会看到一个简短的状态。
+
+## 谁使用 \{#who}
+
+<RoleBadge role="supplier" /> 供应商员工。已取消的订单不能上传。
+
+## 何时使用 \{#when}
+
+单据准备好就上传：先传形式发票和生产照片，之后传装箱单、提单（B/L，承运人出具的运输单据）和商业发票。
+
+## 操作步骤 \{#how-to}
+
+<Steps>
+<Step title="找到单据区域">
+在订单页找到 **单据** 和 **上传单据** 面板。
+<Screenshot name="supplier/upload-panel" route="/supplier/SETU-2026-0001" as="supplier" alt="上传单据面板，含虚线拖放区和选择文件按钮" caption="把文件拖到这里，或点击选择文件。" />
+</Step>
+<Step title="添加文件">
+把文件拖入框中，或点击 **选择文件**。支持 PDF、PNG 或 JPG，每个文件最大 10 MB。照片必须是 PNG 或 JPG，其他单据必须是 PDF。
+<Screenshot name="supplier/upload-staged" route="/supplier/SETU-2026-0001" as="supplier" alt="上传队列，含待上传文件和单据类型下拉框" caption="每个文件都要选择单据类型。" />
+</Step>
+<Step title="选择单据类型">
+系统会根据文件名猜测类型，请核对。可选：形式发票、生产照片、提单、装箱单、商业发票。
+<Screenshot name="supplier/upload-type" route="/supplier/SETU-2026-0001" as="supplier" alt="单据类型下拉框，列出五种供应商单据类型" caption="选对单据类型。" />
+</Step>
+<Step title="上传">
+点击 **上传 n 个文件**。文件几秒内完成检查。如果仍在检查，请稍后刷新。
+<Screenshot name="supplier/upload-done" route="/supplier/SETU-2026-0001" as="supplier" alt="单据列表，含文件名、日期和状态标签" caption="列表显示您的文件和状态。" />
+</Step>
+</Steps>
+
+## 结果说明 \{#results}
+
+| 状态 | 含义 |
+|---|---|
+| 已上传 | 已收到，尚未检查。 |
+| 审核中 | 正在检查，或等待买方审核。 |
+| 已接受 | 通过检查。 |
+| 需处理 | 有问题需要修改，见[单据为何需处理](/docs/zh/supplier/document-failures)。 |
+
+您看不到评分和具体原因。
+
+## 提示与常见错误 \{#tips}
+
+- 提示文件“已上传”：同一文件已在本订单中，不会重复添加。
+- 提示该文件已附在另一笔订单：一份单据不能证明两笔订单。请上传本订单对应的文件。
+- 文件类型不符：照片用 PNG 或 JPG，单据用 PDF。
+- 请上传您系统导出的原件，不要手工修改 PDF。
+
+{/* REVIEW: most upload messages (doc.up.*, docErr.*) have no ZH translation in the app yet, so a Chinese user will see English messages for them. Wording above paraphrases the English text. */}
+
+## 相关安全说明 \{#security}
+
+<Callout type="security">
+文件按固定规则检查，而不是凭主观判断。单据里的文字只被当作数据，不会被当作指令。如果文件里含有试图发号施令的句子，文件会被拒绝，并可能触发第3级审核。见[权限等级](/docs/zh/security/permission-tiers)。
+</Callout>
+
+## 试一试 \{#try-it}
+
+<TryItButton href="/supplier" />
+
+## 相关页面 \{#related}
+
+- [单据为何需处理](/docs/zh/supplier/document-failures)
+- [确认付款里程碑](/docs/zh/supplier/confirm-milestones)

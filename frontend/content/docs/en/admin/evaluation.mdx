@@ -1,0 +1,74 @@
+---
+title: Evaluation harness and results
+summary: Run the evaluation with make eval and read the measured results. There is no web page.
+section: admin
+order: 90
+roles: [admin]
+routes: []
+related: [admin/security-events, admin/privacy-dashboard, judge/five-minute-guide]
+updated: 2026-10-20
+---
+
+## What it is \{#what-it-is}
+
+The evaluation harness measures fraud detection, duplicate catching, prompt-injection defence, privacy leakage and tier decisions. No model was trained: the numbers describe rules and code on synthetic documents. They are a ceiling, not real-world accuracy.
+
+{/* REVIEW: No web page shows the full evaluation. The only evaluation in the UI is the injection scoreboard on /app/admin/security (dev split). The results below are files. */}
+
+## Who uses it \{#who}
+
+<RoleBadge role="admin" /> Whoever runs the server.
+
+## When to use it \{#when}
+
+Before a presentation or after changing detection rules, to refresh the numbers.
+
+## Step by step \{#how-to}
+
+<Steps>
+<Step title="Run the harness">
+Run `make eval`. It runs `python -m eval.run` on the test split. You can narrow it, for example `--only forensics,tiers`.
+<Screenshot name="admin/eval-run" route="/app/admin/security" as="admin" alt="The Security page, which shows the in-app injection scoreboard (dev split). The full harness runs in the terminal." caption="Only the injection scoreboard is in the web app." />
+</Step>
+<Step title="Read the results files">
+Open `backend/eval/results/metrics.md` (readable) or `metrics.json` (data).
+<Screenshot name="admin/eval-results" route="/app/admin/security" as="admin" alt="The in-app Attack success rate scoreboard for comparison with the results file." caption="Compare with the file." />
+</Step>
+</Steps>
+
+## What the results mean \{#results}
+
+From the latest `metrics.md` (test split, generated 2026-10-20, synthetic data):
+
+| Measure | Result |
+|---|---|
+| Fraud checks, WARN or FAIL counts as flagged | precision 1.0, recall 1.0 |
+| Fraud checks, FAIL only | precision 1.0, recall 0.9508 |
+| Clean packs flagged | 0 of 50 |
+| Tampered packs with at least one unpassed document | 50 of 50 |
+| Duplicate documents caught | 5 of 5 (exact 2, near 3) |
+| Injection attack success, defences off / on | 100% / 0% |
+| Money moved by attacks | 0 in every mode |
+| Injection detection recall; false positives | 100%; 0 of 300 |
+| Sensitive identifiers leaked, masking on | 0 of 600 |
+| Tampered packs auto-released | 0 |
+| Clean packs escalated | 0 of 50 |
+
+Precision means "of the items flagged, how many were right". Recall means "of the real problems, how many were found".
+
+## Tips and common mistakes \{#tips}
+
+- The test split is for reporting. Thresholds are tuned on the dev split, so do not tune on test results.
+- Results are synthetic. Do not quote them as real-world accuracy.
+- Re-running overwrites the files.
+
+## Related security notes \{#security}
+
+<Callout type="security">
+The harness uses a mock model and a sandbox. It never moves real money.
+</Callout>
+
+## Related pages \{#related}
+
+- [Security events](/docs/en/admin/security-events)
+- [Privacy dashboard](/docs/en/admin/privacy-dashboard)

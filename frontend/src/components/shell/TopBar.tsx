@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 
+import { HelpButton } from "@/components/docs/HelpButton";
 import { Icon } from "@/components/ui/Icon";
 import { SimulatedBadge } from "@/components/ui/SimulatedBadge";
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
@@ -63,6 +64,7 @@ export function TopBar({ variant = "app", showBell = false, onSearch }: Props) {
               {t("nav.team")}
             </Link>
           ) : null}
+          <HelpButton />
           <LanguageToggle withZh={supplier} />
           <DigitsToggle />
           <ThemeToggle />

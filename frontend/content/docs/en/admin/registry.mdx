@@ -1,0 +1,76 @@
+---
+title: Document registry and duplicate detection
+summary: See which documents are fingerprinted and how many duplicates were caught.
+section: admin
+order: 50
+roles: [admin]
+routes: ["/app/admin/registry"]
+tryIt: "/app/admin/registry"
+related: [security/permission-tiers, judge/five-minute-guide]
+updated: 2026-10-20
+---
+
+## What it is \{#what-it-is}
+
+The **Document hash registry** gives every invoice and evidence document a digital fingerprint (a hash) once. The same document cannot back two deals, or be pledged at two lenders. Setu stores only hashes and minimal metadata.
+
+## Who uses it \{#who}
+
+<RoleBadge role="admin" /> Admins and judges view the registry. It is read-only.
+
+## When to use it \{#when}
+
+- To see how many duplicate documents were caught.
+- To check whether a document is active or already released.
+
+## Step by step \{#how-to}
+
+<Steps>
+<Step title="Open Registry">
+Choose **Registry** in the sidebar. The top card **Duplicates caught** splits the count into **Exact copies** and **Near copies**. A second card shows **Entries**, **Active** and **Released**.
+<Screenshot name="admin/registry-counters" route="/app/admin/registry" as="admin" alt="The Duplicates caught card with exact and near counts, next to Entries, Active and Released." caption="Registry counters." />
+</Step>
+<Step title="Filter the table">
+Under **Filters** choose a **Status** (All, Active, Released) and a **Duplicates caught** value (All, Exact, Near).
+<Screenshot name="admin/registry-filters" route="/app/admin/registry" as="admin" alt="The filter group for status and duplicate result." caption="Filters." />
+</Step>
+<Step title="Read the entries">
+**Registry entries** shows Hash, Document, Purpose, Lender, Deal, Registered, Seen and Hits (exact / near). Use **Previous** and **Next** to page.
+<Screenshot name="admin/registry-table" route="/app/admin/registry" as="admin" alt="The Registry entries table with hash prefixes and status badges." caption="Registry entries." />
+</Step>
+</Steps>
+
+## What the results mean \{#results}
+
+| Item | Meaning |
+|---|---|
+| Exact copy | The same file bytes (same sha256 hash). |
+| Near copy | A re-saved or re-scanned copy with the same identity fields (seller, number, total, currency) for invoices. |
+| Purpose | Escrow evidence for a deal, or financing collateral at a lender. |
+| Active | Still blocks other uses. |
+| Released | Kept for history; the deal ended and it no longer blocks. |
+| Hits | How many exact and near attempts hit this entry. |
+
+A duplicate fails the document check and raises a Tier 3 case. See [Permission tiers](/docs/en/security/permission-tiers).
+
+## Tips and common mistakes \{#tips}
+
+- Hashes show only a short prefix.
+- A near copy needs the same document type. Photos and packing lists get exact matching only.
+- The page has no buttons to edit or delete entries.
+- The lender check ("Try to finance this invoice at Lender B") is on the deal detail page, not on this admin page.
+
+## Related security notes \{#security}
+
+<Callout type="security">
+The registry answers "is this hash registered?" only to admin, judge and, for their own documents, buyers. Every hit is audited.
+</Callout>
+
+## Try it \{#try-it}
+
+<TryItButton href="/app/admin/registry" />
+
+## Related pages \{#related}
+
+- [Permission tiers](/docs/en/security/permission-tiers)
+- [Audit log](/docs/en/admin/audit-log)

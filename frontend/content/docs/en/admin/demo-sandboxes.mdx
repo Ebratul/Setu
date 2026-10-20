@@ -1,0 +1,80 @@
+---
+title: Demo sandboxes and reset
+summary: How private demo sandboxes are created, reset, ended and cleaned up.
+section: admin
+order: 100
+roles: [admin]
+routes: ["/demo", "/demo/run"]
+tryIt: "/demo"
+related: [judge/five-minute-guide, admin/audit-log]
+updated: 2026-10-20
+---
+
+## What it is \{#what-it-is}
+
+A sandbox is a private copy of the demo data. Each judge or presenter gets their own, so nobody changes anyone else's data. It is a separate Postgres schema cloned from the seed. All money and people are fictional.
+
+## Who uses it \{#who}
+
+<RoleBadge role="admin" /> Admins who run demos or look after the server. <RoleBadge role="judge" /> Judges use sandboxes through the demo page.
+
+## When to use it \{#when}
+
+- To run the four-minute guided demo.
+- To let a judge explore freely without side effects.
+- To reset a demo after a run.
+
+## Step by step \{#how-to}
+
+<Steps>
+<Step title="Open the demo page">
+Go to `/demo`. The buttons are **Watch guided demo**, **Start my own sandbox** and **Presenter mode**. The **Pre-flight check** list shows if the system is ready.
+<Screenshot name="admin/demo-landing" route="/demo" as="admin" alt="The demo landing page with three start buttons and the pre-flight check." caption="The demo landing page." />
+</Step>
+<Step title="Start a sandbox">
+Choosing a button creates (or resumes) your sandbox and sets a signed cookie. In the run screen the banner reads "Simulated sandbox – fictional data" and a timer shows when the sandbox expires.
+<Screenshot name="admin/demo-run" route="/demo/run" as="admin" alt="The split-screen demo run with the app on the left and the story on the right." caption="A running sandbox." />
+</Step>
+<Step title="Reset the demo">
+Under **Demo tools** press **Reset demo** and confirm. Your sandbox is rebuilt from the seed and the demo returns to the first scene. Nothing outside your sandbox changes.
+<Screenshot name="admin/demo-reset" route="/demo/run" as="admin" alt="The Reset the demo dialog asking for confirmation." caption="Reset confirmation." />
+</Step>
+<Step title="End the sandbox">
+Press **End sandbox**. Your private copy is deleted now. You can start a new one at any time.
+<Screenshot name="admin/demo-end" route="/demo/run" as="admin" alt="The End your sandbox dialog." caption="Ending a sandbox." />
+</Step>
+</Steps>
+
+## What the results mean \{#results}
+
+| Control or message | Meaning |
+|---|---|
+| Use live AI | Real model calls, limited by a budget (25 calls by default), then recorded answers. Needs a server key. |
+| Skip cooling-off (demo only) | Ends the Tier 3 pause in this sandbox. It is audited. |
+| Sandbox has expired | Sandboxes last 4 hours by default. |
+| All demo sandboxes are busy | The server limit (40 active by default) was reached. |
+| You are going a little fast | A rate limit applied. The app retries. |
+
+Reset adds a signed `DEMO_RESET` entry to the new audit chain.
+
+## Tips and common mistakes \{#tips}
+
+- Expired sandboxes are removed lazily when a new one is created. The command `pnpm demo:cleanup` drops expired ones. A scheduler can call `POST /demo/cleanup` with the cron secret. {/* REVIEW: the server needs a scheduler for cleanup in production; confirm it is configured on the deployed site. */}
+- `pnpm demo:check` runs all 12 steps in replay and fails on any missing recording. Run it before a presentation.
+- `pnpm demo:record` re-records AI answers and spends model tokens.
+- Presenter mode keys: right and left arrows, Space, R, B and N.
+- `pnpm db:reset-demo` resets the shared seed database. It is different from the per-sandbox Reset demo button.
+
+## Related security notes \{#security}
+
+<Callout type="security">
+A sandbox cookie that no longer matches a sandbox is refused. It never falls back to shared data. Limits per sandbox protect the server.
+</Callout>
+
+## Try it \{#try-it}
+
+<TryItButton href="/demo" />
+
+## Related pages \{#related}
+
+- [Audit log](/docs/en/admin/audit-log)

@@ -1,0 +1,81 @@
+---
+title: Funding the escrow
+summary: Deposit money into the deal's escrow, in full or tranche by tranche, after both sides confirm the schedule.
+section: buyer
+order: 40
+roles: [buyer]
+routes: []
+tryIt: "/app/deals"
+related: [buyer/deal-detail, buyer/approvals, buyer/fx, security/permission-tiers]
+updated: 2026-10-20
+---
+
+## What it is \{#what-it-is}
+
+**Escrow** is a holding account. You deposit money, and it stays there until a milestone is released to the supplier. In Setu this is a simulated sandbox. No real funds move.
+
+This action lives on the deal page: **Deals**, open a deal, **Overview** tab, **Actions** section, button **Fund escrow**. It has no page of its own.
+
+## Who uses it \{#who}
+
+<RoleBadge role="buyer" /> Buyers and admins. Suppliers and judges do not see the button.
+
+## When to use it \{#when}
+
+After you and the supplier both clicked **Confirm schedule** (deal status Confirmed). Fund before you want a milestone released.
+
+## Step by step \{#how-to}
+
+<Steps>
+<Step title="Check that funding is allowed">
+On the deal page, look at **Actions**. **Fund escrow** is enabled only when the server allows it. If it is grey, read the reason below it. The usual reason is that the schedule is not confirmed yet.
+
+<Screenshot name="buyer/escrow-fund-button" route="/app/deals/SETU-2026-0001" as="buyer" alt="Actions section with the Fund escrow button next to the escrow card showing the still to deposit amount." caption="The Fund escrow button." />
+</Step>
+<Step title="Open the dialog and choose an amount">
+Click **Fund escrow**. The dialog says how much is **Still to deposit**. Leave **Amount** empty to deposit the next tranche. Or type an amount with at most 2 decimals. You can deposit tranche by tranche or the whole goods value.
+
+<Screenshot name="buyer/escrow-fund-dialog" route="/app/deals/SETU-2026-0001" as="buyer" alt="Fund the escrow dialog with the still to deposit text, an optional amount field and a simulated note." caption="The Fund the escrow dialog." click="[data-testid='action-fund']" />
+</Step>
+<Step title="Confirm and read the result">
+Click **Fund escrow** in the dialog. A message says **Escrow funded (simulated).** Your cash balance goes down. The escrow card shows the new **Funded** and **In escrow** amounts. A milestone becomes **Ready to release** once deposits cover it and earlier tranches are settled.
+
+<Screenshot name="buyer/escrow-after-fund" route="/app/deals/SETU-2026-0001" as="buyer" alt="Escrow card after funding with funded, released, refunded and in escrow amounts and a coloured progress bar." caption="The escrow card after a deposit." />
+</Step>
+</Steps>
+
+## What the results mean \{#results}
+
+| Escrow card | Meaning |
+|---|---|
+| Funded | Total you have deposited. |
+| Released | Total already paid to the supplier. |
+| Refunded | Total returned to you. |
+| In escrow | Funded minus released and refunded. |
+| Still to deposit | Goods value not yet deposited. |
+| Settles to the supplier in CNY | The supplier is paid in another currency. The FX rate is shown after a release. See [FX](/docs/en/buyer/fx). |
+
+A warning line appears when deposits go above $20,000: **Deposits above $20,000 need extra approval before any release.**
+
+## Tips and common mistakes \{#tips}
+
+- A deposit larger than your cash balance is refused.
+- Deposits above the goods value not yet deposited are refused.
+- Funding does not pay the supplier. Release does. See [Deal detail](/docs/en/buyer/deal-detail).
+{/* REVIEW: The docs (risk.md) say a person's own Fund escrow click runs directly, with only BLOCK rules applying. The code path was read, not run. Please confirm no approval is created on fund in the live app. */}
+
+## Related security notes \{#security}
+
+<Callout type="security">
+The $20,000 limit is strict: exactly $20,000.00 is Tier 1, $20,000.01 is Tier 3. If an AI assistant suggests funding, it can only queue a request for you. Only your click executes it. See [Permission tiers](/docs/en/security/permission-tiers).
+</Callout>
+
+## Try it \{#try-it}
+
+<TryItButton href="/app/deals" />
+
+## Related pages \{#related}
+
+- [Deal detail](/docs/en/buyer/deal-detail)
+- [Approvals](/docs/en/buyer/approvals)
+- [FX](/docs/en/buyer/fx)

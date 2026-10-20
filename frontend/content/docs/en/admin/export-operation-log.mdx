@@ -1,0 +1,67 @@
+---
+title: Exporting the operation log
+summary: Download the signed operation log as a JSONL file and check it in the public verifier.
+section: admin
+order: 30
+roles: [admin]
+routes: ["/app/admin/audit"]
+tryIt: "/app/admin/audit"
+related: [admin/audit-log, security/signed-audit-log]
+updated: 2026-10-20
+---
+
+## What it is \{#what-it-is}
+
+The operation log export is a file with one signed audit entry per line (JSONL format). Anyone with the public key can verify it without logging in.
+
+## Who uses it \{#who}
+
+<RoleBadge role="admin" /> Admins export the whole log. The export link is in the Evidence section of the admin audit page.
+
+## When to use it \{#when}
+
+- To give an auditor or a judge evidence outside the app.
+- To keep a copy of the log at a point in time.
+
+## Step by step \{#how-to}
+
+<Steps>
+<Step title="Open the admin audit page">
+Go to **Audit log** in the sidebar. Find the card **Last verification**.
+<Screenshot name="admin/export-card" route="/app/admin/audit" as="admin" alt="The Last verification card with Verify now, the public key fingerprint and the Export operation log link." caption="The export link sits below the key fingerprint." />
+</Step>
+<Step title="Press Export operation log">
+The browser downloads a file named `operation-log-YYYY-MM-DD.jsonl`. Line 1 is a header. Each next line is one entry with its hashes and signature.
+<Screenshot name="admin/export-download" route="/app/admin/audit" as="admin" alt="The browser download of the operation-log JSONL file." caption="The downloaded file." />
+</Step>
+<Step title="Verify the file">
+Press **Open the public verifier** (or open `/verify`). Choose the file under **Operation log (.jsonl)**. The file is read in your browser only. Nothing is uploaded.
+<Screenshot name="admin/export-verify" route="/verify" as="admin" alt="The public verifier page with a file chooser for the operation log." caption="The public verifier." />
+</Step>
+</Steps>
+
+## What the results mean \{#results}
+
+- The header line states the scheme, the public key fingerprint, the number of entries and the first and last sequence numbers.
+- The verifier checks every hash, every signature and the order.
+- A partial export (a range or one deal) shows a warning. Entries present are genuine, but a partial file cannot prove that nothing was left out.
+
+## Tips and common mistakes \{#tips}
+
+- The button exports from the live log. In a demo sandbox it exports that sandbox's log.
+- The web button has no date or deal filter. The API accepts `deal_id`, `from` and `to`, and the command `pnpm audit:export` is the developer route for evidence files.
+- Keep the public key file with old exports if the key is ever rotated.
+
+## Related security notes \{#security}
+
+<Callout type="security">
+The export holds the same PII-redacted payloads as the log. Secrets and the private signing key are never included. See [Audit log](/docs/en/security/signed-audit-log).
+</Callout>
+
+## Try it \{#try-it}
+
+<TryItButton href="/app/admin/audit" />
+
+## Related pages \{#related}
+
+- [Audit log and chain verification](/docs/en/admin/audit-log)

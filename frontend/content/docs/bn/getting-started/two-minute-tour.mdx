@@ -1,0 +1,76 @@
+---
+title: দুই মিনিটের ভ্রমণ
+summary: ল্যান্ডিং পাতা থেকে অডিট লগ পর্যন্ত, একজন ক্রেতা যে ক্রমে দেখেন সেই ক্রমে সেতুর প্রধান পর্দাগুলো।
+section: getting-started
+order: 40
+roles: [buyer, supplier, admin, judge]
+routes: ["/"]
+tryIt: "/demo"
+related: [getting-started/what-is-setu, getting-started/simulated-sandbox, getting-started/roles-and-login]
+updated: 2026-10-20
+---
+
+## ভ্রমণ কী \{#what-it-is}
+
+সেতুর দ্রুত পরিক্রমা: প্রথমে পাবলিক ল্যান্ডিং পাতা, তারপর একটি অর্ডারে ক্রেতার পর্দাগুলো, শেষে সরবরাহকারী ও অ্যাডমিনের দৃশ্য। প্রতিটি স্টপে আসল পর্দার লিংক আছে। অর্থ সিমুলেটেড।
+
+## কারা ব্যবহার করেন \{#who}
+
+<RoleBadge role="buyer" /> <RoleBadge role="supplier" /> <RoleBadge role="admin" /> <RoleBadge role="judge" />
+
+## ধাপে ধাপে \{#how-to}
+
+<Steps>
+<Step title="ল্যান্ডিং পাতা (প্রায় ২০ সেকেন্ড)">
+হোম পাতায় শিরোনাম, "গাইডেড ডেমো চালান", "নিজের স্যান্ডবক্স শুরু করুন" ও "জাজ মোড" বোতাম আছে। তারপর আসে কীভাবে কাজ করে, ফিচার, নিরাপত্তা, ডেমো ও মূল্যায়নের ফলাফল।
+<Screenshot name="getting-started/landing" route="/" as="judge" alt="সেতুর ল্যান্ডিং পাতা: শিরোনাম এবং গাইডেড ডেমো চালান, নিজের স্যান্ডবক্স শুরু করুন ও জাজ মোড বোতাম।" caption="পাবলিক ল্যান্ডিং পাতা।" />
+</Step>
+<Step title="চ্যাট (/app/chat)">
+বাংলা বা ইংরেজিতে অর্ডার নিয়ে প্রশ্ন করুন। উত্তরে কোডের হিসাব করা সংখ্যায় তৈরি কার্ড দেখা যায়।
+<Screenshot name="getting-started/chat" route="/app/chat" as="buyer" alt="চ্যাট পর্দা: ল্যান্ডেড খরচ নিয়ে প্রশ্ন এবং ফলাফল কার্ডসহ উত্তর।" caption="ব্যাখ্যাসহ চ্যাট।" />
+</Step>
+<Step title="বিশ্লেষণ, ক্যাশ ফ্লো ও অর্থায়ন">
+[বিশ্লেষণ](/app/analysis) ল্যান্ডেড খরচ ও মার্জিন দেখায়। [ক্যাশ ফ্লো](/app/cashflow) সতর্কতাসহ ৯০ দিনের ক্যালেন্ডার দেখায়। [অর্থায়ন](/app/financing) মোট খরচে বিকল্প তুলনা করে।
+<Screenshot name="getting-started/cashflow" route="/app/cashflow" as="buyer" alt="ক্যাশ-ফ্লো পাতা: ৯০ দিনের ক্যালেন্ডার ও ঘাটতির সতর্কতা।" caption="ঘাটতির সতর্কতাসহ ক্যাশ ফ্লো।" />
+</Step>
+<Step title="সরবরাহকারী ও ডিল">
+[সরবরাহকারী](/app/suppliers) KYB পরীক্ষা দেখায়। [ডিল](/app/deals) মাইলস্টোন সূচি ও এসক্রো কার্ড দেখায়, যেখানে কিস্তি ছাড় হয়।
+<Screenshot name="getting-started/deals" route="/app/deals" as="buyer" alt="ডিলের তালিকা: প্রতিটি ডিলের সিমুলেটেড এসক্রো অবস্থা।" caption="ডিল ও এসক্রো।" />
+</Step>
+<Step title="নথি ও ইমেইল যাচাই">
+[নথি](/app/deals) অমিল ও লুকানো লেখার জন্য পরীক্ষা হয়। [ইমেইল যাচাই](/app/inbox/email-check) পেমেন্ট-বদলের ইমেইল ধরে।
+</Step>
+<Step title="অনুমোদন">
+[অনুমোদন](/app/approvals) মানুষের সিদ্ধান্ত লাগে এমন অনুরোধ দেখায়: Tier 2-এ এক ট্যাপ, Tier 3-এ ওটিপি ও কুলিং-অফ।
+<Screenshot name="getting-started/approvals" route="/app/approvals" as="buyer" alt="অনুমোদন পাতা: অপেক্ষমাণ অনুরোধ ও তাদের অনুমতি স্তর।" caption="স্তর অনুযায়ী অনুমোদন।" />
+</Step>
+<Step title="সরবরাহকারী পোর্টাল (/supplier)">
+সরবরাহকারী মাইলস্টোন সূচি নিশ্চিত করেন ও ডিল দেখেন। ইন্টারফেস চীনা ভাষায় হতে পারে।
+</Step>
+<Step title="অ্যাডমিন ও অডিট">
+অ্যাডমিন `/app/admin`-এর রেজিস্ট্রি, ঝুঁকি, প্রাইভেসি ও অডিট পর্দা ব্যবহার করেন। এক্সপোর্ট করা লগ যে কেউ [/verify](/docs/bn/judge/verify)-এ যাচাই করতে পারেন।
+</Step>
+</Steps>
+
+{/* REVIEW: ক্রেতা/সরবরাহকারী/অ্যাডমিনের ডকুমেন্টেশন পাতার আইডি লেখার সময় জানা ছিল না, তাই সেগুলোর লিংক দেওয়া হয়নি। পাতাগুলো এলে যোগ করুন। */}
+
+## টিপ ও সাধারণ ভুল \{#tips}
+
+- দ্রুততম পথ গাইডেড ডেমো: ১২টি ব্যাখ্যাসহ ধাপ।
+- `/app` লিংকের জন্য সাইন-ইন সেশন লাগে। ডেমো মোডে আগে লগইন পাতা ব্যবহার করুন।
+
+## নিরাপত্তা সংক্রান্ত নোট \{#security}
+
+<Callout type="security">
+Tier 0 ও 1 স্বয়ংক্রিয়, Tier 2 এক-ট্যাপ অনুমোদন, Tier 3-এ ওটিপি ও ১০ মিনিটের কুলিং-অফ। স্তর ঠিক করে কোড।
+</Callout>
+
+## নিজে চেষ্টা করুন \{#try-it}
+
+<TryItButton href="/demo" />
+
+## সম্পর্কিত পাতা \{#related}
+
+- [সেতু কী](/docs/bn/getting-started/what-is-setu)
+- [সিমুলেটেড স্যান্ডবক্স](/docs/bn/getting-started/simulated-sandbox)
+- [ভূমিকা ও সাইন-ইন](/docs/bn/getting-started/roles-and-login)

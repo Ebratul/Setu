@@ -1,0 +1,77 @@
+---
+title: Upload documents
+summary: Send the proforma invoice, production photos, packing list and bill of lading for your order.
+section: supplier
+order: 30
+roles: [supplier]
+routes: ["/supplier/[id]"]
+tryIt: "/supplier"
+related: [supplier/document-failures, supplier/confirm-milestones, glossary/glossary]
+updated: 2026-10-20
+---
+
+## What it is \{#what-it-is}
+
+The **Documents** block on your order page lets you upload the papers that prove each milestone. Setu checks every file automatically. You see only a short status word.
+
+## Who uses it \{#who}
+
+<RoleBadge role="supplier" /> Supplier staff. Not available for cancelled orders.
+
+## When to use it \{#when}
+
+Upload each document when it is ready: proforma invoice and production photos first, then packing list, bill of lading (B/L, the shipping paper from the carrier) and commercial invoice.
+
+## Step by step \{#how-to}
+
+<Steps>
+<Step title="Open the Documents block">
+On the order page find **Documents** and the **Upload documents** panel.
+<Screenshot name="supplier/upload-panel" route="/supplier/SETU-2026-0001" as="supplier" alt="Upload documents panel with a dashed drop area and Choose files button" caption="Drop files here or press Choose files." />
+</Step>
+<Step title="Add files">
+Drag files into the box, or press **Choose files**. Allowed: PDF, PNG or JPG, up to 10 MB each. Photos must be PNG or JPG. All other documents must be PDF.
+<Screenshot name="supplier/upload-staged" route="/supplier/SETU-2026-0001" as="supplier" alt="Upload queue with a staged file and a document type selector" caption="Each file gets a document type." />
+</Step>
+<Step title="Pick the document type">
+Setu guesses the type from the file name. Check it. You can choose: Proforma invoice, Production photo, Bill of lading, Packing list, Commercial invoice.
+<Screenshot name="supplier/upload-type" route="/supplier/SETU-2026-0001" as="supplier" alt="Document type dropdown listing the five supplier document types" caption="Choose the right type." />
+</Step>
+<Step title="Upload">
+Press **Upload n file(s)**. The file is checked within seconds. If it is still checking, refresh in a moment.
+<Screenshot name="supplier/upload-done" route="/supplier/SETU-2026-0001" as="supplier" alt="Document list with file names, dates and status badges" caption="The list shows your files and their status." />
+</Step>
+</Steps>
+
+## What the results mean \{#results}
+
+| Status | Meaning |
+|---|---|
+| Uploaded | Received, not checked yet. |
+| Under review | Being checked, or waiting for your buyer to review. |
+| Accepted | Passed the checks. |
+| Needs attention | Something must be fixed. See [why documents fail](/docs/en/supplier/document-failures). |
+
+You do not see scores or reasons.
+
+## Tips and common mistakes \{#tips}
+
+- "Already uploaded": the same file is already on this order. Nothing is added twice.
+- "This exact file is already attached to another deal": one document cannot back two deals. Upload the correct file for this order.
+- "Wrong file type": a photo must be PNG or JPG, a document must be PDF.
+- Upload original files from your own system. Do not edit PDFs by hand.
+
+## Related security notes \{#security}
+
+<Callout type="security">
+Files are checked by fixed rules, not by opinion. Text inside a document is treated as data and never as an instruction. If a file contains sentences that try to give orders, it is rejected and may trigger a Tier 3 review. See [permission tiers](/docs/en/security/permission-tiers).
+</Callout>
+
+## Try it \{#try-it}
+
+<TryItButton href="/supplier" />
+
+## Related pages \{#related}
+
+- [Why a document fails](/docs/en/supplier/document-failures)
+- [Confirm milestones](/docs/en/supplier/confirm-milestones)

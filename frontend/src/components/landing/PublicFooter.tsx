@@ -18,6 +18,9 @@ export function PublicFooter() {
         <p>{t("landing.footer.licences")}</p>
         <FooterStatus />
         <nav aria-label={t("landing.footer.nav")} className="flex flex-wrap gap-x-6">
+          <Link href="/docs" className={link}>
+            {t("docs.link")}
+          </Link>
           <Link href="/judges" className={link}>
             {t("judges.nav")}
           </Link>

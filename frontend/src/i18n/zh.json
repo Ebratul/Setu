@@ -6,6 +6,7 @@
     "zh": "中文"
   },
   "common": {
+    "back": "返回",
     "simulated": "模拟",
     "simulatedHint": "Setu 中的所有资金均为模拟沙盒数据",
     "close": "关闭",

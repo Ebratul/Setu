@@ -1,0 +1,73 @@
+---
+title: 公司团队
+summary: 查看哪些人可以代表公司登录，添加或移除同事。
+section: supplier
+order: 70
+roles: [supplier]
+routes: ["/supplier/team"]
+tryIt: "/supplier/team"
+related: [supplier/overview, security/permission-tiers]
+updated: 2026-10-20
+---
+
+## 这是什么 \{#what-it-is}
+
+**团队** 页面列出可代表贵公司登录的人员。所有者可以添加或移除成员。
+
+## 谁使用 \{#who}
+
+<RoleBadge role="supplier" /> 所有者管理团队。财务和只读成员只能查看。
+
+## 何时使用 \{#when}
+
+有同事加入或离开，或想核对谁有权限时。
+
+## 操作步骤 \{#how-to}
+
+<Steps>
+<Step title="打开团队页">
+点击门户顶部的 **团队**。
+<Screenshot name="supplier/team-list" route="/supplier/team" as="supplier" alt="团队页面，表格显示成员、角色和是否登录过" caption="成员表：成员、角色、是否登录过。" />
+</Step>
+<Step title="邀请成员">
+在 **邀请成员** 下填写 **邮箱地址**、**姓名** 和 **角色**，点击 **添加成员**。系统不会发送邮件，请让对方使用这个邮箱地址注册。对方首次以已验证的邮箱登录时，账户会自动关联。
+<Screenshot name="supplier/team-invite" route="/supplier/team" as="supplier" alt="邀请成员表单，含邮箱、姓名和角色" caption="添加成员。" />
+</Step>
+<Step title="移除成员">
+在成员所在行点击 **移除**，并在“移除该成员？”中确认。对方将失去访问贵公司账户的权限。
+<Screenshot name="supplier/team-remove" route="/supplier/team" as="supplier" alt="移除该成员的确认弹窗" caption="确认移除。" />
+</Step>
+</Steps>
+
+## 结果说明 \{#results}
+
+| 角色 | 权限 |
+|---|---|
+| 所有者 | 可管理团队及其他所有事务。 |
+| 财务 | 可处理交易与付款。 |
+| 只读 | 仅可查看，不能更改任何内容。 |
+
+“已登录过”表示此人至少登录过一次；“尚未登录”表示对方还没有注册。
+
+## 提示与常见错误 \{#tips}
+
+- 公司至少需要一位所有者，不能移除最后一位所有者。
+- 已属于某个 Setu 账户的邮箱不能再添加。
+- 公司通过审核后才能添加成员。
+- 员工离职后请立即移除。
+
+## 相关安全说明 \{#security}
+
+<Callout type="security">
+只有名单上的人才能代表贵公司操作。请保持名单精简并及时更新。见[权限等级](/docs/zh/security/permission-tiers)。
+</Callout>
+
+{/* REVIEW: Remove is hidden for non-owners in the page; not verified that the server also enforces owner-only. */}
+
+## 试一试 \{#try-it}
+
+<TryItButton href="/supplier/team" />
+
+## 相关页面 \{#related}
+
+- [门户概览](/docs/zh/supplier/overview)

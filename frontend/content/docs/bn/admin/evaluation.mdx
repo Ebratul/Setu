@@ -1,0 +1,74 @@
+---
+title: মূল্যায়ন হার্নেস ও ফলাফল
+summary: make eval দিয়ে মূল্যায়ন চালান এবং মাপা ফল পড়ুন। কোনো ওয়েব পাতা নেই।
+section: admin
+order: 90
+roles: [admin]
+routes: []
+related: [admin/security-events, admin/privacy-dashboard, judge/five-minute-guide]
+updated: 2026-10-20
+---
+
+## What it is \{#what-it-is}
+
+মূল্যায়ন হার্নেস জালিয়াতি শনাক্তকরণ, ডুপ্লিকেট ধরা, প্রম্পট-ইনজেকশন প্রতিরক্ষা, প্রাইভেসি ফাঁস এবং টিয়ার সিদ্ধান্ত মাপে। কোনো মডেল প্রশিক্ষণ দেওয়া হয়নি: সংখ্যাগুলো কৃত্রিম নথির ওপর নিয়ম ও কোডের ফল। এটি সর্বোচ্চ সীমা, বাস্তব জগতের নির্ভুলতা নয়।
+
+{/* REVIEW: No web page shows the full evaluation. The only evaluation in the UI is the injection scoreboard on /app/admin/security (dev split). The results below are files. */}
+
+## Who uses it \{#who}
+
+<RoleBadge role="admin" /> যিনি সার্ভার চালান।
+
+## When to use it \{#when}
+
+উপস্থাপনার আগে, বা শনাক্তকরণের নিয়ম বদলানোর পর সংখ্যা নতুন করে পেতে।
+
+## Step by step \{#how-to}
+
+<Steps>
+<Step title="হার্নেস চালান">
+`make eval` চালান। এটি টেস্ট স্প্লিটে `python -m eval.run` চালায়। সীমিত করতে পারেন, যেমন `--only forensics,tiers`।
+<Screenshot name="admin/eval-run" route="/app/admin/security" as="admin" alt="নিরাপত্তা পাতা, যেখানে অ্যাপের ভেতরের ইনজেকশন স্কোরবোর্ড (ডেভ স্প্লিট) আছে। পুরো হার্নেস টার্মিনালে চলে।" caption="ওয়েব অ্যাপে শুধু ইনজেকশন স্কোরবোর্ড আছে।" />
+</Step>
+<Step title="ফলাফল ফাইল পড়ুন">
+`backend/eval/results/metrics.md` (পড়ার জন্য) বা `metrics.json` (তথ্য) খুলুন।
+<Screenshot name="admin/eval-results" route="/app/admin/security" as="admin" alt="ফলাফল ফাইলের সঙ্গে তুলনার জন্য অ্যাপের আক্রমণ সফল হওয়ার হার স্কোরবোর্ড।" caption="ফাইলের সঙ্গে মিলিয়ে দেখুন।" />
+</Step>
+</Steps>
+
+## What the results mean \{#results}
+
+সর্বশেষ `metrics.md` থেকে (টেস্ট স্প্লিট, ২০২৬-১০-২০-এ তৈরি, কৃত্রিম তথ্য):
+
+| পরিমাপ | ফল |
+|---|---|
+| জালিয়াতি যাচাই, WARN বা FAIL হলেই চিহ্নিত | precision 1.0, recall 1.0 |
+| জালিয়াতি যাচাই, শুধু FAIL | precision 1.0, recall 0.9508 |
+| ভুলভাবে চিহ্নিত পরিষ্কার প্যাক | ৫০টির মধ্যে ০ |
+| অন্তত একটি অনুত্তীর্ণ নথিসহ বিকৃত প্যাক | ৫০টির মধ্যে ৫০ |
+| ধরা পড়া ডুপ্লিকেট নথি | ৫টির মধ্যে ৫ (হুবহু ২, প্রায় একই ৩) |
+| ইনজেকশন আক্রমণ সফল, প্রতিরক্ষা বন্ধ / চালু | ১০০% / ০% |
+| আক্রমণে সরে যাওয়া টাকা | সব মোডে ০ |
+| ইনজেকশন শনাক্তকরণ রিকল; ভুল শনাক্ত | ১০০%; ৩০০টির মধ্যে ০ |
+| মাস্কিং চালু থাকলে ফাঁস হওয়া সংবেদনশীল তথ্য | ৬০০টির মধ্যে ০ |
+| স্বয়ংক্রিয়ভাবে ছাড় হওয়া বিকৃত প্যাক | ০ |
+| ভুলে অনুমোদনে যাওয়া পরিষ্কার প্যাক | ৫০টির মধ্যে ০ |
+
+Precision মানে "চিহ্নিতগুলোর মধ্যে কতটি সঠিক"। Recall মানে "আসল সমস্যার মধ্যে কতটি পাওয়া গেছে"।
+
+## Tips and common mistakes \{#tips}
+
+- টেস্ট স্প্লিট শুধু রিপোর্টের জন্য। সীমা ডেভ স্প্লিটে ঠিক করা হয়, তাই টেস্টের ফল দেখে সীমা বদলাবেন না।
+- ফল কৃত্রিম তথ্যের। বাস্তব নির্ভুলতা বলে উদ্ধৃত করবেন না।
+- আবার চালালে ফাইল নতুন করে লেখা হয়।
+
+## Related security notes \{#security}
+
+<Callout type="security">
+হার্নেস একটি মক মডেল ও স্যান্ডবক্স ব্যবহার করে। এটি কখনো আসল টাকা সরায় না।
+</Callout>
+
+## Related pages \{#related}
+
+- [নিরাপত্তা ঘটনা](/docs/bn/admin/security-events)
+- [প্রাইভেসি ড্যাশবোর্ড](/docs/bn/admin/privacy-dashboard)

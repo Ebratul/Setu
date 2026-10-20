@@ -1,0 +1,72 @@
+---
+title: Privacy dashboard
+summary: Check that personal identifiers are masked before any message reaches the AI.
+section: admin
+order: 60
+roles: [admin]
+routes: ["/app/admin/privacy"]
+tryIt: "/app/admin/privacy"
+related: [security/permission-tiers, judge/five-minute-guide]
+updated: 2026-10-20
+---
+
+## What it is \{#what-it-is}
+
+The **Privacy Gateway** page proves that every message to the AI is masked first. A mask replaces a real value, such as a bank account number, with a token like ACCT_1. Code puts the real value back after the answer returns.
+
+## Who uses it \{#who}
+
+<RoleBadge role="admin" /> Admins and judges.
+
+## When to use it \{#when}
+
+- To confirm that **Leaked** stays at 0.
+- To see exactly what the AI received.
+
+## Step by step \{#how-to}
+
+<Steps>
+<Step title="Open Privacy">
+Choose **Privacy** in the sidebar. Three numbers appear: **Identifiers protected**, **Leaked** ("Should always stay at 0") and **AI calls**.
+<Screenshot name="admin/privacy-totals" route="/app/admin/privacy" as="admin" alt="Three tiles: Identifiers protected, Leaked and AI calls." caption="Privacy totals." />
+</Step>
+<Step title="Read Protected by type and the daily chart">
+**Protected by type** counts masked items by kind. The chart shows identifiers protected per day for the last 14 days. Use **Show as table** for numbers.
+<Screenshot name="admin/privacy-chart" route="/app/admin/privacy" as="admin" alt="A chart of identifiers protected per day over 14 days." caption="Identifiers protected per day." />
+</Step>
+<Step title="Inspect Latest transparency records">
+Each record shows its step and source. Press **Show masked payload** to read what was prepared. A label says **Sent to the AI** or **Prepared, not sent**. Only masked values are shown.
+<Screenshot name="admin/privacy-records" route="/app/admin/privacy" as="admin" alt="A transparency record expanded to show a masked payload with tokens." caption="A masked payload." />
+</Step>
+<Step title="Prove it">
+In **Prove it**, **Open the LangSmith run** shows the trace. If tracing is off, the page says so.
+<Screenshot name="admin/privacy-prove" route="/app/admin/privacy" as="admin" alt="The Prove it card with a link to the LangSmith run." caption="The Prove it card." />
+</Step>
+</Steps>
+
+## What the results mean \{#results}
+
+- **Leaked** counts values that slipped past masking in an outgoing message. They are masked again, but the count should be 0.
+- The page also states if **Masking is on** and if **Amounts are masked**.
+- For the privacy measurement on the test split, see [Evaluation](/docs/en/admin/evaluation).
+
+## Tips and common mistakes \{#tips}
+
+- Company names, addresses and goods descriptions are not treated as personal identifiers.
+- A token from an earlier chat turn cannot be restored later. The answer shows a protected label instead.
+- **Open the privacy playground** (`/demo/privacy-playground`) lets you test text without calling the AI.
+
+## Related security notes \{#security}
+
+<Callout type="security">
+Every AI call goes through one client that masks first. Real values stay in memory and are never stored in the privacy records.
+</Callout>
+
+## Try it \{#try-it}
+
+<TryItButton href="/app/admin/privacy" />
+
+## Related pages \{#related}
+
+- [Evaluation](/docs/en/admin/evaluation)
+- [Permission tiers](/docs/en/security/permission-tiers)

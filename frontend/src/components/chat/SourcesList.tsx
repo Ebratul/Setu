@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { forwardRef } from "react";
 
 import { useLang, useT } from "@/i18n";
@@ -51,13 +52,21 @@ export const SourcesList = forwardRef<HTMLElement, Props>(function SourcesList(
             {c.heading_path ? (
               <p className="break-words text-muted">{c.heading_path}</p>
             ) : null}
-            {c.original_reference ? (
+            {c.guide_url ? (
+              <Link
+                href={c.guide_url}
+                data-testid="open-guide"
+                className="inline-flex min-h-11 items-center gap-1 rounded-md font-semibold text-brand-text underline focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:outline-none"
+              >
+                {t("docs.openGuide")}
+              </Link>
+            ) : c.original_reference ? (
               <p className="break-words">{c.original_reference}</p>
             ) : null}
             <p className="text-muted">
               {t("chat.sources.reviewed", { date: safeDate(c.last_reviewed, lang) })}
             </p>
-            {c.disclaimer ? (
+            {c.disclaimer && !c.guide_url ? (
               <p className="break-words text-muted italic">{c.disclaimer}</p>
             ) : null}
           </li>

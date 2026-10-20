@@ -14,8 +14,11 @@ import bn from "./bn.json";
 import en from "./en.json";
 import zh from "./zh.json";
 import demoBn from "./parts/demo.bn.json";
+import docsBn from "./parts/docs.bn.json";
 import demoEn from "./parts/demo.en.json";
+import docsEn from "./parts/docs.en.json";
 import demoZh from "./parts/demo.zh.json";
+import docsZh from "./parts/docs.zh.json";
 import landingBn from "./parts/landing.bn.json";
 import landingEn from "./parts/landing.en.json";
 import landingZh from "./parts/landing.zh.json";
@@ -48,9 +51,9 @@ function flatten(dict: Dict, prefix = "", out: Record<string, string> = {}) {
 }
 
 export const messages: Record<Lang, Record<string, string>> = {
-  en: Object.assign(flatten(en as Dict), flatten(demoEn as Dict), flatten(landingEn as Dict), flatten(pagesEn as Dict), flatten(shellEn as Dict), flatten(uiEn as Dict), flatten(onboardEn as Dict)),
-  bn: Object.assign(flatten(bn as Dict), flatten(demoBn as Dict), flatten(landingBn as Dict), flatten(pagesBn as Dict), flatten(shellBn as Dict), flatten(uiBn as Dict), flatten(onboardBn as Dict)),
-  zh: Object.assign(flatten(zh as Dict), flatten(demoZh as Dict), flatten(landingZh as Dict), flatten(pagesZh as Dict), flatten(shellZh as Dict), flatten(uiZh as Dict), flatten(onboardZh as Dict)),
+  en: Object.assign(flatten(en as Dict), flatten(demoEn as Dict), flatten(docsEn as Dict), flatten(landingEn as Dict), flatten(pagesEn as Dict), flatten(shellEn as Dict), flatten(uiEn as Dict), flatten(onboardEn as Dict)),
+  bn: Object.assign(flatten(bn as Dict), flatten(demoBn as Dict), flatten(docsBn as Dict), flatten(landingBn as Dict), flatten(pagesBn as Dict), flatten(shellBn as Dict), flatten(uiBn as Dict), flatten(onboardBn as Dict)),
+  zh: Object.assign(flatten(zh as Dict), flatten(demoZh as Dict), flatten(docsZh as Dict), flatten(landingZh as Dict), flatten(pagesZh as Dict), flatten(shellZh as Dict), flatten(uiZh as Dict), flatten(onboardZh as Dict)),
 };
 
 export function translate(lang: Lang, key: string, vars?: Vars): string {

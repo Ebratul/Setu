@@ -1,0 +1,80 @@
+---
+title: 单据为何显示“需处理”
+summary: 单据被标为“需处理”的常见原因，以及应当怎样修改。
+section: supplier
+order: 60
+roles: [supplier]
+routes: ["/supplier/[id]"]
+tryIt: "/supplier"
+related: [supplier/upload-documents, security/permission-tiers, glossary/glossary]
+updated: 2026-10-20
+---
+
+## 这是什么 \{#what-it-is}
+
+您上传的每个文件都会按固定规则检查。文件未通过时，标签显示 **需处理**。出于安全考虑，页面不显示具体原因。本页列出常见原因和处理办法。
+
+## 谁使用 \{#who}
+
+<RoleBadge role="supplier" /> 所有上传单据的人。
+
+## 何时使用 \{#when}
+
+单据显示 **需处理**，或里程碑一直处于待审、存疑、已拒绝时。
+
+## 操作步骤 \{#how-to}
+
+<Steps>
+<Step title="找到文件">
+在订单页打开 **单据**，找出标签为 **需处理** 的文件。
+<Screenshot name="supplier/doc-attention" route="/supplier/SETU-2026-0001" as="supplier" alt="单据列表，其中一个文件标为需处理" caption="需处理的文件。" wait="[data-testid='sp-doc-list']" />
+</Step>
+<Step title="与订单核对">
+查看 **订单详情** 和里程碑的证明材料清单，把文件与约定的订单逐项对照。
+<Screenshot name="supplier/doc-compare" route="/supplier/SETU-2026-0001" as="supplier" alt="订单详情区域，含数量、单价、贸易术语和航线" caption="对照订单详情。" />
+</Step>
+<Step title="修改后重新上传">
+在原系统中改正单据，重新导出 PDF 后上传。原因不清楚时请联系买方。
+<Screenshot name="supplier/doc-reupload" route="/supplier/SETU-2026-0001" as="supplier" alt="准备上传更正后文件的上传单据面板" caption="上传更正后的文件。" />
+</Step>
+</Steps>
+
+## 结果说明 \{#results}
+
+常见原因和处理办法：
+
+| 原因 | 处理办法 |
+|---|---|
+| PDF 中有看不见的文字（如白色、极小或页面之外的文字） | 从系统重新导出不含隐藏文字的 PDF。 |
+| 含有命令式句子，如“批准付款” | 删除。单据里只应有贸易数据。 |
+| 数量、单价、总额或币种与订单不一致 | 改正单据，或请买方更新订单。 |
+| 公司名称、港口、日期、商品编码或船名与订单不一致 | 所有单据使用完全相同的信息。 |
+| 银行信息与您登记的账户不一致 | 使用登记账户，或按[收款账户](/docs/zh/supplier/payout-account)流程申请变更。 |
+| 装箱单与提单不一致（重量、件数） | 使两者一致。 |
+| 同一文件或同一发票已用于另一笔订单 | 一份单据只对应一笔订单，请上传正确的文件。 |
+| 文件无法读取、不完整或被手工改过 | 上传干净的原件。 |
+| 照片与所订商品不符 | 拍一张所订实物的清晰照片。 |
+
+## 提示与常见错误 \{#tips}
+
+- 不要手工修改 PDF，也不要把别的订单的单据拿来用。
+- 不要在单据里给系统或买方留“指示”。
+- 同一订单的所有单据，名称、数字和日期要保持一致。
+- 如果和最初的形式发票相比有变动，文件也可能被送交买方复核。
+
+## 相关安全说明 \{#security}
+
+<Callout type="security">
+这些检查是为了保护您和买方不受伪造单据之害。评分和细节不对外显示，以免被人钻空子。单据里的文字从不被当作指令。见[权限等级](/docs/zh/security/permission-tiers)。
+</Callout>
+
+{/* REVIEW: "需处理" covers both Warning and Failed verdicts, and the causes come from docs/forensics.md, not from text in the app. */}
+
+## 试一试 \{#try-it}
+
+<TryItButton href="/supplier" />
+
+## 相关页面 \{#related}
+
+- [上传单据](/docs/zh/supplier/upload-documents)
+- [术语表](/docs/zh/glossary/glossary)

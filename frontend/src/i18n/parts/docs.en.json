@@ -1,0 +1,104 @@
+{
+  "docs": {
+    "link": "Docs",
+    "title": "Documentation",
+    "lead": "Step-by-step guides for buyers, suppliers, admins and judges.",
+    "nav": {
+      "label": "Documentation navigation",
+      "menu": "Guide menu"
+    },
+    "search": {
+      "label": "Search the documentation",
+      "placeholder": "Search guides (e.g. OTP, escrow, B/L)",
+      "empty": "No guide matches “{q}”.",
+      "hint": "Type to search all guides",
+      "results": "{n} results"
+    },
+    "filter": {
+      "label": "Show guides for",
+      "all": "All",
+      "buyer": "Buyer",
+      "supplier": "Supplier",
+      "admin": "Admin",
+      "judge": "Judge"
+    },
+    "section": {
+      "getting-started": "Getting started",
+      "buyer": "Buyer guide",
+      "supplier": "Supplier guide",
+      "admin": "Admin guide",
+      "judge": "Judge guide",
+      "security": "Security & trust",
+      "faq": "FAQ",
+      "glossary": "Glossary"
+    },
+    "role": {
+      "buyer": "Buyer",
+      "supplier": "Supplier",
+      "admin": "Admin",
+      "judge": "Judge"
+    },
+    "onThisPage": "On this page",
+    "crumbs": "Breadcrumbs",
+    "home": "Documentation",
+    "prev": "Previous",
+    "next": "Next",
+    "pager": "Previous and next page",
+    "updated": "Last updated {date}",
+    "tryIt": "Try it",
+    "openGuide": "Open full guide",
+    "readGuide": "Read the guide",
+    "notTranslated": "This page is not available in your language yet. Showing the English version.",
+    "empty": "No guides found for this filter.",
+    "missing": "This guide page does not exist.",
+    "backToDocs": "Back to documentation",
+    "helpful": {
+      "q": "Was this page helpful?",
+      "yes": "Yes, helpful",
+      "no": "No, not helpful",
+      "comment": "Tell us more (optional)",
+      "send": "Send",
+      "thanks": "Thank you for your feedback.",
+      "legend": "Page feedback"
+    },
+    "print": "Print",
+    "downloadPdf": "Download as PDF",
+    "downloadHint": "Opens a print view of the whole guide. Choose “Save as PDF” in the print dialog.",
+    "callout": {
+      "info": "Note",
+      "tip": "Tip",
+      "warning": "Warning",
+      "security": "Security"
+    },
+    "shot": {
+      "zoom": "Enlarge screenshot: {alt}",
+      "close": "Close",
+      "pending": "Screenshot not generated yet"
+    },
+    "help": {
+      "button": "Help for this page",
+      "title": "Help",
+      "none": "There is no guide for this screen yet.",
+      "open": "Open full guide",
+      "close": "Close help",
+      "browse": "Browse all guides"
+    },
+    "hint": {
+      "title": "New here?",
+      "body": "A short guide explains how to use this screen.",
+      "read": "Read the guide",
+      "dismiss": "Dismiss"
+    },
+    "tip": {
+      "label": "What is this?",
+      "more": "Learn more",
+      "tier": "The tier sets how much approval a payment needs: 0 and 1 are automatic, 2 needs one tap, 3 needs an OTP code and a 10-minute wait.",
+      "fraud": "The risk score comes from fixed rules in code, not from the AI. A higher score means more checks failed.",
+      "cooling": "After you confirm a Tier 3 action there is a 10-minute wait before money can move. You can cancel during it.",
+      "kyb": "KYB badges show which business checks (registration, address, history) the supplier has passed."
+    },
+    "cmd": {
+      "group": "Guides"
+    }
+  }
+}

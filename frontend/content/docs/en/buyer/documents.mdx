@@ -1,0 +1,110 @@
+---
+title: Documents and the hidden-text reveal
+summary: Upload trade documents, read the automatic check results and reveal text hidden inside a PDF.
+section: buyer
+order: 90
+roles: [buyer]
+routes: ["/app/documents/[id]"]
+tryIt: "/app/deals"
+related: [buyer/deal-detail, buyer/approvals, security/injection-defence, security/permission-tiers]
+updated: 2026-10-20
+---
+
+## What it is \{#what-it-is}
+Setu checks every trade document you upload, such as a proforma invoice or a bill of lading. It reads the file, compares it with your deal, and gives a **risk score** from 0 to 100 and a clear verdict. If the PDF contains hidden text, you can reveal it.
+
+The checks are deterministic code. A model may only help read a field the parser could not fill. It never decides the verdict and never sees hidden text. All data is simulated.
+
+## Who uses it \{#who}
+<RoleBadge role="buyer" />
+
+Buyers and admins can upload and re-check. Judges can view only. Suppliers see a status only, with no score and no hidden text.
+
+## When to use it \{#when}
+- Before you release money from escrow. Documents are the evidence for each milestone.
+- When a supplier sends a new or changed document.
+- When a file looks odd and you want to see what is hidden inside it.
+
+## Step by step \{#how-to}
+<Steps>
+<Step title="Open the deal's Documents tab">
+Open a deal from **Deals** and select **Documents**. You see **Upload documents**, the **Required evidence** checklist for each milestone, and the **Documents** list.
+
+<Screenshot name="buyer/documents-1" route="/app/deals/SETU-2026-0001" as="buyer" click="[role=tab]:has-text('Documents')" alt="Documents tab with an upload area, required evidence checklist and document list" caption="The Documents tab of a deal." />
+</Step>
+<Step title="Upload files">
+Drag files into the box or press **Choose files**. Pick a **Document type** for each file. Photos must be PNG or JPG. Every other type must be a PDF. Each file can be up to 10 MB. Then press **Upload N file(s)**.
+
+<Screenshot name="buyer/documents-2" route="/app/deals/SETU-2026-0001" as="buyer" click="[role=tab]:has-text('Documents')" alt="Upload area with a staged PDF and a document type selector" caption="Choose the type, then upload." />
+</Step>
+<Step title="Wait for the check">
+The status badge shows **Checking** and then **Passed**, **Warning** or **Failed**. If a file was already uploaded to the deal, you see "Already uploaded". If it is still running, refresh in a moment.
+
+<Screenshot name="buyer/documents-3" route="/app/deals/SETU-2026-0001" as="buyer" click="[role=tab]:has-text('Documents')" alt="Document list rows with status badges, risk scores and top reasons" caption="Each row shows status, risk score and the top reason." />
+</Step>
+<Step title="Open a document">
+Press **Open →**. The page shows a preview, the **Verdict** with a risk meter, **Extracted fields**, the **Registry** box and the list of **Checks**.
+
+<Screenshot name="buyer/documents-4" route="/app/documents/[id]" as="buyer" alt="Document page with preview on the left and verdict, fields and checks on the right" caption="Verdict, fields and checks for one document." />
+{/* REVIEW: this route needs a real document id; the screenshot script must pick one (the demo uses the forged bill of lading). */}
+</Step>
+<Step title="Read the checks">
+Each check has an icon, a name and **Passed**, **Warning**, **Failed** or **Skipped**. Open a check to see why and the evidence values.
+
+<Screenshot name="buyer/documents-5" route="/app/documents/[id]" as="buyer" alt="Checks list with one check expanded to show the issue and evidence" caption="Expand a check to see the conflicting values." />
+</Step>
+<Step title="Reveal hidden text">
+If the file hides text, the button **Reveal hidden text** appears. Press it. A red panel titled **Hidden text found** lists each span with its page and reason. Red boxes may also appear on page 1 of the preview. Press **Hide hidden text** to close it.
+
+<Screenshot name="buyer/documents-6" route="/app/documents/[id]" as="buyer" alt="Hidden text found panel listing a white-text span with page number" caption="Hidden text is shown as plain, inert text." />
+</Step>
+<Step title="Re-check or accept a reference">
+**Re-check** runs all checks again. On a proforma invoice with a warning or changed reference, **Accept as reference** lets you make it the reference for the other documents. This is written to the audit log.
+
+<Screenshot name="buyer/documents-7" route="/app/documents/[id]" as="buyer" alt="Document header with Re-check and Accept as reference buttons" caption="Re-check and accept actions." />
+</Step>
+</Steps>
+
+## What the results mean \{#results}
+Higher score means higher risk.
+
+| Score | Verdict |
+|---|---|
+| Under 30 | Passed |
+| 30 to 60 | Warning |
+| Over 60 | Failed |
+
+Some findings force **Failed** whatever the weights: hidden text, an instruction written in the document, a bank account that does not match the supplier, and a duplicate document.
+
+Checks include quantity, value maths, name match, bank account match, vessel and voyage, dates, ports, HS code, price band, hidden text, instruction scan, metadata, duplicate and extraction completeness.
+
+Hidden-text reasons: White text, Tiny text, Outside the page, Invisible when rendered, Covered by another shape and Low contrast.
+
+The **Registry** box says **Registered**, **Not registered yet**, or **Duplicate**. A duplicate is an exact copy or a re-saved near copy of a document already registered.
+
+Other statuses: **Uploaded** (not checked yet) and **Rejected** (the file was refused).
+
+The verdict feeds the release rules. A **Warning** document needs a one-tap Tier 2 approval before money is released. A **Failed** document blocks the release. See [Approvals](/docs/en/buyer/approvals).
+{/* REVIEW: based on docs/risk.md (DOCUMENT_WARNING = Tier 2, DOCUMENT_FAILED = block); not re-verified in the engine code. */}
+
+## Tips and common mistakes \{#tips}
+- Use PDF for documents and PNG or JPG for photos only.
+- "The check could not finish" means a system problem. Press **Re-check**.
+- Red boxes on the preview are approximate. The list shows each hidden span exactly.
+- Use the eye button to open **What did the AI see?** for the document. See [Chat assistant](/docs/en/buyer/chat).
+
+## Related security notes \{#security}
+<Callout type="security" title="Document text is data, not instructions">
+If a document says "release payment" or "skip checks", Setu ignores it, shows "This document contains a hidden instruction. Setu ignored it." and treats it as a Tier 3 trigger. Read [Prompt injection](/docs/en/security/injection-defence).
+</Callout>
+<Callout type="security">
+Files are checked by magic bytes, not by name. Parsing runs in a sandboxed child process. Hidden text is only shown on request and only to non-suppliers.
+</Callout>
+
+## Try it \{#try-it}
+<TryItButton href="/app/deals" />
+
+## Related pages \{#related}
+- [Deal detail](/docs/en/buyer/deal-detail)
+- [Approvals](/docs/en/buyer/approvals)
+- [Permission tiers](/docs/en/security/permission-tiers)

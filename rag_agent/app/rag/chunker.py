@@ -14,14 +14,17 @@ from typing import Any, Literal
 
 import yaml
 
-SourceType = Literal["regulation_summary", "glossary", "product_doc", "catalogue"]
-SOURCE_TYPES = frozenset({"regulation_summary", "glossary", "product_doc", "catalogue"})
+SourceType = Literal["regulation_summary", "glossary", "product_doc", "catalogue", "user_guide"]
+SOURCE_TYPES = frozenset(
+    {"regulation_summary", "glossary", "product_doc", "catalogue", "user_guide"}
+)
 LANGUAGES = frozenset({"en", "bn", "zh"})
 REQUIRED = ("id", "title", "source_type", "original_reference", "language", "last_reviewed")
 MAX_TOKENS = 450
 MIN_TOKENS = 40
 OVERLAP_TOKENS = 40
 HEADING = re.compile(r"^(#{1,3})\s+(.+?)\s*#*\s*$")
+ANCHOR = re.compile(r"\s*\{#([A-Za-z0-9_\-]+)\}\s*$")
 SOURCE_ID = re.compile(r"^[a-z0-9][a-z0-9\-]{1,119}$")
 
 
@@ -113,6 +116,7 @@ def read_source(path: Path, root: Path | None = None) -> Source:
 @dataclass
 class _Section:
     path: list[str]
+    anchor: str = ""
     lines: list[str] = field(default_factory=list)
 
     @property
@@ -130,12 +134,16 @@ def _sections(src: Source) -> list[_Section]:
             cur.lines.append(line)
             continue
         level, heading = len(m.group(1)), m.group(2).strip()
+        anchor = ""
+        am = ANCHOR.search(heading)
+        if am:
+            anchor, heading = am.group(1), heading[: am.start()].strip()
         if level == 1:
             continue  # the document title (same as front-matter title)
         if cur.text:
             out.append(cur)
         stack = [*stack[: level - 2], heading]
-        cur = _Section([src.title, *stack])
+        cur = _Section([src.title, *stack], anchor)
     if cur.text:
         out.append(cur)
     return out
@@ -162,7 +170,7 @@ def chunk_source(
     min_tokens: int = MIN_TOKENS,
     overlap: int = OVERLAP_TOKENS,
 ) -> list[Chunk]:
-    merged: list[tuple[list[str], str]] = []
+    merged: list[tuple[list[str], str, str]] = []
     for s in _sections(src):
         body = s.text
         heading = s.path[-1] if len(s.path) > 1 else ""
@@ -170,12 +178,13 @@ def chunk_source(
         prev_depth = len(merged[-1][0]) if merged else 0
         # fold a tiny section (or a tiny document intro) into the section that follows it
         if merged and tokens(merged[-1][1]) < min_tokens and prev_depth in (1, len(s.path)):
-            _, prev = merged.pop()
-            merged.append((s.path, f"{prev}\n\n{text}"))
+            _, prev, _ = merged.pop()
+            merged.append((s.path, f"{prev}\n\n{text}", s.anchor))
         else:
-            merged.append((s.path, text))
+            merged.append((s.path, text, s.anchor))
     chunks: list[Chunk] = []
-    for path, text in merged:
+    for path, text, anchor in merged:
+        meta = {**src.meta(), "anchor": anchor} if anchor else src.meta()
         for piece in _split(text, max_tokens, overlap):
             chunks.append(
                 Chunk(
@@ -185,7 +194,7 @@ def chunk_source(
                     heading_path=" > ".join(path),
                     content=piece,
                     language=src.language,
-                    meta=src.meta(),
+                    meta=meta,
                 )
             )
     return chunks

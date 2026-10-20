@@ -1,0 +1,87 @@
+---
+title: Creating an order
+summary: Create a draft import deal in four steps. Pick a supplier, describe the goods, add shipping costs and review.
+section: buyer
+order: 20
+roles: [buyer]
+routes: ["/app/deals", "/app/deals/new"]
+tryIt: "/app/deals/new"
+related: [buyer/deal-detail, buyer/suppliers-kyb, buyer/order-analysis, buyer/funding-escrow]
+updated: 2026-10-20
+---
+
+## What it is \{#what-it-is}
+
+A **deal** is one import order with one supplier. The **Deals** page lists your deals. **New deal** opens a four-step form that creates a **draft** deal. Creating a draft moves no money.
+
+## Who uses it \{#who}
+
+<RoleBadge role="buyer" /> Buyers create deals. Admins can too. Suppliers and judges do not see the **New deal** button.
+
+## When to use it \{#when}
+
+When you agree to buy goods and want to track cost, milestones and escrow in one place.
+
+## Step by step \{#how-to}
+
+<Steps>
+<Step title="Open Deals and find your deal">
+Open **Deals** in the menu. Filter by status (All, Draft, Proposed, Confirmed, Funded, In production, Shipped, Arrived, Completed, Disputed, Cancelled) or search by reference, goods or supplier. Click **New deal**. If you have no deals yet, the button is called **Create a deal**.
+
+<Screenshot name="buyer/deals-list" route="/app/deals" as="buyer" alt="Deals page with status filter chips, a search box, a New deal button and a table of deals." caption="The Deals list with filters and the New deal button." />
+</Step>
+<Step title="Step 1 - Supplier">
+Choose one supplier. Each has a supplier-check badge (KYB, which means Know Your Business). If the badge is Warning or Blocked, a dialog asks you to confirm with **Use this supplier anyway**. Paying a blocked supplier is strongly discouraged and the system may refuse it later.
+
+<Screenshot name="buyer/deals-new-supplier" route="/app/deals/new" as="buyer" alt="New deal form step 1 showing a list of suppliers with radio buttons and KYB badges." caption="Step 1: choose a supplier." />
+</Step>
+<Step title="Step 2 - Goods">
+Fill in **Goods**, **HS code** (4 to 12 digits and dots, for example 6109.10), **Quantity**, **Unit**, **Unit price** and **Input currency** (USD or CNY). **Expected sale value** is optional. The **Goods total** is a preview. The system calculates the final value.
+
+<Screenshot name="buyer/deals-new-goods" route="/app/deals/new" as="buyer" alt="New deal form step 2 with goods, HS code, quantity, unit, unit price and currency fields and a goods total preview." caption="Step 2: describe the goods." />
+{/* REVIEW: Steps 2 to 4 need the form to be filled before they appear. The screenshot script has to type into the form or the image will show step 1. */}
+</Step>
+<Step title="Step 3 - Shipping and costs">
+Pick the **Incoterm** (for example FOB), the **Port of loading** and **Port of discharge**. Add optional extra costs: freight, insurance, duty and taxes, bank charges. A **Landed cost preview** appears with the total and the cost per unit.
+
+<Screenshot name="buyer/deals-new-shipping" route="/app/deals/new" as="buyer" alt="New deal form step 3 with incoterm, ports, extra cost fields and a landed cost preview card." caption="Step 3: shipping, extra costs and the landed cost preview." />
+</Step>
+<Step title="Step 4 - Review and create">
+Check the summary. Click **Create draft deal**. You land on the new deal page with a reference such as SETU-2026-0001.
+
+<Screenshot name="buyer/deals-new-review" route="/app/deals/new" as="buyer" alt="New deal review step listing supplier, goods, quantity, total, incoterm and route with a Create draft deal button." caption="Step 4: review and create the draft." />
+</Step>
+</Steps>
+
+## What the results mean \{#results}
+
+| Item | Meaning |
+|---|---|
+| Draft | The deal exists but has no payment schedule yet. |
+| Landed cost preview | Total cost to land the goods, and per unit. Calculated by the system, simulated. |
+| Supplier badge | Result of the supplier check. See [Suppliers and KYB](/docs/en/buyer/suppliers-kyb). |
+
+After creation you propose milestones, both sides confirm, then you fund the escrow. See [Deal detail](/docs/en/buyer/deal-detail).
+
+## Tips and common mistakes \{#tips}
+
+- Use a period for decimals. Quantity and unit price must be above zero.
+- The landed cost preview can be unavailable. You can still create the deal.
+- If creation fails, the red message at the bottom of the review step says why. Nothing is saved.
+
+## Related security notes \{#security}
+
+<Callout type="security">
+A supplier check runs when the deal is created. A blocked supplier cannot be paid. Details: [Permission tiers](/docs/en/security/permission-tiers).
+</Callout>
+
+## Try it \{#try-it}
+
+<TryItButton href="/app/deals/new" />
+
+## Related pages \{#related}
+
+- [Deal detail](/docs/en/buyer/deal-detail)
+- [Suppliers and KYB](/docs/en/buyer/suppliers-kyb)
+- [Order analysis](/docs/en/buyer/order-analysis)
+- [Funding the escrow](/docs/en/buyer/funding-escrow)

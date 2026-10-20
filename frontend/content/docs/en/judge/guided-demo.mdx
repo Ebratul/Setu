@@ -1,0 +1,92 @@
+---
+title: Guided demo
+summary: The 12-step story of Rahima Knitwear, from a Bangla question to a signed credit record, run on real services in your own sandbox.
+section: judge
+order: 20
+roles: [judge]
+routes: ["/demo", "/demo/run"]
+tryIt: "/demo"
+related: [judge/five-minute-guide, judge/playgrounds, judge/criteria, security/permission-tiers]
+updated: 2026-10-20
+---
+
+## What it is \{#what-it-is}
+
+The guided demo walks through one importer's order in about four minutes. Every step calls the real services in your private sandbox. People, companies and money are fictional and simulated. Recorded AI answers are used by default so each run is the same.
+
+## Who uses it \{#who}
+
+<RoleBadge role="judge" />
+
+## When to use it \{#when}
+
+Right after the [five-minute guide](/docs/en/judge/five-minute-guide), or any time you want the whole story.
+
+## Step by step \{#how-to}
+
+<Steps>
+<Step title="Start from /demo">
+Choose "Watch guided demo" (starts the sandbox and plays), "Start my own sandbox" (free exploration in `/app`) or "Presenter mode". A pre-flight check lists what is ready.
+<Screenshot name="judge/demo-landing" route="/demo" as="judge" alt="The demo start page with Watch guided demo, Start my own sandbox, Presenter mode and a pre-flight checklist." caption="Demo start page." />
+</Step>
+<Step title="Use the split screen">
+On `/demo/run` the real app is on the left. On the right are the narration, step list, controls and the judge scorecard. Controls: Start, Previous, Next, Auto-play with speed, Pause. Switch the view between Buyer, Supplier and Admin.
+<Screenshot name="judge/demo-run" route="/demo/run" as="judge" alt="The split-screen demo with the embedded app on the left and narration, steps and scorecard on the right." caption="The demo run screen." />
+</Step>
+<Step title="Open a step directly">
+Use a deep link such as `/demo?step=9`. Earlier scenes run first.
+</Step>
+</Steps>
+
+## The 12 steps \{#steps}
+
+| Step | Title | Shows |
+|---|---|---|
+| 1 | Rahima asks in Bangla | Chat answers in Bangla with number cards |
+| 2 | Is the supplier real? KYB | A green supplier and a flagged contrast |
+| 3 | What does the order really cost? | Landed cost USD 11,200, margin 18% |
+| 4 | A cash gap appears. Fix it. | Shortfall alert, financing compared and applied |
+| 5 | 30 / 60 / 10, agreed by both sides | Milestones seen from buyer and supplier |
+| 6 | Escrow funded. First release: Tier 2 | One-tap release, paid in CNY |
+| 7 | Production photos match the order | Photo spec check |
+| 8 | A fake email asks to pay a new account | Email blocked, then a Tier 3 request with OTP and cooling-off |
+| 9 | WOW: a forged bill of lading | Forensics fail, hidden instruction revealed and ignored |
+| 10 | WOW: the same invoice at Lender B | Duplicate financing blocked |
+| 11 | Clean documents, automatic release (Tier 1) | Automatic release |
+| 12 | Goods arrive. Final release, signed record. | Signed credit record and audit verification |
+
+
+<TryItButton href="/demo?step=9" label="Open step 9: forged bill of lading" />
+<TryItButton href="/demo?step=10" label="Open step 10: duplicate invoice" />
+<TryItButton href="/demo?step=12" label="Open step 12: signed credit record" />
+
+## What the results mean \{#results}
+
+- Each scene lists "What was checked" with Passed or Failed and the expected and actual values.
+- The judge scorecard has 17 items in three groups: Task completion, Security & compliance, Innovation & interaction. Items show "Shown" as scenes pass, and each links to the proving screen.
+- "What you just saw" at the end lists numbers, attacks stopped and links to the playgrounds and `/verify`.
+- If a scene fails you see a friendly message and can retry, skip or continue.
+
+## Tips and common mistakes \{#tips}
+
+- In step 4 the order loan from Lender B is blocked on purpose (the invoice is already collateral at Lender A). The best eligible option is applied instead.
+- In step 12 a labelled and audited time skip credits simulated customer payments.
+- Tools: "Use live AI" (only if the server has a key), "Skip cooling-off (demo only)", Reset demo, End sandbox.
+- Presenter mode keys: Right and Left arrows, Space, R reset, B blackout, N notes.
+- Sandboxes expire. If you see "Your sandbox has expired", start a new one.
+
+## Related security notes \{#security}
+
+<Callout type="security">
+Tier 1 releases are automatic with a notice. Tier 2 needs one tap. Tier 3 needs an OTP (shown in the on-screen "Demo phone") and a 10-minute cooling-off. The AI cannot execute Tier 2 or 3. See [Permission tiers](/docs/en/security/permission-tiers).
+</Callout>
+
+## Try it \{#try-it}
+
+<TryItButton href="/demo" />
+
+## Related pages \{#related}
+
+- [Five-minute guide](/docs/en/judge/five-minute-guide)
+- [Playgrounds](/docs/en/judge/playgrounds)
+- [Criteria](/docs/en/judge/criteria)

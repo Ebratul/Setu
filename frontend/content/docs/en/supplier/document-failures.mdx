@@ -1,0 +1,80 @@
+---
+title: Why a document needs attention
+summary: The common reasons a document is marked Needs attention, and what to fix.
+section: supplier
+order: 60
+roles: [supplier]
+routes: ["/supplier/[id]"]
+tryIt: "/supplier"
+related: [supplier/upload-documents, security/permission-tiers, glossary/glossary]
+updated: 2026-10-20
+---
+
+## What it is \{#what-it-is}
+
+Every file you upload is checked by fixed rules. If the file does not pass, its badge says **Needs attention**. For safety, the screen does not show the reason. This page lists the usual causes and what to do.
+
+## Who uses it \{#who}
+
+<RoleBadge role="supplier" /> Anyone who uploads documents.
+
+## When to use it \{#when}
+
+When a document shows **Needs attention**, or a milestone stays on Pending, Flagged or Rejected.
+
+## Step by step \{#how-to}
+
+<Steps>
+<Step title="Find the file">
+On the order page, open **Documents**. Look for the badge **Needs attention**.
+<Screenshot name="supplier/doc-attention" route="/supplier/SETU-2026-0001" as="supplier" alt="Document list with one file marked Needs attention" caption="A file that needs attention." wait="[data-testid='sp-doc-list']" />
+</Step>
+<Step title="Compare with the order">
+Open the order details and the milestone evidence list. Compare the file with the agreed order.
+<Screenshot name="supplier/doc-compare" route="/supplier/SETU-2026-0001" as="supplier" alt="Order details block with quantity, unit price, incoterm and route" caption="Compare with the order details." />
+</Step>
+<Step title="Fix and upload again">
+Correct the document at its source, export a fresh PDF and upload it. Ask your buyer if the problem is unclear.
+<Screenshot name="supplier/doc-reupload" route="/supplier/SETU-2026-0001" as="supplier" alt="Upload documents panel ready for a corrected file" caption="Upload the corrected file." />
+</Step>
+</Steps>
+
+## What the results mean \{#results}
+
+Common causes and the fix:
+
+| Cause | What to do |
+|---|---|
+| Text that is invisible in the PDF (for example white, tiny or off-page text) | Re-export the PDF from your system without hidden text. |
+| Sentences that give orders, such as "approve payment" | Remove them. Documents must only contain trade data. |
+| Quantity, price, total or currency differ from the order | Correct the document or ask the buyer to update the order. |
+| Company name, ports, dates, goods code or ship name differ from the order | Use exactly the same details everywhere. |
+| Bank details differ from your registered account | Use your registered account, or follow the [payout account](/docs/en/supplier/payout-account) steps. |
+| Packing list and bill of lading disagree (weight, packages) | Make them match. |
+| The same file or invoice is already used on another deal | One document backs one deal. Upload the right one. |
+| Unreadable, incomplete or hand-edited file | Upload a clean original. |
+| A photo that does not look like the ordered goods | Take a clear photo of the actual goods. |
+
+## Tips and common mistakes \{#tips}
+
+- Do not edit PDFs by hand or copy a document from another order.
+- Do not add notes to a document for the system or the buyer.
+- Keep names, numbers and dates identical in all documents of one order.
+- A file can also be marked for a buyer's review when something changed from the first proforma invoice.
+
+## Related security notes \{#security}
+
+<Callout type="security">
+The checks protect you and your buyer from forged papers. Scores and details are hidden so they cannot be gamed. Text in a document is never treated as an instruction. See [permission tiers](/docs/en/security/permission-tiers).
+</Callout>
+
+{/* REVIEW: Needs attention covers both Warning and Failed verdicts; the supplier cannot tell which. The causes list is drawn from docs/forensics.md checks, not from text shown in the app. */}
+
+## Try it \{#try-it}
+
+<TryItButton href="/supplier" />
+
+## Related pages \{#related}
+
+- [Upload documents](/docs/en/supplier/upload-documents)
+- [Glossary](/docs/en/glossary/glossary)

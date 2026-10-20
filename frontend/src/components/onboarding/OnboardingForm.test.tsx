@@ -66,7 +66,7 @@ describe("OnboardingForm", () => {
 
   it("says money is simulated and that a person reviews", async () => {
     renderI18n(<OnboardingForm />);
-    expect(await screen.findByText(/Simulated/, { selector: "div *" })).toBeInTheDocument();
+    expect(await screen.findByText(/All money movement in Setu is Simulated/)).toBeInTheDocument();
     expect(screen.getAllByText(/person reviews every company/).length).toBeGreaterThan(0);
   });
 

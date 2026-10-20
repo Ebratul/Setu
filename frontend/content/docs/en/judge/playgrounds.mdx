@@ -1,0 +1,76 @@
+---
+title: Playgrounds and scam simulator
+summary: Four hands-on screens that let you change inputs and watch the permission tiers, the Privacy Gateway and the injection defences react.
+section: judge
+order: 30
+roles: [judge]
+routes: ["/demo/risk-playground", "/demo/privacy-playground", "/demo/attack-console", "/demo/scam-simulator"]
+tryIt: "/demo/risk-playground"
+related: [judge/guided-demo, judge/verify, security/permission-tiers]
+updated: 2026-10-20
+---
+
+## What it is \{#what-it-is}
+
+Four small screens run the real engines on inputs you choose. All are dry runs on a simulated sandbox. No real money moves.
+
+## Who uses it \{#who}
+
+<RoleBadge role="judge" /> Admins and buyers can also use the scam simulator. For a judge the scam simulator results are read-only.
+
+## Step by step \{#how-to}
+
+<Steps>
+<Step title="Risk Playground">
+Open `/demo/risk-playground`. Change the amount and the facts: first deal with this supplier, beneficiary account being changed, account opened recently, fraud score, duplicate document hash, hidden instruction, sanctions hit, document warning or failure. The result card shows the tier and "Why this decision". A rule trace lists which rules fired.
+<Screenshot name="judge/risk-playground" route="/demo/risk-playground" as="judge" alt="The Risk playground with fact controls on one side and a risk decision card with a rule trace on the other." caption="Change the facts, watch the tier." />
+</Step>
+<Step title="Privacy Playground">
+Open `/demo/privacy-playground`. Paste text that contains an NID, bank account or phone number. Setu shows what it found, then "Send to AI (dry run)" shows three panes: the masked payload the AI sees, the AI answer still masked, and the answer with values restored by code. You can also try spaced digits, Bangla digits or a zero-width character.
+<Screenshot name="judge/privacy-playground" route="/demo/privacy-playground" as="judge" alt="The Privacy Gateway playground with an input box and a list of detected identifiers." caption="Identifiers are replaced by tokens before the AI sees anything." />
+</Step>
+<Step title="Attack Console">
+Open `/demo/attack-console`. Pick an attack from the gallery or write your own, choose a placement (hidden white text, visible text, metadata, email), set Defences to ON or OFF and press "Run attack". The result is one of: Attack blocked, Stopped by the risk engine, No effect, Attack succeeded.
+<Screenshot name="judge/attack-console" route="/demo/attack-console" as="judge" alt="The prompt-injection attack console with an attack gallery, a Defences switch and a Run attack button." caption="Run an attack with defences on and off." />
+</Step>
+<Step title="Scam simulator">
+Open `/demo/scam-simulator`. Press one of three buttons: payment-redirection email, supplier account change, or a large advance (USD 22,000). The page shows what was done and how Setu responded, with tier and reasons.
+<Screenshot name="judge/scam-simulator" route="/demo/scam-simulator" as="judge" alt="The scam simulator with three scenario buttons and a result panel." caption="Fictional attacks through the real engine." />
+</Step>
+</Steps>
+
+## What the results mean \{#results}
+
+| Screen | Key output | Meaning |
+|---|---|---|
+| Risk Playground | Tier 0 informational, Tier 1 auto-release, Tier 2 one-tap approval, Tier 3 OTP + cooling-off, Blocked | Decided by code from the facts, not by AI |
+| Privacy Playground | "Leaked: 0" | No real identifier reached the AI |
+| Attack Console, defences ON | Attack blocked or Stopped by the risk engine | Hidden instructions are data, never commands |
+| Attack Console, defences OFF | May show Attack succeeded | Only the detector, tool gating and output guard are off |
+| Scam simulator | Tier and Outcome | The large advance is a dry run: nothing is created or moved |
+
+With defences OFF, money safety stays ON: propose-only tools, the risk engine and Tier 3 on document instructions. Money can never move from document text.
+
+## Tips and common mistakes \{#tips}
+
+- Compare the same attack with defences ON and OFF.
+- The Attack Console shows attempts such as "dropped by the gate" or "reached the service, then the risk engine".
+- The measured results (attack success 100% with defences off and 0% with them on, on our synthetic test set) are on the home page under results. They show a ceiling on synthetic data, not real-world accuracy.
+
+## Related security notes \{#security}
+
+<Callout type="security">
+Instruction-like text inside a document or email is a Tier 3 trigger. See [Permission tiers](/docs/en/security/permission-tiers).
+</Callout>
+
+## Try it \{#try-it}
+
+<TryItButton href="/demo/risk-playground" label="Open the Risk Playground" />
+<TryItButton href="/demo/privacy-playground" label="Open the Privacy Playground" />
+<TryItButton href="/demo/attack-console" label="Open the Attack Console" />
+<TryItButton href="/demo/scam-simulator" label="Open the Scam simulator" />
+
+## Related pages \{#related}
+
+- [Guided demo](/docs/en/judge/guided-demo)
+- [Verify](/docs/en/judge/verify)

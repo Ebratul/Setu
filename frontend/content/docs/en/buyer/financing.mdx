@@ -1,0 +1,92 @@
+---
+title: Financing comparison and applying
+summary: Find your funding gap, compare financing options by total cost, preview the impact and apply in the simulated sandbox.
+section: buyer
+order: 70
+roles: [buyer]
+routes: ["/app/financing"]
+tryIt: "/app/financing"
+related: [buyer/cash-flow, buyer/order-analysis, buyer/deal-detail, security/permission-tiers]
+updated: 2026-10-20
+---
+
+## What it is \{#what-it-is}
+
+The **Financing** page works out how much money you are short, then compares financing options for it. It shows total cost, tenor (how many days the money is borrowed) and eligibility. You can apply in the simulated sandbox. No real lender is contacted.
+
+## Who uses it \{#who}
+
+<RoleBadge role="buyer" /> Buyers. Read-only accounts can compare but cannot apply (**This account is read-only, so it cannot submit applications.**).
+
+## When to use it \{#when}
+
+When [Cash flow](/docs/en/buyer/cash-flow) shows a shortfall, or when you want to finance a whole order before you fund the escrow.
+
+## Step by step \{#how-to}
+
+<Steps>
+<Step title="Choose what to finance">
+Under **What to finance**, pick **Cover shortfall** (the first cash dip in the forecast) or **Fund whole order**. For a whole order, choose a **Deal**. A currency switch (USD, BDT, CNY) changes how money is shown.
+
+<Screenshot name="buyer/financing-mode" route="/app/financing" as="buyer" alt="Financing page with a Cover shortfall and Fund whole order switch and a currency toggle." caption="Choose what to finance." />
+</Step>
+<Step title="Read your funding gap">
+**Your funding gap** shows **Amount needed**, **Needed by**, the number of days (**For**), and for an order the **Landed cost of the order** and **Available cash**. **Why this amount** explains it. **Facts used** lists the inputs. If no gap exists you see **No financing needed**.
+
+<Screenshot name="buyer/financing-gap" route="/app/financing" as="buyer" alt="Your funding gap card with amount needed, needed by date, number of days and an explanation list." caption="The funding gap card." />
+</Step>
+<Step title="Adjust the amount">
+**Amount to finance** is prefilled. Type another amount, click **Use suggested amount**, or **Cover the whole dip** to cover the deepest point. Options are compared again as you type.
+
+<Screenshot name="buyer/financing-amount" route="/app/financing" as="buyer" alt="Amount to finance field with Use suggested amount and Cover the whole dip buttons." caption="Change the amount." />
+</Step>
+<Step title="Compare the options">
+Under **Compare options**, each card shows the provider, total cost (interest, fees, price uplift, flat cost), **Tenor**, **Maturity**, **Effective annual rate** and **Cost per 30 days**. Badges: **Recommended**, **Eligible** or **Not eligible** (with **Why not**), and a rank. The cheapest eligible option is recommended and says how much it **Saves** against the next best.
+
+<Screenshot name="buyer/financing-options" route="/app/financing" as="buyer" alt="List of financing option cards with recommended and eligible badges, cost rows and Apply, impact and schedule buttons." caption="Financing option cards." />
+</Step>
+<Step title="Preview, then apply">
+**Show repayment schedule** lists instalments. **See impact on my cash flow** draws the balance with and without the loan. **Apply (simulated)** opens a dialog. Click **Confirm application**. A tracker moves from **Submitted** to **Approved**. The decision is simulated and arrives after a short delay.
+
+<Screenshot name="buyer/financing-apply" route="/app/financing" as="buyer" alt="Apply for financing dialog with option, amount, total cost, tenor, maturity and a Confirm application button." caption="The simulated application dialog." />
+{/* REVIEW: The screenshot needs a click on the Apply (simulated) button of an eligible card; add a click selector once the script is written. */}
+</Step>
+<Step title="Track your applications">
+**My applications** lists reference, option, amount, total cost, maturity and status (**Submitted**, **Approved**, **Rejected**, **Cancelled**).
+
+<Screenshot name="buyer/financing-applications" route="/app/financing" as="buyer" alt="My applications table with reference, option, amount, total cost, maturity and status columns." caption="Your applications." />
+</Step>
+</Steps>
+
+## What the results mean \{#results}
+
+- **Total cost** = interest + fees + price uplift + flat cost. Interest is principal times annual rate times days divided by 365.
+- **Effective annual rate** is the total cost turned into a yearly percentage, so options with different tenors can be compared.
+- **Not eligible** options show the rule that failed, for example a minimum amount.
+- **Blocked: invoice already financed** means the duplicate-financing registry found the same invoice financed elsewhere. You cannot apply.
+- After approval, Setu says your cash flow and alerts were updated.
+
+The five option types are: escrow-backed loan, supplier credit, bank import loan, working-capital line (NBFI, a non-bank lender) and insured supplier terms.
+
+## Tips and common mistakes \{#tips}
+
+- Compare **Total cost**, not only the rate. A short tenor may cost less.
+- Insured supplier terms are not offered once the deal's escrow is funded.
+- Use **See impact on my cash flow** before you apply. It shows whether the shortfall is really covered.
+- Amounts must be positive. Example: 1560.00.
+
+## Related security notes \{#security}
+
+<Callout type="security">
+All costs, eligibility and rankings are calculated by code. The AI may explain them but never changes them. Applications are simulated, and the duplicate-financing check protects lenders and you. See [Permission tiers](/docs/en/security/permission-tiers).
+</Callout>
+
+## Try it \{#try-it}
+
+<TryItButton href="/app/financing" />
+
+## Related pages \{#related}
+
+- [Cash flow](/docs/en/buyer/cash-flow)
+- [Order analysis](/docs/en/buyer/order-analysis)
+- [Deal detail](/docs/en/buyer/deal-detail)

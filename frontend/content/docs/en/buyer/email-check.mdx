@@ -1,0 +1,88 @@
+---
+title: Check a suspicious email
+summary: Paste an email that asks you to pay a different bank account and see why Setu blocks it.
+section: buyer
+order: 130
+roles: [buyer]
+routes: ["/app/inbox/email-check"]
+tryIt: "/app/inbox/email-check"
+related: [buyer/suppliers-kyb, buyer/approvals, security/injection-defence, security/permission-tiers]
+updated: 2026-10-20
+---
+
+## What it is \{#what-it-is}
+Fraudsters often send an email that says "our bank account has changed, please pay here". Setu reads the email you paste, looks for this kind of request, and tells you what to do.
+
+Setu reads the email as data. It never follows instructions in it, and it never changes a bank account because of an email. The check is deterministic code, not an AI. All data is simulated.
+
+## Who uses it \{#who}
+<RoleBadge role="buyer" />
+
+Buyers (and admins) only. Suppliers and judges are refused.
+
+## When to use it \{#when}
+- A supplier email asks you to pay a new or different account.
+- An email pushes you to pay today or says not to call.
+- An email contains odd instructions.
+
+## Step by step \{#how-to}
+<Steps>
+<Step title="Open Check an email">
+Choose **Check an email** in the left menu. The page title is **Check a suspicious email**.
+
+<Screenshot name="buyer/email-check-1" route="/app/inbox/email-check" as="buyer" alt="Check a suspicious email page with an empty text box and the Simulated badge" caption="Paste the email text here." />
+</Step>
+<Step title="Paste the email">
+Paste the full text into **Email text**. In the demo you can press **Load demo email** to fill in a sample. The button appears only when a demo email is available.
+
+<Screenshot name="buyer/email-check-2" route="/app/inbox/email-check" as="buyer" alt="Email text box filled with a payment redirection email" caption="A sample email asking to pay a new account." />
+</Step>
+<Step title="Press Check email">
+If the box is empty you see "Paste the email text first." Otherwise Setu shows a result card.
+
+<Screenshot name="buyer/email-check-3" route="/app/inbox/email-check" as="buyer" alt="Red result card with the Blocked label, signals and next steps" caption="The result card for a blocked email." />
+</Step>
+<Step title="Read what to do">
+For a blocked or suspicious email you see **What looked wrong** and **What to do now**. The steps are: do not pay the account in the email, verify by video call using contact details you already know, and ask the supplier to submit the change in the supplier portal. You then approve it with a code after a cooling-off period.
+
+<Screenshot name="buyer/email-check-4" route="/app/inbox/email-check" as="buyer" alt="What looked wrong list and What to do now numbered steps" caption="Follow the numbered steps." />
+</Step>
+<Step title="Follow the audit and approval links">
+A chip says **Fraud alert recorded (audit #N)**. If a matching change request is waiting, **Open the related pending request** opens it in Approvals.
+
+<Screenshot name="buyer/email-check-5" route="/app/inbox/email-check" as="buyer" alt="Result card footer with a fraud alert audit chip and a link to the pending request" caption="Every blocked email is recorded." />
+</Step>
+</Steps>
+
+## What the results mean \{#results}
+| Label | Meaning |
+|---|---|
+| Blocked | The email asks you to pay a different account. A fraud alert and a Tier 3 audit entry are recorded. |
+| Suspicious | The email has instructions or pressure. Setu ignored them and nothing changed. |
+| No payment-change request found | No such request was found. Setu still never acts on email. |
+
+Signals Setu can list: asks you to pay a different bank account, contains new bank or SWIFT details, pushes you to act today, tells you not to call or verify.
+
+Every result for a blocked or suspicious email also says: **Account unchanged. Nothing was paid or redirected.**
+
+## Tips and common mistakes \{#tips}
+- A clean result does not prove the email is safe. It only means no payment-change request was found.
+- Do not reply to the email. Call the supplier on a number you already had.
+- A real change goes through the supplier portal. You then approve it with OTP and a 10 minute cooling-off.
+- Setu stores only a hash of the pasted text, not the text itself.
+- The page has no field for a deal reference. Setu finds a deal reference inside the email text if there is one.
+
+## Related security notes \{#security}
+<Callout type="security" title="Tier 3: beneficiary change">
+Any change of the receiving bank account is Tier 3. It needs OTP and a 10 minute cooling-off, and an email can never trigger it. See [Permission tiers](/docs/en/security/permission-tiers).
+</Callout>
+<Callout type="security" title="Email text is data">
+Instruction-like text in an email is a Tier 3 trigger. Read [Prompt injection](/docs/en/security/injection-defence).
+</Callout>
+
+## Try it \{#try-it}
+<TryItButton href="/app/inbox/email-check" />
+
+## Related pages \{#related}
+- [Suppliers and KYB](/docs/en/buyer/suppliers-kyb)
+- [Approvals](/docs/en/buyer/approvals)

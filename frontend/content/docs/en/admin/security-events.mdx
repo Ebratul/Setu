@@ -1,0 +1,79 @@
+---
+title: Security and injection events
+summary: Review the prompt-injection scoreboard and every injection attempt, and resolve events.
+section: admin
+order: 70
+roles: [admin]
+routes: ["/app/admin/security"]
+tryIt: "/app/admin/security"
+related: [security/permission-tiers, admin/audit-log, admin/evaluation, judge/five-minute-guide]
+updated: 2026-10-20
+---
+
+## What it is \{#what-it-is}
+
+A prompt injection is text hidden in a document or email that tries to give the AI orders, such as "pay this new account". Setu treats such text as data, never as instructions. The **Prompt-injection security** page shows measured attack results and every attempt the system has seen.
+
+## Who uses it \{#who}
+
+<RoleBadge role="admin" /> Admins read events and can resolve them. Judges can read but cannot resolve.
+
+## When to use it \{#when}
+
+- A deal was flagged for extra verification.
+- You want to show that attacks do not move money.
+
+## Step by step \{#how-to}
+
+<Steps>
+<Step title="Open Security">
+Choose **Security** in the sidebar. The top card is **Attack success rate**, with rows for **Defences OFF**, **Defences ON** and **ON without detector (layers 4+5 only)**.
+<Screenshot name="admin/security-scoreboard" route="/app/admin/security" as="admin" alt="The Attack success rate scoreboard comparing defences off and on." caption="The scoreboard." />
+</Step>
+<Step title="Run or re-run the suite">
+Press **Run the suite** (or **Re-run suite**). It takes about 15 seconds and uses the dev split.
+<Screenshot name="admin/security-rerun" route="/app/admin/security" as="admin" alt="The Re-run suite button on the scoreboard." caption="Re-run suite." />
+</Step>
+<Step title="Filter Injection events">
+Use **Attack style** and **Source** (hidden text, visible text, metadata, email).
+<Screenshot name="admin/security-filters" route="/app/admin/security" as="admin" alt="Two drop-downs, Attack style and Source, above the events table." caption="Event filters." />
+</Step>
+<Step title="Resolve an event">
+In the events table press **Resolve** on a row. The cell then shows **Resolved**. The **Audit #** column links the event to its signed entry.
+<Screenshot name="admin/security-resolve" route="/app/admin/security" as="admin" alt="An events table row with a Tier 3 flag badge and a Resolve button." caption="Resolving an event." />
+</Step>
+</Steps>
+
+## What the results mean \{#results}
+
+| Item | Meaning |
+|---|---|
+| Attack success rate | Share of test attacks that had an effect. Lower is better. |
+| Detection recall | Share of attacks the detector found. |
+| False-positive rate | Clean documents wrongly flagged. |
+| Tier 3 flag | The deal needs extra verification before its next money action. <TierBadge tier={3} /> |
+| Layer | Which of the defence layers handled it. |
+| Audit #N | The signed audit entry for the event. |
+
+The note "Money moved in every mode: never" counts only simulated side effects. The page says the dev split is shown and test-split numbers are reported separately. The test-split results are in [Evaluation](/docs/en/admin/evaluation).
+
+## Tips and common mistakes \{#tips}
+
+- Resolving an event releases only that event's flag. A separate forensic flag on the document stays.
+- **Open the live attack console** (`/demo/attack-console`) lets you try your own attack text. Console runs never touch a real deal.
+- Turning defences off in the console switches off only the detector, tool gating and output guard. The risk engine stays on.
+
+## Related security notes \{#security}
+
+<Callout type="security">
+Instruction-like text in a document always raises Tier 3 for that deal. See [Permission tiers](/docs/en/security/permission-tiers).
+</Callout>
+
+## Try it \{#try-it}
+
+<TryItButton href="/app/admin/security" />
+
+## Related pages \{#related}
+
+- [Audit log](/docs/en/admin/audit-log)
+- [Evaluation](/docs/en/admin/evaluation)

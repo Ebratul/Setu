@@ -6,6 +6,7 @@ import { useEffect, useState, type DragEvent } from "react";
 import { CopyChip } from "@/components/approvals/CopyChip";
 import { reasonKey } from "@/components/audit/auditText";
 import { LanguageToggle } from "@/components/shell/LanguageToggle";
+import { BackButton } from "@/components/ui/BackButton";
 import { Card } from "@/components/ui/Card";
 import { useT } from "@/i18n";
 import { parseReceiptUrl } from "@/lib/audit/receipt";
@@ -158,9 +159,12 @@ export function VerifyPage() {
     <>
       <header className="border-b border-line bg-surface shadow-card">
         <div className="mx-auto flex max-w-4xl flex-wrap items-center justify-between gap-3 px-4 py-3">
-          <Link href="/" className={`rounded text-lg font-bold text-brand-text ${focus}`}>
-            Setu সেতু
-          </Link>
+          <div className="flex items-center gap-3">
+            <BackButton fallbackHref="/" />
+            <Link href="/" className={`rounded text-lg font-bold text-brand-text ${focus}`}>
+              Setu সেতু
+            </Link>
+          </div>
           <LanguageToggle withZh />
         </div>
       </header>

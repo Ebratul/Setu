@@ -1,6 +1,7 @@
 "use client";
 
 import dynamic from "next/dynamic";
+import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import {
   Suspense,
@@ -10,8 +11,10 @@ import {
   type ReactNode,
 } from "react";
 
+import { DocHint } from "@/components/docs/DocHint";
 import { ChatDrawer } from "@/components/chat/ChatDrawer";
 import { FooterStatus } from "@/components/status/FooterStatus";
+import { BackButton } from "@/components/ui/BackButton";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { ToastProvider } from "@/components/ui/Toast";
 import { useT } from "@/i18n";
@@ -100,6 +103,10 @@ export function AppShell({ children }: { children: ReactNode }) {
         <div className="mx-auto flex w-full max-w-7xl flex-1 gap-4 px-4 py-6 md:gap-8">
           <Sidebar />
           <main id="main" className="min-h-[100dvh] min-w-0 flex-1">
+            {pathname !== "/app" ? (
+              <BackButton fallbackHref="/app" className="-ml-2 mb-2" />
+            ) : null}
+            <DocHint userId={userId} />
             {me.loading || isSupplier ? (
               <Skeleton className="h-[60dvh]" />
             ) : (
@@ -116,6 +123,9 @@ export function AppShell({ children }: { children: ReactNode }) {
         <DemoPhone />
         <footer className="grid justify-items-center gap-2 px-4 py-6 text-center text-sm text-muted">
           <p>{t("common.footer")}</p>
+          <Link href="/docs" className="inline-flex min-h-11 items-center font-semibold text-brand-text underline">
+            {t("docs.title")}
+          </Link>
           <FooterStatus />
         </footer>
       </MeContext.Provider>

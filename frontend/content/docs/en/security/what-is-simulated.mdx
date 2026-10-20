@@ -1,0 +1,66 @@
+---
+title: What is simulated and what is real
+summary: A clear list of what Setu simulates in this competition build, and what runs as real software.
+section: security
+order: 60
+roles: [buyer, supplier, admin, judge]
+routes: []
+related: [security/permission-tiers, security/why-code-decides, security/signed-audit-log]
+updated: 2026-10-20
+---
+
+## What it is \{#what-it-is}
+
+Setu is a competition prototype for FinTechathon 2026. **No real money moves.** There are no connections to banks, payment networks or SMS providers. Screens that touch money show a "Simulated" label.
+
+No machine-learning model was trained for Setu. It uses ready-made language models for chat and document reading, plus ordinary code.
+
+## Simulated \{#simulated}
+
+| Area | What is simulated |
+|---|---|
+| Payments and escrow | A double-entry ledger inside Setu's own database. **Escrow** means money held by a neutral party until conditions are met. Here it is a ledger entry, not a bank account. Every escrow response says it is simulated. |
+| Bank accounts | Account numbers for suppliers are demo values. |
+| OTP messages | In demo mode the 6-digit code is shown in a "Simulated SMS" panel called Demo phone. No text message is sent. With real sign-in, codes go by email instead. A real build would replace this with an SMS provider. |
+| Exchange rates | Rates in the database are mock data. |
+| KYB and sanctions | The business check uses demo data and a fictional sanctions list. |
+| Lenders and loans | Lenders in financing and the duplicate-financing registry are mock lenders. |
+| Customers and orders | Seed data and synthetic trade documents. |
+
+{/* REVIEW: Doc sources say FX source MOCK and a fictional sanctions list; the live deployment's data was not inspected. */}
+
+## Real software \{#real}
+
+- The rules: landed cost, financing, cash flow, escrow state machine, risk tiers and KYB scoring are real, tested code.
+- The approvals flow, including the cooling-off and OTP checks, is enforced by the server.
+- The audit log signing and verification use real Ed25519 signatures and SHA-256.
+- Privacy masking and injection detection run on every relevant model call.
+- Document forensics (hidden text, cross-checks, duplicate registry) run on uploaded files.
+- Language-model calls: when a model provider key is configured, calls go to a hosted model. Without one, Setu runs in a mock mode with no network.
+
+{/* REVIEW: Which model mode (real or mock) the live site runs in was not verified. */}
+
+## Not built \{#not-built}
+
+- Real payment rails or bank integration.
+- Real SMS delivery for OTP.
+- A loan-repayment flow in the duplicate-financing registry.
+- A supplier-side OTP.
+
+## Tips for judges \{#tips}
+
+<Callout type="tip">
+Look for the "Simulated" badge next to money. Open the Demo phone to see the OTP. Verify the audit log at [/verify](/verify).
+</Callout>
+
+## Related security notes \{#security}
+
+<Callout type="security">
+Simulation does not weaken the controls. Tiers, approvals, OTP, cooling-off, masking and audit all run the same code path that real money would use.
+</Callout>
+
+## Related pages \{#related}
+
+- [Permission tiers](/docs/en/security/permission-tiers)
+- [Why code decides](/docs/en/security/why-code-decides)
+- [Signed audit log](/docs/en/security/signed-audit-log)

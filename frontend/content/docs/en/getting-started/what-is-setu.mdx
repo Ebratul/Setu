@@ -1,0 +1,69 @@
+---
+title: What is Setu
+summary: Setu is an AI finance copilot that helps Bangladeshi SMEs import from China with financing, cash-flow tracking, document checks and milestone escrow.
+section: getting-started
+order: 10
+roles: [buyer, supplier, admin, judge]
+routes: []
+related: [getting-started/simulated-sandbox, getting-started/roles-and-login, getting-started/two-minute-tour]
+updated: 2026-10-20
+---
+
+## What it is \{#what-it-is}
+
+Setu (সেতু, "bridge") helps small Bangladeshi companies that buy goods from Chinese suppliers. It works out what an order really costs, shows when cash will run short, compares ways to finance it, and pays the supplier in stages through **milestone escrow**. Escrow means the money is held by a neutral account and released only when agreed proof arrives.
+
+A person always stays in control of risky actions. The AI explains. Code calculates and enforces the rules.
+
+<Callout type="security" title="All money is simulated">
+Every payment, escrow balance and loan in Setu is a simulated sandbox entry. No real funds move and no model was trained. See [Simulated sandbox](/docs/en/getting-started/simulated-sandbox).
+</Callout>
+
+## Who uses it \{#who}
+
+<RoleBadge role="buyer" /> <RoleBadge role="supplier" /> <RoleBadge role="admin" /> <RoleBadge role="judge" />
+
+Buyers (importers) and suppliers use it for trade. Admins review companies and incidents. Judges explore a private, read-only copy of the demo. See [Roles and sign-in](/docs/en/getting-started/roles-and-login).
+
+## The problem it solves \{#problem}
+
+A Bangladeshi importer who buys from China usually faces four problems at once.
+
+| Problem | What Setu does |
+|---|---|
+| The true cost is unclear (freight, duty, bank charges, FX) | Landed-cost and margin analysis per order |
+| Cash runs short between payments | A 90-day cash-flow calendar with shortfall and deadline alerts |
+| Loans are hard to compare | Financing options ranked on total cost and rate |
+| Paying a stranger abroad is risky: fake suppliers, forged papers, changed bank accounts | Supplier checks (KYB), document forensics, milestone escrow, tiered approvals |
+
+A letter of credit (LC) gives this protection but costs a lot for small orders. Setu aims for similar protection at a lower cost.
+
+## How the safety model works \{#safety}
+
+- **Tier 0 and Tier 1** actions are automatic. Tier 1 comes with a notice.
+- **Tier 2** needs one tap from a person.
+- **Tier 3** needs a one-time password (OTP) and a 10-minute cooling-off pause.
+
+The tier is decided by code from facts in the database. Text inside a document or email is treated as data, never as an instruction. More in [Permission tiers](/docs/en/security/permission-tiers).
+
+## What you can do next \{#next}
+
+<Steps>
+<Step title="Take the tour">
+Read the [two-minute tour](/docs/en/getting-started/two-minute-tour).
+</Step>
+<Step title="Try it">
+Open the guided demo and press Start.
+<Screenshot name="getting-started/demo-landing" route="/demo" as="judge" alt="The Setu guided demo start page with three buttons: Watch guided demo, Start my own sandbox and Presenter mode." caption="The guided demo start page." />
+</Step>
+</Steps>
+
+## Try it \{#try-it}
+
+<TryItButton href="/demo" />
+
+## Related pages \{#related}
+
+- [Roles and sign-in](/docs/en/getting-started/roles-and-login)
+- [Simulated sandbox](/docs/en/getting-started/simulated-sandbox)
+- [Two-minute tour](/docs/en/getting-started/two-minute-tour)

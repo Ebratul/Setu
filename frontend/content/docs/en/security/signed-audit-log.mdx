@@ -1,0 +1,70 @@
+---
+title: The signed, hash-chained audit log
+summary: Every action is recorded in a log that cannot be changed quietly, and anyone can check it.
+section: security
+order: 50
+roles: [buyer, supplier, admin, judge]
+routes: []
+tryIt: "/verify"
+related: [admin/audit-log, buyer/approvals, security/permission-tiers]
+updated: 2026-10-20
+---
+
+## What it is \{#what-it-is}
+
+The **audit log** is Setu's diary. Every action by a person, the AI or the system adds one entry. Entries are **signed** and **chained**, so changing, deleting or reordering any entry is detectable by anyone.
+
+## How an entry is protected \{#how}
+
+A **hash** is a short fingerprint of data. Change one character and the fingerprint changes completely.
+
+1. Each entry records who did what, when, the tier, and the outcome. Personal data is redacted before signing.
+2. Setu hashes the entry. The hash also includes the **previous** entry's hash. That is the chain.
+3. Setu signs the hash with a private key (Ed25519 digital signature). The matching **public key** is published, so anyone can check signatures but nobody can forge them.
+4. The first entry links to a fixed starting value called the genesis hash.
+5. The database rejects any update or delete on the log. If there is no signing key, no entry is written.
+
+## What is logged \{#logged}
+
+Chat tool calls, KYB runs, document uploads and check results, registry hits, risk decisions with reason codes, approvals (created, approved, rejected, cancelled, expired, locked, executed), OTP events, escrow funding, release and refund, FX locks, beneficiary changes, blocked emails, injection detections and privacy alerts.
+
+## Verify it yourself \{#verify}
+
+<Steps>
+<Step title="Export">Admins and judges can export the log as a JSONL file with a header that says how to verify it.</Step>
+<Step title="Open the verify page">Go to [/verify](/verify). No login is needed.</Step>
+<Step title="Drop the file">Choose the file or drop it on the box. Your browser checks every hash, signature and the order, using the published public key. Nothing is uploaded.</Step>
+<Step title="Read the result">A valid log reports OK. A broken one names the first entry that is out of place and the reason.</Step>
+</Steps>
+
+Failure reasons: contents changed, wrong key or forged signature, entry missing, entries reordered, broken link to the previous entry.
+
+A command-line verifier also exists for engineers, and admins and judges can run a check over the live log in the app.
+
+## Receipts and the tamper demo \{#demo}
+
+Entries can carry a QR receipt. The signed entry travels in the link fragment, which is never sent to a server, and your browser checks it.
+
+The **tamper demo** edits, deletes or reorders an in-memory copy of some entries, then verifies it so you can watch it fail. The real log is read-only and never changed.
+
+## Limits \{#limits}
+
+<Callout type="warning" title="What the log cannot prove alone">
+If the newest entries are cut off, the remaining log still verifies as a shorter valid chain. Compare the last entry number and hash with the live head or a receipt. A log filtered to one deal has gaps by design, so each entry is checked on its own and against its direct neighbours only.
+</Callout>
+
+<Callout type="security">
+All money in the log is simulated, and entries say so. See [What is simulated](/docs/en/security/what-is-simulated).
+</Callout>
+
+{/* REVIEW: Public key location and signing-key setup on the hosted deployment were not verified. */}
+
+## Try it \{#try-it}
+
+<TryItButton href="/verify" label="Open the verify page" />
+
+## Related pages \{#related}
+
+- [Audit log (admin guide)](/docs/en/admin/audit-log)
+- [Permission tiers](/docs/en/security/permission-tiers)
+- [Approvals (buyer guide)](/docs/en/buyer/approvals)
