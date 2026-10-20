@@ -224,12 +224,13 @@ def test_blank_api_key_means_mock_mode(
         ({"ANTHROPIC_API_KEY": "", "OPENROUTER_API_KEY": ""}, None),
         ({"ANTHROPIC_API_KEY": "a", "OPENROUTER_API_KEY": ""}, "anthropic"),
         ({"ANTHROPIC_API_KEY": "", "OPENROUTER_API_KEY": "o"}, "openrouter"),
-        ({"ANTHROPIC_API_KEY": "a", "OPENROUTER_API_KEY": "o"}, "anthropic"),
+        ({"ANTHROPIC_API_KEY": "a", "OPENROUTER_API_KEY": "o"}, "openrouter"),
         (
-            {"ANTHROPIC_API_KEY": "a", "OPENROUTER_API_KEY": "o", "LLM_PROVIDER": "openrouter"},
-            "openrouter",
+            {"ANTHROPIC_API_KEY": "a", "OPENROUTER_API_KEY": "o", "LLM_PROVIDER": "anthropic"},
+            "anthropic",
         ),
         ({"ANTHROPIC_API_KEY": "a", "OPENROUTER_API_KEY": "", "LLM_PROVIDER": "openrouter"}, None),
+        ({"ANTHROPIC_API_KEY": "", "OPENROUTER_API_KEY": "", "XAI_API_KEY": "x"}, "xai"),
     ],
 )
 def test_provider_selection(
@@ -239,6 +240,7 @@ def test_provider_selection(
 
     monkeypatch.setenv("AGENT_MOCK_MODE", "false")
     monkeypatch.delenv("LLM_PROVIDER", raising=False)
+    monkeypatch.setenv("XAI_API_KEY", "")
     for k, v in env.items():
         monkeypatch.setenv(k, v)
     s = Settings()

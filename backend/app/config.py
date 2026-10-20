@@ -50,8 +50,14 @@ class Settings(BaseSettings):
     # OpenRouter's Anthropic-compatible endpoint (same Claude models, routed via openrouter.ai).
     openrouter_api_key: SecretStr | None = None
     openrouter_base_url: str = "https://openrouter.ai/api"
-    # auto: Anthropic if ANTHROPIC_API_KEY is set, else OpenRouter if OPENROUTER_API_KEY is set.
-    llm_provider: Literal["auto", "anthropic", "openrouter"] = "auto"
+    # xAI Grok (OpenAI-compatible API): last-resort fallback once the others' quota is used up.
+    xai_api_key: SecretStr | None = None
+    xai_base_url: str = "https://api.x.ai/v1"
+    xai_model_fast: str = "grok-4-fast"
+    xai_model_smart: str = "grok-4"
+    # auto: OpenRouter, then Anthropic, then xAI Grok (only providers with a key). A named provider
+    # goes first (and must have a key); keyed providers after it stay as fallbacks.
+    llm_provider: Literal["auto", "openrouter", "anthropic", "xai"] = "auto"
     langsmith_api_key: SecretStr | None = None
     langsmith_tracing: bool = False
     langsmith_project: str = "setu"
@@ -168,15 +174,31 @@ class Settings(BaseSettings):
         return self._usable(self.openrouter_api_key)
 
     @property
-    def active_llm_provider(self) -> Literal["anthropic", "openrouter"] | None:
-        """The provider real model calls go to, or None (then mock mode)."""
-        if self.llm_provider == "anthropic":
-            return "anthropic" if self.has_anthropic_key else None
-        if self.llm_provider == "openrouter":
-            return "openrouter" if self.has_openrouter_key else None
-        if self.has_anthropic_key:
-            return "anthropic"
-        return "openrouter" if self.has_openrouter_key else None
+    def has_xai_key(self) -> bool:
+        return self._usable(self.xai_api_key)
+
+    @property
+    def llm_provider_chain(self) -> list[Literal["openrouter", "anthropic", "xai"]]:
+        """Providers to try, in order. A call moves to the next one when a provider's quota,
+        credit or key is exhausted (see app/llm/client.py)."""
+        have: dict[str, bool] = {
+            "openrouter": self.has_openrouter_key,
+            "anthropic": self.has_anthropic_key,
+            "xai": self.has_xai_key,
+        }
+        order = ["openrouter", "anthropic", "xai"]
+        if self.llm_provider != "auto":
+            if not have[self.llm_provider]:
+                return []
+            order.remove(self.llm_provider)
+            order.insert(0, self.llm_provider)
+        return [p for p in order if have[p]]  # type: ignore[misc]
+
+    @property
+    def active_llm_provider(self) -> Literal["anthropic", "openrouter", "xai"] | None:
+        """The provider real model calls go to first, or None (then mock mode)."""
+        chain = self.llm_provider_chain
+        return chain[0] if chain else None
 
     @property
     def use_mock_llm(self) -> bool:
