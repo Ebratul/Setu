@@ -21,6 +21,7 @@ from typing import Any
 
 import structlog
 from sqlalchemy import func, select
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from app.auth.deps import CurrentUser, ensure_verified
@@ -48,7 +49,7 @@ from app.db.models import (
     RiskEvent,
 )
 from app.domain.money import q2
-from app.errors import DomainError, Forbidden, NotFound, ServiceUnavailable
+from app.errors import Conflict, DomainError, Forbidden, NotFound, ServiceUnavailable
 from app.schemas.approvals import (
     ApprovalList,
     ApprovalOut,
@@ -868,6 +869,14 @@ def _execute(
     appr_id, old_hash = appr.id, appr.context_hash
     try:
         _run(db, user, appr, deal, appr_id)
+    except (
+        IntegrityError
+    ) as exc:  # the ledger already holds this payment (ids come from the txn ref)
+        db.rollback()
+        raise Conflict(
+            "this payment was already posted earlier; reject this request",
+            code="RELEASE_ALREADY_POSTED",
+        ) from exc
     except DomainError as exc:
         db.rollback()
         appr = db.get(ApprovalRequest, appr_id)  # type: ignore[assignment]

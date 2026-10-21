@@ -8,9 +8,11 @@ import type { Approval } from "@/lib/api/approvals";
 import { ApprovalCard } from "./ApprovalCard";
 
 const approve = vi.fn();
+const reject = vi.fn();
 vi.mock("@/lib/api/approvals", async (orig) => ({
   ...(await orig<typeof import("@/lib/api/approvals")>()),
   approve: (...a: unknown[]) => approve(...a),
+  reject: (...a: unknown[]) => reject(...a),
   getApproval: vi.fn(),
 }));
 
@@ -62,6 +64,7 @@ const base: Approval = {
 beforeEach(() => {
   document.cookie = "setu_lang=en; path=/";
   approve.mockReset();
+  reject.mockReset();
 });
 
 function show(a: Approval) {
@@ -96,5 +99,25 @@ describe("approved but not carried out", () => {
   it("has no run button once it was carried out", () => {
     show({ ...base, status: "EXECUTED" });
     expect(screen.queryByTestId("run-approved-btn")).toBeNull();
+  });
+
+  it("lets the buyer reject it instead", async () => {
+    reject.mockResolvedValue({ approval: { ...base, status: "REJECTED" } });
+    show(base);
+    fireEvent.click(screen.getByTestId("reject-approved-btn"));
+    await waitFor(() => expect(reject).toHaveBeenCalledWith("a1"));
+    expect(approve).not.toHaveBeenCalled();
+  });
+
+  it("shows the friendly text when the payment was already posted", async () => {
+    const { ApiError } = await import("@/lib/api/client");
+    approve.mockRejectedValue(
+      new ApiError(409, "Conflict", "x", "RELEASE_ALREADY_POSTED"),
+    );
+    show(base);
+    fireEvent.click(screen.getByTestId("run-approved-btn"));
+    expect(
+      await screen.findByText(/already posted earlier/),
+    ).toBeInTheDocument();
   });
 });

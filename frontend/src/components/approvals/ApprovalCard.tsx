@@ -12,7 +12,7 @@ import { SimulatedBadge } from "@/components/ui/SimulatedBadge";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { useToast } from "@/components/ui/Toast";
 import { useLang, useT } from "@/i18n";
-import { approve, getApproval, notifyApprovalsChanged, type Approval } from "@/lib/api/approvals";
+import { approve, getApproval, notifyApprovalsChanged, reject, type Approval } from "@/lib/api/approvals";
 import { dealErrorText } from "@/lib/api/dealErrors";
 import { formatMoney, type Currency } from "@/lib/format";
 import { useApi } from "@/lib/useApi";
@@ -63,10 +63,27 @@ function RunApprovedButton({ id }: { id: string }) {
       setBusy(false);
     }
   }
+  async function rejectIt() {
+    setBusy(true);
+    try {
+      await reject(id);
+      toast(t("appr.rejected"), "info");
+    } catch (e) {
+      toast(dealErrorText(e, t), "danger");
+    } finally {
+      notifyApprovalsChanged();
+      setBusy(false);
+    }
+  }
   return (
-    <Button onClick={run} disabled={busy} data-testid="run-approved-btn">
-      {busy ? t("common.loading") : t("appr.run")}
-    </Button>
+    <>
+      <Button variant="secondary" onClick={rejectIt} disabled={busy} data-testid="reject-approved-btn">
+        {t("appr.rejectApproved")}
+      </Button>
+      <Button onClick={run} disabled={busy} data-testid="run-approved-btn">
+        {busy ? t("common.loading") : t("appr.run")}
+      </Button>
+    </>
   );
 }
 
