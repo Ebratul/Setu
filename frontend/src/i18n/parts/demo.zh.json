@@ -1,0 +1,205 @@
+{
+  "demo": {
+    "title": "Setu guided demo",
+    "banner": "Simulated sandbox – fictional data",
+    "starting": "Starting your private sandbox…",
+    "expires": "Sandbox expires in",
+    "progress": "Step {step} · {pos}/{count}",
+    "progressOf": "scene {n} of {total}",
+    "playgrounds": "Explore the playgrounds",
+    "panel": {
+      "label": "Story, scorecard and tools"
+    },
+    "stage": {
+      "label": "The real Setu app, embedded",
+      "frame": "Setu app screen for the current demo scene",
+      "busy": "Preparing this scene…",
+      "emptyTitle": "Press Start to begin",
+      "emptyBody": "The real app appears here. Each scene runs against real services in your own private sandbox."
+    },
+    "story": {
+      "idleTitle": "Four minutes, twelve steps",
+      "idleBody": "Rahima imports fabric from China. Watch Setu answer in Bangla, price the order, find a cash gap, pay through escrow and stop three attacks. Press Start or Auto-play."
+    },
+    "tag": {
+      "TASK": "Task",
+      "SECURITY": "Security",
+      "INNOVATION": "Innovation"
+    },
+    "group": {
+      "TASK": "Task completion",
+      "SECURITY": "Security & compliance",
+      "INNOVATION": "Innovation & interaction"
+    },
+    "controls": {
+      "label": "Demo controls",
+      "start": "Start",
+      "prev": "Previous",
+      "next": "Next",
+      "autoplay": "Auto-play",
+      "pause": "Pause",
+      "speed": "Auto-play speed"
+    },
+    "steps": {
+      "label": "Demo steps",
+      "complete": "Step complete",
+      "hadIssue": "This step had an issue"
+    },
+    "assert": {
+      "title": "What was checked",
+      "ok": "Passed",
+      "fail": "Failed",
+      "expected": "expected",
+      "actual": "actual"
+    },
+    "scene": {
+      "failedDefault": "This scene could not finish.",
+      "failedHint": "You can keep going: the next scene does not depend on this one.",
+      "details": "Details"
+    },
+    "fact": {
+      "landed_cost": "Landed cost",
+      "margin_pct": "Margin",
+      "shortfall": "Cash shortfall",
+      "shortfall_on": "Shortfall date",
+      "top_option": "Best option",
+      "financed": "Financed",
+      "total_cost": "Financing cost",
+      "option": "Option applied",
+      "tier": "Approval tier",
+      "reason": "Reason",
+      "paid_cny": "Paid to supplier",
+      "fx_rate": "FX rate",
+      "fx_saving_usd": "FX saving",
+      "verdict": "Verdict",
+      "hidden_text": "Hidden instruction found",
+      "score": "Score",
+      "held_by": "Already financed by",
+      "registered_on": "Registered on",
+      "result": "Result",
+      "released_usd": "Released",
+      "released_total": "Released in total",
+      "status": "Deal status",
+      "entries_verified": "Audit entries verified",
+      "key_id": "Signing key",
+      "answer_language": "Answer language",
+      "identifiers_protected": "Identifiers masked",
+      "tools_called": "Tools called"
+    },
+    "score": {
+      "title": "Judge scorecard",
+      "count": "{done} of {total}",
+      "done": "Shown",
+      "todo": "Not shown yet",
+      "opens": "opens in a new tab"
+    },
+    "phone": {
+      "title": "Demo phone",
+      "unavailable": "The simulated SMS inbox is not available for this user."
+    },
+    "role": {
+      "label": "View as",
+      "buyer": "Buyer",
+      "supplier": "Supplier",
+      "admin": "Admin"
+    },
+    "tabs": {
+      "label": "Demo sections",
+      "app": "App",
+      "story": "Story",
+      "score": "Score"
+    },
+    "tools": {
+      "title": "Demo tools",
+      "liveAi": "Use live AI",
+      "liveAiOff": "Not available: this server has no model key. Recorded answers are used.",
+      "liveAiHint": "Off: recorded answers. On: real model calls, {n} left.",
+      "liveAiBudget": "Live AI is on. Calls left: {n}, then recorded answers.",
+      "readAloud": "Read the story aloud",
+      "skipCooling": "Skip cooling-off (demo only)",
+      "skipHint": "Demo only: ends the Tier 3 pause in this sandbox. Audited.",
+      "reloadFrame": "Reload screen",
+      "reset": "Reset demo",
+      "end": "End sandbox"
+    },
+    "reset": {
+      "title": "Reset the demo?",
+      "body": "This rebuilds your private sandbox from the seed data and returns to the first scene. Nothing outside your sandbox changes."
+    },
+    "end": {
+      "title": "End your sandbox?",
+      "body": "Your private copy of the data is deleted now. You can start a new sandbox at any time."
+    },
+    "summary": {
+      "title": "What you just saw",
+      "show": "What you just saw",
+      "attacks": "Attacks stopped",
+      "dig": "Go deeper",
+      "explore": "Explore freely",
+      "back": "Back to the last scene",
+      "hub": "Back to the demo page"
+    },
+    "presenter": {
+      "fullscreen": "Full screen (F)",
+      "notes": "Notes (N)",
+      "notesTitle": "Talking points for this step",
+      "timer": "Elapsed time",
+      "blackout": "Screen is blacked out. Press B or click to show it again."
+    },
+    "err": {
+      "expired": "Your sandbox has expired. Start a new one to continue.",
+      "ended": "Your sandbox has ended. Start a new one to continue.",
+      "rate": "You are going a little fast. Waiting {s} seconds, then trying once more.",
+      "capacity": "All demo sandboxes are busy right now. Please try again in a minute.",
+      "required": "No sandbox yet. Start a new one to continue.",
+      "network": "We could not reach the demo service. Check that it is running and try again.",
+      "other": "Something went wrong with this scene. You can retry or skip it.",
+      "retry": "Try again",
+      "skip": "Skip this scene",
+      "newSandbox": "Start a new sandbox"
+    },
+    "landing": {
+      "title": "Setu guided demo",
+      "intro": "Setu helps Bangladeshi SMEs that import from Chinese suppliers: landed cost, cash flow, financing and milestone escrow with risk-tiered human approval. Watch the whole story in about four minutes, then explore in your own private sandbox.",
+      "sandboxNote": "Every step calls the real services. All money is simulated and all people and companies are fictional.",
+      "watch": "Watch guided demo",
+      "own": "Start my own sandbox",
+      "presenter": "Presenter mode",
+      "hint": "Guided demo plays automatically. Presenter mode adds keyboard shortcuts, notes and a timer."
+    },
+    "preflight": {
+      "title": "Pre-flight check",
+      "refresh": "Refresh",
+      "allOk": "Everything is ready.",
+      "someFail": "Something needs attention before you start.",
+      "replay": "AI answers are replayed from recordings",
+      "ok": "OK",
+      "fail": "Failed",
+      "unreachable": "The demo service did not answer. Check that the API is running."
+    }
+  },
+  "crec": {
+    "title": "Signed credit record",
+    "none": "The record is being issued.",
+    "buyer": "Buyer",
+    "supplier": "Supplier",
+    "amount": "Amount",
+    "onTime": "Paid on time",
+    "disputes": "Disputes",
+    "evidence": "Evidence files",
+    "completed": "Completed",
+    "yes": "Yes",
+    "no": "No",
+    "verified": "Signature verified",
+    "notVerified": "Signature not verified",
+    "hashOk": "Hash matches",
+    "sigOk": "Signature valid",
+    "hash": "Payload hash (SHA-256)",
+    "signature": "Signature",
+    "keyId": "Key id",
+    "copy": "Copy",
+    "copied": "Copied",
+    "verifyAgain": "Verify again",
+    "verifyFailed": "Verification could not run. Try again."
+  }
+}

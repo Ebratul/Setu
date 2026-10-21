@@ -1,0 +1,101 @@
+# Single-VPS deployment: Caddy (automatic HTTPS) -> web + agent. Postgres is external (Neon).
+#
+#   docker compose -f docker-compose.prod.yml --env-file .env.prod up -d --build
+#
+# .env.prod is a git-ignored file you create on the server; the variable NAMES are listed in
+# docs/deploy-prod.md. First deploy: run migrations + seed once (see the runbook).
+name: setu-prod
+
+x-logging: &logging
+  driver: json-file
+  options:
+    max-size: "10m"
+    max-file: "5"
+
+services:
+  agent:
+    build:
+      context: ./backend
+      additional_contexts:
+        repo: .
+      args:
+        GIT_SHA: ${GIT_SHA:-unknown}
+        BUILD_TIME: ${BUILD_TIME:-}
+    image: setu-agent:${GIT_SHA:-latest}
+    restart: unless-stopped
+    logging: *logging
+    environment:
+      APP_ENV: ${APP_ENV:-dev}
+      DATABASE_URL: ${DATABASE_URL:?set DATABASE_URL (Neon pooled URL)}
+      ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:?set ALLOWED_ORIGINS (https://your-domain)}
+      AUDIT_SIGNING_KEY: ${AUDIT_SIGNING_KEY:?set AUDIT_SIGNING_KEY}
+      DEMO_SESSION_SECRET: ${DEMO_SESSION_SECRET:?set DEMO_SESSION_SECRET}
+      OTP_SECRET_SEED: ${OTP_SECRET_SEED:?set OTP_SECRET_SEED}
+      DEMO_COOKIE_SECURE: "true"
+      DEMO_MODE: ${DEMO_MODE:-true}
+      DEMO_REPLAY: ${DEMO_REPLAY:-true}
+      DEMO_COOLING_OFF_SECONDS: ${DEMO_COOLING_OFF_SECONDS:-30}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      MODEL_FAST: ${MODEL_FAST:-claude-haiku-5-5}
+      MODEL_SMART: ${MODEL_SMART:-claude-sonnet-5-5}
+      LANGSMITH_API_KEY: ${LANGSMITH_API_KEY:-}
+      LANGSMITH_TRACING: ${LANGSMITH_TRACING:-false}
+      CRON_SECRET: ${CRON_SECRET:-}
+      RATE_LIMIT_CHAT_PER_MINUTE: ${RATE_LIMIT_CHAT_PER_MINUTE:-20}
+      RATE_LIMIT_UPLOAD_PER_MINUTE: ${RATE_LIMIT_UPLOAD_PER_MINUTE:-10}
+      RATE_LIMIT_SANDBOX_CREATE_PER_MINUTE: ${RATE_LIMIT_SANDBOX_CREATE_PER_MINUTE:-5}
+      RATE_LIMIT_GLOBAL_PER_MINUTE: ${RATE_LIMIT_GLOBAL_PER_MINUTE:-300}
+      # uvicorn already rewrites the client address from Caddy's X-Forwarded-For (private ranges
+      # are trusted by FORWARDED_ALLOW_IPS), so the app-level list stays empty.
+      TRUSTED_PROXIES: ""
+      UVICORN_WORKERS: ${UVICORN_WORKERS:-2}
+    volumes:
+      - agent-storage:/app/backend/storage
+    expose:
+      - "8000"
+    stop_grace_period: 30s
+
+  web:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        AGENT_URL: http://agent:8000
+        NEXT_PUBLIC_API_BASE: /api
+        GIT_SHA: ${GIT_SHA:-unknown}
+        BUILD_TIME: ${BUILD_TIME:-}
+    image: setu-web:${GIT_SHA:-latest}
+    restart: unless-stopped
+    logging: *logging
+    depends_on:
+      agent:
+        condition: service_healthy
+    environment:
+      AGENT_URL: http://agent:8000
+      NEXT_PUBLIC_API_BASE: /api
+    expose:
+      - "3000"
+
+  caddy:
+    image: caddy:2
+    restart: unless-stopped
+    logging: *logging
+    depends_on:
+      - web
+      - agent
+    environment:
+      SITE_ADDRESS: ${SITE_ADDRESS:?set SITE_ADDRESS (public hostname)}
+      ACME_EMAIL: ${ACME_EMAIL:?set ACME_EMAIL}
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    volumes:
+      - ./infra/caddy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data
+      - caddy-config:/config
+
+volumes:
+  agent-storage:
+  caddy-data:
+  caddy-config:

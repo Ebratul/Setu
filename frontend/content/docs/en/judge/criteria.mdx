@@ -1,0 +1,100 @@
+---
+title: How each requirement is met
+summary: A map from Setu's own requirements (FR, SR, NFR) to the screens that show them, with measured results and known limits.
+section: judge
+order: 50
+roles: [judge]
+routes: ["/accessibility"]
+tryIt: "/judges"
+related: [judge/five-minute-guide, judge/guided-demo, judge/playgrounds, judge/verify, security/permission-tiers]
+updated: 2026-10-20
+---
+
+## What it is \{#what-it-is}
+
+<Callout type="warning" title="These are not the official criteria">
+The official FinTechathon judging criteria are not in our repository. This page is based on our own requirements (`docs/REQUIREMENTS.md`) and our submission documents. The competition weights are Task completion 40%, Security and compliance 30%, Innovation and interaction 30%. Please compare with the official rubric.
+</Callout>
+
+{/* REVIEW: replace with official criteria */}
+
+All money is simulated and no model was trained. Numbers below come from `backend/eval/results/metrics.md`, produced on synthetic data, so they are a ceiling and not real-world accuracy.
+
+## Who uses it \{#who}
+
+<RoleBadge role="judge" />
+
+## Task completion \{#task}
+
+| ID | Requirement | Where to see it |
+|---|---|---|
+| FR-1 | Financing options compared on total cost, rate, tenor, eligibility | [Financing](/app/financing); demo step 4 |
+| FR-2 | 90-day cash-flow calendar with shortfall and deadline alerts | [Cash flow](/app/cashflow); demo step 4 |
+| FR-3 | Landed cost, margin, supplier scorecard | [Analysis](/app/analysis); demo step 3 |
+| FR-4 | Supplier KYB from name, account and age signals | [Suppliers](/app/suppliers); demo step 2 |
+| FR-5 | Milestone escrow, tranches released after evidence checks | Demo steps 5, 6 and 11 |
+| FR-6 | Trade-document forensics, hidden-text detection, duplicate registry | Demo steps 9 and 10 |
+| FR-7 | USD versus CNY route comparison and rate lock | Demo step 6 |
+| FR-8 | Signed credit record for a completed deal | Demo step 12 |
+| FR-9 | Explained chat in Bangla and English | [Chat](/app/chat); demo step 1 |
+
+<TryItButton href="/demo?step=3" label="Open step 3: landed cost" />
+<TryItButton href="/demo?step=6" label="Open step 6: escrow release" />
+
+## Security and compliance \{#security-req}
+
+| ID | Requirement | Where to see it |
+|---|---|---|
+| SR-1, SR-2 | Tiers enforced in code. The AI never executes Tier 2 or 3 | [Risk Playground](/demo/risk-playground); demo step 6 |
+| SR-3 | Prompt-injection defence | [Attack Console](/demo/attack-console); demo step 9 |
+| SR-4 | Privacy Gateway masks NID, accounts, phones, prices | [Privacy Playground](/demo/privacy-playground) |
+| SR-5 | Signed, hash-chained audit log with a public verifier | [/verify](/docs/en/judge/verify); demo step 12 |
+| SR-6 | Duplicate-financing prevention across lenders | Demo step 10 |
+| SR-8, SR-9 | Simulated money only. OTP and 10-minute cooling-off | Demo step 8 |
+
+<TryItButton href="/demo?step=8" label="Open step 8: OTP and cooling-off" />
+<TryItButton href="/demo?step=10" label="Open step 10: duplicate blocked" />
+
+## Measured evaluation (NFR-4) \{#eval}
+
+From the latest evaluation run on the synthetic test split:
+
+- Fraud detection with WARN or FAIL counted as flagged: precision 1.0, recall 1.0. With FAIL only: precision 1.0, recall 0.9508. Clean packs flagged: 0 of 50.
+- Duplicate documents caught: 5 of 5 (exact 2/2, near 3/3).
+- Prompt injection attack success (12 attacks in the test set): 100% with defences off, 0% with defences on. Money moved: 0 in all cases. Detector false positives: 0 of 300.
+- Personal data leaked to the model: 600 of 600 identifiers without the gateway, 0 of 600 with it.
+- At a USD 3,000 release per pack, 50 clean packs were all auto-released and 0 of 50 tampered packs were. Tampered: 27 escalated, 23 blocked.
+
+## Innovation and interaction \{#innovation}
+
+- Chat in Bangla, English and a Chinese supplier portal.
+- Live playgrounds for risk, privacy and attacks.
+- A guided demo with a judge scorecard of 17 items, presenter mode and a private sandbox.
+- A public verifier that runs in the browser.
+
+## Accessibility (NFR-1, NFR-2) \{#accessibility}
+
+The [accessibility statement](/accessibility) is a self-assessment, not an independent audit. It aims for WCAG 2.2 AA and claims partial conformance only. Not yet verified: manual keyboard walk-through of every screen and screen-reader testing (NVDA, VoiceOver, TalkBack). Known limits: Bangla and Chinese text has not been reviewed by native speakers, and some app screens may still show English.
+
+## Limitations \{#limitations}
+
+- No real payments, banks, lenders or SMS provider.
+- No external penetration test. Our security self-assessment is written by the team.
+- Synthetic data only; results do not predict real-world accuracy.
+
+## Related security notes \{#security}
+
+<Callout type="security">
+Tier 0 and 1 are automatic, Tier 2 is one-tap, Tier 3 needs OTP plus a 10-minute cooling-off. Document text is data, never instructions.
+</Callout>
+
+## Try it \{#try-it}
+
+<TryItButton href="/judges" />
+
+## Related pages \{#related}
+
+- [Five-minute guide](/docs/en/judge/five-minute-guide)
+- [Guided demo](/docs/en/judge/guided-demo)
+- [Playgrounds](/docs/en/judge/playgrounds)
+- [Verify](/docs/en/judge/verify)

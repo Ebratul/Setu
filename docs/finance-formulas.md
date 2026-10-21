@@ -1,6 +1,6 @@
 # Finance formulas (FR-3)
 
-Deterministic Python in `services/agent/app/domain/`. No LLM touches these numbers. Money is `Decimal`
+Deterministic Python in `backend/app/domain/`. No LLM touches these numbers. Money is `Decimal`
 (`app/domain/money.py`), full precision inside a calculation, quantized only at the API boundary with
 `ROUND_HALF_UP`. Percent fields in the API are percent strings with 2 dp (`"18.01"`). Domain code keeps
 fractions (`0.1801`).

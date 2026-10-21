@@ -1,0 +1,79 @@
+---
+title: 更改收款账户
+summary: 申请把款项付到新的银行账户，必须先由买方核实。
+section: supplier
+order: 50
+roles: [supplier]
+routes: ["/supplier/[id]"]
+tryIt: "/supplier"
+related: [supplier/payments-received, security/permission-tiers, faq/faq]
+updated: 2026-10-20
+---
+
+## 这是什么 \{#what-it-is}
+
+**更改收款账户** 表单用于申请：某笔订单改付到新的银行账户。更改收款去向属于第3级操作，是最谨慎的一级。买方必须用一次性验证码（OTP）批准，并等待10分钟冷静期。
+
+## 谁使用 \{#who}
+
+<RoleBadge role="supplier" /> <TierBadge tier={3} /> 您提交申请，买方批准。您自己不需要输入验证码。
+
+## 何时使用 \{#when}
+
+只有公司确实更换银行时才使用。只能用本表单。不要通过邮件、聊天或单据发送新的银行信息。
+
+## 操作步骤 \{#how-to}
+
+<Steps>
+<Step title="打开表单">
+在订单页滚动到 **更改收款账户**，选择适用的 **订单**。
+<Screenshot name="supplier/payout-form" route="/supplier/SETU-2026-0001" as="supplier" alt="更改收款账户表单，含订单、银行名称、国家、账号、持有人、类型和币种" caption="变更表单。" />
+</Step>
+<Step title="填写账户信息">
+填写 **银行名称**、**银行所在国家（2个字母）**、**账号**、**账户持有人姓名**、**账户类型**（对公或个人）和 **币种**（USD、CNY 或 BDT）。持有人姓名请与营业执照上的公司名称完全一致。
+<Screenshot name="supplier/payout-filled" route="/supplier/SETU-2026-0001" as="supplier" alt="已填写示例银行信息的收款账户表单" caption="每一项都要核对两遍。" />
+</Step>
+<Step title="提交">
+点击 **提交变更申请**，会提示“申请已发送给买方。”
+<Screenshot name="supplier/payout-sent" route="/supplier/SETU-2026-0001" as="supplier" alt="发送变更申请后的成功提示" caption="申请已发送。" />
+</Step>
+<Step title="跟踪进度">
+**账户变更进度** 显示四个步骤，每5秒自动刷新：申请已提交、供应商审核、买方核实、新账户生效。
+<Screenshot name="supplier/payout-tracker" route="/supplier/SETU-2026-0001" as="supplier" alt="四步账户变更进度条，买方核实一步进行中" caption="进度条。" wait="[data-testid='change-tracker']" />
+</Step>
+</Steps>
+
+## 结果说明 \{#results}
+
+| 阶段 | 含义 |
+|---|---|
+| 等待买方核实 — 第3级 | 买方还没有批准。 |
+| 已批准：新账户生效 | 本订单之后的款项付到新账户。 |
+| 买方已拒绝 | 仍使用旧账户。 |
+| 已过期、已取消、已锁定 | 申请已结束，没有任何变化，需要时请重新申请。 |
+
+在批准之前，**款项仍付至您当前的账户**，新账户不会被使用。
+
+## 提示与常见错误 \{#tips}
+
+- 变更只对所选的这一笔订单有效。
+- 国家填2个字母，例如 CN。账号至少6个字符。
+- 变更待批期间，系统可能提示付款暂停。
+- 演示环境会在新账号前加上 SIM-。
+
+## 相关安全说明 \{#security}
+
+<Callout type="security" title="为什么必须由买方批准">
+骗子常常冒充供应商，要求买方付款到新账户。所以收款账户的变更不能由邮件发起，只能在您登录后的门户里提交，并且买方一侧的人必须用 OTP 并经过冷静期后批准。邮件里要求改付其他账户的请求会被拦截并报警。见[权限等级](/docs/zh/security/permission-tiers)。
+</Callout>
+
+{/* REVIEW: not verified which supplier-check (KYB) outcome blocks the request. Also the app can say payment is paused while a change is pending, while the form text says payments continue to the current account; wording may need alignment. */}
+
+## 试一试 \{#try-it}
+
+<TryItButton href="/supplier" />
+
+## 相关页面 \{#related}
+
+- [已收款项](/docs/zh/supplier/payments-received)
+- [常见问题](/docs/zh/faq/faq)

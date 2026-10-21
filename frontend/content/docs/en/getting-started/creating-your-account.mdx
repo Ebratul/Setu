@@ -1,0 +1,93 @@
+---
+title: Creating your account
+summary: Sign in with Google, finish the six setup steps, wait for verification and manage your account settings.
+section: getting-started
+order: 25
+roles: [buyer, supplier, admin, judge]
+routes: ["/app/settings/account", "/supplier/settings/account"]
+tryIt: "/login"
+related: [security/why-we-ask, buyer/verification-requirements, supplier/verification-requirements, getting-started/roles-and-login]
+updated: 2026-10-21
+---
+
+## What it is \{#what-it-is}
+
+A new Setu account has two parts: a sign-in (who you are) and a verified business (what you are allowed to do). You can sign in with **Continue with Google** or with email and password. Then Setu asks for a few business details and documents so a reviewer can verify you. Until then money actions stay locked. All money in Setu is simulated.
+
+## Who uses it \{#who}
+
+<RoleBadge role="buyer" /> <RoleBadge role="supplier" /> Everyone who creates their own account. <RoleBadge role="admin" /> staff use the same flow but only see the security step. <RoleBadge role="judge" /> accounts need an invite code.
+
+## When to use it \{#when}
+
+The first time you sign in, and again whenever a reviewer asks for changes.
+
+## Step by step \{#how-to}
+
+<Steps>
+<Step title="Sign in">
+Open `/login` and press **Continue with Google**, or use your email and password. Setu never sees your Google password.
+<Screenshot name="getting-started/login-google" route="/login" as="buyer" alt="The sign-in page with a Continue with Google button above the email and password form." caption="Sign in with Google or email." />
+</Step>
+<Step title="Your role">
+Choose **Buyer (Bangladeshi importer)** or **Supplier (Chinese exporter)**. Judges enter an invite code. Administrator is only for pre-approved staff emails. You cannot change the role later.
+<Screenshot name="getting-started/onboarding-role" route="/onboarding" as="buyer" alt="The Your role step with four role options." caption="Step 1: choose your role." />
+</Step>
+<Step title="Contact and phone">
+Enter your full name, job title and mobile number, then press **Save and verify phone**. Press **Send code**, type the 6-digit code and press **Verify phone**. In demo mode no SMS is sent and the code is shown on screen.
+<Screenshot name="getting-started/onboarding-contact" route="/onboarding?step=contact" as="buyer" alt="The Contact and phone step with a code field." caption="Step 2: verify your phone." />
+</Step>
+<Step title="Business">
+Fill in your company details. The fields differ for buyers and suppliers: see [Buyer verification requirements](/docs/en/buyer/verification-requirements) and [Supplier verification requirements](/docs/en/supplier/verification-requirements). Press **Save and continue**.
+<Screenshot name="getting-started/onboarding-business" route="/onboarding?step=business" as="buyer" alt="The Business step with company and address fields." caption="Step 3: your business." />
+</Step>
+<Step title="Documents">
+Upload each required document as PDF, PNG or JPG, up to 4 MB. Required documents are marked with an asterisk.
+<Screenshot name="getting-started/onboarding-documents" route="/onboarding?step=documents" as="buyer" alt="The Documents step with upload fields for each required document." caption="Step 4: upload documents." />
+</Step>
+<Step title="Security and consent">
+Tick the three consent boxes and press **Save and continue**. Optionally set up two-factor authentication with an authenticator app and save your recovery codes.
+<Screenshot name="getting-started/onboarding-security" route="/onboarding?step=security" as="buyer" alt="The Security and consent step with three checkboxes and an authenticator setup button." caption="Step 5: consent and security." />
+</Step>
+<Step title="Review and submit">
+Check the summary (sensitive values are masked) and press **Submit for verification**. Then follow progress on the status page.
+<Screenshot name="getting-started/onboarding-review" route="/onboarding?step=review" as="buyer" alt="The Review and submit step with a summary of every section." caption="Step 6: submit." />
+</Step>
+</Steps>
+
+## What the results mean \{#results}
+
+| What you see | Meaning |
+|---|---|
+| Verification in progress | A reviewer is checking your business. You can browse but money actions are locked. |
+| Changes requested | The page lists each field or document to fix. Press **Fix this**, then resubmit. |
+| Account not approved | The reviewer's reason is shown. Contact support. |
+| Welcome tour | After approval you get a short three-step tour. |
+
+A yellow banner across the workspace explains what is locked until you are verified.
+
+## Account settings \{#settings}
+
+Open **Account** in the top bar (`/app/settings/account`, or `/supplier/settings/account` for suppliers). You can change your language, see your sign-in method, turn two-factor authentication on or off (administrators cannot turn it off), regenerate recovery codes, see your active sessions and sign out other devices, download your data and request account deletion.
+
+## Tips and common mistakes \{#tips}
+
+- Your progress is saved after every step. Close the tab and come back any time.
+- Saved sensitive values show as masked. Leave the field blank to keep it, or type a new value.
+- If the phone code expires, press **Send a new code**. After five wrong codes you must wait and request a new one.
+- Recovery codes are shown only once. Save them before pressing **Done**.
+
+## Related security notes \{#security}
+
+<Callout type="security">
+Licence, tax and bank numbers are stored encrypted. Reviewers see them masked unless they give a written reason, which is logged. See [Why Setu asks for these details](/docs/en/security/why-we-ask).
+</Callout>
+
+## Try it \{#try-it}
+
+<TryItButton href="/login" />
+
+## Related pages \{#related}
+
+- [Roles and sign-in](/docs/en/getting-started/roles-and-login)
+- [Why Setu asks for these details](/docs/en/security/why-we-ask)

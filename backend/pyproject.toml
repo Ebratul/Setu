@@ -1,0 +1,97 @@
+[project]
+name = "setu-agent"
+version = "0.1.0"
+description = "Setu agent service (FastAPI) — simulated sandbox"
+requires-python = ">=3.13"
+dependencies = [
+    "alembic>=1.20.0",
+    "cloudinary>=1.46.3",
+    "cryptography>=50.0.2",
+    "fastapi[standard]>=0.143.3",
+    "fastembed>=0.9.0",
+    "langchain>=1.4.6",
+    "langchain-anthropic>=1.7.6",
+    "langchain-core>=1.6.12",
+    "langchain-xai>=1.3.0",
+    "langgraph>=1.2.15",
+    "langgraph-checkpoint>=4.3.0",
+    "langgraph-checkpoint-postgres>=3.2.0",
+    "langsmith>=0.14.11",
+    "numpy>=2.5.4",
+    "pdfplumber>=0.11.10",
+    "pgvector>=0.5.1",
+    "pillow>=12.3.0",
+    "psycopg-pool>=3.3.3",
+    "psycopg[binary]>=3.3.6",
+    "pydantic-settings>=2.16.0",
+    "pyjwt>=2.10",
+    "pyotp>=2.10.0",
+    "pyyaml>=6.0.3",
+    "rapidfuzz>=3.14.6",
+    "reportlab>=5.0.1",
+    "sqlalchemy>=2.1.4",
+    "structlog>=26.1.0",
+]
+
+[tool.uv]
+package = false
+
+[tool.ruff]
+line-length = 100
+target-version = "py313"
+src = [".", "../rag_agent"]
+extend-exclude = ["alembic/versions"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "UP", "B", "SIM", "ASYNC", "RUF"]
+allowed-confusables = ["−", "×", "–"]
+
+[tool.ruff.lint.per-file-ignores]
+# Bangla explanation templates: Bengali digits look like Latin ones on purpose.
+"app/domain/narrative.py" = ["RUF001"]
+"tests/domain/test_narrative.py" = ["RUF001"]
+"tests/domain/test_alerts.py" = ["RUF001"]
+"app/domain/alerts.py" = ["RUF001"]
+# Chinese/Bangla reply templates use full-width punctuation on purpose.
+"../rag_agent/app/agent/prompts.py" = ["RUF001"]
+"../rag_agent/app/agent/mock_llm.py" = ["RUF001"]
+"tests/agent/*.py" = ["RUF001"]
+# Tokenizer punctuation classes include typographic quotes and dashes on purpose.
+"../rag_agent/app/rag/embed.py" = ["RUF001"]
+"tests/rag/*.py" = ["RUF001"]
+# Obfuscated attack payloads (look-alike letters, full-width punctuation) and long fixture lines.
+"tests/forensics/test_instructions.py" = ["RUF001", "RUF003", "E501"]
+"tests/documents/*.py" = ["E501"]
+"tests/onboarding/*.py" = ["E501"]
+"tests/forensics/test_review_fixes.py" = ["RUF001", "E501"]
+"tests/forensics/*.py" = ["E501"]
+# Attack payloads are multilingual literals; demo.py holds long data strings.
+"synthetic/attacks.py" = ["RUF001", "E501"]
+"synthetic/demo.py" = ["E501"]
+
+# Multilingual detection rules and notices use full-width punctuation and look-alike marks on purpose.
+"eval/run.py" = ["E501"]
+"app/security/injection/*.py" = ["RUF001", "RUF003", "E501"]
+"tests/injection/*.py" = ["RUF001", "RUF003", "E501"]
+
+[tool.ruff.format]
+quote-style = "double"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+asyncio_mode = "auto"
+addopts = "-ra -m 'not llm'"
+markers = [
+    "db: needs a local Postgres (uses a separate *_test database)",
+    "llm: calls a real model; excluded by default",
+]
+
+[dependency-groups]
+dev = [
+    "httpx>=0.28.1",
+    "hypothesis>=6.170.1",
+    "pytest>=9.1.1",
+    "pytest-asyncio>=1.4.0",
+    "ruff>=0.17.1",
+    "time-machine>=3.5.1",
+]

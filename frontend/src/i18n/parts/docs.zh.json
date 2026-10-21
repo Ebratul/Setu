@@ -1,0 +1,104 @@
+{
+  "docs": {
+    "link": "文档",
+    "title": "使用文档",
+    "lead": "面向买家、供应商、管理员和评委的分步指南。",
+    "nav": {
+      "label": "文档导航",
+      "menu": "指南菜单"
+    },
+    "search": {
+      "label": "搜索文档",
+      "placeholder": "搜索指南（如 OTP、托管、提单）",
+      "empty": "没有与“{q}”匹配的指南。",
+      "hint": "输入关键词搜索所有指南",
+      "results": "{n} 条结果"
+    },
+    "filter": {
+      "label": "显示适用于",
+      "all": "全部",
+      "buyer": "买家",
+      "supplier": "供应商",
+      "admin": "管理员",
+      "judge": "评委"
+    },
+    "section": {
+      "getting-started": "快速入门",
+      "buyer": "买家指南",
+      "supplier": "供应商指南",
+      "admin": "管理员指南",
+      "judge": "评委指南",
+      "security": "安全与信任",
+      "faq": "常见问题",
+      "glossary": "术语表"
+    },
+    "role": {
+      "buyer": "买家",
+      "supplier": "供应商",
+      "admin": "管理员",
+      "judge": "评委"
+    },
+    "onThisPage": "本页内容",
+    "crumbs": "面包屑导航",
+    "home": "文档",
+    "prev": "上一页",
+    "next": "下一页",
+    "pager": "上一页和下一页",
+    "updated": "最后更新 {date}",
+    "tryIt": "立即试用",
+    "openGuide": "打开完整指南",
+    "readGuide": "阅读指南",
+    "notTranslated": "本页暂无中文版本，显示英文版。",
+    "empty": "此筛选条件下没有指南。",
+    "missing": "该指南页面不存在。",
+    "backToDocs": "返回文档",
+    "helpful": {
+      "q": "此页面有帮助吗？",
+      "yes": "有帮助",
+      "no": "没有帮助",
+      "comment": "告诉我们更多（可选）",
+      "send": "发送",
+      "thanks": "感谢您的反馈。",
+      "legend": "页面反馈"
+    },
+    "print": "打印",
+    "downloadPdf": "下载 PDF",
+    "downloadHint": "打开整份指南的打印视图。在打印对话框中选择“另存为 PDF”。",
+    "callout": {
+      "info": "说明",
+      "tip": "提示",
+      "warning": "警告",
+      "security": "安全"
+    },
+    "shot": {
+      "zoom": "放大截图：{alt}",
+      "close": "关闭",
+      "pending": "截图尚未生成"
+    },
+    "help": {
+      "button": "本页帮助",
+      "title": "帮助",
+      "none": "此界面暂无指南。",
+      "open": "打开完整指南",
+      "close": "关闭帮助",
+      "browse": "浏览全部指南"
+    },
+    "hint": {
+      "title": "初次使用？",
+      "body": "有一份简短指南说明如何使用此界面。",
+      "read": "阅读指南",
+      "dismiss": "关闭"
+    },
+    "tip": {
+      "label": "这是什么？",
+      "more": "了解更多",
+      "tier": "等级决定付款需要多少审批：0 和 1 自动，2 需一键确认，3 需 OTP 验证码并等待 10 分钟。",
+      "fraud": "风险评分由代码中的固定规则计算，而非 AI。分数越高，未通过的检查越多。",
+      "cooling": "确认 3 级操作后需等待 10 分钟才能放款，期间可以取消。",
+      "kyb": "KYB 徽章显示供应商已通过哪些企业核查（注册、地址、历史）。"
+    },
+    "cmd": {
+      "group": "指南"
+    }
+  }
+}

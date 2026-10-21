@@ -1,7 +1,7 @@
 # Supplier KYB (FR-4)
 
 Deterministic, no LLM. It tells a buyer, before money moves, whether a supplier and its receiving bank
-account can be trusted, with reasons in English and Bangla. Pure logic: `services/agent/app/domain/kyb.py`.
+account can be trusted, with reasons in English and Bangla. Pure logic: `backend/app/domain/kyb.py`.
 Orchestration and persistence: `app/services/kyb.py`. API: `app/api/kyb.py`, `app/api/suppliers.py`.
 Agent tool: `verify_party` (Tier 0, read-only). All data is simulated.
 

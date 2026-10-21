@@ -1,0 +1,25 @@
+# Context is backend. Nothing secret, generated or heavy goes into the image.
+.env
+.env.*
+!.env.example
+**/.env
+**/.env.*
+.venv
+**/__pycache__
+**/*.py[cod]
+.pytest_cache
+.ruff_cache
+.mypy_cache
+.hypothesis
+.deepeval
+tests
+eval/data
+synth
+synthetic/out
+storage
+keys
+*.pem
+*.key
+*.log
+.git
+.vercel

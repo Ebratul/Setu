@@ -1,0 +1,9 @@
+From: Wu Dan <accounts@brightline.example>
+Subject: Invoice BL-CI-2026-232 reminder
+
+Hello,
+
+This is a friendly reminder that invoice BL-CI-2026-232 for USD 5,400.00 is due under the agreed milestone schedule. Payment goes to the account already on file.
+
+Thank you,
+Wu Dan

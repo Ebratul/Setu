@@ -1,0 +1,99 @@
+---
+title: Credit records and signed receipts
+summary: Read the signed credit record of a completed deal, print a receipt with a QR code and check it on the public verify page.
+section: buyer
+order: 140
+roles: [buyer]
+routes: ["/app/deals/[id]", "/verify"]
+tryIt: "/app/deals"
+related: [buyer/deal-detail, buyer/approvals, buyer/financing, judge/verify, security/signed-audit-log]
+updated: 2026-10-20
+---
+
+## What it is \{#what-it-is}
+When the last payment of a deal is released, Setu issues a **Signed credit record**. It is a short summary of how the deal went: who, how much, paid on time, disputes and evidence. A lender can use it as proof of your trade history.
+
+Setu also makes a **signed receipt** for key actions, such as a released payment or an approval. Each receipt has a QR code that opens the public **verify** page.
+
+"Signed" means a digital signature. If anyone changes a single number, the check fails. All data is simulated sandbox data.
+
+## Who uses it \{#who}
+<RoleBadge role="buyer" />
+
+Buyers see the record of their own deals. Admins and judges can view it read-only.
+{/* REVIEW: the API also lets the deal's supplier read the record, but the supplier portal page was not checked for a credit record card. */}
+
+## When to use it \{#when}
+- To show a lender your on-time history.
+- To keep proof of a payment or approval.
+- To let someone else confirm a receipt without logging in.
+
+## Step by step \{#how-to}
+<Steps>
+<Step title="Open a completed deal">
+Open a deal whose status is **Completed**. The **Signed credit record** card is on the right side of the Overview tab. While the record is being issued you see "The record is being issued."
+
+<Screenshot name="buyer/credit-records-1" route="/app/deals/SETU-2026-0001" as="buyer" alt="Deal overview with the Signed credit record card on the right" caption="The card appears only on completed deals." />
+{/* REVIEW: confirm which seeded deal is COMPLETED for the screenshot script. */}
+</Step>
+<Step title="Read the record">
+The card shows **Buyer**, **Supplier**, **Amount**, **Paid on time**, **Disputes**, **Evidence files** and **Completed**. Below are the **Payload hash (SHA-256)**, the **Signature** (with **Copy**) and the **Key id**.
+
+<Screenshot name="buyer/credit-records-2" route="/app/deals/SETU-2026-0001" as="buyer" alt="Credit record facts with a green Signature verified badge, hash, signature and key id" caption="Facts, hash and signature." />
+</Step>
+<Step title="Verify again">
+Press **Verify again**. Setu recomputes the hash and checks the signature. The badge shows **Signature verified**, or **Signature not verified**. The two small checks are **Hash matches** and **Signature valid**.
+
+<Screenshot name="buyer/credit-records-3" route="/app/deals/SETU-2026-0001" as="buyer" alt="Verify again button next to the verification status" caption="Re-check on demand." />
+</Step>
+<Step title="Open a receipt">
+In a deal's **Activity** tab, in **Approvals** and in the approval trail of a deal, entries for a released payment or an approval have a **Receipt** button. It opens **Signed receipt** with deal, amount, permission tier, approver, time, audit entry, entry hash and signature.
+
+<Screenshot name="buyer/credit-records-4" route="/app/deals/SETU-2026-0001" as="buyer" click="[role=tab]:has-text('Activity')" alt="Activity list with Receipt buttons on release entries" caption="Receipt buttons in the Activity tab." />
+</Step>
+<Step title="Use the QR code">
+The receipt shows a QR code. Scan it to check the receipt in the public verifier. You can also press **Download PNG**, **Print / save as PDF**, **Open verifier link**, **Copy entry hash** or **Copy signature**.
+
+<Screenshot name="buyer/credit-records-5" route="/app/deals/SETU-2026-0001" as="buyer" alt="Signed receipt dialog with a QR code and download buttons" caption="The QR carries only the signed entry, no secrets." />
+{/* REVIEW: the receipt dialog needs a click on a Receipt button after opening the Activity tab; the screenshot script may need two clicks. */}
+</Step>
+<Step title="Check it on /verify">
+The link opens **/verify**, a public page that needs no login. A receipt link is checked automatically with the published public key and shows a green or red result. To check a whole log, choose an exported **Operation log (.jsonl)** or drop it on the box.
+
+<Screenshot name="buyer/credit-records-6" route="/verify" as="buyer" alt="Verify the Setu operation log page with an upload box and a result area" caption="The public verify page. Your file is read in this browser only." />
+</Step>
+</Steps>
+
+## What the results mean \{#results}
+| Result | Meaning |
+|---|---|
+| Signature verified | The hash matches the record and the signature is valid. |
+| Signature not verified | The record or signature was changed, or the key does not match. |
+| Receipt valid | The entry is signed by Setu. |
+| The entry hash does not match the one on the receipt | The link was altered. Do not trust it. |
+
+A credit record holds a SHA-256 hash of the facts and an Ed25519 signature made with Setu's audit key. The evidence list holds the document type and file hash of each evidence file, not the files.
+
+A single receipt proves its own contents and signature. It cannot prove that no entries around it were removed. For that, upload the full exported log.
+
+## Tips and common mistakes \{#tips}
+- A deal has one record. It is issued once, when the deal completes.
+- The record is shown only after completion. Before that, the card is not on the page.
+- Keep the receipt QR with your payment papers.
+- On /verify, the language toggle is in the top right. It includes Chinese.
+
+## Related security notes \{#security}
+<Callout type="security" title="Signed and hash-chained">
+Receipts come from the audit log, where every entry is signed and linked to the one before it. Anyone can check it with the public key. See [Audit log](/docs/en/security/signed-audit-log) and [Judge verification](/docs/en/judge/verify).
+</Callout>
+<Callout type="security">
+The verify page reads your file in the browser. Nothing is uploaded.
+</Callout>
+
+## Try it \{#try-it}
+<TryItButton href="/app/deals" />
+
+## Related pages \{#related}
+- [Deal detail](/docs/en/buyer/deal-detail)
+- [Approvals](/docs/en/buyer/approvals)
+- [Judge verification](/docs/en/judge/verify)

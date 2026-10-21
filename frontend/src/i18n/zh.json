@@ -1,0 +1,897 @@
+{
+  "lang": {
+    "label": "语言",
+    "en": "EN",
+    "bn": "বাংলা",
+    "zh": "中文"
+  },
+  "common": {
+    "back": "返回",
+    "simulated": "模拟",
+    "simulatedHint": "Setu 中的所有资金均为模拟沙盒数据",
+    "close": "关闭",
+    "cancel": "取消",
+    "loading": "加载中…",
+    "retry": "重试",
+    "footer": "FinTechathon 2026 · 模拟沙盒，无真实支付",
+    "simulatedData": "模拟数据",
+    "updating": "更新中…",
+    "redirectingLogin": "正在跳转到登录…"
+  },
+  "shell": {
+    "skip": "跳到主要内容",
+    "switchUser": "切换用户",
+    "logout": "退出登录"
+  },
+  "role": {
+    "BUYER": "买方",
+    "SUPPLIER": "供应商",
+    "ADMIN": "管理员",
+    "JUDGE": "评委"
+  },
+  "status": {
+    "DRAFT": "草稿",
+    "PROPOSED": "已提议",
+    "CONFIRMED": "已确认",
+    "FUNDED": "已注资",
+    "IN_PRODUCTION": "生产中",
+    "SHIPPED": "已发运",
+    "ARRIVED": "已到港",
+    "COMPLETED": "已完成",
+    "DISPUTED": "有争议",
+    "CANCELLED": "已取消"
+  },
+  "trigger": {
+    "PRODUCTION_START": "开始生产",
+    "SHIPMENT": "发运",
+    "ARRIVAL": "到货"
+  },
+  "docType": {
+    "PROFORMA_INVOICE": "形式发票",
+    "PRODUCTION_PHOTO": "生产照片",
+    "BILL_OF_LADING": "提单",
+    "PACKING_LIST": "装箱单",
+    "COMMERCIAL_INVOICE": "商业发票",
+    "BILL_OF_ENTRY": "进口报关单"
+  },
+  "ms": {
+    "step": "里程碑 {seq}",
+    "due": "到期 {date}",
+    "funded": "已由托管覆盖",
+    "evidence": "证明材料",
+    "docCount": "已上传 {n} 份",
+    "listLabel": "按顺序排列的里程碑",
+    "none": "尚无里程碑。",
+    "status": {
+      "PROPOSED": "已提议",
+      "PENDING": "已锁定",
+      "READY": "可放款",
+      "PENDING_APPROVAL": "等待批准",
+      "RELEASED": "已放款",
+      "FROZEN": "已冻结",
+      "REFUNDED": "已退款",
+      "CANCELLED": "已取消"
+    },
+    "ev": {
+      "MISSING": "缺失",
+      "PENDING": "待审",
+      "VERIFIED": "已验证",
+      "FLAGGED": "存疑",
+      "REJECTED": "已拒绝"
+    },
+    "settlement": "以 {currency} 支付 {amount}，汇率 {rate}"
+  },
+  "dd": {
+    "unitPrice": "单价",
+    "route": "航线",
+    "confirmed": "已确认",
+    "notConfirmed": "尚未确认"
+  },
+  "orders": {
+    "quantity": "数量",
+    "incoterm": "贸易术语",
+    "opened": "创建日期"
+  },
+  "led": {
+    "milestone": "里程碑",
+    "amount": "金额",
+    "fx": "外汇付款",
+    "posted": "入账时间",
+    "fxDetail": "{amount}，汇率 {rate}"
+  },
+  "act2": {
+    "confirm": "确认付款计划",
+    "confirmTitle": "确认付款计划？",
+    "confirmBody": "您同意所示的里程碑、金额和证明材料。",
+    "confirmed": "付款计划已确认。"
+  },
+  "dealErr": {
+    "generic": "出错了，请重试。",
+    "FORBIDDEN": "您无权执行此操作。",
+    "NOT_FOUND": "找不到该订单。",
+    "DEAL_NOT_PROPOSED": "没有可确认的付款计划。",
+    "INVALID_TRANSITION": "订单当前状态不允许此步骤。"
+  },
+  "sp": {
+    "orders": "订单",
+    "empty": "暂无订单。",
+    "buyer": "买方：{name}",
+    "back": "全部订单",
+    "orderValue": "订单金额",
+    "secured": "托管中的资金",
+    "nextMilestone": "下一个里程碑",
+    "escrowHeading": "托管状态",
+    "fundsSecured": "托管账户中已确保资金：{amount}",
+    "escrowNote": "模拟数据。证明材料核验通过后，资金按里程碑逐笔支付给您。",
+    "milestones": "付款里程碑",
+    "payments": "已收款项",
+    "noPayments": "尚未收到款项。",
+    "details": "订单详情",
+    "documents": "单据",
+    "noDocuments": "尚未上传单据。"
+  },
+  "doc": {
+    "sup": {
+      "UPLOADED": "已上传",
+      "REVIEW": "审核中",
+      "ACCEPTED": "已接受",
+      "ATTENTION": "需处理"
+    },
+    "up": {
+      "title": "上传单据",
+      "choose": "选择文件",
+      "drop": "将文件拖放到此处，或",
+      "rules": "PDF、PNG 或 JPG，每个文件最大 {mb} MB。",
+      "type": "单据类型",
+      "go": "上传 {n} 个文件"
+    }
+  },
+  "risk": {
+    "tier": {
+      "0": "Tier 0 · Informational",
+      "1": "Tier 1 · Auto-release",
+      "2": "Tier 2 · One-tap approval",
+      "3": "Tier 3 · OTP + cooling-off",
+      "blocked": "Blocked"
+    },
+    "decision": {
+      "ALLOW": "Allowed",
+      "REQUIRE_APPROVAL": "Approval required",
+      "BLOCK": "Blocked"
+    },
+    "kind": {
+      "BLOCK": "Block",
+      "TIER3": "Tier 3",
+      "TIER2": "Tier 2"
+    },
+    "card": {
+      "title": "Risk decision",
+      "why": "Why this decision",
+      "waiting": "Waiting for your approval (Tier {tier}): {reasons}",
+      "openApprovals": "Open approvals",
+      "blockedTitle": "This action is blocked",
+      "noReasons": "no extra checks fired"
+    },
+    "trace": {
+      "title": "Rule trace",
+      "fired": "Fired",
+      "notFired": "Did not fire",
+      "deciding": "Set the final tier",
+      "decidingBlock": "Decided the outcome",
+      "showNot": "Show {n} rules that did not fire",
+      "hideNot": "Hide {n} rules that did not fire",
+      "none": "No rule trace is available for this decision."
+    },
+    "hints": {
+      "title": "What would lower the risk?",
+      "toTier": "→ Tier {tier}",
+      "blocked": "Cannot be lowered here",
+      "none": "Nothing to change: this is already the lowest tier for these facts."
+    },
+    "code": {
+      "badge": "Decided by code, not by AI",
+      "help": "About this decision",
+      "body": "The AI only explains. Tiers and approvals are computed by deterministic code from database facts, and cannot be changed by prompts, documents or the client."
+    },
+    "pg": {
+      "title": "Risk playground",
+      "intro": "Change the facts and watch the permission tier react. The same rules run on every real payment.",
+      "dryRun": "Dry run — nothing is saved",
+      "facts": "Facts",
+      "amount": "Amount (USD)",
+      "amountNum": "Amount in USD (number)",
+      "limit": "Tier 1 limit",
+      "firstDeal": "First deal with this supplier",
+      "beneficiaryChange": "Beneficiary account is being changed",
+      "recentAccount": "Beneficiary account opened recently",
+      "fraud": "Document fraud score (0-100)",
+      "fraudNum": "Fraud score (number)",
+      "duplicate": "Duplicate document hash",
+      "hidden": "Hidden instruction found in a document",
+      "sanctions": "Sanctions hit",
+      "docWarning": "Document warning",
+      "docFailed": "Document failed verification",
+      "result": "Result",
+      "updating": "Updating…",
+      "reset": "Reset"
+    },
+    "policy": {
+      "title": "Risk policy",
+      "intro": "Every threshold and rule the engine uses. Loaded from the server configuration.",
+      "thresholds": "Thresholds",
+      "tier1Max": "Tier 1 maximum amount",
+      "fraudAbove": "Fraud score above (Tier 3)",
+      "newDays": "New beneficiary window (days)",
+      "cooling": "Cooling-off (minutes)",
+      "rules": "Rules",
+      "rule": "Rule",
+      "kind": "Kind",
+      "appliesTo": "Applies to",
+      "condition": "Condition",
+      "group": {
+        "BLOCK": "Block (nothing can proceed)",
+        "TIER3": "Tier 3 (OTP + cooling-off)",
+        "TIER2": "Tier 2 (one-tap approval)"
+      },
+      "yaml": "Show raw config/risk.yaml",
+      "yamlHide": "Hide raw config/risk.yaml",
+      "source": "Source: {source}"
+    },
+    "admin": {
+      "title": "Risk engine",
+      "intro": "Every payment decision made by the rules, in one place.",
+      "autoReleased": "Auto-released",
+      "oneTap": "One-tap approvals",
+      "otp": "OTP-required",
+      "blocked": "Blocked",
+      "chart": "Decisions per day",
+      "chartTable": "Show chart data as a table",
+      "chartTableHide": "Hide chart data table",
+      "day": "Day",
+      "noSeries": "No decisions recorded yet.",
+      "latest": "Latest blocked attempts",
+      "noBlocked": "No blocked attempts.",
+      "recent": "Recent decisions",
+      "noRecent": "No decisions recorded yet.",
+      "when": "When",
+      "action": "Action",
+      "tier": "Tier",
+      "decision": "Decision",
+      "reasons": "Reasons",
+      "origin": "Origin",
+      "deal": "Deal",
+      "expand": "Show rule trace",
+      "collapse": "Hide rule trace",
+      "playground": "Try the risk playground"
+    },
+    "land": {
+      "title": "Permission tiers, enforced in code",
+      "intro": "Every payment is classified by deterministic rules. The AI never decides, approves or moves money.",
+      "t1": "Tier 1: verified, unchanged and up to USD 20,000 — released automatically with a notice.",
+      "t2": "Tier 2: first deal, a document warning or anything an agent proposes — one tap from you.",
+      "t3": "Tier 3: above USD 20,000, a changed or new beneficiary, a high fraud score, a duplicate document or a hidden instruction — OTP and a 10-minute cooling-off.",
+      "block": "Blocked: sanctions hit, failed KYB or a failed document.",
+      "link": "Try the risk playground"
+    }
+  },
+  "nav": {
+    "risk": "Risk engine",
+    "playground": "Risk playground",
+    "approvals": "审批",
+    "privacy": "隐私",
+    "privacyPlayground": "隐私演练场",
+    "security": "安全",
+    "attackConsole": "攻击控制台",
+    "audit": "审计日志",
+    "auditDemo": "审计链演示"
+  },
+  "chg": {
+    "title": "更改收款账户",
+    "intro": "请填写新的银行账户。买方必须核实（第3级），在此之前款项仍付至您当前的账户。",
+    "deal": "订单",
+    "bankName": "银行名称",
+    "country": "银行所在国家（2个字母）",
+    "number": "账号",
+    "holder": "账户持有人姓名",
+    "type": "账户类型",
+    "CORPORATE": "对公",
+    "PERSONAL": "个人",
+    "currency": "币种",
+    "submit": "提交变更申请",
+    "submitting": "提交中…",
+    "required": "此项必填。",
+    "sent": "申请已发送给买方。",
+    "trackerTitle": "账户变更进度",
+    "waiting": "等待买方核实 — 第3级",
+    "step": {
+      "SUBMITTED": "申请已提交",
+      "KYB": "供应商审核",
+      "BUYER": "买方核实",
+      "DONE": "新账户生效"
+    },
+    "stage": {
+      "WAITING_BUYER": "等待买方核实 — 第3级",
+      "APPROVED": "已批准：新账户生效",
+      "REJECTED": "买方已拒绝",
+      "EXPIRED": "已过期",
+      "LOCKED": "已锁定",
+      "CANCELLED": "已取消"
+    },
+    "state": {
+      "DONE": "完成",
+      "CURRENT": "进行中",
+      "UPCOMING": "待办",
+      "FAILED": "失败"
+    },
+    "none": "暂无账户变更申请。",
+    "tier": "第3级"
+  },
+  "bell": {
+    "label": "通知",
+    "unread": "{n} 条未读",
+    "none": "暂无最新动态。",
+    "title": "最新动态",
+    "all": "查看",
+    "unreadItem": "未读"
+  },
+  "appr": {
+    "pendingCount": "{n} 待处理"
+  },
+  "privacy": {
+    "type": {
+      "NID": {
+        "one": "身份证号",
+        "other": "身份证号"
+      },
+      "PASSPORT": {
+        "one": "护照号",
+        "other": "护照号"
+      },
+      "PHONE": {
+        "one": "手机号",
+        "other": "手机号"
+      },
+      "ACCT": {
+        "one": "账号",
+        "other": "账号"
+      },
+      "IBAN": {
+        "one": "IBAN",
+        "other": "IBAN"
+      },
+      "SWIFT": {
+        "one": "SWIFT 代码",
+        "other": "SWIFT 代码"
+      },
+      "EMAIL": {
+        "one": "邮箱",
+        "other": "邮箱"
+      },
+      "NAME": {
+        "one": "姓名",
+        "other": "姓名"
+      },
+      "AMT": {
+        "one": "金额",
+        "other": "金额"
+      }
+    },
+    "summary": {
+      "one": "已保护 1 项身份信息：{list}",
+      "other": "已保护 {n} 项身份信息：{list}",
+      "none": "这里没有需要保护的身份信息。"
+    },
+    "leaked": "泄露：{n}",
+    "leakedOk": "泄露：0 — 真实信息未到达 AI",
+    "protectedBadge": "已保护：{n}",
+    "notSent": "本次未发送",
+    "notSentHint": "已为 AI 准备好，但本次未发送（模拟模式或无需发送）。",
+    "sentTo": "已发送至 {node}",
+    "model": "模型：{model}",
+    "xray": {
+      "open": "查看 AI 看到了什么",
+      "title": "AI 看到了什么？",
+      "intro": "高亮的内容在到达 AI 之前已被替换为占位符，之后由我们的代码还原。",
+      "left": "您看到的内容",
+      "right": "发送给 AI 的内容",
+      "loading": "正在加载隐私记录…",
+      "unavailable": "该项目暂无隐私记录。",
+      "noCalls": "该项目没有向 AI 发送任何内容。",
+      "tokenOf": "已替换为 {token}"
+    },
+    "counter": {
+      "label": "隐私计数器",
+      "protected": "本次会话已保护的身份信息：{n}",
+      "leaked": "泄露：{n}",
+      "unavailable": "隐私计数器不可用"
+    },
+    "pg": {
+      "title": "隐私网关演练场",
+      "intro": "粘贴一段消息或文档文字。Setu 会找出身份信息，在 AI 看到之前替换为占位符，之后再用普通代码还原。",
+      "note": "模拟 · 不保存任何内容",
+      "input": "待保护的文字",
+      "maskAmounts": "遮蔽金额",
+      "showObf": "显示混淆处理",
+      "obfIntro": "试着把号码藏起来：Setu 依然能找到。",
+      "obfSpaced": "带空格的数字",
+      "obfBangla": "孟加拉文数字",
+      "obfZwj": "零宽字符",
+      "live": "实时检测",
+      "checking": "检测中…",
+      "found": {
+        "one": "发现 1 项身份信息",
+        "other": "发现 {n} 项身份信息",
+        "none": "未发现身份信息"
+      },
+      "send": "发送给 AI（演练）",
+      "sending": "发送中…",
+      "paneMasked": "已遮蔽的内容 — AI 看到的",
+      "paneAnswer": "AI 的回答（仍为遮蔽状态）",
+      "paneRestored": "由代码还原真实信息后的回答",
+      "results": "演练结果",
+      "detections": "检测结果",
+      "col": {
+        "type": "类型",
+        "token": "占位符",
+        "confidence": "置信度",
+        "handling": "处理方式"
+      },
+      "obfHandled": "已处理混淆",
+      "direct": "直接识别",
+      "error": "演练失败，请重试。"
+    },
+    "admin": {
+      "title": "隐私网关",
+      "intro": "发送给 AI 的每条消息都会先被遮蔽。本页提供证明：保护了什么、泄露了什么（应始终为零）以及 AI 实际收到了什么。",
+      "playground": "打开隐私演练场",
+      "protected": "已保护的身份信息",
+      "leaked": "泄露",
+      "calls": "AI 调用次数",
+      "leakedHint": "应始终为 0",
+      "byType": "按类型统计的保护数量",
+      "noData": "暂无记录。",
+      "chart": "每日已保护的身份信息（近 14 天）",
+      "chartShow": "以表格显示",
+      "chartHide": "隐藏表格",
+      "day": "日期",
+      "recent": "最新透明度记录",
+      "recentEmpty": "暂无透明度记录。",
+      "expand": "显示遮蔽后的内容",
+      "collapse": "隐藏遮蔽后的内容",
+      "payloadOnly": "此处只显示遮蔽后的内容，绝不显示真实值。",
+      "node": "步骤",
+      "source": "来源",
+      "sent": "已发送给 AI",
+      "notSent": "已准备，未发送",
+      "configOn": "遮蔽已开启",
+      "configOff": "遮蔽已关闭",
+      "amountsOn": "金额也会被遮蔽",
+      "amountsOff": "金额不会被遮蔽",
+      "prove": {
+        "title": "亲自验证",
+        "explain": "打开 LangSmith 运行记录，确认只出现 ⟦ACCT_1⟧ 这样的占位符，没有任何原始值。",
+        "link": "打开 LangSmith 运行记录",
+        "off": "当前环境未开启追踪，因此没有可打开的运行记录。",
+        "hint": "开启 LangSmith 追踪即可查看 AI 收到的确切内容。"
+      }
+    },
+    "land": {
+      "title": "AI 从不接触真实信息",
+      "line": "可逆遮蔽：AI 永远看不到真实值，由我们的代码把它还原。",
+      "before": "之前",
+      "after": "AI 看到的",
+      "link": "在隐私演练场亲自试试"
+    }
+  },
+  "sec": {
+    "hl": {
+      "start": "匹配规则 {rule}：",
+      "end": "（匹配结束）"
+    },
+    "pipe": {
+      "label": "防御流程",
+      "ok": "已安全处理",
+      "fail": "未在此处拦截",
+      "layer": "第 {n} 层",
+      "status": {
+        "done": "完成",
+        "caught": "已识别",
+        "clear": "无异常",
+        "off": "已关闭",
+        "missed": "漏检",
+        "idle": "无需处理"
+      }
+    },
+    "chip": {
+      "title": "安全检查",
+      "checked": "已检查：{list}",
+      "checkedNone": "没有来自文档或其他来源的内容需要检查。",
+      "off": "此回答已关闭防御。",
+      "blocked": "已拦截：{name}",
+      "guard": "回答防护已移除：{list}",
+      "flagged": "该交易已标记，需额外核验（第 3 级）",
+      "tool": {
+        "docs": "文档",
+        "kb": "知识库",
+        "party": "对方核验",
+        "registry": "登记库",
+        "other": "其他工具结果"
+      },
+      "ignored": {
+        "hidden_text": "已忽略文档中的一条隐藏指令",
+        "visible_text": "已忽略文档中写明的一条指令",
+        "metadata": "已忽略文档元数据中的一条指令",
+        "email": "已忽略邮件中的一条指令",
+        "kb": "已忽略知识库段落中的一条指令",
+        "tool_result": "已忽略工具结果中的一条指令",
+        "other": "已忽略不可信内容中的一条指令"
+      }
+    },
+    "sb": {
+      "title": "攻击成功率",
+      "off": "防御关闭",
+      "on": "防御开启",
+      "noDetector": "开启但无检测器（仅第 4+5 层）",
+      "running": "正在运行测试套件…",
+      "rerun": "重新运行套件",
+      "run": "运行套件",
+      "empty": "暂无结果。运行攻击套件以填充记分牌（约 15 秒）。",
+      "meta": "{n} 次攻击 · {split} 数据集 · 生成于 {at}",
+      "asr": "攻击成功率（越低越好）",
+      "moneyNote": "任何模式下资金均未转移。仅统计模拟的副作用。",
+      "detection": "检测质量",
+      "recall": "检测召回率",
+      "fpr": "误报率",
+      "clean": "{n} 份正常文档，其中 {fp} 份被误报。",
+      "split": "开发集。测试集结果另行报告。",
+      "col": {
+        "mode": "模式",
+        "n": "用例数"
+      }
+    },
+    "source": {
+      "hidden_text": "隐藏白色文字",
+      "visible_text": "可见文字",
+      "metadata": "元数据",
+      "email": "邮件"
+    },
+    "console": {
+      "title": "提示注入攻击控制台",
+      "intro": "选择一个攻击或自行编写，然后观察每一层防御如何处理。此处一切均为模拟；文档文字绝不可能转移资金。",
+      "gallery": "攻击图库",
+      "own": "你的攻击文本",
+      "text": "攻击文本",
+      "placement": "放置位置",
+      "defences": "防御",
+      "on": "开",
+      "off": "关",
+      "run": "运行攻击",
+      "running": "运行中…",
+      "offBanner": "仅检测器、工具门控和输出防护被关闭。资金安全（仅提议的工具、风险引擎、文档指令触发第 3 级）保持开启——文档文字绝不可能转移资金。",
+      "pipeline": "每一层做了什么",
+      "detection": "提交的文本与检测结果",
+      "score": "检测器得分",
+      "injection": "检测到注入",
+      "clean": "未检测到注入",
+      "noDetection": "检测器未运行（防御已关闭）。",
+      "result": "结果",
+      "outcome": {
+        "blocked": "攻击已拦截",
+        "stopped_by_risk_engine": "被风险引擎拦下",
+        "no_effect": "无影响",
+        "attack_succeeded": "攻击成功"
+      },
+      "stoppedRisk": "模型尝试调用 {tool}——被风险引擎拦下（资金未转移）。",
+      "moneyNever": "资金转移：从不（模拟沙盒）。",
+      "attempts": "工具调用尝试",
+      "noAttempts": "模型没有尝试调用任何工具。",
+      "attempt": {
+        "dropped": "被门控丢弃（第 4 层）",
+        "reached": "到达服务，随后由风险引擎处理：第 {tier} 级，{decision}（资金未转移）",
+        "executed": "已执行"
+      },
+      "answer": "最终回答（以纯文本显示）",
+      "noAnswer": "（无回答）"
+    },
+    "admin": {
+      "title": "提示注入安全",
+      "intro": "实测攻击结果，以及系统见过的每一次注入尝试，均链接到其签名审计记录。",
+      "console": "打开实时攻击控制台",
+      "events": "注入事件",
+      "filterStyle": "攻击类型",
+      "filterSource": "来源",
+      "all": "全部",
+      "empty": "没有匹配的注入事件。",
+      "col": {
+        "time": "时间",
+        "source": "来源",
+        "rules": "规则",
+        "deal": "交易",
+        "tool": "工具",
+        "action": "采取的措施",
+        "layer": "层",
+        "origin": "来源类型",
+        "audit": "审计",
+        "resolve": "处理"
+      },
+      "tier3": "第 3 级标记",
+      "audit": "审计 #{seq}",
+      "auditHint": "已签名、哈希链式审计记录（暂无独立审计页面）",
+      "resolve": "标记已处理",
+      "resolved": "已处理"
+    },
+    "doc": {
+      "detected": "检测到注入——匹配规则：{rules}",
+      "where": "发现于：{source} · 得分 {score}"
+    },
+    "land": {
+      "line": "五层提示注入防御",
+      "link": "试用实时攻击控制台",
+      "separate": {
+        "name": "隔离",
+        "desc": "不可信文本放入标记块"
+      },
+      "detect": {
+        "name": "检测",
+        "desc": "English、বাংলা 和中文规则"
+      },
+      "contain": {
+        "name": "限制",
+        "desc": "智能体只能提议；文档指令触发第 3 级"
+      },
+      "gate": {
+        "name": "门控",
+        "desc": "工具调用与你的请求核对"
+      },
+      "guard": {
+        "name": "防护",
+        "desc": "回答在你看到之前先被检查"
+      }
+    }
+  },
+  "act": {
+    "details": "查看已签名的审计条目"
+  },
+  "audit": {
+    "title": "已签名审计日志",
+    "intro": "每个操作都写入哈希链日志，并用 Ed25519 签名。改动任何一个字符，链就会断裂。此处所有资金均为模拟。",
+    "copy": "复制",
+    "copied": "已复制",
+    "copyField": "复制 {field}",
+    "land": {
+      "line": "每个操作都已签名并链接 —— 自己验证"
+    },
+    "reason": {
+      "hash_mismatch": "条目内容与哈希不再一致",
+      "bad_signature": "签名与密钥不匹配",
+      "missing_seq": "缺少一个条目",
+      "reordered": "条目顺序错乱",
+      "broken_link": "与前一条目的链接已断",
+      "malformed": "条目格式错误",
+      "unknown": "未知问题"
+    },
+    "explain": {
+      "hash_mismatch": "此条目写入后被人改动，其指纹（哈希）与签名时不再一致。",
+      "bad_signature": "哈希相互一致，但数字签名不是由此公钥产生。该条目并非 Setu 签名，或您选择了其他密钥。",
+      "missing_seq": "本应在此处的编号条目不见了。删除记录会在序号上留下缺口。",
+      "reordered": "条目出现的顺序与写入顺序不同。",
+      "broken_link": "此条目没有指向前一个条目，说明它是事后插入或改写的。",
+      "malformed": "某一行不是完整的已签名条目（缺少字段或类型不对）。",
+      "unknown": "日志未通过验证。"
+    },
+    "result": {
+      "ok": "验证通过 ✓ {n} 个条目，seq {a}..{b}",
+      "broken": "在 seq {seq} 处断裂：{reason}"
+    },
+    "chain": {
+      "title": "实时链",
+      "help": "每个方块是一条审计记录；连线是与前一条的哈希链接。新条目出现在右侧。选择方块查看详情。",
+      "label": "审计链，可横向滚动",
+      "empty": "暂无审计条目。",
+      "refresh": "立即刷新",
+      "blockLabel": "条目 {seq}，{action}。打开详情",
+      "missing": "缺少 seq {seq}",
+      "broken": "已断裂",
+      "intact": "完好"
+    },
+    "drawer": {
+      "title": "审计条目 #{seq}",
+      "verified": "已验证 ✓",
+      "notVerified": "未通过验证",
+      "canonical": "规范化载荷（被哈希的确切字节）",
+      "payloadHash": "payload_hash",
+      "prevHash": "prev_hash",
+      "entryHash": "entry_hash",
+      "signature": "签名 (Ed25519)"
+    },
+    "evidence": {
+      "title": "证据",
+      "total": "日志条目数",
+      "head": "最新：seq {seq}",
+      "byTier": "按等级统计",
+      "byAction": "按操作统计",
+      "lastVerify": "最近一次验证",
+      "never": "尚未验证。",
+      "ok": "验证通过 ✓ {n} 个条目",
+      "broken": "在 seq {seq} 处断裂",
+      "verifyNow": "立即验证",
+      "verifying": "验证中…",
+      "fingerprint": "公钥指纹",
+      "copyFingerprint": "复制公钥指纹",
+      "export": "导出操作日志",
+      "verifyLink": "打开公开验证器"
+    },
+    "tamper": {
+      "title": "篡改试试看",
+      "intro": "在日志副本中修改、删除或交换条目，看验证如何发现。真实日志不会被改动。",
+      "entry": "条目",
+      "modeLabel": "改动方式",
+      "field": "字段",
+      "value": "新值",
+      "was": "当前：{value}",
+      "mode": {
+        "edit": "修改某个值",
+        "delete": "删除该条目",
+        "reorder": "与下一条交换"
+      },
+      "deleteHelp": "该条目将从副本中移除。",
+      "reorderHelp": "该条目与其后一条交换位置。",
+      "run": "篡改副本",
+      "running": "检查中…",
+      "noEntries": "等待审计条目。",
+      "banner": "这是副本 —— 真实日志没有被改动。",
+      "stillOk": "仍然通过验证。没有做出日志能检测到的改动。",
+      "chainLabel": "被篡改的链副本",
+      "restore": "恢复实时链"
+    },
+    "receipt": {
+      "button": "回执",
+      "title": "已签名回执",
+      "deal": "交易",
+      "amount": "金额",
+      "tier": "权限等级",
+      "approver": "批准人",
+      "time": "时间",
+      "seq": "审计条目",
+      "hash": "条目哈希",
+      "signature": "签名",
+      "qrAlt": "打开此回执公开验证器的二维码",
+      "qrHelp": "扫描即可在公开验证器中核对此回执。其中只含已签名条目，没有机密。",
+      "png": "下载 PNG",
+      "pdf": "打印 / 另存为 PDF",
+      "open": "打开验证链接",
+      "copyHash": "复制条目哈希",
+      "copySig": "复制签名"
+    },
+    "verify": {
+      "title": "验证 Setu 操作日志",
+      "intro": "自己检查导出的日志：用公布的公钥核对每个哈希、每个签名和链的顺序。",
+      "privacy": "您的文件只在此浏览器中读取，不会上传或发送到任何地方。",
+      "uploadTitle": "检查日志文件",
+      "logLabel": "操作日志 (.jsonl)",
+      "dropHint": "选择文件，或拖放到此框中。",
+      "keyDefault": "使用 Setu 公布的审计公钥。指纹：",
+      "keyCustom": "使用您的密钥：{name}",
+      "advanced": "高级：使用其他公钥 (PEM)",
+      "keyLabel": "公钥文件 (.pem)",
+      "resultTitle": "结果",
+      "waiting": "尚未检查任何文件。",
+      "checkedWith": "已用密钥 {fp}… 检查 {file}。",
+      "noKey": "无法加载公钥。",
+      "badKey": "这不是有效的 PEM 公钥。",
+      "empty": "文件中没有审计条目。",
+      "parseError": "无法读取文件：{detail}。",
+      "readError": "无法读取该文件。",
+      "partial": "部分导出：缺少 {n} 个 seq 编号。现有条目均真实，但部分导出无法证明没有遗漏。",
+      "notAnchored": "日志不是从 seq 1 开始，因此其起点未与创世哈希绑定。",
+      "receiptTitle": "回执检查",
+      "checking": "正在检查回执…",
+      "receiptOk": "回执有效 ✓ 条目 #{seq} 由 Setu 签名",
+      "singleNote": "单个条目只能证明自身内容和签名，无法证明周围条目未被移除；请上传完整日志。",
+      "hashDiffers": "条目哈希与回执上的哈希不一致",
+      "receiptInstructions": "此回执对应审计条目 #{seq}。请在下方上传导出的日志以查找并检查它。",
+      "highlightFound": "条目 #{seq} 在您的日志中，且其哈希与回执一致。",
+      "highlightMissing": "此日志中没有条目 #{seq}。"
+    }
+  },
+  "auth": {
+    "signIn": {
+      "title": "登录",
+      "lead": "请使用您的 Setu 登录邮箱和密码。",
+      "email": "邮箱",
+      "password": "密码",
+      "submit": "登录",
+      "submitting": "正在登录...",
+      "forgot": "忘记密码?",
+      "noAccount": "初次使用 Setu?",
+      "register": "创建登录账号",
+      "verifiedNote": "邮箱已验证,请登录。"
+    },
+    "register": {
+      "title": "创建登录账号",
+      "lead": "此步骤只创建您的个人登录账号。随后将审核您的公司资料,在此之前无法使用贸易功能。",
+      "name": "姓名",
+      "email": "邮箱",
+      "password": "密码",
+      "submit": "创建登录账号",
+      "submitting": "正在创建...",
+      "haveAccount": "已有登录账号?",
+      "signIn": "登录",
+      "required": "必填"
+    },
+    "strength": {
+      "label": "密码强度:{level}",
+      "weak": "弱",
+      "fair": "一般",
+      "strong": "强",
+      "hint": "至少 8 个字符,建议混合字母、数字和符号。"
+    },
+    "verify": {
+      "title": "验证您的邮箱",
+      "lead": "我们已向 {email} 发送 6 位验证码,请在下方输入。",
+      "noEmail": "请输入注册时使用的邮箱。",
+      "email": "邮箱",
+      "code": "验证码",
+      "submit": "验证邮箱",
+      "submitting": "正在验证...",
+      "resend": "重新发送验证码",
+      "resent": "已发送新的验证码。",
+      "back": "返回登录"
+    },
+    "forgot": {
+      "title": "重置密码",
+      "lead": "输入邮箱,我们会发送设置新密码的链接。",
+      "email": "邮箱",
+      "submit": "发送重置链接",
+      "submitting": "正在发送...",
+      "sent": "如果该邮箱存在账号,重置链接已发出。",
+      "back": "返回登录"
+    },
+    "reset": {
+      "title": "设置新密码",
+      "lead": "为您的 Setu 登录账号设置新密码。",
+      "password": "新密码",
+      "confirm": "确认新密码",
+      "submit": "保存密码",
+      "submitting": "正在保存...",
+      "mismatch": "两次输入的密码不一致。",
+      "done": "密码已修改,现在可以登录。",
+      "missingToken": "此重置链接不完整或已过期,请重新申请。",
+      "requestNew": "重新申请链接",
+      "signIn": "前往登录"
+    },
+    "status": {
+      "title": "您的登录账号尚未启用",
+      "notOnboarded": {
+        "title": "尚无 Setu 账户",
+        "body": "您的登录有效,但尚未创建 Setu 账户。请先完成账户设置,以便我们验证您的企业。"
+      },
+      "pending": {
+        "title": "等待验证",
+        "body": "您的公司资料正在等待验证,审核完成后即可进入。"
+      },
+      "suspended": {
+        "title": "账户已暂停",
+        "body": "此账户已被暂停,请联系 Setu 支持。"
+      },
+      "signOut": "退出登录",
+      "signingOut": "正在退出..."
+    },
+    "unavailable": {
+      "body": "此页面仅在启用真实登录时使用。本部署使用演示账号。",
+      "toLogin": "前往演示登录"
+    },
+    "err": {
+      "generic": "出现问题,请重试。",
+      "invalid": "邮箱或密码不正确。",
+      "unverified": "您的邮箱尚未验证。",
+      "exists": "该邮箱已有登录账号,请直接登录。",
+      "passwordLength": "密码长度不符合要求,请使用 8 到 128 个字符。",
+      "otp": "验证码错误或已过期,请重新获取。",
+      "tooMany": "尝试次数过多,请几分钟后再试。",
+      "resetToken": "此重置链接无效或已过期。",
+      "session": "无法确认您的会话,请重新登录。"
+    },
+    "configError": "无法加载登录设置。"
+  }
+}

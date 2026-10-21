@@ -1,0 +1,100 @@
+---
+title: Settings, language and team members
+summary: Change language, number style and theme, and manage who can sign in for your company.
+section: buyer
+order: 150
+roles: [buyer]
+routes: ["/app/team"]
+tryIt: "/app/team"
+related: [buyer/approvals, security/permission-tiers]
+updated: 2026-10-20
+---
+
+## What it is \{#what-it-is}
+Setu has no single "Settings" page. Display options sit in the top bar of every page. Team management is on the **Team** page.
+
+## Who uses it \{#who}
+<RoleBadge role="buyer" />
+
+Only **Owners** can add or remove team members. Other members see the list only.
+
+## When to use it \{#when}
+- You prefer Bangla or a dark screen.
+- A new colleague must sign in for your company.
+- Someone leaves your company.
+
+## Step by step \{#how-to}
+<Steps>
+<Step title="Find the display controls">
+The group "Display and account settings" in the top bar has **Search**, the language toggle, the number style button, the theme button, the notification bell and your name with **Switch user** and **Log out**.
+
+<Screenshot name="buyer/settings-1" route="/app" as="buyer" alt="Top bar with search, language toggle, theme button, notifications and the user menu" caption="Display controls live in the top bar." />
+</Step>
+<Step title="Change the language">
+Choose **EN** or **বাংলা** in the **Language** toggle. The whole app, the chat replies and the explanations switch. Setu remembers your choice in this browser.
+
+<Screenshot name="buyer/settings-2" route="/app" as="buyer" click="[role=radio]:has-text('বাংলা')" alt="The app in Bangla after choosing the language toggle" caption="The app after switching to Bangla." />
+{/* REVIEW: in the buyer app the toggle shows only EN and Bangla. The Chinese option (中文) is shown in the supplier portal, /verify and public pages (withZh), not in the buyer top bar. */}
+</Step>
+<Step title="Pick Bangla or Latin digits">
+While Bangla is on, a number-style button appears. It switches between Bangla digits (১২৩) and Latin digits (123). Bangla digits are the default. The button is hidden in English.
+
+<Screenshot name="buyer/settings-3" route="/app" as="buyer" alt="Number style button showing Bangla digits" caption="Switch between ১২৩ and 123." />
+</Step>
+<Step title="Choose a theme">
+The theme button cycles **System**, **Light**, **Dark**. Its label names the current mode.
+
+<Screenshot name="buyer/settings-4" route="/app" as="buyer" click="[data-testid=theme-toggle]" alt="The app after the theme button was pressed" caption="The theme button cycles through three modes." />
+</Step>
+<Step title="Open the Team page">
+Choose **Team** in the left menu. **Members** lists each person with **Role** and **Signed in once** (Signed in, or Not signed in yet).
+
+<Screenshot name="buyer/settings-5" route="/app/team" as="buyer" alt="Team page with a members table showing role and sign-in status" caption="Your company's members." />
+</Step>
+<Step title="Add a member">
+Under **Invite a member**, enter **Email address**, **Name** and **Role**, then press **Add member**. Setu sends **no email**. Ask the person to register with that exact email. Their account links the first time they sign in with it verified.
+
+<Screenshot name="buyer/settings-6" route="/app/team" as="buyer" alt="Invite a member form with email, name and role fields" caption="No email is sent. Tell the person yourself." />
+</Step>
+<Step title="Remove a member">
+Press **Remove** on a row and confirm **Remove this member?**. They lose access to your company's account.
+
+<Screenshot name="buyer/settings-7" route="/app/team" as="buyer" alt="Confirmation dialog asking to remove a member" caption="Removing asks you to confirm." />
+</Step>
+</Steps>
+
+## What the results mean \{#results}
+| Role | What the screen says |
+|---|---|
+| Owner | Can manage the team and everything else. |
+| Finance | Can work with deals and payments. |
+| Viewer | Can only look. Cannot change anything. |
+
+Errors you may see:
+- "This email already belongs to a Setu account."
+- "Your company must be approved before you can add members."
+- "A company needs at least one owner. Make someone else an owner first."
+- "This account is not linked to a company, so it has no team."
+
+The backend refuses changes from a Viewer ("viewers can read but not change anything").
+
+{/* REVIEW: the screen says Finance "can work with deals and payments", but only Viewer-vs-others is clearly enforced in the code I read (app/auth/deps.py). Confirm whether Finance has any extra limit. */}
+
+## Tips and common mistakes \{#tips}
+- Give new people the Viewer role first if they only need to look.
+- Use the exact email you added. A different address will not link.
+- Keep at least two Owners so you are never locked out.
+- Keyboard: <Kbd>Ctrl</Kbd> + <Kbd>K</Kbd> opens search, <Kbd>/</Kbd> opens the chat, <Kbd>Esc</Kbd> closes a dialog.
+- The "Simulated" badge in the top bar stays on every page. Money in Setu is not real.
+
+## Related security notes \{#security}
+<Callout type="security" title="Your role limits what you can do">
+Roles are enforced by the server, not by hiding buttons. Money actions still need approval by tier. See [Permission tiers](/docs/en/security/permission-tiers).
+</Callout>
+
+## Try it \{#try-it}
+<TryItButton href="/app/team" />
+
+## Related pages \{#related}
+- [Approvals](/docs/en/buyer/approvals)
+- [Permission tiers](/docs/en/security/permission-tiers)

@@ -1,9 +1,9 @@
 ---
 paths:
-  - "services/agent/**"
+  - "backend/**"
 ---
 
-# Agent service rules (services/agent)
+# Agent service rules (backend)
 
 ## Layout & layering
 `app/api` (FastAPI routers, thin) → `app/services` (orchestration, DB) → `app/domain` (pure deterministic logic, no I/O, no LLM).
@@ -52,5 +52,5 @@ def compute_landed_cost(args: LandedCostIn, ctx: ToolContext) -> LandedCostOut:
 - Retrieval tool returns `[{chunk_id, title, text, score}]`; the explainer must cite `chunk_id`s it used.
 
 ## Commands
-`uv run --directory services/agent fastapi dev app/main.py` · `uv run --directory services/agent pytest -q` ·
-`uv run --directory services/agent ruff check . && uv run --directory services/agent ruff format --check .`
+`uv run --directory backend fastapi dev app/main.py` · `uv run --directory backend pytest -q` ·
+`uv run --directory backend ruff check . && uv run --directory backend ruff format --check .`

@@ -1,0 +1,98 @@
+---
+title: Deal detail and milestones
+summary: Read one deal. See its status, payment milestones, evidence, escrow and ledger, and release a payment.
+section: buyer
+order: 30
+roles: [buyer]
+routes: ["/app/deals/[id]"]
+tryIt: "/app/deals"
+related: [buyer/funding-escrow, buyer/approvals, buyer/documents, buyer/order-analysis]
+updated: 2026-10-20
+---
+
+## What it is \{#what-it-is}
+
+The deal page is the control room for one order. It has four tabs: **Overview**, **Documents**, **Analysis** and **Activity**. Overview holds the actions, the payment milestones, the escrow card and the ledger.
+
+## Who uses it \{#who}
+
+<RoleBadge role="buyer" /> Buyers (and admins) see all actions. Suppliers see a reduced view. Judges see it read-only.
+
+## When to use it \{#when}
+
+Use it to agree a payment schedule, fund the escrow, check evidence and release a payment. A **milestone** is one payment slice tied to a step of the order. A **tranche** means the same thing.
+
+## Step by step \{#how-to}
+
+<Steps>
+<Step title="Open the deal">
+Open **Deals**, then click the reference. The header shows the reference, status badge, **Simulated** badge, supplier and supplier-check badge. A red banner appears if the deal is disputed.
+
+<Screenshot name="buyer/deal-header" route="/app/deals/SETU-2026-0001" as="buyer" alt="Deal page header with reference, status badge, Simulated badge, supplier name, supplier check badge and four tabs." caption="The deal header and tabs." />
+</Step>
+<Step title="Agree the schedule in Actions">
+Under **Actions**, click **Propose milestones**. Choose 30% / 60% / 10% (production, shipment, arrival) or **Custom percentages** (2 to 5 tranches that add up to 100%). Then the supplier and you each click **Confirm schedule**. Proposing again clears confirmations. A disabled button shows the reason under it.
+
+<Screenshot name="buyer/deal-actions" route="/app/deals/SETU-2026-0001" as="buyer" alt="Actions section with Propose milestones, Confirm schedule and Fund escrow buttons." caption="The Actions section." />
+</Step>
+<Step title="Follow the payment milestones">
+Each milestone card shows its number, trigger (**Production start**, **Shipment** or **Arrival**), amount, percent, due date, a status badge and the required evidence. Evidence items are documents such as a proforma invoice, bill of lading or bill of entry.
+
+<Screenshot name="buyer/deal-milestones" route="/app/deals/SETU-2026-0001" as="buyer" alt="Payment milestones list with amounts, status badges, due dates and evidence checklists." caption="Milestone cards with status and evidence." />
+</Step>
+<Step title="Release a payment">
+When a milestone is **Ready to release**, click **Release payment**. A dialog shows the amount, supplier and receiving account. Confirm with **Release payment**. Setu then decides the tier. Tier 1 releases at once. Tier 2 or 3 waits in **Approvals**. See [Approvals](/docs/en/buyer/approvals).
+
+<Screenshot name="buyer/deal-release" route="/app/deals/SETU-2026-0001" as="buyer" alt="Release milestone dialog showing the amount, supplier name and receiving account with a simulated note." caption="The release dialog." click="[data-testid='milestone'] button" />
+{/* REVIEW: The click selector may hit a disabled Release button; the seeded deal's first milestone is waiting for approval, so the script may need another deal. */}
+</Step>
+<Step title="Check escrow, ledger and activity">
+The **Escrow** card shows funded, released, refunded and in-escrow amounts. The ledger lists every posting. The **Activity** tab shows the signed trail of what happened.
+
+<Screenshot name="buyer/deal-escrow-ledger" route="/app/deals/SETU-2026-0001" as="buyer" alt="Escrow card with a progress bar and amounts, next to deal details and the ledger table below." caption="Escrow card and ledger." />
+</Step>
+</Steps>
+
+## What the results mean \{#results}
+
+| Milestone status | Meaning |
+|---|---|
+| Proposed | Schedule suggested, not confirmed by both sides. |
+| Locked | Confirmed, waiting for escrow money. |
+| Ready to release | Covered by escrow and earlier tranches are settled. |
+| Waiting for approval | A person must decide. No money moves yet. |
+| Released | Paid out of escrow (simulated). |
+| Frozen | Held, for example during a dispute or a Tier 3 request. |
+| Refunded / Cancelled | Returned to you or never funded. |
+
+| Evidence status | Meaning |
+|---|---|
+| Missing / Pending | Document not yet uploaded or checked. |
+| Verified | Checks passed. |
+| Flagged / Rejected | Checks found a problem. |
+
+The deal status runs Draft, Proposed, Confirmed, Funded, In production, Shipped, Arrived, Completed. It moves forward when milestones are released.
+
+## Tips and common mistakes \{#tips}
+
+- **Release payment** is disabled until evidence is **Verified** and escrow covers the tranche. The reason is written under the button.
+- Upload documents in the **Documents** tab. See [Documents](/docs/en/buyer/documents).
+- **Analysis** links to the order analysis and to financing for this deal.
+{/* REVIEW: A button "Mark evidence verified" (dev tool) appears only when NEXT_PUBLIC_DEV_TOOLS=1. It is not documented on purpose. */}
+
+## Related security notes \{#security}
+
+<Callout type="security">
+Release is never done by the AI. The tier is calculated by code and rechecked at execution. Every step is in the [signed audit log](/docs/en/security/signed-audit-log).
+</Callout>
+
+## Try it \{#try-it}
+
+<TryItButton href="/app/deals" />
+
+## Related pages \{#related}
+
+- [Funding the escrow](/docs/en/buyer/funding-escrow)
+- [Approvals](/docs/en/buyer/approvals)
+- [Documents](/docs/en/buyer/documents)
+- [Order analysis](/docs/en/buyer/order-analysis)

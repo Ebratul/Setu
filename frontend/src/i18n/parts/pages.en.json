@@ -1,0 +1,28 @@
+{
+  "notfound": {
+    "code": "404",
+    "title": "We could not find that page",
+    "body": "The link may be old or mistyped. Try one of these instead.",
+    "home": "Go to dashboard",
+    "landing": "Back to home",
+    "deals": "See your deals"
+  },
+  "errpage": {
+    "code": "500",
+    "title": "Something went wrong on our side",
+    "body": "Nothing was changed and no money moved. Please try again.",
+    "retry": "Try again",
+    "home": "Go to dashboard",
+    "ref": "Reference: {id}"
+  },
+  "emptyx": {
+    "dealsTitle": "No deals yet",
+    "dealsBody": "Create your first import order to see landed cost, financing and the escrow timeline.",
+    "dealsCta": "Create a deal",
+    "dealsFilteredTitle": "No deals match",
+    "dealsFilteredBody": "Try a different status or search term."
+  },
+  "loadingx": {
+    "page": "Loading page"
+  }
+}

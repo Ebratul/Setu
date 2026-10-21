@@ -1,0 +1,97 @@
+{
+  "key": "70b1c1af2d27bbf05c9e67d8f684589fb9e28b5e11ad33de4a2427e3f7771471",
+  "kind": "chat",
+  "model": "claude-sonnet-5-5",
+  "tools": [
+    "get_deal_summary",
+    "explain_how_setu_works",
+    "check_documents",
+    "registry_status",
+    "search_knowledge",
+    "verify_party"
+  ],
+  "source": "real",
+  "recorded_at": "2026-10-20T05:00:38+00:00",
+  "request": {
+    "system": "You are Setu (সেতু), an AI SME finance copilot for Bangladeshi importers who buy from Chinese suppliers. All data in Setu is simulated demo data, and every paym",
+    "last_user": "I got the bill of lading for SETU-2026-0001. Is everything fine to release the 60% payment now?"
+  },
+  "response": {
+    "content": [
+      {
+        "id": "toolu_014yivEP3YVomQsU7ecCR22F",
+        "caller": {
+          "type": "direct"
+        },
+        "input": {
+          "deal_id": "SETU-2026-0001"
+        },
+        "name": "get_deal_summary",
+        "type": "tool_use",
+        "toolset_name": null
+      },
+      {
+        "id": "toolu_015ivM9dh5MknCcwrBg8DxVY",
+        "caller": {
+          "type": "direct"
+        },
+        "input": {
+          "deal_id": "SETU-2026-0001"
+        },
+        "name": "check_documents",
+        "type": "tool_use",
+        "toolset_name": null
+      },
+      {
+        "id": "toolu_01EgEcke5PTF3zGN7ZDtryYi",
+        "caller": {
+          "type": "direct"
+        },
+        "input": {
+          "deal_id": "SETU-2026-0001"
+        },
+        "name": "verify_party",
+        "type": "tool_use",
+        "toolset_name": null
+      }
+    ],
+    "tool_calls": [
+      {
+        "name": "get_deal_summary",
+        "args": {
+          "deal_id": "SETU-2026-0001"
+        },
+        "id": "toolu_014yivEP3YVomQsU7ecCR22F"
+      },
+      {
+        "name": "check_documents",
+        "args": {
+          "deal_id": "SETU-2026-0001"
+        },
+        "id": "toolu_015ivM9dh5MknCcwrBg8DxVY"
+      },
+      {
+        "name": "verify_party",
+        "args": {
+          "deal_id": "SETU-2026-0001"
+        },
+        "id": "toolu_01EgEcke5PTF3zGN7ZDtryYi"
+      }
+    ],
+    "usage": {
+      "input_tokens": 3294,
+      "output_tokens": 174,
+      "total_tokens": 3468,
+      "input_token_details": {
+        "cache_read": 0,
+        "cache_creation": 0,
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_token_details": {
+        "reasoning": 0
+      }
+    },
+    "seconds": 7.05
+  }
+}

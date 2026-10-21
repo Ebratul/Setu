@@ -1,0 +1,77 @@
+---
+title: Verify the audit log
+summary: Check a signed, hash-chained Setu audit export and a payment receipt in your own browser with the public key.
+section: judge
+order: 40
+roles: [judge]
+routes: ["/verify"]
+tryIt: "/verify"
+related: [judge/five-minute-guide, judge/criteria, security/permission-tiers]
+updated: 2026-10-20
+---
+
+## What it is \{#what-it-is}
+
+Every agent action, tool call, approval and ledger entry is written to an audit log. Each entry is signed with an Ed25519 key (a digital signature) and linked to the previous entry by a hash (a fingerprint of its content). Change or remove one entry and the chain breaks. The public page `/verify` lets anyone check an exported log. Your file is read in this browser only. Nothing is uploaded.
+
+## Who uses it \{#who}
+
+<RoleBadge role="judge" /> Also admins and any outside reviewer. No sign-in is needed.
+
+## When to use it \{#when}
+
+After the guided demo (step 12 verifies the audit chain), or to check a receipt you were handed.
+
+## Step by step \{#how-to}
+
+<Steps>
+<Step title="Export a log">
+Open the audit screen (`/demo/audit`, or the admin audit page in `/app/admin/audit`) and use "Export operation log". The file ends in `.jsonl`.
+<Screenshot name="judge/audit-chain" route="/demo/audit" as="judge" alt="The audit chain page with evidence counters, Verify now, Export operation log and Open the public verifier." caption="Audit evidence and export." />
+</Step>
+<Step title="Open the verifier">
+Go to `/verify`. The page says "Using the published Setu audit public key" and shows its fingerprint.
+<Screenshot name="judge/verify" route="/verify" as="judge" alt="The Verify the Setu operation log page with a file chooser and the public key fingerprint." caption="The public verifier." />
+</Step>
+<Step title="Choose the file">
+Choose the `.jsonl` file or drop it on the box. The result appears under "Result".
+</Step>
+<Step title="Check a receipt (optional)">
+A signed receipt has a QR code or link to `/verify` with the entry number and hash. The page checks the single entry. Upload the full log to find it and confirm the hash matches.
+</Step>
+<Step title="Try to tamper">
+Edit one value in your copy of the file and check it again. Or use "Tamper and see" on the audit screen, which works on a copy and never touches the real log.
+</Step>
+</Steps>
+
+## What the results mean \{#results}
+
+| Message | Meaning |
+|---|---|
+| Verified ✓ N entries, seq A..B | Every hash, signature and the chain order are correct |
+| Broken at seq N: reason | Reasons: entry contents no longer match the hash, signature does not match the key, an entry is missing, entries out of order, broken link to the previous entry, malformed entry |
+| Receipt valid ✓ entry #N is signed by Setu | The single entry is genuine. It cannot prove that nearby entries were not removed |
+| Partial export | Entries present are genuine, but a partial export cannot prove nothing was left out |
+| The log does not start at seq 1 | The start is not tied to the genesis hash |
+
+Advanced: you can supply another public key (PEM).
+
+## Tips and common mistakes \{#tips}
+
+- Use the full export for a complete proof. A single receipt proves only one entry.
+- The default key is the public key published with the app (`/audit-public-key.pem`). Compare the fingerprint if you want to be sure.
+
+## Related security notes \{#security}
+
+<Callout type="security">
+Verification runs in your browser, so you do not have to trust our server to check the signatures.
+</Callout>
+
+## Try it \{#try-it}
+
+<TryItButton href="/verify" />
+
+## Related pages \{#related}
+
+- [Five-minute guide](/docs/en/judge/five-minute-guide)
+- [Criteria](/docs/en/judge/criteria)

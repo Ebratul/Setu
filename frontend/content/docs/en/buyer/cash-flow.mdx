@@ -1,0 +1,87 @@
+---
+title: Cash flow, alerts and what-if
+summary: See the next 90 days of cash, spot a shortfall, manage alerts, and test changes without saving them.
+section: buyer
+order: 60
+roles: [buyer]
+routes: ["/app/cashflow"]
+tryIt: "/app/cashflow"
+related: [buyer/financing, buyer/dashboard, buyer/fx, buyer/chat]
+updated: 2026-10-20
+---
+
+## What it is \{#what-it-is}
+
+The **Cash Flow** page forecasts your balance day by day for the next 90 days. It marks days when the balance falls below a minimum buffer, lists alerts, and has a **What-if planner**. The data is simulated.
+
+## Who uses it \{#who}
+
+<RoleBadge role="buyer" /> Buyers. Admins and judges first choose a business. Judges cannot change alerts.
+
+## When to use it \{#when}
+
+Before you fund or release a payment, and when the dashboard shows a cash shortfall alert.
+
+## Step by step \{#how-to}
+
+<Steps>
+<Step title="Read the summary">
+A banner says **First shortfall** with amount and date, or **No shortfall in the next 90 days**. Four cards show **Opening balance**, **Lowest balance**, **Total inflow** and **Total outflow**. The chart shows the running balance. **Show weekly table** gives week-by-week numbers.
+
+<Screenshot name="buyer/cashflow-summary" route="/app/cashflow" as="buyer" alt="Cash flow page with a shortfall banner, four summary cards and a running balance chart." caption="Banner, summary cards and the 90-day chart." />
+</Step>
+<Step title="Use the calendar">
+Each row is a week. Click a day to see **Details for** that date: opening and closing balance and each payment or receipt with its type and direction (In or Out). Days under the buffer are marked **Below the minimum buffer**.
+
+<Screenshot name="buyer/cashflow-calendar" route="/app/cashflow" as="buyer" alt="Calendar of weeks and days with closing balances, with a details panel listing the payments of a selected day." caption="The calendar and the day details." />
+</Step>
+<Step title="Try the What-if planner">
+You can **Move a payment** to a new date, **Add a loan inflow** (amount, arrival date, optional repayment), or tick items under **Switch items off**. A badge says **What-if - not saved**. Chart, calendar and **Scenario alerts** change. Click **Reset to saved forecast** to go back.
+
+<Screenshot name="buyer/cashflow-whatif" route="/app/cashflow" as="buyer" alt="What-if planner with move a payment, add a loan and switch items off sections and a What-if not saved badge." caption="The What-if planner. Nothing is saved." />
+</Step>
+<Step title="Manage alerts">
+Under **Alerts**, filter by **Type**, **Severity** and **Status**. Use **Acknowledge** (you saw it) or **Resolve** on an alert. Some alerts have an action link.
+
+<Screenshot name="buyer/cashflow-alerts" route="/app/cashflow" as="buyer" alt="Alerts list with type, severity and status filters and Acknowledge and Resolve buttons." caption="Filtering and handling alerts." />
+</Step>
+</Steps>
+
+## What the results mean \{#results}
+
+| Alert type | Meaning |
+|---|---|
+| Cash shortfall | The balance drops below the buffer on a date. Critical if 7 days or less away, otherwise Warning. |
+| Deadline | An unfunded milestone, customs duty, bill of entry or loan instalment is near. |
+| FX opportunity | A cheaper day to convert is forecast. See [FX](/docs/en/buyer/fx). |
+| Business check | A supplier check needs attention. |
+| Fraud risk | A suspicious request was found. |
+| Notice | Information only. |
+
+Severity is **Critical**, **Warning** or **Info**. Status is **Open**, **Acknowledged** or **Resolved**. Alerts also resolve themselves when the condition goes away.
+
+Inflows and outflows come from your recorded items, unfunded milestones and deal costs. The balance on a day is: opening balance plus inflows minus outflows.
+
+## Tips and common mistakes \{#tips}
+
+- Nothing in the What-if planner changes real data. To act on a gap, go to [Financing](/docs/en/buyer/financing).
+- The loan amount is prefilled with the amount that keeps you above the buffer.
+- **Resolve** only closes the alert item. It does not remove a shortfall. Fix the cause.
+{/* REVIEW: The buffer (minimum balance) defaults to 0 in the formulas doc. The page shows a Minimum buffer legend but offers no field to change it. Confirm for the demo data. */}
+
+## Related security notes \{#security}
+
+<Callout type="security">
+Forecasts and alerts are calculated by code from stored data. The AI assistant only explains them. A fraud-risk alert never executes anything on its own.
+</Callout>
+
+## Try it \{#try-it}
+
+<TryItButton href="/app/cashflow" />
+
+## Related pages \{#related}
+
+- [Financing](/docs/en/buyer/financing)
+- [Dashboard](/docs/en/buyer/dashboard)
+- [FX](/docs/en/buyer/fx)
+- [Ask the assistant](/docs/en/buyer/chat)

@@ -1,0 +1,16 @@
+{
+  "version": 1,
+  "split": "dev",
+  "synthetic": true,
+  "generatedAt": "2026-10-19T19:52:01+00:00",
+  "metrics": {
+    "attackSuccessOff": { "value": 1, "total": 13, "unit": "percent", "source": "injection_dev.json" },
+    "attackSuccessOn": { "value": 0, "total": 13, "unit": "percent", "source": "injection_dev.json" },
+    "detectionRecall": { "value": 1, "total": 13, "unit": "percent", "source": "injection_dev.json" },
+    "falsePositives": { "value": 0, "total": 300, "unit": "count", "source": "injection_dev.json" },
+    "moneyMoved": { "value": 0, "total": 13, "unit": "count", "source": "injection_dev.json" },
+    "leakedIdentifiers": { "value": 1, "total": 600, "unit": "count", "source": "docs/PROGRESS.md 5.3 (python -m app.privacy.eval dev)" },
+    "fraudRecall": null,
+    "autoVsEscalated": null
+  }
+}

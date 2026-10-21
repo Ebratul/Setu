@@ -36,7 +36,7 @@ Don't put per-phase notes in CLAUDE.md, and don't inline rule files into CLAUDE.
   (test runs, reviews, eval runs, doc writing), or (c) can run in parallel. The subagent returns a ≤15–40 line report;
   the main context stays small. Typical: `agent-engineer` builds a module while main session plans; `security-reviewer`
   after security diffs; `eval-runner` for metrics; `docs-writer` for Stage 9.
-- **Large files stay out of context**: generated data (`services/agent/synth/out/`, `services/agent/eval/data/`),
+- **Large files stay out of context**: generated data (`backend/synth/out/`, `backend/eval/data/`),
   `schema.gen.ts`, lockfiles, PDFs, `.next/`, `node_modules/`. Inspect with `ls | head`, `wc -l`, `jq 'length'`,
   or summary CLIs (`python -m synth.cli summary`). Never `cat` a PDF or a big JSONL.
 
@@ -58,7 +58,7 @@ JSON can't hold comments, so they are explained here. Scripts live in `.claude/h
 | Event / matcher | Script | What it does | Blocking? |
 |---|---|---|---|
 | `PreToolUse` · `Edit\|Write\|MultiEdit\|NotebookEdit\|Bash` | `guard-secrets.sh` | Blocks writes to `.env`, `.env.*` (except `.env.example`/`.env.sample`), `*.pem`, `*.key`, SSH keys, anything under `keys/`. Blocks Bash that reads `.env` files (`cat/grep/source …`), dumps the environment (`env`, `printenv`, `export -p`, bare `set`), echoes `$…KEY/SECRET/TOKEN/PASSWORD/DATABASE_URL…` variables, or prints private keys. | Yes — exit 2, reason shown to Claude |
-| `PostToolUse` · `Edit\|Write\|MultiEdit` | `format.sh` | Python in `services/agent/` → `ruff format` + `ruff check --fix` via `uv run`; TS/TSX/JS/CSS/JSON/MD in `apps/web/` → `prettier --write`, and `eslint --fix` for TS/TSX. No-ops until Phase 0.1 installs the tools. 20–30 s timeouts. | No — always exit 0 |
+| `PostToolUse` · `Edit\|Write\|MultiEdit` | `format.sh` | Python in `backend/` → `ruff format` + `ruff check --fix` via `uv run`; TS/TSX/JS/CSS/JSON/MD in `frontend/` → `prettier --write`, and `eslint --fix` for TS/TSX. No-ops until Phase 0.1 installs the tools. 20–30 s timeouts. | No — always exit 0 |
 | `Stop` | `progress-reminder.sh` | If `git status` shows changes under `apps/`, `services/`, `docs/`, `.claude/` or `CLAUDE.md` but `docs/PROGRESS.md` is unchanged, shows a reminder to run `phase-handoff`. No-op outside a git repo. | No — `systemMessage` only |
 
 Permissions in the same file also **deny** `Read`/`Edit` on `.env`, `.env.local`, `.env.production` (any depth) and `keys/**`,
@@ -72,5 +72,5 @@ Review or disable hooks with `/hooks`. If a hook misbehaves, run it by hand:
 - Main session follows the critical path; a second session in a git worktree takes a phase marked ∥ in PLAN.md whose
   dependencies are merged. Never run two sessions on the same phase or on phases that edit the same files.
 - Each worktree has its own branch; merge to `main` after `phase-handoff`; the next session pulls `main` first.
-- Shared files that can conflict: `docs/PROGRESS.md` (append-only — keep both rows), `apps/web/src/i18n/*.json`
+- Shared files that can conflict: `docs/PROGRESS.md` (append-only — keep both rows), `frontend/src/i18n/*.json`
   (append keys), `app/tools/registry.py`, Alembic migrations (only one phase at a time creates migrations — see PLAN.md).

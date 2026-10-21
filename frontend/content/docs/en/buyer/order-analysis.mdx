@@ -1,0 +1,102 @@
+---
+title: Order analysis
+summary: See the landed cost, margin and break-even price of one import order.
+section: buyer
+order: 80
+roles: [buyer]
+routes: ["/app/orders", "/app/orders/[id]", "/app/orders/[id]/analysis"]
+tryIt: "/app/deals"
+related: [buyer/landed-cost, buyer/deal-detail, buyer/financing, security/permission-tiers]
+updated: 2026-10-20
+---
+
+## What it is \{#what-it-is}
+Order Analysis shows what one order really costs to land in Bangladesh. It adds freight, insurance, duty and bank charges to the goods value. It then shows the cost per unit, your margin and the price at which you break even.
+
+**Landed cost** means the full cost of goods once they reach your door, not just the invoice value.
+
+The numbers come from Setu's calculation code, not from the AI. The chat assistant only explains them. All data is simulated.
+
+{/* REVIEW: /app/orders and /app/orders/[id] are redirects to /app/deals and /app/deals/[id]; only /app/orders/[id]/analysis renders its own page. */}
+
+## Who uses it \{#who}
+<RoleBadge role="buyer" />
+
+Buyers see their own orders. Admins and judges can read any order.
+
+## When to use it \{#when}
+- Before you agree a price with your customers.
+- When an order's costs change and you want the new margin.
+- When you want a quick answer to "Am I still making money on this order?".
+
+## Step by step \{#how-to}
+<Steps>
+<Step title="Open your deals">
+Choose **Deals** in the left menu. The old addresses `/app/orders` and `/app/orders/<reference>` send you to the same Deals pages.
+
+<Screenshot name="buyer/order-analysis-1" route="/app/deals" as="buyer" alt="The Deals list with one row per import order" caption="Pick the order you want to analyse." />
+</Step>
+<Step title="Open the Analysis tab">
+Open a deal and select the **Analysis** tab. Press **View analysis →**. A **Financing →** button sits next to it and opens the financing page for the same deal.
+
+<Screenshot name="buyer/order-analysis-2" route="/app/deals/SETU-2026-0001" as="buyer" click="[role=tab]:has-text('Analysis')" alt="The Analysis tab of a deal with the View analysis button" caption="The Analysis tab links to the full analysis." />
+</Step>
+<Step title="Read the four cards">
+The page title is **Order Analysis** followed by the order reference. Use the currency switch (USD, BDT or CNY) to change the display currency. The cards are **Landed cost**, **Cost per unit**, **Expected revenue** and **Gross margin**.
+
+<Screenshot name="buyer/order-analysis-3" route="/app/orders/SETU-2026-0001/analysis" as="buyer" alt="Order Analysis page with four cards for landed cost, cost per unit, expected revenue and gross margin" caption="Four cards summarise the order." />
+</Step>
+<Step title="Check the cost breakdown">
+The **Cost breakdown** section has a stacked bar and a table. Each row is a cost line with its amount and its **Share** of the landed cost.
+
+<Screenshot name="buyer/order-analysis-4" route="/app/orders/SETU-2026-0001/analysis" as="buyer" alt="Cost breakdown bar and table listing goods, freight, insurance, duty and bank charges" caption="See which cost line is largest." />
+</Step>
+<Step title="Try a target margin">
+In **Break-even and target price**, type a **Target margin (%)** below 100, for example 20. Setu shows "To earn a 20% margin sell at ..." with the price per unit.
+
+<Screenshot name="buyer/order-analysis-5" route="/app/orders/SETU-2026-0001/analysis" as="buyer" alt="Break-even and target price panel with a target margin field and the resulting price per unit" caption="Enter a target margin to see the selling price you need." />
+</Step>
+<Step title="Open Why these numbers?">
+**Why these numbers?** lists plain sentences about the largest extra cost, the margin and the break-even price. Open **Facts used** to see the exact figures behind the sentences.
+
+<Screenshot name="buyer/order-analysis-6" route="/app/orders/SETU-2026-0001/analysis" as="buyer" alt="Why these numbers panel with explanation sentences and a Facts used section" caption="Every sentence is built from the calculated figures." />
+</Step>
+</Steps>
+
+## What the results mean \{#results}
+| Item | Meaning |
+|---|---|
+| Landed cost | Goods value plus all extra cost lines. |
+| Cost per unit | Landed cost divided by quantity. |
+| Expected revenue | Quantity times your selling price. Shows a dash if no price is set. |
+| Gross margin | Profit divided by revenue. It comes with a band badge. |
+| Break-even selling price per unit | The price at which profit is zero. |
+
+Margin bands use the margin rounded to two decimals:
+
+| Band | Margin |
+|---|---|
+| Healthy | 15% or more |
+| Thin | 8% up to 15% |
+| Low | Below 8% |
+
+The line "Simulated data. Exchange rates as of ..." lists the mock rates used for conversion.
+
+## Tips and common mistakes \{#tips}
+- A dash in **Expected revenue** or **Gross margin** means no selling price is set for the order.
+- The target margin must be a number below 100 with at most 4 decimals.
+- A band is never shown by colour alone. It always has an icon and a word.
+- To test other numbers without changing the order, use the [Landed Cost Calculator](/docs/en/buyer/landed-cost).
+
+## Related security notes \{#security}
+<Callout type="security" title="Code calculates, AI explains">
+Costs, margins and bands are computed by deterministic code with exact decimal money. The AI never produces a number. See [Permission tiers](/docs/en/security/permission-tiers).
+</Callout>
+
+## Try it \{#try-it}
+<TryItButton href="/app/deals" />
+
+## Related pages \{#related}
+- [Landed Cost Calculator, monthly summary and supplier scorecard](/docs/en/buyer/landed-cost)
+- [Deal detail](/docs/en/buyer/deal-detail)
+- [Financing](/docs/en/buyer/financing)

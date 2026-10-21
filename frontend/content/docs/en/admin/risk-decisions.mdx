@@ -1,0 +1,80 @@
+---
+title: Risk decisions and policy
+summary: See every payment decision made by the risk engine and the policy file it follows.
+section: admin
+order: 40
+roles: [admin]
+routes: ["/app/admin/risk"]
+tryIt: "/app/admin/risk"
+related: [security/permission-tiers, buyer/approvals, judge/five-minute-guide]
+updated: 2026-10-20
+---
+
+## What it is \{#what-it-is}
+
+The **Risk engine** page lists every payment decision taken by rules, plus the thresholds and rules themselves. The decisions come from deterministic code. The AI does not decide them. All money is simulated.
+
+## Who uses it \{#who}
+
+<RoleBadge role="admin" /> Admins and judges read this page. It is view-only.
+
+## When to use it \{#when}
+
+- To see how many actions were auto-released, sent for approval or blocked.
+- To find out why one action got a certain tier.
+- To check the limits (for example the Tier 1 maximum amount).
+
+## Step by step \{#how-to}
+
+<Steps>
+<Step title="Open Risk engine">
+In the sidebar choose **Risk engine**. Four counters show **Auto-released**, **One-tap approvals**, **OTP-required** and **Blocked**.
+<Screenshot name="admin/risk-counters" route="/app/admin/risk" as="admin" alt="Four counter cards: Auto-released, One-tap approvals, OTP-required and Blocked." caption="Decision counters." />
+</Step>
+<Step title="Read Decisions per day">
+The stacked chart shows decisions per day. Press **Show chart data as a table** for the numbers.
+<Screenshot name="admin/risk-chart" route="/app/admin/risk" as="admin" alt="A stacked bar chart titled Decisions per day." caption="Decisions per day." />
+</Step>
+<Step title="Check Recent decisions">
+Each row shows When, Deal, Action, Tier, Decision, Reasons and Origin. Press **Show rule trace** to see which rules fired.
+<Screenshot name="admin/risk-recent" route="/app/admin/risk" as="admin" alt="The Recent decisions table with one row expanded to show its rule trace." caption="A decision with its rule trace." />
+</Step>
+<Step title="Read the Risk policy">
+Lower on the page, **Risk policy** lists thresholds and rules in groups: Block, Tier 3 and Tier 2. Press **Show raw config/risk.yaml** to see the source file.
+<Screenshot name="admin/risk-policy" route="/app/admin/risk" as="admin" alt="The Risk policy section with thresholds and rule groups." caption="The policy as loaded from the server." />
+</Step>
+</Steps>
+
+## What the results mean \{#results}
+
+| Item | Meaning |
+|---|---|
+| Tier 1 | Released automatically. |
+| Tier 2 (One-tap approvals) | A person must tap to approve. <TierBadge tier={2} /> |
+| Tier 3 (OTP-required) | OTP and a 10-minute cooling-off. <TierBadge tier={3} /> |
+| Blocked | Nothing can proceed (for example a sanctions hit). |
+| Allowed / Approval required / Blocked | The decision column. |
+| Origin | Where the action started (for example a user screen or the agent). |
+
+Thresholds shown: Tier 1 maximum amount, fraud score above (Tier 3), new beneficiary window in days, and cooling-off in minutes.
+
+## Tips and common mistakes \{#tips}
+
+- The policy table is read-only. The policy is edited in the server file `backend/config/risk.yaml`, not in the web app.
+- The highest tier wins, and a Block beats every tier.
+- **Try the risk playground** opens `/demo/risk-playground`, a dry run that saves nothing.
+
+## Related security notes \{#security}
+
+<Callout type="security">
+Tiers are enforced in code. The AI agent can only propose actions. See [Permission tiers](/docs/en/security/permission-tiers).
+</Callout>
+
+## Try it \{#try-it}
+
+<TryItButton href="/app/admin/risk" />
+
+## Related pages \{#related}
+
+- [Permission tiers](/docs/en/security/permission-tiers)
+- [Approvals](/docs/en/buyer/approvals)

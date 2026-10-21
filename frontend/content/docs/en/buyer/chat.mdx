@@ -1,0 +1,94 @@
+---
+title: Chat assistant
+summary: Ask Setu in English or Bangla, read the answer cards and sources, and see what the AI saw.
+section: buyer
+order: 120
+roles: [buyer]
+routes: ["/app/chat"]
+tryIt: "/app/chat"
+related: [buyer/fx, buyer/landed-cost, buyer/approvals, security/permission-tiers, security/privacy-masking]
+updated: 2026-10-20
+---
+
+## What it is \{#what-it-is}
+**Ask Setu** is a chat assistant for your import business. It answers questions about cash flow, landed cost, financing, suppliers and documents. It also explains terms such as FOB.
+
+Setu does the maths in code. The AI only reads the results and explains them in plain language. It gives options, not licensed financial advice. All data is simulated.
+
+## Who uses it \{#who}
+<RoleBadge role="buyer" />
+
+## When to use it \{#when}
+- You want a quick answer without opening several pages.
+- You want a number explained in simple words.
+- You want to know what the AI saw and what was hidden from it.
+
+## Step by step \{#how-to}
+<Steps>
+<Step title="Open the chat">
+Choose **Chat** in the left menu for the full page. On any other page, press <Kbd>/</Kbd> or the **Ask Setu** button at the bottom right for a side panel. Use **Open full chat** in the panel to continue on the full page.
+
+<Screenshot name="buyer/chat-1" route="/app/chat" as="buyer" alt="Ask Setu chat page with the conversation list on the left and the message box at the bottom" caption="Full chat page with the Simulated badge." />
+</Step>
+<Step title="Pick a deal and ask">
+Under **About deal:** pick a deal or keep **No specific deal**. Choose one of the **Try asking** questions or type your own, then press **Send**. <Kbd>Enter</Kbd> sends and <Kbd>Shift</Kbd> + <Kbd>Enter</Kbd> adds a new line. A message can be up to 4000 characters. Use **Stop** to cancel a reply.
+
+<Screenshot name="buyer/chat-2" route="/app/chat" as="buyer" alt="Suggested questions such as Will I run short of cash this month" caption="Suggested questions help you start." />
+</Step>
+<Step title="Choose English or Bangla">
+The reply language follows the language toggle at the top (**EN** or **বাংলা**). Switch it before you ask.
+
+<Screenshot name="buyer/chat-3" route="/app/chat" as="buyer" alt="Top bar language toggle set to Bangla and a chat reply in Bangla" caption="The toggle sets the reply language." />
+{/* REVIEW: the frontend sends language bn only when the UI is Bangla, else en (also for Chinese). The backend can detect script when no language is sent. */}
+</Step>
+<Step title="Read the cards">
+Many answers include a card: **Landed cost**, **Cash-flow forecast**, **Alerts**, **Financing options**, **USD vs CNY payment**, **Summary for a month**, **Supplier scorecard**, **Supplier check**, **Document check** or **Registry**. Cards have buttons such as **Open analysis**, **Open cash flow** or **Open supplier profile**. A **Why:** line gives the reason in short.
+
+<Screenshot name="buyer/chat-4" route="/app/chat" as="buyer" alt="Assistant answer with a landed cost card and an Open analysis button" caption="Cards show the calculated numbers." />
+</Step>
+<Step title="Check the sources">
+When Setu answers from its knowledge base, it marks facts like [S1]. Press a marker to jump to the **Sources** list. Each source shows the title, the section, the reference, and "Last reviewed" date. A note says: "Simplified summaries - verify with the official source."
+
+<Screenshot name="buyer/chat-5" route="/app/chat" as="buyer" alt="Answer with citation markers and a Sources list below it" caption="Press a marker to see the source." />
+</Step>
+<Step title="Open What did the AI see?">
+Under a finished answer, press the eye button (**Show what the AI saw**). The window **What did the AI see?** has two sides. **What you see** shows your text. **What was sent to the AI** shows the same text with names, account numbers and similar details swapped for tokens.
+
+<Screenshot name="buyer/chat-6" route="/app/chat" as="buyer" click="[data-testid=xray-button]" alt="What did the AI see window comparing the original text with the masked text" caption="Highlighted values are replaced before the AI sees them." />
+</Step>
+<Step title="Manage conversations">
+The left list has **New chat**, **Search chats**, rename and delete. Delete asks you to confirm. Use the thumbs up or down to rate an answer. **Copy** copies the text.
+
+<Screenshot name="buyer/chat-7" route="/app/chat" as="buyer" alt="Conversation list with search box and rename and delete buttons" caption="Conversations are saved so you can return to them." />
+</Step>
+</Steps>
+
+## What the results mean \{#results}
+- **Privacy counter**: "Identifiers protected this session: N" and "Leaked: N". Leaked should stay 0.
+- **Security check** chip under an answer: lists what was checked (documents, knowledge base, party checks, registry). It also says when Setu ignored an instruction found in a document, email or tool result, or when a deal was flagged for extra verification (Tier 3).
+- **Simulated data** badge: the answer includes simulated figures.
+- "Some passages were withheld because they contained instruction-like text": a source was removed because it tried to give orders.
+- Stop messages: "This conversation reached its size limit", "Setu stopped after using too many tools for one question", "The assistant could not finish this answer".
+- Steps like "Analysing the order costs..." show which tools Setu is using while it works.
+
+## Tips and common mistakes \{#tips}
+- Select a deal first when you ask about one order. On a deal or financing page the drawer picks it for you.
+- Ask one thing at a time.
+- Setu only talks about your import business. Other topics get a polite refusal.
+- A "pay" or "release" request does not move money. At most Setu sends a request to **Approvals**.
+
+## Related security notes \{#security}
+<Callout type="security" title="The AI can only read and propose">
+The assistant can use Tier 0 and Tier 1 tools only. For Tier 2 and Tier 3 actions it can only create a pending request. A person must approve it. See [Permission tiers](/docs/en/security/permission-tiers).
+</Callout>
+<Callout type="security" title="Masked before it leaves Setu">
+Personal and account details are replaced by tokens before any model call, and put back afterwards by code. See [Privacy gateway](/docs/en/security/privacy-masking).
+</Callout>
+
+## Try it \{#try-it}
+<TryItButton href="/app/chat" />
+
+## Related pages \{#related}
+- [USD vs CNY and rate lock](/docs/en/buyer/fx)
+- [Landed cost](/docs/en/buyer/landed-cost)
+- [Approvals](/docs/en/buyer/approvals)

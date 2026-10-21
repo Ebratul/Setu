@@ -1,15 +1,16 @@
 ---
 paths:
-  - "services/agent/app/security/**"
-  - "services/agent/app/tools/**"
-  - "services/agent/app/graph/**"
-  - "services/agent/app/llm/**"
-  - "services/agent/app/domain/escrow*"
-  - "services/agent/app/forensics/**"
-  - "services/agent/app/api/approvals*"
-  - "services/agent/app/api/audit*"
-  - "apps/web/src/app/(app)/approvals/**"
-  - "apps/web/src/components/approvals/**"
+  - "backend/app/security/**"
+  - "backend/app/tools/**"
+  - "backend/app/graph/**"
+  - "backend/app/llm/**"
+  - "backend/app/domain/escrow*"
+  - "backend/app/forensics/**"
+  - "backend/app/api/approvals*"
+  - "backend/app/api/audit*"
+  - "backend/app/audit/**"
+  - "frontend/src/app/(app)/approvals/**"
+  - "frontend/src/components/approvals/**"
 ---
 
 # Security rules
@@ -50,11 +51,13 @@ paths:
 - Deterministic code always works on the **unmasked** values; only the LLM sees masked text. Unmask only the final user-facing answer.
 - Must be called inside `app/llm/client.py`; a test asserts no raw PII reaches the (mocked) model.
 
-## 4. Audit log (SR-5) — `app/security/audit.py`
-- Entry: `{seq, ts, actor (user|llm|system), action, tier, params_hash, result, prev_hash, entry_hash, signature}`;
-  `entry_hash = sha256(canonical_json(entry_without_sig_and_hash) + prev_hash)`; `signature = Ed25519(entry_hash)`.
-- Append-only (no UPDATE/DELETE in code; DB role grants INSERT/SELECT only in prod if time allows).
-- `GET /audit/verify` re-walks the chain; `GET /audit/export.jsonl` for the submission evidence. Never store raw PII in entries.
+## 4. Audit log (SR-5) — `app/audit/` (full spec: `docs/audit.md`)
+- Entry body `{seq, ts, actor_type, actor_id, deal_id, action, tier, decision, payload}`; `payload_hash = sha256(canonical_json(body))`;
+  `entry_hash = sha256(prev_hash|payload_hash|seq|ts)`; `signature = Ed25519(entry_hash)`; seq 1 links to the genesis hash.
+- Write only through `app.audit.write_audit` (single ordered writer; payload is PII-redacted before signing). A DB trigger
+  rejects UPDATE/DELETE. No signing key = no row. Never put raw PII, secrets or document text in a payload: ids and hashes.
+- `GET /audit/verify`, `GET /audit/export` (JSONL), `python -m app.audit.verify --file … --pubkey docs/submission/audit-public-key.pem`,
+  public `/verify` page (browser-side). The tamper demo works on an in-memory copy only.
 
 ## 5. Secrets & data (SR-7, SR-8)
 - Keys from env only: `ANTHROPIC_API_KEY`, `LANGSMITH_API_KEY`, `DATABASE_URL`, `AUDIT_SIGNING_KEY` (base64 Ed25519 seed),

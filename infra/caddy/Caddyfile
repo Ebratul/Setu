@@ -1,0 +1,33 @@
+# Caddy terminates TLS (automatic Let's Encrypt certificates) and fronts the web app and the agent.
+# SITE_ADDRESS is the public hostname, e.g. setu.example.com (DNS A/AAAA record must point here).
+# ACME_EMAIL is where certificate expiry notices go.
+{
+	email {$ACME_EMAIL}
+}
+
+{$SITE_ADDRESS} {
+	encode zstd gzip
+
+	# The agent API lives under /api (prefix stripped), exactly like next.config.ts and vercel.json.
+	handle_path /api/* {
+		reverse_proxy agent:8000 {
+			health_uri /health
+			health_interval 30s
+		}
+	}
+
+	handle {
+		reverse_proxy web:3000
+	}
+
+	header {
+		-Server
+		Strict-Transport-Security "max-age=63072000; includeSubDomains"
+		X-Content-Type-Options nosniff
+	}
+
+	log {
+		output stdout
+		format json
+	}
+}

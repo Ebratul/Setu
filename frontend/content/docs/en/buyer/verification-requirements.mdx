@@ -1,0 +1,74 @@
+---
+title: Buyer verification requirements
+summary: The details and documents a Bangladeshi importer must provide, and the format of each field.
+section: buyer
+order: 5
+roles: [buyer]
+routes: []
+tryIt: "/onboarding"
+related: [getting-started/creating-your-account, security/why-we-ask, supplier/verification-requirements]
+updated: 2026-10-21
+---
+
+## What it is \{#what-it-is}
+
+Before a buyer can create real orders or move simulated money, a reviewer verifies the company. This page lists exactly what the **Business** and **Documents** steps ask for.
+
+## Who uses it \{#who}
+
+<RoleBadge role="buyer" /> Bangladeshi importers setting up their own account.
+
+## When to use it \{#when}
+
+Keep this list at hand before you start `/onboarding`, or when a reviewer asks for a correction.
+
+## Step by step \{#how-to}
+
+<Steps>
+<Step title="Have your documents ready">
+You need a **Trade licence** and an **Import Registration Certificate (IRC)**. A **TIN certificate** and other supporting files are optional. Each file is a PDF, PNG or JPG, up to 4 MB.
+<Screenshot name="buyer/verification-documents" route="/onboarding?step=documents" as="buyer" alt="The Documents step listing Trade licence and IRC as required." caption="Required and optional documents." />
+</Step>
+<Step title="Fill in the company fields">
+Enter Legal company name, Trade name (optional), Trade licence number, Issuing authority, Licence expiry date, IRC number and TIN.
+<Screenshot name="buyer/verification-company" route="/onboarding?step=business" as="buyer" alt="The Business step company group with licence, IRC and TIN fields." caption="Company details." />
+</Step>
+<Step title="Add address and import profile">
+Enter Division, District, Upazila and Street address, then Business type (Manufacturer or Trader), Main goods you import and Monthly import volume (USD range).
+<Screenshot name="buyer/verification-address" route="/onboarding?step=business" as="buyer" alt="The Business step address and import profile groups." caption="Address and import profile." />
+</Step>
+</Steps>
+
+## What the results mean \{#results}
+
+| Field | Format Setu checks |
+|---|---|
+| Mobile number | `+8801` followed by 3 to 9 and eight digits. Local `01712345678` is accepted and converted. |
+| Trade licence number | Letters, digits, slash, hyphen or dot, as printed on the licence. |
+| IRC number | Letters, digits, slash or hyphen. |
+| TIN | 9 to 13 digits. |
+| Licence expiry date | A future date in YYYY-MM-DD. |
+
+The server applies the same rules, so a field marked wrong in red must be corrected before you can continue. Some formats can be tuned by the deployment, so a number that looks right may still be refused: check it against the licence.
+
+## Tips and common mistakes \{#tips}
+
+- Use the legal name exactly as on the trade licence.
+- An expired licence is refused. Renew it first.
+- If the same licence is already registered, your application is not rejected automatically. It goes to a manual review.
+- Uploading the same file under another account is flagged.
+
+## Related security notes \{#security}
+
+<Callout type="security">
+Numbers are encrypted at rest and masked everywhere. See [Why Setu asks for these details](/docs/en/security/why-we-ask).
+</Callout>
+
+## Try it \{#try-it}
+
+<TryItButton href="/onboarding" />
+
+## Related pages \{#related}
+
+- [Creating your account](/docs/en/getting-started/creating-your-account)
+- [Supplier verification requirements](/docs/en/supplier/verification-requirements)

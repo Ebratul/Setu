@@ -1,0 +1,73 @@
+---
+title: Your company team
+summary: See who can sign in for your company, add colleagues and remove people.
+section: supplier
+order: 70
+roles: [supplier]
+routes: ["/supplier/team"]
+tryIt: "/supplier/team"
+related: [supplier/overview, security/permission-tiers]
+updated: 2026-10-20
+---
+
+## What it is \{#what-it-is}
+
+The **Team** page lists the people who can sign in for your company. Owners can add or remove members.
+
+## Who uses it \{#who}
+
+<RoleBadge role="supplier" /> Owners manage the team. Finance and Viewer members can only look.
+
+## When to use it \{#when}
+
+When a colleague joins or leaves, or you want to check who has access.
+
+## Step by step \{#how-to}
+
+<Steps>
+<Step title="Open Team">
+Click **Team** (团队) at the top of the portal.
+<Screenshot name="supplier/team-list" route="/supplier/team" as="supplier" alt="Team page with a table of members, roles and sign-in status" caption="Members table: Member, Role, Signed in once." />
+</Step>
+<Step title="Invite a member">
+Under **Invite a member** enter **Email address**, **Name** and **Role**, then press **Add member**. No email is sent. Ask the person to register with this exact email address. The account links when they first sign in with it verified.
+<Screenshot name="supplier/team-invite" route="/supplier/team" as="supplier" alt="Invite a member form with email, name and role" caption="Add a member." />
+</Step>
+<Step title="Remove a member">
+Press **Remove** in the member's row and confirm "Remove this member?". They lose access to your company account.
+<Screenshot name="supplier/team-remove" route="/supplier/team" as="supplier" alt="Remove this member confirmation dialog" caption="Confirm removal." />
+</Step>
+</Steps>
+
+## What the results mean \{#results}
+
+| Role | Can do |
+|---|---|
+| Owner | Manage the team and everything else. |
+| Finance | Work with deals and payments. |
+| Viewer | Only look, change nothing. |
+
+"Signed in" means the person has signed in at least once. "Not signed in yet" means they have not registered yet.
+
+## Tips and common mistakes \{#tips}
+
+- A company needs at least one owner. You cannot remove the last owner.
+- An email that already belongs to a Setu account is refused.
+- Your company must be approved before you can add members.
+- Remove a person as soon as they leave your company.
+
+## Related security notes \{#security}
+
+<Callout type="security">
+Only people on this list can act for your company. Keep the list short and up to date. See [permission tiers](/docs/en/security/permission-tiers).
+</Callout>
+
+{/* REVIEW: the Remove button is hidden for non-owners by the page; not verified that the server also enforces owner-only. */}
+
+## Try it \{#try-it}
+
+<TryItButton href="/supplier/team" />
+
+## Related pages \{#related}
+
+- [Portal overview](/docs/en/supplier/overview)

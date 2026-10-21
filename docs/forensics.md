@@ -4,7 +4,7 @@ Simulated data only. A document goes in, a verdict (status, 0-100 score, reason 
 milestone evidence status follows. Every number and verdict is deterministic code; a model may only read text that the parser
 could not read, never decides anything, and never sees hidden text or metadata.
 
-Pure logic (no DB, no network, no LLM): `services/agent/app/forensics/`. Orchestration: `app/services/documents/`.
+Pure logic (no DB, no network, no LLM): `backend/app/forensics/`. Orchestration: `app/services/documents/`.
 API: `app/api/documents.py`, `app/schemas/documents.py`. Agent tool: `app/agent/tools/documents.py`.
 No migration: the existing `documents` and `forensic_findings` tables carry everything (verdict and extraction live in
 `documents.extracted_json["_forensics"]`; the extracted fields are the other keys, so `extracted_json["seller"]` still feeds KYB).
@@ -17,7 +17,7 @@ upload -> text & layout -> fields -> checks -> score -> evidence -> alert / audi
 
 | Step | Module | What it does |
 |---|---|---|
-| 1 Upload | `services/documents/upload.py`, `storage.py` | PDF (`%PDF-` at offset 0), PNG, JPG only, **validated by magic bytes**; max `DOCUMENT_MAX_BYTES` (10 MB): an ASGI middleware answers **413 before the multipart parser spools anything** (Content-Length check, plus a byte count for chunked bodies), and the endpoint re-checks while reading; images are capped at 20 Mpx; name sanitised (basename, ASCII-safe, 120 chars, extension from the sniffed type); stored under `storage/deals/<deal id>/<sha256>.<ext>` (git-ignored, outside any public folder; the name never comes from the user); sha256; Document row `UPLOADED` / check `PENDING`; audit `DOC_UPLOADED`. An `S3Storage` stub holds the production interface. |
+| 1 Upload | `services/documents/upload.py`, `storage.py` | PDF (`%PDF-` at offset 0), PNG, JPG only, **validated by magic bytes**; max `DOCUMENT_MAX_BYTES` (10 MB): an ASGI middleware answers **413 before the multipart parser spools anything** (Content-Length check, plus a byte count for chunked bodies), and the endpoint re-checks while reading; images are capped at 20 Mpx; name sanitised (basename, ASCII-safe, 120 chars, extension from the sniffed type); stored under `storage/deals/<deal id>/<sha256>.<ext>` (git-ignored, outside any public folder; the name never comes from the user); sha256; Document row `UPLOADED` / check `PENDING`; audit `DOC_UPLOADED`. `CloudinaryStorage` (private raw assets, signed reads) is the production backend; set `STORAGE_BACKEND=cloudinary`. |
 | 2 Text | `forensics/pdf_text.py`, `services/documents/extract_text.py` | pdfplumber text layer with per-character colour and size, **parsed in a child process** (`forensics/sandbox.py`: `RLIMIT_AS` `FORENSICS_PARSE_MEMORY_MB` 1024, CPU limit, wall-clock `FORENSICS_PARSE_TIMEOUT_SECONDS` 20, minimal environment without keys or DB URL; a killed parse becomes `UNREADABLE_FILE`). Hidden span, **hard** reasons (HIDDEN_TEXT FAIL): near-white fill (all RGB channels >= 0.9; gray, RGB and CMYK handled; not when drawn on a dark filled box), size <= 2 pt, outside the page box, or **text render mode 3** (invisible; read from the content stream). **Soft** reasons (HIDDEN_TEXT WARN, review): text **covered by a later opaque rectangle or image**, and **very low contrast** against the box under it (dark on dark; ratio < 1.5). Every page up to 100 is scanned; the page that crosses the 200k-character cap is finished, then reading stops and the file is marked truncated. Hidden spans are **reported, never used as content**. Metadata (Producer, Creator, Title, Subject, Keywords, Author, dates) is cleaned, capped at 500 chars and scanned (every key, Producer and Creator included), never content. Images have no text layer: the photo check runs. |
 | 3 Fields | `forensics/parse_fields.py`, `services/documents/extract_fields.py` | Deterministic label parser (below), then an optional model step only for **required fields the parser could not fill**. Every value is validated in code (`forensics/validate.py`): bad type, non-positive quantity, unknown currency, out-of-range date -> `null` + `FIELD_INVALID:<name>` warning. |
 | 4 Checks | `forensics/checks.py`, `services/documents/checks.py` | 17 deterministic checks, one `forensic_findings` row per (document, check code). |
@@ -218,7 +218,7 @@ is this invoice ok" (EN and BN) to the tool.
 
 ## Dev-split evaluation (tune on dev only)
 
-`uv run --directory services/agent python -m app.forensics.eval_dev [--fail-only]` (needs `data/generated`; test
+`uv run --directory backend python -m app.forensics.eval_dev [--fail-only]` (needs `data/generated`; test
 `tests/forensics/test_dev_split.py` is skipped without it). It scores only the dev split, builds each pack's deal context from
 `deal.json` instead of the DB (the check functions are pure over fields and a `DealContext`), and never scores or prints test-split
 metrics. Because the duplicate registry is global, the commercial invoice of every pack that another pack copies is registered

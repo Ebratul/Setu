@@ -1,0 +1,84 @@
+---
+title: Landed cost calculator, monthly summary and supplier scorecard
+summary: Run what-if landed cost numbers, review a month of purchases and compare your suppliers.
+section: buyer
+order: 85
+roles: [buyer]
+routes: ["/app/analysis"]
+tryIt: "/app/analysis"
+related: [buyer/order-analysis, buyer/suppliers-kyb, buyer/cash-flow]
+updated: 2026-10-20
+---
+
+## What it is \{#what-it-is}
+The **Analysis** page (title: "Business financial analysis") has three tabs. **Landed Cost Calculator** is a what-if tool. **Monthly Summary** reviews one month of purchases. **Supplier Scorecard** compares your suppliers.
+
+The selected tab is kept in the address (`?tab=calculator`, `monthly` or `suppliers`), so you can share a link to a tab.
+
+## Who uses it \{#who}
+<RoleBadge role="buyer" />
+
+Admins and judges can open it too. They must first pick a business in the Monthly Summary tab.
+
+## When to use it \{#when}
+- To price a new order before you place it.
+- At month end, to see purchases, landed cost and average margin.
+- Before you choose a supplier for a repeat order.
+
+## Step by step \{#how-to}
+<Steps>
+<Step title="Open Analysis">
+Choose **Analysis** in the left menu. The calculator tab opens first.
+
+<Screenshot name="buyer/landed-cost-1" route="/app/analysis" as="buyer" alt="Analysis page with three tabs and the what-if landed cost form" caption="The calculator starts with sample values." />
+</Step>
+<Step title="Fill the what-if form">
+The form is called **What-if landed cost**. Set **Input currency** (USD, BDT or CNY), **Goods value**, **Quantity**, **Unit** and an optional **Selling price per unit**. Under **Extra cost lines** you can change each line, press **Remove**, or press **+ Add cost line**. Line types are Freight, Insurance, Duty & taxes, Bank charges and Other. You can have up to 20 lines.
+
+Results update as you type. **Nothing is saved.**
+
+<Screenshot name="buyer/landed-cost-2" route="/app/analysis" as="buyer" alt="What-if form with goods value, quantity, unit, selling price and extra cost lines" caption="Change any value and the result follows." />
+</Step>
+<Step title="Read the results">
+You get the same cards, cost breakdown, target price helper and **Why these numbers?** panel as in [Order analysis](/docs/en/buyer/order-analysis).
+
+<Screenshot name="buyer/landed-cost-3" route="/app/analysis" as="buyer" alt="Calculator results with landed cost, cost per unit, revenue and margin cards" caption="Results use today's mock exchange rates." />
+</Step>
+<Step title="Switch to Monthly Summary">
+Pick a **Month**. You see **Orders**, **Total purchases**, **Total landed cost** and **Average margin**. **Key insights** gives plain sentences. **Last 6 months** is a chart with a data table. **Orders this month** links each order to its analysis.
+
+<Screenshot name="buyer/landed-cost-4" route="/app/analysis?tab=monthly" as="buyer" alt="Monthly Summary tab with four cards, key insights and a six month chart" caption="One month at a glance." />
+</Step>
+<Step title="Switch to Supplier Scorecard">
+The table has columns **Supplier**, **KYB**, **Score**, **On-time**, **Disputes**, **Price index** and **Your orders**. Click a column title to sort. The default sort is by score, lowest first, so weak suppliers come first.
+
+<Screenshot name="buyer/landed-cost-5" route="/app/analysis?tab=suppliers" as="buyer" alt="Supplier scorecard table with weak suppliers highlighted" caption="Weak suppliers are flagged with a reason." />
+</Step>
+</Steps>
+
+## What the results mean \{#results}
+- **Price index** is 100 times landed cost divided by goods value. 100 means no extra costs. A higher number means more freight, duty and charges per unit of goods value.
+- **Score** is the supplier's latest monthly score from 0 to 100. **On-time** and **Disputes** use the last months shown in the intro line.
+- A supplier gets the **Weak supplier** badge, with reasons, if any of these is true: KYB status is not Verified, score below 70, dispute rate above 10%, or on-time rate below 80%.
+- **Gross margin** bands are Healthy (15% or more), Thin (8% to 15%) and Low (below 8%).
+- **Total purchases** can show a percentage change against the previous month.
+
+## Tips and common mistakes \{#tips}
+- Use a dot for decimals. Numbers accept up to 4 decimals, for example `1250.50`. Quantity must be above 0.
+- Unit is at most 8 characters.
+- If a field has an error you see "Fix the highlighted fields to see results."
+- Without a selling price, revenue and margin show a dash.
+- The calculator uses mock exchange rates and the page says so.
+
+## Related security notes \{#security}
+<Callout type="security" title="No model trained, no real money">
+Every figure is calculated by code. The what-if call saves nothing. All data is simulated sandbox data.
+</Callout>
+
+## Try it \{#try-it}
+<TryItButton href="/app/analysis" />
+
+## Related pages \{#related}
+- [Order analysis](/docs/en/buyer/order-analysis)
+- [Suppliers and KYB](/docs/en/buyer/suppliers-kyb)
+- [Cash flow](/docs/en/buyer/cash-flow)

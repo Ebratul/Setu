@@ -1,0 +1,107 @@
+---
+title: Suppliers and KYB badges
+summary: Check who you are paying, read the KYB badge and see why a supplier or bank account is flagged.
+section: buyer
+order: 100
+roles: [buyer]
+routes: ["/app/suppliers", "/app/suppliers/[id]"]
+tryIt: "/app/suppliers"
+related: [buyer/landed-cost, buyer/approvals, buyer/email-check, security/permission-tiers]
+updated: 2026-10-20
+---
+
+## What it is \{#what-it-is}
+**KYB** means "know your business". Setu checks a supplier's licence, its bank account and its deal history, and shows the result as a badge with a score from 0 to 100.
+
+The check is deterministic code. There is no AI in it. Sanctions screening uses a fictional demo list. All data is simulated.
+
+## Who uses it \{#who}
+<RoleBadge role="buyer" />
+
+Buyers and admins can run **Re-run KYB**. Judges have a read-only view.
+
+## When to use it \{#when}
+- Before the first deal with a new supplier.
+- When a supplier sends new bank details.
+- When a deal shows a supplier warning.
+
+## Step by step \{#how-to}
+<Steps>
+<Step title="Open Suppliers">
+Choose **Suppliers** in the left menu. Use **Search suppliers** (name or city) and the **Check status** filter (All, Verified, Warning, Blocked, Pending).
+
+<Screenshot name="buyer/suppliers-kyb-1" route="/app/suppliers" as="buyer" alt="Suppliers list with search box, status filter and supplier cards with KYB badges" caption="Each card shows the KYB badge, score, completed deals and on-time rate." />
+</Step>
+<Step title="Open a profile">
+Press a supplier name. The profile shows the badge, **Check score**, **Business checks**, **Company details**, **Bank accounts** (masked), **Deal history** and a **Supplier score trend**.
+
+<Screenshot name="buyer/suppliers-kyb-2" route="/app/suppliers/[id]" as="buyer" alt="Supplier profile with KYB badge, check score and a list of business checks" caption="Open a check to see its evidence." />
+{/* REVIEW: supplier id is a UUID; the screenshot script needs to resolve it from the list. */}
+</Step>
+<Step title="Read each check">
+Each line has an icon, a name and **Passed**, **Warning** or **Failed**. Press **Evidence** to see the values used.
+
+<Screenshot name="buyer/suppliers-kyb-3" route="/app/suppliers/[id]" as="buyer" alt="Business checks list with pass and warning icons and an Evidence section" caption="Plain reasons for each result." />
+</Step>
+<Step title="Watch for a new bank account">
+An orange box titled **Unreviewed new bank account** means a new receiving account was submitted. Do not pay it until it is approved. It does not change the current status below it.
+
+<Screenshot name="buyer/suppliers-kyb-4" route="/app/suppliers/[id]" as="buyer" alt="Warning box titled Unreviewed new bank account with its own badge and failed checks" caption="A pending account is checked separately." />
+</Step>
+<Step title="Re-run the check">
+Press **Re-run KYB**. The message "Check finished. Result updated." appears and the previous result moves to **Previous checks**.
+
+<Screenshot name="buyer/suppliers-kyb-5" route="/app/suppliers/[id]" as="buyer" alt="Re-run KYB button next to the check score" caption="Re-run after anything changes." />
+</Step>
+</Steps>
+
+## What the results mean \{#results}
+| Badge | Meaning |
+|---|---|
+| Verified | All checks passed. |
+| Warning | At least one check warned or failed. Look at the reasons. |
+| Blocked | Sanctions screening failed. Do not send any payment. |
+| Pending | No result yet. |
+
+{/* REVIEW: the exact backend situation that produces the Pending badge was not traced; wording is a guess. */}
+
+Checks and what they test:
+
+| Check | Tests |
+|---|---|
+| Licence name vs invoice seller | Name on the licence matches the invoice. |
+| Licence name vs account holder | The account belongs to the licensed company. |
+| Account type | A personal account for a company fails. |
+| Account age | Under 7 days fails, under 30 days warns. |
+| Bank country | A bank in another country warns. |
+| Pending account change | A new account always warns. |
+| Deal history | Many disputed deals warn. |
+| Sanctions screening | Any name hit blocks the supplier. |
+| Receiving account | No active account on file warns. |
+
+The **Check score** starts at 100 and loses points per warning or failure. A sanctions failure sets it to 0.
+
+Names are matched after cleaning up case, punctuation and company suffixes. A match score of 92 or more passes. 80 to 91 warns. Below 80 fails.
+
+The supplier badge comes from the active receiving account. A pending account is shown apart.
+
+On the **Analysis** page, a supplier is also marked **Weak supplier** by score, disputes and on-time rate. See [Landed cost and scorecard](/docs/en/buyer/landed-cost).
+
+## Tips and common mistakes \{#tips}
+- A Warning is not a block. It asks you to look at the reason first.
+- A Blocked badge means "do not pay". The deal page shows "This supplier is blocked. Do not send any payment for this deal."
+- "Live evaluation, not stored yet" means the result is shown but not saved.
+- Never trust an email that asks you to change the bank account. Use [Check an email](/docs/en/buyer/email-check).
+
+## Related security notes \{#security}
+<Callout type="security" title="Changing a bank account is Tier 3">
+Moving money to a new account needs OTP and a 10 minute cooling-off. KYB informs this decision but does not replace it. See [Permission tiers](/docs/en/security/permission-tiers).
+</Callout>
+
+## Try it \{#try-it}
+<TryItButton href="/app/suppliers" />
+
+## Related pages \{#related}
+- [Landed cost, monthly summary and scorecard](/docs/en/buyer/landed-cost)
+- [Approvals](/docs/en/buyer/approvals)
+- [Check an email](/docs/en/buyer/email-check)

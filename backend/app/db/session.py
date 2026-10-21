@@ -1,0 +1,94 @@
+from collections.abc import Iterator
+from contextlib import contextmanager
+from functools import lru_cache
+
+from sqlalchemy import Engine, create_engine, text
+from sqlalchemy.engine import make_url
+from sqlalchemy.orm import Session, sessionmaker
+
+from app.config import get_settings
+from app.db import tenancy
+
+
+def database_url() -> str:
+    settings = get_settings()
+    if settings.database_url is None:
+        raise RuntimeError("DATABASE_URL is not set")
+    return normalize_url(settings.database_url.get_secret_value())
+
+
+LOCAL_HOSTS = frozenset({"localhost", "127.0.0.1", "::1"})
+
+
+def is_local_url(url: str) -> bool:
+    return make_url(normalize_url(url)).host in LOCAL_HOSTS
+
+
+def normalize_url(url: str) -> str:
+    # Neon/Heroku-style URLs default to psycopg2 in SQLAlchemy; we use psycopg 3.
+    for prefix in ("postgres://", "postgresql://"):
+        if url.startswith(prefix):
+            return "postgresql+psycopg://" + url[len(prefix) :]
+    return url
+
+
+@lru_cache
+def get_engine() -> Engine | None:
+    settings = get_settings()
+    if settings.database_url is None:
+        return None
+    timeout_ms = int(settings.db_check_timeout_seconds * 1000)
+    url = normalize_url(settings.database_url.get_secret_value())
+    connect_args: dict[str, object] = {
+        "connect_timeout": max(1, int(settings.db_check_timeout_seconds))
+    }
+    if "-pooler" not in (make_url(url).host or ""):
+        # transaction poolers (Neon -pooler, pgbouncer) reject startup options
+        connect_args["options"] = f"-c statement_timeout={timeout_ms}"
+    engine = create_engine(url, pool_pre_ping=True, connect_args=connect_args)
+    tenancy.install(engine)
+    return engine
+
+
+def ping() -> bool:
+    """SELECT 1 against the configured database; never raises."""
+    try:
+        engine = get_engine()
+        if engine is None:
+            return False
+        with engine.connect() as conn:
+            conn.execute(text("SELECT 1"))
+        return True
+    except Exception:
+        return False
+
+
+@lru_cache
+def get_batch_engine() -> Engine:
+    """Engine for migrations/seed/scripts: no short statement timeout."""
+    engine = create_engine(database_url(), pool_pre_ping=True)
+    tenancy.install(engine)
+    return engine
+
+
+@contextmanager
+def batch_session() -> Iterator[Session]:
+    """Session that commits on success and rolls back on error (seed and scripts)."""
+    with sessionmaker(get_batch_engine(), expire_on_commit=False)() as session:
+        try:
+            yield session
+            session.commit()
+        except Exception:
+            session.rollback()
+            raise
+
+
+def get_db() -> Iterator[Session]:
+    """FastAPI dependency: a request-scoped session on the API engine (read paths)."""
+    engine = get_engine()
+    if engine is None:
+        from app.errors import ServiceUnavailable
+
+        raise ServiceUnavailable("database is not configured")
+    with sessionmaker(engine, expire_on_commit=False)() as session:
+        yield session

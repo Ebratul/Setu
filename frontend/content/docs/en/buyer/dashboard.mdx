@@ -1,0 +1,87 @@
+---
+title: The dashboard
+summary: Your home screen. Cash, escrow, payments due, alerts, pending approvals and active deals at a glance.
+section: buyer
+order: 10
+roles: [buyer]
+routes: ["/app"]
+tryIt: "/app"
+related: [buyer/cash-flow, buyer/approvals, buyer/deal-detail, buyer/chat]
+updated: 2026-10-20
+---
+
+## What it is \{#what-it-is}
+
+The Dashboard is the first screen after you sign in. It shows the state of your business in one view. All money on it is simulated sandbox data, and the **Simulated** badge sits next to the title.
+
+## Who uses it \{#who}
+
+<RoleBadge role="buyer" /> Buyers (importers) use it every day. Admins and judges can open it too. They first pick a business in a **Select a business** list.
+
+## When to use it \{#when}
+
+- At the start of the day, to see what needs attention.
+- After a payment or an approval, to check that cash and escrow changed.
+- To jump to a deal, the approvals inbox or the cash-flow calendar.
+
+## Step by step \{#how-to}
+
+<Steps>
+<Step title="Read the four summary cards">
+The top row shows **Cash balance**, **In escrow**, **Due in next 30 days** and **Open alerts**. Use the currency switch (USD, BDT, CNY) to change the currency of the money cards. The numbers are calculated by the server. The screen only displays them.
+
+<Screenshot name="buyer/dashboard-kpis" route="/app" as="buyer" alt="Dashboard top row with four cards: cash balance, in escrow, due in next 30 days and open alerts, plus a USD, BDT, CNY currency switch." caption="The four summary cards and the currency switch." />
+</Step>
+<Step title="Check alerts and pending approvals">
+**Alerts** lists open alerts with a severity and a type. **Manage alerts** opens the cash-flow page. The **Pending approvals** card shows a count. **Open approvals inbox** takes you to the approvals page.
+
+<Screenshot name="buyer/dashboard-alerts" route="/app" as="buyer" alt="Dashboard showing the alerts panel on the left and the pending approvals count on the right." caption="Alerts and the pending approvals count." />
+</Step>
+<Step title="Look at this month and the 90-day cash chart">
+**This month** shows the number of orders, total purchases, total landed cost and average margin. **Open monthly summary** goes to Analysis. **Cash flow, next 90 days** is a small chart. It shows a green tick when no shortfall is expected. **Open cash flow** opens the full page.
+
+<Screenshot name="buyer/dashboard-month-chart" route="/app" as="buyer" alt="Dashboard cards for this month and the 90 day cash flow mini chart." caption="Monthly figures and the 90-day cash chart." />
+</Step>
+<Step title="Open an active deal">
+The **Active deals** table lists reference, supplier, status, goods value and the **Next milestone** with amount and due date. Click a reference to open the deal.
+
+<Screenshot name="buyer/dashboard-active-deals" route="/app" as="buyer" alt="Active deals table with reference, supplier, status badge, goods value and next milestone columns." caption="Active deals and their next milestone." />
+</Step>
+</Steps>
+
+## What the results mean \{#results}
+
+| Item | Meaning |
+|---|---|
+| Cash balance | Your simulated cash on hand. |
+| In escrow | Money you have deposited that is still held for suppliers. |
+| Due in next 30 days | Payments the forecast expects in the next 30 days. |
+| Open alerts | Alerts not yet resolved. See [Cash flow](/docs/en/buyer/cash-flow). |
+| Pending approvals | Requests waiting for a person to decide. See [Approvals](/docs/en/buyer/approvals). |
+| Next milestone | The next payment slice of the deal, with its due date. A dash means none is left. |
+
+Landed cost is the full cost of getting goods to your warehouse: price, freight, insurance, duty and bank charges.
+
+## Tips and common mistakes \{#tips}
+
+- The checklist card at the top is only a first-visit guide. You can dismiss it and show it again.
+- If a number looks wrong, check the currency switch first.
+- A zero in **Pending approvals** is normal. It means nothing waits for you.
+{/* REVIEW: The first-visit checklist ("Get started with Setu") items vary by role; only the buyer version was read from code. */}
+
+## Related security notes \{#security}
+
+<Callout type="security" title="Nothing here moves money">
+The dashboard only reads data. Every payment goes through the rules in [Permission tiers](/docs/en/security/permission-tiers) and is written to the [signed audit log](/docs/en/security/signed-audit-log).
+</Callout>
+
+## Try it \{#try-it}
+
+<TryItButton href="/app" />
+
+## Related pages \{#related}
+
+- [Cash flow](/docs/en/buyer/cash-flow)
+- [Approvals](/docs/en/buyer/approvals)
+- [Deal detail](/docs/en/buyer/deal-detail)
+- [Ask the assistant](/docs/en/buyer/chat)

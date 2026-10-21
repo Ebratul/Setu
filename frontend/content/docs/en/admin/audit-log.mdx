@@ -1,0 +1,86 @@
+---
+title: Audit log and chain verification
+summary: Read the signed, hash-chained audit log, verify it and test it with the tamper demo.
+section: admin
+order: 20
+roles: [admin]
+routes: ["/app/admin/audit", "/demo/audit"]
+tryIt: "/app/admin/audit"
+related: [admin/export-operation-log, security/signed-audit-log, judge/five-minute-guide]
+updated: 2026-10-20
+---
+
+## What it is \{#what-it-is}
+
+Every action in Setu is written to a log. Each entry is signed with Ed25519 (a digital signature) and linked by a hash to the entry before it. A hash is a short fingerprint of data. Change one character and the chain breaks.
+
+## Who uses it \{#who}
+
+<RoleBadge role="admin" /> Admins see the full log with the Evidence section. <RoleBadge role="judge" /> Judges can read it too.
+
+## When to use it \{#when}
+
+- To prove that nothing was changed, removed or reordered.
+- To see what the AI agent, a user or the system did, and at which tier.
+- To show someone how tampering is detected.
+
+## Step by step \{#how-to}
+
+<Steps>
+<Step title="Open Audit log">
+In the sidebar choose **Audit log**. The page is titled **Signed audit log**. The **Evidence** section shows entries in the log, entries by tier and by action, and the last verification.
+<Screenshot name="admin/audit-evidence" route="/app/admin/audit" as="admin" alt="The Evidence section with the entry count, bars by tier and by action, and the Verify now button." caption="The Evidence section on the admin audit page." />
+</Step>
+<Step title="Verify now">
+Press **Verify now**. The page re-checks every hash and signature and shows a green "Verified" badge with the number of entries, or the first broken entry.
+<Screenshot name="admin/audit-verify" route="/app/admin/audit" as="admin" alt="A green Verified badge next to the Verify now button." caption="Result of Verify now." />
+</Step>
+<Step title="Read the live chain">
+Under **Live chain**, each block is one entry. The line between blocks is the hash link. New entries appear on the right. Press **Refresh now** to reload.
+<Screenshot name="admin/audit-chain" route="/app/admin/audit" as="admin" alt="The Live chain row of linked blocks, each labelled with a sequence number and an action." caption="The Live chain." />
+</Step>
+<Step title="Open an entry">
+Select a block. A side window shows the exact bytes that were hashed, the payload hash, the previous hash, the entry hash and the signature. Each field has a **Copy** button. Entries about releases also show a **Receipt** button.
+<Screenshot name="admin/audit-entry" route="/app/admin/audit" as="admin" alt="The Audit entry drawer showing a Verified badge and the hash fields." caption="One audit entry in detail." />
+</Step>
+<Step title="Try Tamper and see">
+In **Tamper and see**, choose an entry, choose a change (edit a value, delete the entry, or swap with the next entry) and press **Tamper with the copy**. The page works on a copy and shows where verification breaks. Press **Restore the live chain** to return.
+<Screenshot name="admin/audit-tamper" route="/app/admin/audit" as="admin" alt="The Tamper and see panel showing a broken chain after an edit." caption="Tampering is detected in the copy." />
+</Step>
+</Steps>
+
+## What the results mean \{#results}
+
+| Message | Meaning |
+|---|---|
+| Verified, N entries | All hashes, signatures and the order are correct. |
+| Broken at seq N | Entry N is the first one not in its place. |
+| entry contents no longer match the hash | Someone changed the entry. |
+| signature does not match the key | The entry was not signed by Setu. |
+| an entry is missing | A deleted entry left a gap in the numbers. |
+| entries are out of order | The order was changed. |
+| the link to the previous entry is broken | The entry was inserted or rewritten. |
+
+The **Public key fingerprint** identifies the key used to check signatures. **Open the public verifier** goes to `/verify`, which checks an exported file in the browser.
+
+## Tips and common mistakes \{#tips}
+
+- The Evidence section and the export link appear on `/app/admin/audit`. The page `/demo/audit` shows the chain and the tamper panel only.
+- Tamper and see never changes the real log. A banner says "This is a copy".
+- Verifying a log that was cut at the end can still succeed. Compare the head sequence number with a receipt or an earlier export.
+- Reset of a demo sandbox adds a signed `DEMO_RESET` entry. It is not an error.
+
+## Related security notes \{#security}
+
+<Callout type="security" title="Append-only by design">
+A database rule rejects edits and deletes of log rows. See [Audit log](/docs/en/security/signed-audit-log).
+</Callout>
+
+## Try it \{#try-it}
+
+<TryItButton href="/app/admin/audit" />
+
+## Related pages \{#related}
+
+- [Exporting the operation log](/docs/en/admin/export-operation-log)
+- [Audit log (security)](/docs/en/security/signed-audit-log)

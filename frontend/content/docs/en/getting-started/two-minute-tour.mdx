@@ -1,0 +1,76 @@
+---
+title: Two-minute tour
+summary: The main Setu screens in the order a buyer meets them, from the landing page to the audit log.
+section: getting-started
+order: 40
+roles: [buyer, supplier, admin, judge]
+routes: ["/"]
+tryIt: "/demo"
+related: [getting-started/what-is-setu, getting-started/simulated-sandbox, getting-started/roles-and-login]
+updated: 2026-10-20
+---
+
+## What it is \{#what-it-is}
+
+A fast walk through Setu: the public landing page first, then the screens a buyer uses on one order, then the supplier and admin views. Each stop links to the real screen. Money is simulated.
+
+## Who uses it \{#who}
+
+<RoleBadge role="buyer" /> <RoleBadge role="supplier" /> <RoleBadge role="admin" /> <RoleBadge role="judge" />
+
+## Step by step \{#how-to}
+
+<Steps>
+<Step title="Landing page (about 20 seconds)">
+The home page has the headline, a "Run the guided demo" button, "Start my own sandbox" and "Judge mode". Sections follow: how it works, features, security, demo and evaluation results.
+<Screenshot name="getting-started/landing" route="/" as="judge" alt="The Setu landing page with the hero headline and the buttons Run the guided demo, Start my own sandbox and Judge mode." caption="The public landing page." />
+</Step>
+<Step title="Chat (/app/chat)">
+Ask about an order in Bangla or English. The answer shows cards built from numbers that code calculated.
+<Screenshot name="getting-started/chat" route="/app/chat" as="buyer" alt="The chat screen with a question about landed cost and an answer with result cards." caption="Explained chat." />
+</Step>
+<Step title="Analysis, cash flow and financing">
+[Analysis](/app/analysis) shows landed cost and margin. [Cash flow](/app/cashflow) shows a 90-day calendar with alerts. [Financing](/app/financing) compares options on total cost.
+<Screenshot name="getting-started/cashflow" route="/app/cashflow" as="buyer" alt="The cash-flow page with a 90-day calendar and a shortfall alert." caption="Cash flow with a shortfall alert." />
+</Step>
+<Step title="Suppliers and deals">
+[Suppliers](/app/suppliers) shows KYB checks. [Deals](/app/deals) shows the milestone schedule and the escrow card, where tranches are released.
+<Screenshot name="getting-started/deals" route="/app/deals" as="buyer" alt="The deals list with simulated escrow status for each deal." caption="Deals and escrow." />
+</Step>
+<Step title="Documents and email check">
+[Documents](/app/deals) are checked for mismatches and hidden text. [Email check](/app/inbox/email-check) flags a payment-redirection email.
+</Step>
+<Step title="Approvals">
+[Approvals](/app/approvals) lists requests that need a person: one tap for Tier 2, OTP and cooling-off for Tier 3.
+<Screenshot name="getting-started/approvals" route="/app/approvals" as="buyer" alt="The approvals page listing pending requests with their permission tier." caption="Approvals by tier." />
+</Step>
+<Step title="Supplier portal (/supplier)">
+A supplier confirms the milestone schedule and sees the deal. The interface can be in Chinese.
+</Step>
+<Step title="Admin and audit">
+Admins use the registry, risk, privacy and audit screens under `/app/admin`. Anyone can check an exported log at [/verify](/docs/en/judge/verify).
+</Step>
+</Steps>
+
+{/* REVIEW: links to buyer/supplier/admin documentation pages are not added because their page ids were not known when this page was written. Add per-feature doc links when those pages exist. */}
+
+## Tips and common mistakes \{#tips}
+
+- The fastest route is the guided demo: 12 narrated steps.
+- Links to `/app` need a signed-in session. In demo mode use the login page first.
+
+## Related security notes \{#security}
+
+<Callout type="security">
+Tier 0 and 1 are automatic, Tier 2 is one-tap approval, Tier 3 needs OTP plus a 10-minute cooling-off. The tier is decided by code.
+</Callout>
+
+## Try it \{#try-it}
+
+<TryItButton href="/demo" />
+
+## Related pages \{#related}
+
+- [What is Setu](/docs/en/getting-started/what-is-setu)
+- [Simulated sandbox](/docs/en/getting-started/simulated-sandbox)
+- [Roles and sign-in](/docs/en/getting-started/roles-and-login)

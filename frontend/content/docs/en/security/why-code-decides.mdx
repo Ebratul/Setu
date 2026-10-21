@@ -1,0 +1,59 @@
+---
+title: Why code decides, not the AI
+summary: The AI explains in plain language. Deterministic code calculates every number and makes every decision.
+section: security
+order: 10
+roles: [buyer, supplier, admin, judge]
+routes: []
+related: [security/permission-tiers, security/what-is-simulated, glossary/glossary]
+updated: 2026-10-20
+---
+
+## What it is \{#what-it-is}
+
+Setu uses one rule above all others: **the AI explains, code executes.** A language model (the AI behind the chat) can read results and put them into plain words. It never calculates a cost, sets a risk level or moves money.
+
+No model was trained for Setu. It calls ready-made models, and every call goes through one gateway in the code.
+
+## Who uses it \{#who}
+
+<RoleBadge role="buyer" /> <RoleBadge role="supplier" /> <RoleBadge role="admin" /> <RoleBadge role="judge" /> This page is for everyone who wants to know why they can trust the numbers on screen.
+
+## What code does and what the AI does \{#split}
+
+| Question | Who answers | Why |
+|---|---|---|
+| What is the landed cost of this order? | Deterministic code | Same inputs always give the same answer. |
+| What is my margin or cash gap? | Deterministic code | Money uses exact decimal arithmetic, never floating point. |
+| What is the exchange rate used? | Deterministic code | Rates come from stored rate tables. |
+| Is this supplier verified (KYB)? | Deterministic code | Fixed checks with fixed weights. |
+| How risky is this document? | Deterministic code | The fraud score comes from cross-checks and detectors. |
+| Which approval does this payment need? | Deterministic code | The tier engine applies the rules in `risk.yaml`. |
+| Explain this in simple Bangla. | The AI | Wording only, using facts the code returned. |
+
+<Callout type="info" title="Landed cost">
+Landed cost is the full price of an imported good once it is in your warehouse. It adds freight, duty, tax and clearing charges to the supplier price.
+</Callout>
+
+## What this means in practice \{#in-practice}
+
+- The AI only gets **read-only tools**. In code, the highest tier it can run on its own is Tier 0.
+- If the AI wants something done, it can only **queue a request**. A person then decides.
+- Result cards in the chat show the values the tools returned. The AI writes the explanation around them.
+- The AI cannot raise or lower a tier. Tiers are computed from database facts, and prompts, documents or the browser cannot change them.
+- Every action, by a person, the AI or the system, is written to a [signed audit log](/docs/en/security/signed-audit-log).
+
+{/* REVIEW: Free-text answers are written by the model from tool facts; no code check that every number in the text matches a tool value was verified. */}
+
+## Related security notes \{#security}
+
+<Callout type="security">
+The permission rules are enforced in the backend, not in a prompt. Even a perfectly worded attack message cannot make the AI release a payment. See [Permission tiers](/docs/en/security/permission-tiers) and [Injection defence](/docs/en/security/injection-defence).
+</Callout>
+
+## Related pages \{#related}
+
+- [Permission tiers](/docs/en/security/permission-tiers)
+- [Documents and emails are data](/docs/en/security/injection-defence)
+- [What is simulated](/docs/en/security/what-is-simulated)
+- [Glossary](/docs/en/glossary/glossary)

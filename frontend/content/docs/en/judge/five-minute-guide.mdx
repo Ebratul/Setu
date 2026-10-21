@@ -1,0 +1,77 @@
+---
+title: 'Five-minute guide'
+summary: 'A short route through Setu for judges: sandbox, guided demo, two security playgrounds and the public verifier.'
+section: judge
+order: 10
+roles: [judge]
+routes: ["/judges"]
+tryIt: "/judges"
+related: [judge/guided-demo, judge/playgrounds, judge/verify, judge/criteria]
+updated: 2026-10-20
+---
+
+## What it is \{#what-it-is}
+
+The `/judges` page ("Judge quick-start") is the fastest way into Setu. It offers a private sandbox, a list of things to try, a map from features to our requirements, links, QR codes and live system status. Everything is a simulated sandbox with fictional data. No model was trained.
+
+## Who uses it \{#who}
+
+<RoleBadge role="judge" /> The judge account is a read-only demo user.
+
+## When to use it \{#when}
+
+Use it first. It needs no account: the demo uses the judge profile `judge@demo.setu` and no password.
+
+## Step by step \{#how-to}
+
+<Steps>
+<Step title="Create your sandbox (30 seconds)">
+Open `/judges` and press "Create my sandbox". You get a private copy of the demo data. Nothing you do affects anyone else, and you can reset it.
+<Screenshot name="judge/judges-page" route="/judges" as="judge" alt="The Judge quick-start page with the buttons Open the live demo and Create my sandbox." caption="The judge quick-start page." />
+</Step>
+<Step title="Watch the guided demo (2 minutes)">
+Press Auto-play in the [guided demo](/docs/en/judge/guided-demo). If time is short, jump to step 9 (forged bill of lading) and step 10 (same invoice at a second lender).
+</Step>
+<Step title="Break something in the playgrounds (1.5 minutes)">
+Move the amount in the [Risk Playground](/demo/risk-playground) and watch the tier change. Run the hidden-text attack in the [Attack Console](/demo/attack-console) with defences ON and OFF. See [Playgrounds](/docs/en/judge/playgrounds).
+</Step>
+<Step title="Verify the audit log (1 minute)">
+Open [/verify](/verify), choose an exported log file and check it in your browser. See [Verify](/docs/en/judge/verify).
+</Step>
+</Steps>
+
+## What the page shows \{#results}
+
+| Block | What it is |
+|---|---|
+| Demo sign-in | The judge profile and how to sign in |
+| What to try in 60 seconds | Five links: Guided demo, Risk Playground, Privacy Playground, Attack Console, Verify the audit log |
+| Features mapped to the requirements | FR, SR and NFR items with a "Where to see it" link |
+| Links and resources | Live site, documentation, source code, demo video, live status |
+| QR codes | Open the live demo or this page from a phone |
+| System status | Checked from your browser every 60 seconds |
+
+Some resource links show "Link coming" until they are set before submission.
+
+## Tips and common mistakes \{#tips}
+
+- Some links open signed-in screens. Press "Create my sandbox" first.
+- The feature map follows our own requirements, not the official judging rubric. See [Criteria](/docs/en/judge/criteria).
+- If the status panel says it cannot reach the agent API, tell the team.
+
+## Related security notes \{#security}
+
+<Callout type="security">
+Your sandbox is a private schema copy. Judge accounts are read-only. No real money moves.
+</Callout>
+
+## Try it \{#try-it}
+
+<TryItButton href="/judges" />
+
+## Related pages \{#related}
+
+- [Guided demo](/docs/en/judge/guided-demo)
+- [Playgrounds](/docs/en/judge/playgrounds)
+- [Verify](/docs/en/judge/verify)
+- [Criteria](/docs/en/judge/criteria)

@@ -1,0 +1,99 @@
+---
+title: Releasing payments and approvals
+summary: How a payment release is decided. Tiers 0 to 3, one-tap approval, the 6-digit code and the 10-minute cooling-off.
+section: buyer
+order: 50
+roles: [buyer]
+routes: ["/app/approvals"]
+tryIt: "/app/approvals"
+related: [security/permission-tiers, security/signed-audit-log, buyer/deal-detail, buyer/funding-escrow]
+updated: 2026-10-20
+---
+
+## What it is \{#what-it-is}
+
+The **Approvals** page is your inbox for money and account changes that need a person to decide. Setu never decides these for you. The AI assistant can only queue a request. A human click executes it.
+
+## Who uses it \{#who}
+
+<RoleBadge role="buyer" /> The buyer of the deal, or an admin. Suppliers, judges and other buyers cannot decide.
+
+## When to use it \{#when}
+
+When the dashboard shows pending approvals, or after you clicked **Release payment** and the milestone says **Waiting for approval**.
+
+## Step by step \{#how-to}
+
+<Steps>
+<Step title="Open the inbox">
+Open **Approvals**. Two tabs: **Pending** and **History**. Each card shows the action, a <TierBadge tier={2} /> or <TierBadge tier={3} /> badge, a status, deal, supplier, amount, who asked, and **Why Setu asked you** reasons. **Evidence snapshot** expands the facts used (supplier check, documents, FX rate, rule trace).
+
+<Screenshot name="buyer/approvals-list" route="/app/approvals" as="buyer" alt="Approvals page with Pending and History tabs and approval cards showing tier badges, amounts, reasons and a Review button." caption="The approvals inbox." />
+</Step>
+<Step title="Tier 2 - one tap">
+Click **Review**. The dialog is titled Approve with the action name. It explains **What will happen**. Click **Approve** to confirm or **Reject** to refuse. Setu checks the facts again before anything moves.
+
+<Screenshot name="buyer/approvals-tier2" route="/app/approvals" as="buyer" alt="Tier 2 approval dialog with a summary, what will happen box, reasons, and Reject and Approve buttons." caption="A Tier 2 approval dialog." click="[data-testid='review-btn']" />
+</Step>
+<Step title="Tier 3 - code and cooling-off">
+Tier 3 cards show a **Cooling-off** timer. In the dialog, a ring counts down the pause. Setu sends a 6-digit code to your phone (a simulated SMS). In this sandbox, open **Demo phone**, **Copy code** and paste it into **6-digit code**. **Approve** unlocks only when the pause is over and all 6 digits are entered. **Resend code** and **Cancel request** are available.
+
+<Screenshot name="buyer/approvals-tier3" route="/app/approvals" as="buyer" alt="Tier 3 approval dialog with a cooling-off countdown ring, a six digit code input, Resend code and a disabled Approve button." caption="A Tier 3 dialog with the cooling-off ring and code input." click="[data-testid='review-btn']" />
+{/* REVIEW: Which pending card is Tier 3 depends on seed data; the script may need to open a specific card, for example with ?focus=<approval id>. */}
+</Step>
+<Step title="Read the outcome">
+A toast says **Approved and carried out (simulated)** or **Request rejected. Nothing was paid or changed.** The card moves to **History**. Done requests have a receipt button that opens the signed audit entry.
+
+<Screenshot name="buyer/approvals-history" route="/app/approvals" as="buyer" alt="Approvals page History tab with decided requests and status badges." caption="Decided requests in History." click="[role='tab']:nth-of-type(2)" />
+</Step>
+</Steps>
+
+## What the results mean \{#results}
+
+| Tier | What it needs | Typical triggers |
+|---|---|---|
+| <TierBadge tier={0} /> | Nothing. Runs by itself. | Read-only analysis and checks. |
+| <TierBadge tier={1} /> | Nothing. You get a notice. | Release to a verified, unchanged account, USD 20,000 or less, no warnings. |
+| <TierBadge tier={2} /> | One tap on **Approve**. | First deal with a supplier, FX lock, document warning, anything proposed by the AI. |
+| <TierBadge tier={3} /> | 6-digit code and a 10-minute cooling-off. | Over USD 20,000, new or changed beneficiary (receiving account), high fraud score, duplicate document, an instruction found inside a document or email. |
+
+Some facts block the action altogether, such as a sanctions hit or a blocked supplier.
+
+| Status | Meaning |
+|---|---|
+| Pending | Waiting for you. |
+| Approved | You said yes, but the action could not run yet (for example evidence missing). Approve again, no new code. |
+| Done | Carried out (simulated). |
+| Rejected / Cancelled / Expired | Nothing was paid or changed. |
+| Locked | Three wrong codes. Reject it and ask for a new request. |
+
+## Tips and common mistakes \{#tips}
+
+- Codes live 5 minutes. A wrong code costs one of 3 tries. After the third, the request locks.
+- A pending Tier 3 request freezes the escrow of your deals until you decide.
+- Requests expire after 24 hours.
+- A request that came by email shows a red warning. Setu never changes an account from an email. Reject it.
+- If conditions get worse before you approve, Setu cancels the request and opens a stricter one (**Setu needs a stricter approval**).
+{/* REVIEW: The cooling-off is 10 minutes by default (COOLING_OFF_SECONDS=600) but the demo can set 30 seconds. Confirm the value on the deployed site. */}
+{/* REVIEW: A four-eyes rule (requester cannot approve their own request) may apply when auth mode is neon; not confirmed for the deployed site. */}
+
+## Related security notes \{#security}
+
+<Callout type="security" title="Code decides, not the AI">
+Tiers are calculated by code, rechecked at execution, and bound to the exact request. Details: [Permission tiers](/docs/en/security/permission-tiers). Every decision is signed: [Signed audit log](/docs/en/security/signed-audit-log).
+</Callout>
+
+<Callout type="warning">
+The code and the SMS are simulated. No real SMS is sent.
+</Callout>
+
+## Try it \{#try-it}
+
+<TryItButton href="/app/approvals" />
+
+## Related pages \{#related}
+
+- [Permission tiers](/docs/en/security/permission-tiers)
+- [Signed audit log](/docs/en/security/signed-audit-log)
+- [Deal detail](/docs/en/buyer/deal-detail)
+- [Funding the escrow](/docs/en/buyer/funding-escrow)

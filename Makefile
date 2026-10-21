@@ -1,11 +1,11 @@
 # Thin wrappers around the root package.json scripts (cross-platform users can run `pnpm run <script>` directly).
-AGENT := uv run --directory services/agent
+AGENT := uv run --directory backend
 
-.PHONY: install up down migrate seed reset-demo verify-seed kb-sync kb-index dev test lint format types eval
+.PHONY: install up down migrate seed reset-demo verify-seed kb-sync kb-index dev test lint format types eval demo-run demo-check demo-record demo-verify demo-cleanup
 
 install:
 	pnpm install
-	uv sync --directory services/agent
+	uv sync --directory backend
 
 up:
 	pnpm run db:up
@@ -28,6 +28,9 @@ kb-index:
 reset-demo:
 	pnpm run db:reset-demo
 
+demo-run demo-check demo-record demo-verify demo-cleanup:
+	pnpm run $(subst demo-,demo:,$@)
+
 verify-seed:
 	pnpm run db:verify
 
@@ -47,5 +50,5 @@ types:
 	./scripts/gen-types.sh
 
 eval:
-	@if [ -f services/agent/eval/run.py ]; then $(AGENT) python -m eval.run; \
+	@if [ -f backend/eval/run.py ]; then $(AGENT) python -m eval.run; \
 	else echo "eval: evaluation harness is added in Phase 7.2"; fi

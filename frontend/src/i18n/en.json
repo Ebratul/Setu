@@ -1,0 +1,2221 @@
+{
+  "common": {
+    "back": "Back",
+    "simulated": "Simulated",
+    "simulatedHint": "All money in Setu is simulated sandbox data",
+    "simulatedData": "Simulated data",
+    "retry": "Try again",
+    "loading": "Loading…",
+    "updating": "Updating…",
+    "redirectingLogin": "Redirecting to sign in…",
+    "footer": "FinTechathon 2026 · Simulated sandbox — no real payments",
+    "close": "Close",
+    "cancel": "Cancel"
+  },
+  "error": {
+    "title": "Something went wrong",
+    "body": "We could not load this data. Please try again.",
+    "noAccessTitle": "You do not have access to this page",
+    "noAccessBody": "This record belongs to another business, or your role cannot view it. Switch user or go back to your orders.",
+    "notFoundTitle": "We could not find that record"
+  },
+  "lang": {
+    "label": "Language",
+    "en": "EN",
+    "bn": "বাংলা",
+    "zh": "中文"
+  },
+  "shell": {
+    "skip": "Skip to main content",
+    "switchUser": "Switch user",
+    "logout": "Log out"
+  },
+  "nav": {
+    "label": "Main navigation",
+    "analysis": "Analysis",
+    "orders": "Deals",
+    "dashboard": "Dashboard",
+    "cashflow": "Cash Flow",
+    "financing": "Financing",
+    "chat": "Chat",
+    "suppliers": "Suppliers",
+    "registry": "Registry",
+    "risk": "Risk engine",
+    "playground": "Risk playground",
+    "approvals": "Approvals",
+    "emailCheck": "Check an email",
+    "simulator": "Scam simulator",
+    "privacy": "Privacy",
+    "privacyPlayground": "Privacy playground",
+    "security": "Security",
+    "attackConsole": "Attack console",
+    "audit": "Audit log",
+    "auditDemo": "Audit chain demo"
+  },
+  "role": {
+    "BUYER": "Buyer",
+    "SUPPLIER": "Supplier",
+    "ADMIN": "Admin",
+    "JUDGE": "Judge"
+  },
+  "login": {
+    "title": "Log in as a demo user",
+    "demoOnly": "Demo only: this screen lets you pick a pre-made sandbox account without a password. It does not exist in a real deployment.",
+    "button": "Log in",
+    "loginAs": "Log in as {name}",
+    "failed": "Could not log in. Please try again."
+  },
+  "kind": {
+    "GOODS": "Goods",
+    "FREIGHT": "Freight",
+    "INSURANCE": "Insurance",
+    "DUTY": "Duty & taxes",
+    "BANK_CHARGES": "Bank charges",
+    "OTHER": "Other"
+  },
+  "band": {
+    "healthy": "Healthy",
+    "thin": "Thin",
+    "low": "Low"
+  },
+  "status": {
+    "DRAFT": "Draft",
+    "FUNDED": "Funded",
+    "COMPLETED": "Completed",
+    "IN_PRODUCTION": "In production",
+    "SHIPPED": "Shipped",
+    "DISPUTED": "Disputed",
+    "CANCELLED": "Cancelled",
+    "PROPOSED": "Proposed",
+    "CONFIRMED": "Confirmed",
+    "ARRIVED": "Arrived"
+  },
+  "kyb": {
+    "VERIFIED": "Verified",
+    "WARNING": "Warning",
+    "PENDING": "Pending",
+    "REJECTED": "Rejected",
+    "UNVERIFIED": "Unverified",
+    "BLOCKED": "Blocked",
+    "badgeLabel": "Supplier check: {status}",
+    "scoreLabel": "Check score {score} out of 100",
+    "check": {
+      "PASS": "Passed",
+      "WARN": "Warning",
+      "FAIL": "Failed"
+    },
+    "code": {
+      "LICENSE_VS_INVOICE_NAME": "Licence name vs invoice seller",
+      "LICENSE_VS_ACCOUNT_HOLDER": "Licence name vs account holder",
+      "ACCOUNT_TYPE": "Account type",
+      "ACCOUNT_AGE": "Account age",
+      "ACCOUNT_COUNTRY": "Bank country",
+      "PENDING_BENEFICIARY_CHANGE": "Pending account change",
+      "REGISTRY_HISTORY": "Deal history",
+      "SANCTIONS_SCREEN": "Sanctions screening",
+      "RECEIVING_ACCOUNT": "Receiving account"
+    }
+  },
+  "orders": {
+    "title": "Orders",
+    "caption": "Your import orders",
+    "empty": "No orders yet.",
+    "ref": "Reference",
+    "titleCol": "Title",
+    "supplier": "Supplier",
+    "status": "Status",
+    "goodsValue": "Goods value",
+    "actions": "Analysis",
+    "viewAnalysis": "View analysis",
+    "hs": "HS code",
+    "incoterm": "Incoterm",
+    "quantity": "Quantity",
+    "opened": "Opened",
+    "financing": "Financing"
+  },
+  "analysis": {
+    "title": "Business financial analysis",
+    "tabs": "Analysis sections",
+    "tab": {
+      "calculator": "Landed Cost Calculator",
+      "monthly": "Monthly Summary",
+      "suppliers": "Supplier Scorecard"
+    },
+    "order": {
+      "title": "Order Analysis"
+    },
+    "currency": "Display currency",
+    "kpi": {
+      "landedCost": "Landed cost",
+      "costPerUnit": "Cost per unit",
+      "revenue": "Expected revenue",
+      "margin": "Gross margin",
+      "noPrice": "Enter a selling price to see this"
+    },
+    "breakdown": {
+      "title": "Cost breakdown",
+      "chartLabel": "Stacked bar of each cost line; the table below has the exact values",
+      "caption": "Cost lines in {currency} with their share of landed cost",
+      "item": "Cost line",
+      "amount": "Amount",
+      "share": "Share"
+    },
+    "why": {
+      "title": "Why these numbers?",
+      "facts": "Facts used"
+    },
+    "target": {
+      "title": "Break-even and target price",
+      "breakEven": "Break-even selling price per unit",
+      "input": "Target margin (%)",
+      "hint": "For example 20 — below 100",
+      "invalid": "Enter a number below 100, up to 4 decimals",
+      "result": "To earn a {pct}% margin sell at"
+    },
+    "fx": {
+      "note": "Exchange rates as of {date}."
+    }
+  },
+  "calc": {
+    "title": "What-if landed cost",
+    "intro": "Change any value and the result updates. Nothing is saved.",
+    "currency": "Input currency",
+    "goodsValue": "Goods value",
+    "quantity": "Quantity",
+    "unit": "Unit",
+    "sellingPrice": "Selling price per unit",
+    "optional": "Optional",
+    "costLines": "Extra cost lines",
+    "lineKind": "Cost type",
+    "lineAmount": "Amount",
+    "lineLabel": "Label (optional)",
+    "addLine": "Add cost line",
+    "remove": "Remove",
+    "removeLine": "Remove {kind} line",
+    "fixErrors": "Fix the highlighted fields to see results.",
+    "err": {
+      "decimal": "Use digits with up to 4 decimals, e.g. 1250.50",
+      "qtyPositive": "Quantity must be greater than 0",
+      "unit": "Enter a unit of up to 8 characters"
+    }
+  },
+  "monthly": {
+    "pickMonth": "Month",
+    "pickBuyer": "Business",
+    "chooseBuyer": "Select a business",
+    "chooseBuyerFirst": "Select a business to see its monthly summary.",
+    "empty": "No orders in this month",
+    "emptyHint": "Pick another month to see activity.",
+    "kpi": {
+      "deals": "Orders",
+      "purchases": "Total purchases",
+      "landed": "Total landed cost",
+      "margin": "Average margin"
+    },
+    "vsPrev": "{pct}% vs last month",
+    "topDriver": "Top cost driver: {kind} ({share})",
+    "insights": "Key insights",
+    "history": "Last 6 months",
+    "purchases": "Purchases",
+    "avgMargin": "Average margin %",
+    "chartLabel": "Chart of monthly purchases and average margin for six months",
+    "showTable": "Show data table",
+    "tableCaption": "Monthly purchases and average margin",
+    "month": "Month",
+    "deals": "Orders this month",
+    "dealsCaption": "Orders in the selected month"
+  },
+  "suppliers": {
+    "intro": "Scores use the last {months} months of activity. Weak suppliers are flagged.",
+    "caption": "Supplier scorecard",
+    "empty": "No suppliers to show yet.",
+    "weak": "Weak supplier",
+    "col": {
+      "name": "Supplier",
+      "kyb": "KYB",
+      "score": "Score",
+      "onTime": "On-time",
+      "dispute": "Disputes",
+      "priceIndex": "Price index",
+      "deals": "Your orders"
+    }
+  },
+  "trigger": {
+    "PRODUCTION_START": "Production start",
+    "SHIPMENT": "Shipment",
+    "ARRIVAL": "Arrival"
+  },
+  "severity": {
+    "CRITICAL": "Critical",
+    "WARNING": "Warning",
+    "INFO": "Info"
+  },
+  "alertType": {
+    "SHORTFALL": "Cash shortfall",
+    "DEADLINE": "Deadline",
+    "FX_OPPORTUNITY": "FX opportunity",
+    "KYB_WARNING": "Business check",
+    "FRAUD": "Fraud risk",
+    "INFO": "Notice"
+  },
+  "alertStatus": {
+    "OPEN": "Open",
+    "ACKNOWLEDGED": "Acknowledged",
+    "RESOLVED": "Resolved"
+  },
+  "flow": {
+    "kind": {
+      "SALES": "Sales receipts",
+      "MILESTONE_PAYMENT": "Escrow milestone",
+      "DUTY": "Customs duty",
+      "FREIGHT": "Freight",
+      "INSURANCE": "Insurance",
+      "BANK_CHARGES": "Bank charges",
+      "LOAN_REPAYMENT": "Loan repayment",
+      "LOCAL_PURCHASE": "Local purchase",
+      "RENT": "Rent",
+      "SALARY": "Salaries",
+      "UTILITIES": "Utilities"
+    }
+  },
+  "alerts": {
+    "title": "Alerts",
+    "due": "Due {date}",
+    "filter": {
+      "type": "Type",
+      "severity": "Severity",
+      "status": "Status",
+      "all": "All"
+    },
+    "readOnly": "This is a read-only demo user, so alerts cannot be changed.",
+    "actionFailed": "Could not update the alert. Please try again.",
+    "empty": "No alerts match these filters.",
+    "acknowledge": "Acknowledge",
+    "resolve": "Resolve"
+  },
+  "dash": {
+    "title": "Dashboard",
+    "kpi": {
+      "cash": "Cash balance",
+      "escrow": "In escrow",
+      "due30": "Due in next 30 days",
+      "alerts": "Open alerts"
+    },
+    "alerts": "Alerts",
+    "allAlerts": "Manage alerts",
+    "noAlerts": "No open alerts. You are all caught up.",
+    "approvals": "Pending approvals",
+    "approvalsLink": "Open approvals inbox",
+    "month": "This month · {month}",
+    "monthLink": "Open monthly summary",
+    "cashflow": "Cash flow, next 90 days",
+    "cashflowLink": "Open cash flow",
+    "deals": "Active deals",
+    "noDeals": "No active deals.",
+    "dealsCaption": "Active deals with their next milestone",
+    "nextMilestone": "Next milestone",
+    "milestone": "Milestone {seq}"
+  },
+  "cf": {
+    "title": "Cash flow",
+    "chooseBuyerFirst": "Select a business to see its cash flow.",
+    "closing": "Closing balance",
+    "chartTitle": "Running balance, next 90 days",
+    "chartSummaryShortfall": "Projected balance from {start} to {end}, starting at {opening}. It first falls below the buffer on {date} by {amount}. Lowest balance {lowest} on {lowestOn}.",
+    "chartSummaryOk": "Projected balance from {start} to {end}, starting at {opening}. It never falls below the buffer. Lowest balance {lowest} on {lowestOn}.",
+    "legend": {
+      "balance": "Closing balance",
+      "buffer": "Minimum buffer {amount}",
+      "shortfall": "Days below the buffer",
+      "dealCost": "Deal cost payment day",
+      "firstShortfall": "First shortfall {date}"
+    },
+    "weekOf": "Week {start} to {end}",
+    "dayLabel": "{date}: closing {closing}, net {net}",
+    "belowBuffer": "Below the minimum buffer",
+    "low": "Low",
+    "dealCostShort": "Deal cost",
+    "dayDetails": "Details for {date}",
+    "dayDetailsNone": "Day details",
+    "dayDetailsHint": "Select a day in the calendar to see its payments and receipts.",
+    "openingClosing": "Opening {opening}, closing {closing}",
+    "noItems": "No payments or receipts on this day.",
+    "itemsCaption": "Payments and receipts on the selected day",
+    "item": "Item",
+    "kind": "Type",
+    "direction": "Direction",
+    "amount": "Amount",
+    "dir": {
+      "IN": "In",
+      "OUT": "Out"
+    },
+    "showWeekly": "Show weekly table",
+    "weeklyCaption": "Weekly inflow, outflow and balance",
+    "week": "Week",
+    "inflow": "Inflow",
+    "outflow": "Outflow",
+    "lowest": "Lowest",
+    "firstShortfall": "First shortfall: {amount} on {date}",
+    "noShortfall": "No shortfall in the next {days} days",
+    "kpi": {
+      "opening": "Opening balance",
+      "lowest": "Lowest balance",
+      "lowestOn": "On {date}",
+      "inflow": "Total inflow",
+      "outflow": "Total outflow"
+    },
+    "calendarTitle": "Calendar",
+    "calendarHint": "Each row is a week. Select a day to see what happens on it."
+  },
+  "whatif": {
+    "title": "What-if planner",
+    "badge": "What-if — not saved",
+    "activeHint": "The chart, calendar and alerts show a scenario. Nothing is saved.",
+    "reset": "Reset to saved forecast",
+    "intro": "Try changes and see the effect. Nothing you try here is saved.",
+    "move": {
+      "title": "Move a payment",
+      "item": "Payment",
+      "none": "Choose a payment",
+      "date": "New date"
+    },
+    "loan": {
+      "title": "Add a loan",
+      "enable": "Add a loan inflow",
+      "amount": "Loan amount ({currency})",
+      "amountHint": "Prefilled with the amount that keeps the balance above the buffer: {amount}",
+      "date": "Loan arrives on",
+      "repayDate": "Repay on (optional)",
+      "repayAmount": "Repayment amount ({currency}, optional)"
+    },
+    "remove": {
+      "title": "Switch items off",
+      "hint": "Tick an item to leave it out of the forecast."
+    },
+    "err": {
+      "invalidDecimal": "Enter a positive number with up to 4 decimals",
+      "invalidDate": "Enter a valid date",
+      "required": "This field is required"
+    },
+    "alerts": "Scenario alerts",
+    "noAlerts": "This scenario raises no alerts."
+  },
+  "fin": {
+    "title": "Financing",
+    "intro": "Compare financing options for your cash gap, see what each costs, and apply in the simulated sandbox.",
+    "mode": {
+      "label": "What to finance",
+      "shortfall": "Cover shortfall",
+      "order": "Fund whole order"
+    },
+    "deal": {
+      "label": "Deal",
+      "choose": "Choose a deal",
+      "pick": "Choose a deal to fund the whole order."
+    },
+    "days": "{n} days",
+    "noneNeeded": "No financing needed",
+    "noneNeededBody": "Your forecast cash covers the coming weeks. Enter an amount to compare options anyway.",
+    "noneNeededOrder": "Your available cash already covers this order.",
+    "gap": {
+      "title": "Your funding gap",
+      "amount": "Amount needed",
+      "neededBy": "Needed by",
+      "forDays": "For",
+      "landed": "Landed cost of the order",
+      "cash": "Available cash",
+      "release": "Milestone 3 release (est.)",
+      "recovers": "Cash recovers on",
+      "why": "Why this amount",
+      "facts": "Facts used"
+    },
+    "amount": {
+      "label": "Amount to finance",
+      "hint": "Up to 4 decimals. Options are re-compared as you type.",
+      "invalid": "Enter a positive amount like 1560.00",
+      "useSuggested": "Use suggested amount",
+      "coverPeak": "Cover the whole dip (peak {amount})"
+    },
+    "options": {
+      "title": "Compare options"
+    },
+    "recommended": "Recommended",
+    "eligible": "Eligible",
+    "ineligible": "Not eligible",
+    "saves": "Saves {amount} vs the next best option",
+    "whyNot": "Why not",
+    "kind": {
+      "ESCROW_BACKED_LOAN": "Escrow-backed loan",
+      "SUPPLIER_CREDIT": "Supplier credit",
+      "BANK_IMPORT_LOAN": "Bank import loan",
+      "WORKING_CAPITAL_LINE": "Working-capital line (NBFI)",
+      "INSURED_SUPPLIER_TERMS": "Insured supplier terms"
+    },
+    "opt": {
+      "name": "Option",
+      "total": "Total cost",
+      "interest": "Interest",
+      "fees": "Fees",
+      "uplift": "Price uplift",
+      "flat": "Flat cost",
+      "tenor": "Tenor",
+      "maturity": "Maturity",
+      "ear": "Effective annual rate",
+      "per30": "Cost per 30 days",
+      "collateral": "Collateral",
+      "conditions": "Conditions ({n})",
+      "risks": "Risk notes"
+    },
+    "apply": {
+      "title": "Apply for financing (simulated)",
+      "amount": "Amount",
+      "simulatedNote": "Simulated — no real money moves.",
+      "confirm": "Confirm application",
+      "submitting": "Submitting your application…",
+      "waiting": "Submitted. Waiting for the simulated lender decision…",
+      "approved": "Approved (simulated) — your cash flow and alerts were updated",
+      "toDashboard": "Back to the Dashboard",
+      "tracker": "Application progress",
+      "button": "Apply (simulated)"
+    },
+    "schedule": {
+      "button": "Show repayment schedule",
+      "title": "Repayment schedule: {name}",
+      "summary": "{days} days, final payment on {date}.",
+      "caption": "Repayment instalments",
+      "due": "Due",
+      "principal": "Principal",
+      "cost": "Cost",
+      "total": "Instalment"
+    },
+    "impact": {
+      "button": "See impact on my cash flow"
+    },
+    "readOnly": "This account is read-only, so it cannot submit applications.",
+    "status": {
+      "SUBMITTED": "Submitted",
+      "APPROVED": "Approved",
+      "REJECTED": "Rejected",
+      "CANCELLED": "Cancelled"
+    },
+    "apps": {
+      "title": "My applications",
+      "empty": "No applications yet.",
+      "caption": "Financing applications",
+      "ref": "Reference",
+      "option": "Option",
+      "amount": "Amount",
+      "total": "Total cost",
+      "maturity": "Maturity",
+      "status": "Status"
+    },
+    "imp": {
+      "title": "Cash-flow impact: {name}",
+      "before": "Without financing",
+      "after": "With financing",
+      "zone": "Below zero",
+      "inflow": "Loan received",
+      "repay": "Repayment",
+      "lowestBefore": "Lowest balance without",
+      "lowestAfter": "Lowest balance with"
+    },
+    "registryBlocked": "Blocked: invoice already financed"
+  },
+  "approvals": {
+    "title": "Approvals",
+    "soon": "Approvals inbox arrives in P17."
+  },
+  "chat": {
+    "title": "Ask Setu",
+    "conversation": "Conversation",
+    "empty": "Ask about your cash flow, landed cost, financing or suppliers. Setu explains numbers calculated by the system.",
+    "typing": "Setu is thinking…",
+    "send": "Send",
+    "stop": "Stop",
+    "copy": "Copy",
+    "copied": "Copied",
+    "error": "Something went wrong with this reply.",
+    "interrupted": "This reply was interrupted.",
+    "stoppedByUser": "Stopped.",
+    "new": "New chat",
+    "disclaimer": "Setu gives options, not licensed financial advice. All data simulated.",
+    "input": {
+      "label": "Message to Setu",
+      "placeholder": "Type your question…",
+      "hint": "Press Enter to send, Shift+Enter for a new line."
+    },
+    "search": {
+      "label": "Search conversations",
+      "placeholder": "Search chats"
+    },
+    "threads": {
+      "label": "Conversations",
+      "empty": "No conversations yet."
+    },
+    "rename": {
+      "label": "Conversation title",
+      "button": "Rename {title}"
+    },
+    "delete": {
+      "button": "Delete {title}",
+      "title": "Delete conversation?",
+      "body": "“{title}” and its messages will be removed.",
+      "confirm": "Delete"
+    },
+    "deal": {
+      "label": "About deal:",
+      "none": "No specific deal"
+    },
+    "feedback": {
+      "up": "Helpful answer",
+      "down": "Not helpful"
+    },
+    "stopped": {
+      "budget": "This conversation reached its size limit. Start a new chat to continue.",
+      "tool_cap": "Setu stopped after using too many tools for one question.",
+      "model_error": "The assistant could not finish this answer."
+    },
+    "suggest": {
+      "title": "Try asking",
+      "cash": "Will I run short of cash this month?",
+      "landed": "What is the landed cost of order SETU-2026-0001?",
+      "financing": "Which financing option is cheapest?",
+      "fx": "How much would I save paying in CNY instead of USD?",
+      "alerts": "Show my alerts",
+      "suppliers": "How are my suppliers doing?",
+      "kb": "What does FOB mean?"
+    },
+    "tool": {
+      "label": "Steps Setu took",
+      "generic": "Working on it…",
+      "failed": "(failed)",
+      "get_dashboard_snapshot": "Loading your dashboard…",
+      "get_deal_summary": "Looking up the deal…",
+      "explain_how_setu_works": "Checking how Setu works…",
+      "analyze_order": "Analysing the order costs…",
+      "landed_cost_what_if": "Running the landed-cost what-if…",
+      "forecast_cashflow": "Checking your cash flow…",
+      "simulate_cashflow_scenario": "Simulating the cash-flow scenario…",
+      "get_alerts": "Fetching your alerts…",
+      "match_financing": "Comparing financing options…",
+      "financing_impact": "Measuring the financing impact…",
+      "compare_fx_route": "Comparing USD and CNY payment routes…",
+      "get_monthly_summary": "Preparing the monthly summary…",
+      "get_supplier_scorecard": "Reviewing supplier scorecards…",
+      "search_knowledge": "Searching Setu's knowledge base…"
+    },
+    "drawer": {
+      "open": "Ask Setu",
+      "title": "Ask Setu",
+      "full": "Open full chat"
+    },
+    "card": {
+      "landed_cost": "Landed cost {deal}",
+      "openAnalysis": "Open analysis",
+      "cashflow": "Cash-flow forecast",
+      "openCashflow": "Open cash flow",
+      "alerts": "Alerts ({n})",
+      "financing": "Financing options",
+      "fx": "USD vs CNY payment",
+      "monthly": "Summary for {month}",
+      "scorecard": "Supplier scorecard",
+      "kyb": "Supplier check: {name}",
+      "openSupplier": "Open supplier profile",
+      "checksPassed": "{passed} of {total} checks passed",
+      "pendingChange": "Pending account change: {status}",
+      "allPassed": "All checks passed.",
+      "docCheck": "Document check · {ref}",
+      "openDocument": "Open document",
+      "openDeal": "Open deal",
+      "docCounts": "{passed} passed · {warning} warning · {failed} failed"
+    },
+    "landed": {
+      "perUnit": "Cost per {unit}",
+      "marginPct": "Gross margin",
+      "breakEven": "Break-even price per {unit}"
+    },
+    "cf": {
+      "summaryShortfall": "Cash first falls short on {date} by {amount}.",
+      "summaryOk": "No shortfall. Lowest balance {lowest} on {date}.",
+      "firstShortfall": "First shortfall",
+      "noShortfall": "None",
+      "lowest": "Lowest balance",
+      "afterShortfall": "Shortfall after scenario",
+      "afterLowest": "Lowest after scenario",
+      "scenario": "Scenario: {label}",
+      "before": "Before",
+      "after": "After scenario",
+      "belowBuffer": "Below the {amount} buffer",
+      "upcoming": "Upcoming payments"
+    },
+    "alerts": {
+      "none": "No open alerts.",
+      "open": "Open"
+    },
+    "fin": {
+      "need": "{amount} needed by {date} for {days} days"
+    },
+    "fx": {
+      "invoice": "Invoice {amount} · {basis}",
+      "route": "Pay in {cur}",
+      "cheaper": "Cheaper",
+      "sent": "Sent",
+      "rate": "Rate used",
+      "conversion": "Conversion",
+      "fees": "Fees",
+      "saving": "Paying in {cur} saves {amount} ({pct}).",
+      "mock": "Rates are MOCK demo rates as of {date}.",
+      "assumptions": "Assumptions"
+    },
+    "monthly": {
+      "history": "Landed cost, last 6 months"
+    },
+    "cite": {
+      "label": "Source {id}: {title}"
+    },
+    "sources": {
+      "title": "Sources",
+      "note": "Simplified summaries — verify with the official source.",
+      "reviewed": "Last reviewed {date}",
+      "withheld": "Some passages were withheld because they contained instruction-like text."
+    },
+    "card.registry": "Registry · {ref}"
+  },
+  "sup": {
+    "title": "Suppliers",
+    "intro": "Business checks (KYB) for the suppliers you trade with. Simulated data.",
+    "search": "Search suppliers",
+    "searchPlaceholder": "Name or city",
+    "filter": "Check status",
+    "all": "All",
+    "caption": "Suppliers with check status, score, deals and on-time rate",
+    "empty": "No suppliers yet.",
+    "noMatch": "No supplier matches your filters.",
+    "never": "Not checked yet",
+    "pendingChange": "Pending account change",
+    "openProfile": "View profile",
+    "yourDeals": "{n} of your deals",
+    "col": {
+      "name": "Supplier",
+      "city": "City",
+      "status": "KYB status",
+      "score": "Score",
+      "deals": "Completed deals",
+      "onTime": "On-time",
+      "lastChecked": "Last checked"
+    },
+    "back": "All suppliers",
+    "company": "Company details",
+    "legalName": "Legal name",
+    "licenseName": "Licence name",
+    "licenseNo": "Licence number",
+    "city": "City",
+    "country": "Country",
+    "firstSeen": "On file since",
+    "score": "Check score",
+    "liveNote": "Live evaluation, not stored yet.",
+    "checks": "Business checks",
+    "evidence": "Evidence",
+    "noEvidence": "No extra evidence.",
+    "pendingTitle": "Unreviewed new bank account",
+    "pendingBody": "A new receiving account was submitted. Do not pay it until it is approved. It does not change the current status below.",
+    "pendingAccount": "New account {number}: {status}",
+    "accounts": "Bank accounts",
+    "accountsCaption": "Supplier bank accounts, masked",
+    "acc": {
+      "bank": "Bank",
+      "number": "Account",
+      "holder": "Holder",
+      "type": "Type",
+      "age": "Age",
+      "status": "Status",
+      "currency": "Currency",
+      "country": "Bank country"
+    },
+    "accType": {
+      "CORPORATE": "Corporate",
+      "PERSONAL": "Personal"
+    },
+    "accStatus": {
+      "ACTIVE": "Active",
+      "PENDING_CHANGE": "Pending change",
+      "RETIRED": "Retired"
+    },
+    "days": "{n} days",
+    "deals": "Deal history",
+    "dealsCaption": "Deals with this supplier",
+    "dealsEmpty": "No deals yet.",
+    "deal": {
+      "ref": "Reference",
+      "title": "Title",
+      "status": "Status",
+      "value": "Goods value",
+      "opened": "Opened",
+      "onTime": "On time"
+    },
+    "yes": "Yes",
+    "no": "No",
+    "trend": "Supplier score trend",
+    "trendTable": "Show data table",
+    "trendCaption": "Monthly supplier score",
+    "month": "Month",
+    "trendEmpty": "Not enough history for a trend.",
+    "onTimeRate": "On-time rate",
+    "disputeRate": "Dispute rate",
+    "completed": "Completed deals",
+    "rerun": "Re-run KYB",
+    "rerunning": "Checking...",
+    "rerunDone": "Check finished. Result updated.",
+    "rerunForbidden": "Your role cannot re-run checks. Buyers and admins can.",
+    "rerunFailed": "The check could not run. Try again.",
+    "readOnly": "Read-only view: re-running checks is for buyers and admins.",
+    "history": "Previous checks",
+    "historyCaption": "Earlier KYB runs",
+    "panel": {
+      "title": "Supplier check",
+      "blocked": "This supplier is blocked. Do not send any payment for this deal.",
+      "allPassed": "All checks passed.",
+      "viewProfile": "View supplier profile",
+      "unavailable": "Supplier check is not available for this deal."
+    }
+  },
+  "docType": {
+    "PROFORMA_INVOICE": "Proforma invoice",
+    "PRODUCTION_PHOTO": "Production photo",
+    "BILL_OF_LADING": "Bill of lading",
+    "PACKING_LIST": "Packing list",
+    "COMMERCIAL_INVOICE": "Commercial invoice",
+    "BILL_OF_ENTRY": "Bill of entry",
+    "CERTIFICATE_OF_ORIGIN": "Certificate of origin",
+    "OTHER": "Other document"
+  },
+  "deals": {
+    "title": "Deals",
+    "new": "New deal",
+    "all": "All",
+    "filterLabel": "Filter deals by status",
+    "search": "Search deals",
+    "searchPlaceholder": "Reference, goods or supplier",
+    "empty": "No deals match.",
+    "count": "{n} deals shown",
+    "caption": "Your import deals",
+    "goods": "Goods"
+  },
+  "dd": {
+    "tabs": "Deal sections",
+    "tab": {
+      "overview": "Overview",
+      "documents": "Documents",
+      "analysis": "Analysis",
+      "activity": "Activity"
+    },
+    "unitPrice": "Unit price",
+    "route": "Route",
+    "settlement": "Settlement currency",
+    "beneficiary": "Receiving account",
+    "details": "Deal details",
+    "disputed": "This deal is disputed: {reason}",
+    "confirmations": "Schedule confirmations",
+    "confirmed": "Confirmed",
+    "notConfirmed": "Not yet confirmed"
+  },
+  "ms": {
+    "title": "Payment milestones",
+    "none": "No milestones yet. Propose a schedule to start.",
+    "listLabel": "Milestones in order",
+    "step": "Milestone {seq}",
+    "due": "Due {date}",
+    "funded": "covered by escrow",
+    "evidence": "Evidence",
+    "docCount": "{n} uploaded",
+    "settlement": "Paid out as {amount} in {currency} at rate {rate}",
+    "status": {
+      "PROPOSED": "Proposed",
+      "PENDING": "Locked",
+      "READY": "Ready to release",
+      "PENDING_APPROVAL": "Waiting for approval",
+      "RELEASED": "Released",
+      "FROZEN": "Frozen",
+      "REFUNDED": "Refunded",
+      "CANCELLED": "Cancelled"
+    },
+    "ev": {
+      "MISSING": "Missing",
+      "PENDING": "Pending",
+      "VERIFIED": "Verified",
+      "FLAGGED": "Flagged",
+      "REJECTED": "Rejected"
+    },
+    "release": "Release payment",
+    "releaseTitle": "Release milestone {seq}?",
+    "releaseBody": "{amount} will move from escrow to {supplier}. This is a simulated payment.",
+    "beneficiary": "Receiving account: {account}",
+    "released": "Milestone released (simulated).",
+    "waitingTitle": "Waiting for your approval",
+    "waitingApproval": "Waiting for your approval. No money moves until you approve it.",
+    "openApprovals": "Open approvals"
+  },
+  "esc": {
+    "title": "Escrow",
+    "status": "Status",
+    "funded": "Funded",
+    "released": "Released",
+    "refunded": "Refunded",
+    "balance": "In escrow",
+    "remaining": "Still to deposit",
+    "barLabel": "Released {released}, in escrow {balance}, of {funded} funded",
+    "settlement": "Settles to the supplier in {currency}",
+    "fx": "rate {rate} ({from} to {to})",
+    "over20k": "Deposits above $20,000 need extra approval before any release.",
+    "invariantBad": "Escrow totals do not reconcile. Contact support.",
+    "simNote": "Simulated: no real money moves."
+  },
+  "led": {
+    "title": "Escrow ledger",
+    "balanced": "Every transaction balances",
+    "unbalanced": "Ledger does not balance",
+    "empty": "No postings yet.",
+    "caption": "Simulated double-entry postings for this deal",
+    "kind": "Type",
+    "milestone": "Milestone",
+    "account": "Account",
+    "direction": "Side",
+    "amount": "Amount",
+    "fx": "FX payout",
+    "posted": "Posted",
+    "fxDetail": "{amount} at {rate}",
+    "kinds": {
+      "FUND": "Deposit",
+      "RELEASE": "Release",
+      "REFUND": "Refund"
+    },
+    "dir": {
+      "DEBIT": "Debit",
+      "CREDIT": "Credit"
+    }
+  },
+  "act": {
+    "title": "Activity",
+    "empty": "No activity recorded yet.",
+    "tier": "Tier {tier}",
+    "hash": "hash",
+    "actor": {
+      "user": "Person",
+      "llm": "Assistant",
+      "system": "System"
+    },
+    "details": "Show the signed audit entry"
+  },
+  "act2": {
+    "title": "Actions",
+    "propose": "Propose milestones",
+    "confirm": "Confirm schedule",
+    "fund": "Fund escrow",
+    "proposeTitle": "Propose a payment schedule",
+    "proposeBody": "Both you and the supplier must confirm the schedule before escrow can be funded. Proposing again resets confirmations.",
+    "template": "Schedule",
+    "tpl3060": "30% / 60% / 10% (production, shipment, arrival)",
+    "tplCustom": "Custom percentages",
+    "pctN": "Tranche {n} %",
+    "addTranche": "Add tranche",
+    "removeTranche": "Remove tranche",
+    "pctSum": "Total {sum}% (must be 100%)",
+    "proposed": "Schedule proposed.",
+    "confirmTitle": "Confirm the payment schedule?",
+    "confirmBody": "You agree to the milestones, amounts and evidence shown.",
+    "confirmed": "Schedule confirmed.",
+    "fundTitle": "Fund the escrow",
+    "fundBody": "Still to deposit: {remaining}. Leave the amount empty to deposit the next tranche.",
+    "fundAmount": "Amount ({currency})",
+    "fundHint": "Optional, at most 2 decimals.",
+    "amountInvalid": "Enter a positive amount with at most 2 decimals.",
+    "funded": "Escrow funded (simulated)."
+  },
+  "dev": {
+    "markVerified": "Dev: mark evidence verified"
+  },
+  "dn": {
+    "title": "New deal",
+    "steps": "Steps",
+    "step": {
+      "supplier": "Supplier",
+      "goods": "Goods",
+      "ship": "Shipping and costs",
+      "review": "Review"
+    },
+    "pickSupplier": "Choose a supplier",
+    "goodsTitle": "What are you buying?",
+    "shipTitle": "Shipping and extra costs",
+    "reviewTitle": "Review and create",
+    "goods": "Goods",
+    "unit": "Unit",
+    "unitPrice": "Unit price",
+    "expectedSale": "Expected sale value",
+    "optional": "Optional.",
+    "total": "Goods total",
+    "totalNote": "Preview of quantity times unit price. The system calculates the final value.",
+    "pol": "Port of loading",
+    "pod": "Port of discharge",
+    "extraCosts": "Extra costs ({currency})",
+    "landedTitle": "Landed cost preview",
+    "landedWait": "Fill in the goods and costs to see the landed cost.",
+    "landedFail": "The preview is not available right now. You can still create the deal.",
+    "landedTotal": "Landed cost",
+    "landedUnit": "Per unit",
+    "landedNote": "Calculated by the system. Simulated.",
+    "draftNote": "The deal is created as a draft. You then propose milestones and fund the escrow.",
+    "next": "Next",
+    "back": "Back",
+    "create": "Create draft deal",
+    "created": "Deal {ref} created.",
+    "warnTitle": "{name} has a warning",
+    "warnBody": "The supplier check found issues. Review them before you commit money.",
+    "blockedTitle": "{name} is blocked",
+    "blockedBody": "The supplier check blocked this supplier. Paying a blocked supplier is strongly discouraged and the system may refuse it.",
+    "useAnyway": "Use this supplier anyway",
+    "err": {
+      "required": "This field is required.",
+      "hs": "Use 4 to 12 digits and dots, for example 6109.10.",
+      "positive": "Enter a number above zero.",
+      "unit": "Enter a unit up to 16 characters.",
+      "decimal": "Enter a number with at most 4 decimals.",
+      "supplier": "Choose a supplier to continue."
+    }
+  },
+  "dealErr": {
+    "generic": "Something went wrong. Please try again.",
+    "FORBIDDEN": "You do not have permission to do this.",
+    "NOT_FOUND": "We could not find that deal.",
+    "VALIDATION": "Some values are not valid. Check the form and try again.",
+    "EVIDENCE_NOT_VERIFIED": "The required documents are not verified yet, so the payment cannot be released.",
+    "BENEFICIARY_NOT_ACTIVE": "The supplier's receiving account is not active (a recent change is still pending). Payment is paused.",
+    "BENEFICIARY_NOT_SUPPLIERS": "The receiving account does not belong to this supplier.",
+    "BENEFICIARY_MISSING": "No receiving account is set for this deal.",
+    "BENEFICIARY_CURRENCY": "The receiving account currency is not supported.",
+    "INSUFFICIENT_ESCROW": "There is not enough money in escrow for this milestone. Deposit more first.",
+    "INSUFFICIENT_CASH": "Your cash balance is too low for this deposit.",
+    "MILESTONE_NOT_READY": "This milestone is not ready to be released yet.",
+    "MILESTONE_ALREADY_RELEASED": "This milestone was already released.",
+    "MILESTONE_SETTLED": "This milestone is already settled.",
+    "DEAL_NOT_ACTIVE": "The deal is not in a stage where payments can be released.",
+    "DEAL_NOT_EDITABLE": "The schedule can no longer be changed because money is in escrow.",
+    "DEAL_NOT_FUNDABLE": "This deal cannot be funded yet. Both sides must confirm the schedule first.",
+    "DEAL_NOT_PROPOSED": "There is no proposed schedule to confirm.",
+    "ALREADY_FULLY_FUNDED": "The goods value is already fully deposited.",
+    "AMOUNT_EXCEEDS_GOODS_VALUE": "The amount is more than the goods value still to deposit.",
+    "INVALID_AMOUNT": "Enter a positive amount with at most 2 decimals.",
+    "SCHEDULE_INVALID": "The percentages are not valid. Use 2 to 5 tranches that add up to exactly 100%.",
+    "KYB_BLOCKED": "The supplier check is blocked, so this action is refused.",
+    "RELEASE_ALREADY_POSTED": "This payment was already posted earlier, so it cannot be released again. Reject this request.",
+    "RELEASE_BLOCKED": "The risk check blocked this release.",
+    "COOLING_OFF": "The cooling-off period is not over yet.",
+    "APPROVAL_STILL_OPEN": "An approval is still open for this milestone.",
+    "INVALID_TRANSITION": "This step is not allowed in the deal's current state.",
+    "ROLE_REQUIRED": "Your role cannot do this.",
+    "BUYER_REQUIRED": "Only the buyer can do this.",
+    "NOT_REFUNDABLE": "This milestone cannot be refunded.",
+    "NOTHING_TO_REFUND": "There is nothing to refund.",
+    "DOCUMENTS_PENDING": "Some documents are still being checked, so the payment cannot be released yet. Try again in a moment.",
+    "INVOICE_ALREADY_FINANCED": "This invoice is already financed with another lender, so a second financing cannot be placed on it.",
+    "OTP_REQUIRED": "Enter the 6-digit code from your phone.",
+    "OTP_INVALID": "That code is not correct.",
+    "OTP_LOCKED": "Three wrong codes: this request is locked and can no longer be approved.",
+    "OTP_EXPIRED": "The code has expired. Press Resend code to get a new one.",
+    "OTP_NOT_ISSUED": "No code has been sent yet. Press Resend code.",
+    "OTP_NOT_APPLICABLE": "A code can only be sent for an open Tier 3 request.",
+    "OTP_RESEND_LIMIT": "Too many codes were requested. Please wait before asking again.",
+    "APPROVAL_EXPIRED": "This request has expired. Ask for a new one.",
+    "APPROVAL_LOCKED": "This request is locked after wrong codes.",
+    "APPROVAL_REJECTED": "This request was already rejected.",
+    "APPROVAL_CANCELLED": "This request was already cancelled.",
+    "APPROVAL_EXECUTED": "This request was already carried out.",
+    "APPROVAL_APPROVED": "This request was already approved.",
+    "ALREADY_DECIDED": "This request has already been decided.",
+    "NOT_DECIDER": "Only the buyer of this deal can decide this request.",
+    "BENEFICIARY_VIA_EMAIL": "Setu never changes a payment account because of an email. Reject this request.",
+    "REESCALATION_FAILED": "Conditions changed and the stricter request could not be created. Nothing was paid.",
+    "NOT_EXECUTABLE": "This kind of request cannot be carried out here.",
+    "CANNOT_CANCEL": "Only an open Tier 3 request can be cancelled.",
+    "ACCOUNT_EXISTS": "This account is already on file.",
+    "DEAL_CLOSED": "This deal is closed, so the account cannot be changed.",
+    "INVALID_STATUS": "Unknown filter."
+  },
+  "sp": {
+    "orders": "Orders",
+    "empty": "No orders yet.",
+    "buyer": "Buyer: {name}",
+    "back": "All orders",
+    "orderValue": "Order value",
+    "secured": "Secured in escrow",
+    "nextMilestone": "Next milestone",
+    "escrowHeading": "Escrow status",
+    "fundsSecured": "Funds secured in escrow: {amount}",
+    "escrowNote": "Simulated. Money is released to you milestone by milestone when the evidence is verified.",
+    "milestones": "Payment milestones",
+    "payments": "Payments received",
+    "noPayments": "No payments received yet.",
+    "details": "Order details",
+    "documents": "Documents",
+    "noDocuments": "No documents uploaded yet."
+  },
+  "docErr": {
+    "generic": "The upload failed. Please try again.",
+    "FILE_TOO_LARGE": "This file is larger than {mb} MB. Choose a smaller file.",
+    "UNSUPPORTED_FILE_TYPE": "Only PDF, PNG or JPG files are accepted.",
+    "WRONG_FILE_TYPE": "This file type does not match the document type. Photos must be PNG or JPG; all other documents must be PDF.",
+    "EMPTY_FILE": "This file is empty.",
+    "DUPLICATE_DOCUMENT": "This exact file is already attached to another deal. One document cannot back two deals.",
+    "DEAL_CLOSED": "This deal is closed, so documents can no longer be added.",
+    "FORBIDDEN": "You do not have permission to upload to this deal.",
+    "NOT_FOUND": "We could not find that deal or document.",
+    "SESSION": "Your session has expired. Sign in again."
+  },
+  "doc": {
+    "status": {
+      "UPLOADED": "Uploaded",
+      "CHECKING": "Checking",
+      "PASSED": "Passed",
+      "WARNING": "Warning",
+      "FAILED": "Failed",
+      "REJECTED": "Rejected"
+    },
+    "sup": {
+      "UPLOADED": "Uploaded",
+      "REVIEW": "Under review",
+      "ACCEPTED": "Accepted",
+      "ATTENTION": "Needs attention"
+    },
+    "up": {
+      "title": "Upload documents",
+      "drop": "Drag and drop files here, or",
+      "choose": "Choose files",
+      "rules": "PDF, PNG or JPG, up to {mb} MB each.",
+      "type": "Document type",
+      "go": "Upload {n} file(s)",
+      "remove": "Remove {name}",
+      "misfit": "Photos must be PNG or JPG and every other document must be a PDF. Change the document type or remove the file.",
+      "added": "{n} file(s) ready to upload.",
+      "rejected": "{n} file(s) cannot be uploaded. See the messages in the list.",
+      "uploading": "Uploading {name}.",
+      "uploadingShort": "Uploading…",
+      "checking": "{name} uploaded. Checking now.",
+      "finished": "{name}: {status}.",
+      "timeout": "{name} is still being checked. Refresh in a moment.",
+      "timeoutShort": "Still checking. Refresh in a moment.",
+      "reused": "{name} was already uploaded to this deal.",
+      "reusedShort": "Already uploaded"
+    },
+    "open": "Open",
+    "score": "Risk score {n}/100",
+    "readOnly": "Read-only: you can view documents but not upload or re-check them.",
+    "checkingLive": "Checking the document…",
+    "list": {
+      "title": "Documents",
+      "empty": "No documents uploaded yet."
+    },
+    "check": {
+      "title": "Required evidence",
+      "PASS": "Passed",
+      "WARN": "Warning",
+      "FAIL": "Failed",
+      "SKIPPED": "Skipped"
+    },
+    "checks": {
+      "title": "Checks",
+      "none": "No checks have run yet."
+    },
+    "verdict": {
+      "title": "Verdict",
+      "meter": "Risk score {n} out of 100",
+      "scale": "Higher means riskier. Under 30 passes, 30 to 60 is a warning, over 60 fails.",
+      "none": "No verdict yet."
+    },
+    "fields": {
+      "title": "Extracted fields",
+      "none": "No fields could be read from this document.",
+      "field": "Field",
+      "value": "Value",
+      "otherSays": "{source} says {value}",
+      "dealSays": "The deal says {value}",
+      "expected": "Expected {value}"
+    },
+    "hidden": {
+      "title": "Hidden text found",
+      "instruction": "This document contains a hidden instruction. Setu ignored it.",
+      "none": "No hidden text spans were reported.",
+      "page": "Page {n}",
+      "reason": {
+        "WHITE_TEXT": "White text",
+        "TINY_TEXT": "Tiny text",
+        "OFF_PAGE": "Outside the page",
+        "INVISIBLE_RENDER": "Invisible when rendered",
+        "COVERED_TEXT": "Covered by another shape",
+        "LOW_CONTRAST": "Low contrast"
+      },
+      "sources": "Instruction-like text detected in: {list}",
+      "reveal": "Reveal hidden text",
+      "hide": "Hide hidden text",
+      "forbidden": "Hidden text is not available for your role."
+    },
+    "recheck": {
+      "go": "Re-check",
+      "busy": "Re-checking…",
+      "forbidden": "Only the buyer or an admin can re-check a document."
+    },
+    "preview": {
+      "alt": "Preview of the uploaded document",
+      "unavailable": "The preview link is not available or has expired.",
+      "download": "Download the file",
+      "noPdf": "Your browser cannot show this PDF here.",
+      "overlayNote": "Red boxes on page 1 are approximate. The list shows every hidden span exactly.",
+      "downloadOnly": "This file cannot be previewed here. You can download it instead."
+    },
+    "field": {
+      "invoice_no": "Invoice no.",
+      "pl_no": "Packing list no.",
+      "bl_no": "B/L no.",
+      "boe_no": "Bill of entry no.",
+      "coo_no": "Certificate no.",
+      "date": "Date",
+      "issue_date": "Issue date",
+      "on_board_date": "On-board date",
+      "seller": "Seller",
+      "seller_address": "Seller address",
+      "buyer": "Buyer",
+      "buyer_address": "Buyer address",
+      "shipper": "Shipper",
+      "shipper_address": "Shipper address",
+      "exporter": "Exporter",
+      "exporter_address": "Exporter address",
+      "importer": "Importer",
+      "importer_address": "Importer address",
+      "consignee": "Consignee",
+      "consignee_address": "Consignee address",
+      "notify_party": "Notify party",
+      "goods_description": "Goods",
+      "description": "Description",
+      "hs_code": "HS code",
+      "quantity": "Quantity",
+      "unit": "Unit",
+      "unit_price": "Unit price",
+      "total": "Total",
+      "currency": "Currency",
+      "incoterm": "Incoterm",
+      "payment_terms": "Payment terms",
+      "port_of_loading": "Port of loading",
+      "port_of_discharge": "Port of discharge",
+      "port": "Port",
+      "bank_name": "Bank",
+      "bank_holder": "Account holder",
+      "bank_account": "Account no.",
+      "bank_swift": "SWIFT",
+      "vessel": "Vessel",
+      "voyage": "Voyage",
+      "booked_vessel": "Booked vessel",
+      "booked_voyage": "Booked voyage",
+      "carrier": "Carrier",
+      "container_no": "Container no.",
+      "gross_weight_kg": "Gross weight (kg)",
+      "net_weight_kg": "Net weight (kg)",
+      "packages": "Packages",
+      "package_type": "Package type",
+      "marks": "Marks",
+      "production_complete": "Production complete",
+      "est_ship_date": "Est. ship date",
+      "eta": "ETA",
+      "origin_country": "Country of origin",
+      "issuing_body": "Issuing body",
+      "freight_terms": "Freight terms",
+      "notes": "Notes",
+      "seller_license_no": "Seller licence no.",
+      "buyer_license_no": "Buyer licence no."
+    },
+    "accept": {
+      "go": "Accept as reference",
+      "done": "Accepted as reference",
+      "title": "Accept this proforma invoice as the reference?",
+      "body": "Setu will use this document's booking, dates and bank details when checking the other documents of this deal. This is recorded in the audit log.",
+      "confirm": "Accept as reference"
+    },
+    "checkFailed": "The check could not finish. Use Re-check to try again."
+  },
+  "reg": {
+    "purpose": {
+      "ESCROW_EVIDENCE": "Escrow evidence",
+      "FINANCING_COLLATERAL": "Financing collateral"
+    },
+    "purposeLower": {
+      "ESCROW_EVIDENCE": "escrow evidence",
+      "FINANCING_COLLATERAL": "financing collateral"
+    },
+    "state": {
+      "REGISTERED": "Registered",
+      "DUPLICATE": "Duplicate",
+      "NOT_REGISTERED": "Not registered"
+    },
+    "box": {
+      "title": "Registry",
+      "registered": "Registered on {date} as {purpose}",
+      "registeredWith": "Registered on {date} as {purpose} with {lender}",
+      "dupExact": "Duplicate: exact copy of a document already registered as {purpose} on {date}",
+      "dupExactWith": "Duplicate: exact copy of a document already registered as {purpose} with {lender} on {date}",
+      "dupNear": "Duplicate: near copy (re-saved) of a document already registered as {purpose} on {date}",
+      "dupNearWith": "Duplicate: near copy (re-saved) of a document already registered as {purpose} with {lender} on {date}",
+      "notRegistered": "Not registered yet"
+    },
+    "card": {
+      "dup": "{purpose} with {holder} on {date}",
+      "dupNoHolder": "{purpose} on {date}",
+      "reg": "Registered as {purpose} on {date}",
+      "none": "Not registered yet"
+    },
+    "demo": {
+      "title": "Demo: double-financing check",
+      "intro": "Show what happens when this invoice is offered to another lender.",
+      "button": "Try to finance this invoice at Lender B",
+      "busy": "Checking with Lender B…",
+      "noInvoice": "This deal has no invoice document to check yet.",
+      "error": "The registry check failed. Please try again.",
+      "blockedTitle": "Blocked",
+      "blocked": "Lender B would reject this: the invoice is already registered as {purpose} (held by {holder}) since {date}. Setu's shared registry prevents double financing.",
+      "blockedNoHolder": "Lender B would reject this: the invoice is already registered as {purpose} since {date}. Setu's shared registry prevents double financing.",
+      "clearTitle": "No conflict found",
+      "clear": "Lender B would find no existing claim on this invoice."
+    },
+    "admin": {
+      "title": "Document hash registry",
+      "intro": "Every invoice and evidence document is fingerprinted once, so the same document cannot be financed twice.",
+      "duplicates": "Duplicates caught",
+      "exact": "Exact copies",
+      "near": "Near copies",
+      "entries": "Entries",
+      "active": "Active",
+      "released": "Released",
+      "filters": "Filters",
+      "status": "Status",
+      "result": "Duplicates caught",
+      "all": "All",
+      "statusActive": "Active",
+      "statusReleased": "Released",
+      "resultExact": "Exact",
+      "resultNear": "Near",
+      "table": "Registry entries",
+      "hash": "Hash",
+      "docType": "Document",
+      "purpose": "Purpose",
+      "lender": "Lender",
+      "deal": "Deal",
+      "registered": "Registered",
+      "seen": "Seen",
+      "hits": "Hits (exact / near)",
+      "empty": "No registry entries match these filters.",
+      "range": "Showing {from}–{to} of {total}",
+      "prev": "Previous",
+      "next": "Next",
+      "pagination": "Pagination"
+    }
+  },
+  "risk": {
+    "tier": {
+      "0": "Tier 0 · Informational",
+      "1": "Tier 1 · Auto-release",
+      "2": "Tier 2 · One-tap approval",
+      "3": "Tier 3 · OTP + cooling-off",
+      "blocked": "Blocked"
+    },
+    "decision": {
+      "ALLOW": "Allowed",
+      "REQUIRE_APPROVAL": "Approval required",
+      "BLOCK": "Blocked"
+    },
+    "kind": {
+      "BLOCK": "Block",
+      "TIER3": "Tier 3",
+      "TIER2": "Tier 2"
+    },
+    "card": {
+      "title": "Risk decision",
+      "why": "Why this decision",
+      "waiting": "Waiting for your approval (Tier {tier}): {reasons}",
+      "openApprovals": "Open approvals",
+      "blockedTitle": "This action is blocked",
+      "noReasons": "no extra checks fired"
+    },
+    "trace": {
+      "title": "Rule trace",
+      "fired": "Fired",
+      "notFired": "Did not fire",
+      "deciding": "Set the final tier",
+      "decidingBlock": "Decided the outcome",
+      "showNot": "Show {n} rules that did not fire",
+      "hideNot": "Hide {n} rules that did not fire",
+      "none": "No rule trace is available for this decision."
+    },
+    "hints": {
+      "title": "What would lower the risk?",
+      "toTier": "→ Tier {tier}",
+      "blocked": "Cannot be lowered here",
+      "none": "Nothing to change: this is already the lowest tier for these facts."
+    },
+    "code": {
+      "badge": "Decided by code, not by AI",
+      "help": "About this decision",
+      "body": "The AI only explains. Tiers and approvals are computed by deterministic code from database facts, and cannot be changed by prompts, documents or the client."
+    },
+    "pg": {
+      "title": "Risk playground",
+      "intro": "Change the facts and watch the permission tier react. The same rules run on every real payment.",
+      "dryRun": "Dry run — nothing is saved",
+      "facts": "Facts",
+      "amount": "Amount (USD)",
+      "amountNum": "Amount in USD (number)",
+      "limit": "Tier 1 limit",
+      "firstDeal": "First deal with this supplier",
+      "beneficiaryChange": "Beneficiary account is being changed",
+      "recentAccount": "Beneficiary account opened recently",
+      "fraud": "Document fraud score (0-100)",
+      "fraudNum": "Fraud score (number)",
+      "duplicate": "Duplicate document hash",
+      "hidden": "Hidden instruction found in a document",
+      "sanctions": "Sanctions hit",
+      "docWarning": "Document warning",
+      "docFailed": "Document failed verification",
+      "result": "Result",
+      "updating": "Updating…",
+      "reset": "Reset"
+    },
+    "policy": {
+      "title": "Risk policy",
+      "intro": "Every threshold and rule the engine uses. Loaded from the server configuration.",
+      "thresholds": "Thresholds",
+      "tier1Max": "Tier 1 maximum amount",
+      "fraudAbove": "Fraud score above (Tier 3)",
+      "newDays": "New beneficiary window (days)",
+      "cooling": "Cooling-off (minutes)",
+      "rules": "Rules",
+      "rule": "Rule",
+      "kind": "Kind",
+      "appliesTo": "Applies to",
+      "condition": "Condition",
+      "group": {
+        "BLOCK": "Block (nothing can proceed)",
+        "TIER3": "Tier 3 (OTP + cooling-off)",
+        "TIER2": "Tier 2 (one-tap approval)"
+      },
+      "yaml": "Show raw config/risk.yaml",
+      "yamlHide": "Hide raw config/risk.yaml",
+      "source": "Source: {source}"
+    },
+    "admin": {
+      "title": "Risk engine",
+      "intro": "Every payment decision made by the rules, in one place.",
+      "autoReleased": "Auto-released",
+      "oneTap": "One-tap approvals",
+      "otp": "OTP-required",
+      "blocked": "Blocked",
+      "chart": "Decisions per day",
+      "chartTable": "Show chart data as a table",
+      "chartTableHide": "Hide chart data table",
+      "day": "Day",
+      "noSeries": "No decisions recorded yet.",
+      "latest": "Latest blocked attempts",
+      "noBlocked": "No blocked attempts.",
+      "recent": "Recent decisions",
+      "noRecent": "No decisions recorded yet.",
+      "when": "When",
+      "action": "Action",
+      "tier": "Tier",
+      "decision": "Decision",
+      "reasons": "Reasons",
+      "origin": "Origin",
+      "deal": "Deal",
+      "expand": "Show rule trace",
+      "collapse": "Hide rule trace",
+      "playground": "Try the risk playground"
+    },
+    "land": {
+      "title": "Permission tiers, enforced in code",
+      "intro": "Every payment is classified by deterministic rules. The AI never decides, approves or moves money.",
+      "t1": "Tier 1: verified, unchanged and up to USD 20,000 — released automatically with a notice.",
+      "t2": "Tier 2: first deal, a document warning or anything an agent proposes — one tap from you.",
+      "t3": "Tier 3: above USD 20,000, a changed or new beneficiary, a high fraud score, a duplicate document or a hidden instruction — OTP and a 10-minute cooling-off.",
+      "block": "Blocked: sanctions hit, failed KYB or a failed document.",
+      "link": "Try the risk playground"
+    }
+  },
+  "appr": {
+    "tabs": "Approval lists",
+    "pending": "Pending",
+    "history": "History",
+    "intro": "Money and account changes that need a person to decide. Setu never decides these for you.",
+    "emptyPending": "Nothing is waiting for your approval.",
+    "emptyHistory": "No past decisions yet.",
+    "requestedBy": "Requested by {who}",
+    "viaEmail": "via email",
+    "via": "via {via}",
+    "status": {
+      "PENDING": "Pending",
+      "APPROVED": "Approved",
+      "REJECTED": "Rejected",
+      "EXECUTED": "Done",
+      "CANCELLED": "Cancelled",
+      "EXPIRED": "Expired",
+      "LOCKED": "Locked"
+    },
+    "deal": "Deal",
+    "supplier": "Supplier",
+    "amount": "Amount",
+    "milestone": "Tranche M{n}",
+    "coolingLeft": "Cooling-off: {time} left",
+    "coolingOver": "Cooling-off is over",
+    "expiresIn": "Expires in {time}",
+    "expired": "Expired",
+    "review": "Review",
+    "rejectApproved": "Reject this request",
+    "run": "Run the approved release",
+    "reasons": "Why Setu asked you",
+    "emailOnly": "Came by email. Setu never changes accounts from email. Reject this request.",
+    "emailOnlyTitle": "Came by email",
+    "approve": "Approve",
+    "reject": "Reject",
+    "close": "Close",
+    "whatHappens": "What will happen",
+    "loadError": "Could not load this request.",
+    "t2Title": "Approve: {action}",
+    "t3Title": "Confirm with a one-time code: {action}",
+    "tier2Note": "One tap. Setu checks the facts again before anything moves.",
+    "rejected": "Request rejected. Nothing was paid or changed.",
+    "executed": "Approved and carried out (simulated).",
+    "approvedNotExecuted": "Approved, but not carried out yet.",
+    "reescalatedTitle": "Setu needs a stricter approval",
+    "reescalated": "Conditions got worse since this request was made, so a Tier 3 approval with a one-time code is needed now.",
+    "ev": {
+      "title": "Evidence snapshot",
+      "supplier": "Supplier",
+      "kyb": "Supplier check",
+      "score": "Score {n}/100",
+      "account": "Receiving account",
+      "noAccount": "No account on file",
+      "accountAge": "On file for {n} days",
+      "docs": "Documents",
+      "noDocs": "No documents attached.",
+      "open": "Open",
+      "issues": "Issues: {list}",
+      "checkOk": "Checks passed",
+      "registry": "Duplicate-financing registry",
+      "registryStatus": {
+        "CLEAR": "Clear: no other lender holds this invoice",
+        "DUPLICATE_FOUND": "Duplicate found: already financed elsewhere",
+        "NOT_APPLICABLE": "Not applicable to this request"
+      },
+      "docRegistry": {
+        "NEW": "New",
+        "REGISTERED": "Registered",
+        "DUPLICATE": "Duplicate",
+        "UNKNOWN": "Unknown"
+      },
+      "fx": "FX rate",
+      "fxLocked": "locked",
+      "fxNotLocked": "not locked",
+      "noFx": "No currency conversion",
+      "fxLine": "{pair} at {rate}",
+      "trace": "Rule trace",
+      "audit": "Audit #{seq}",
+      "copyAudit": "Copy audit reference",
+      "copied": "Copied",
+      "noAudit": "No audit reference"
+    },
+    "t3": {
+      "reasonsTitle": "Why this needs extra care",
+      "otpLabel": "6-digit code",
+      "otpHelp": "Enter the code sent to your phone. Pasting works.",
+      "otpDigit": "Digit {n} of 6",
+      "resend": "Resend code",
+      "resent": "A new code was sent to your phone (simulated).",
+      "sentHint": "A code was sent to your phone (simulated).",
+      "demoHint": "Demo: open the Demo phone, copy the code and paste it here.",
+      "ring": "Cooling-off timer",
+      "ringDone": "Pause over",
+      "ringLeft": "{time} left",
+      "pauseDefault": "This pause protects you from rushed payment-redirection scams.",
+      "approveWhy": "Approve unlocks when the pause is over and all 6 digits are entered.",
+      "wrong": "Wrong code. {n} tries left.",
+      "locked": "Locked: three wrong codes. This request can no longer be approved. Reject it and ask for a new one.",
+      "cancel": "Cancel request",
+      "cancelConfirm": "Cancel this request? Nothing will be paid and the supplier's account stays unchanged.",
+      "cancelYes": "Yes, cancel it",
+      "cancelNo": "Keep it",
+      "cancelled": "Request cancelled. Nothing was paid or changed."
+    },
+    "pendingCount": "{n} pending"
+  },
+  "phone": {
+    "title": "Demo phone",
+    "open": "Open demo phone",
+    "close": "Close demo phone",
+    "simulated": "Simulated SMS",
+    "empty": "No messages yet. A code appears here when Setu texts you.",
+    "copy": "Copy code",
+    "copied": "Copied",
+    "copyFailed": "Copy failed: select the code manually",
+    "newMessage": "New message on the demo phone",
+    "from": "Setu",
+    "note": "Demo only. In a real deployment this is an SMS to your own phone."
+  },
+  "bell": {
+    "label": "Notifications",
+    "unread": "{n} unread",
+    "none": "No recent activity.",
+    "title": "Recent activity",
+    "all": "Open approvals",
+    "unreadItem": "Unread"
+  },
+  "trail": {
+    "title": "Approval trail",
+    "empty": "No approval activity for this deal yet.",
+    "audit": "audit #{seq}",
+    "copy": "Copy audit reference {seq}",
+    "copied": "Copied",
+    "state": {
+      "DONE": "Done",
+      "CURRENT": "In progress",
+      "UPCOMING": "Upcoming",
+      "FAILED": "Failed"
+    }
+  },
+  "mail": {
+    "title": "Check a suspicious email",
+    "intro": "Paste an email that asks you to pay a different account. Setu reads it as data, never as instructions, and never changes an account because of an email.",
+    "label": "Email text",
+    "placeholder": "Paste the email here",
+    "load": "Load demo email",
+    "check": "Check email",
+    "checking": "Checking…",
+    "required": "Paste the email text first.",
+    "blocked": "Blocked",
+    "suspicious": "Suspicious",
+    "clean": "No payment-change request found",
+    "cleanBody": "Setu did not find a request to change who gets paid in this email.",
+    "assurance": "Account unchanged. Nothing was paid or redirected.",
+    "signals": "What looked wrong",
+    "next": "What to do now",
+    "alert": "Fraud alert recorded (audit #{seq})",
+    "related": "Open the related pending request",
+    "deal": "Deal {ref}",
+    "noSignals": "No warning signs listed."
+  },
+  "sim": {
+    "title": "Scam simulator",
+    "intro": "Run a fictional attack through the real engine and see how Setu responds. Everything here is simulated.",
+    "redirect": "Simulate payment-redirection email",
+    "account": "Simulate supplier account change",
+    "large": "Simulate large advance (USD 22,000)",
+    "running": "Running…",
+    "dryRunNote": "The large advance is a dry run on the real risk engine: nothing is created or moved.",
+    "judgeNote": "Judge mode: results are read-only.",
+    "result": "Result",
+    "did": "What we did",
+    "responded": "How Setu responded",
+    "outcome": "Outcome",
+    "tier": "Tier",
+    "reasons": "Reasons",
+    "openApproval": "Open the created request",
+    "openInbox": "Open the email check",
+    "emailCard": "The email warning"
+  },
+  "chg": {
+    "title": "Change payout account",
+    "intro": "Tell us the new bank account. Your buyer must verify it (Tier 3) and payments keep going to your current account until they do.",
+    "deal": "Order",
+    "bankName": "Bank name",
+    "country": "Bank country (2 letters)",
+    "number": "Account number",
+    "holder": "Account holder name",
+    "type": "Account type",
+    "CORPORATE": "Corporate",
+    "PERSONAL": "Personal",
+    "currency": "Currency",
+    "submit": "Submit change request",
+    "submitting": "Submitting…",
+    "required": "This field is required.",
+    "sent": "Request sent to your buyer.",
+    "trackerTitle": "Account change status",
+    "waiting": "Waiting for buyer verification — Tier 3",
+    "step": {
+      "SUBMITTED": "Request submitted",
+      "KYB": "Supplier check",
+      "BUYER": "Buyer verification",
+      "DONE": "New account active"
+    },
+    "stage": {
+      "WAITING_BUYER": "Waiting for buyer verification — Tier 3",
+      "APPROVED": "Approved: the new account is active",
+      "REJECTED": "Rejected by the buyer",
+      "EXPIRED": "Expired",
+      "LOCKED": "Locked",
+      "CANCELLED": "Cancelled"
+    },
+    "state": {
+      "DONE": "Done",
+      "CURRENT": "In progress",
+      "UPCOMING": "Upcoming",
+      "FAILED": "Failed"
+    },
+    "none": "No account change requests yet.",
+    "tier": "Tier 3"
+  },
+  "privacy": {
+    "type": {
+      "NID": {
+        "one": "NID",
+        "other": "NIDs"
+      },
+      "PASSPORT": {
+        "one": "passport",
+        "other": "passports"
+      },
+      "PHONE": {
+        "one": "phone number",
+        "other": "phone numbers"
+      },
+      "ACCT": {
+        "one": "account",
+        "other": "accounts"
+      },
+      "IBAN": {
+        "one": "IBAN",
+        "other": "IBANs"
+      },
+      "SWIFT": {
+        "one": "SWIFT code",
+        "other": "SWIFT codes"
+      },
+      "EMAIL": {
+        "one": "email address",
+        "other": "email addresses"
+      },
+      "NAME": {
+        "one": "name",
+        "other": "names"
+      },
+      "AMT": {
+        "one": "amount",
+        "other": "amounts"
+      }
+    },
+    "summary": {
+      "one": "1 identifier protected: {list}",
+      "other": "{n} identifiers protected: {list}",
+      "none": "No identifiers needed protection here."
+    },
+    "leaked": "Leaked: {n}",
+    "leakedOk": "Leaked: 0 — nothing real reached the AI",
+    "protectedBadge": "Protected: {n}",
+    "notSent": "Not sent in this run",
+    "notSentHint": "Prepared for the AI but not sent in this run (mock mode or not needed).",
+    "sentTo": "Sent to {node}",
+    "model": "Model: {model}",
+    "xray": {
+      "open": "Show what the AI saw",
+      "title": "What did the AI see?",
+      "intro": "Highlighted values are swapped for tokens before anything reaches the AI. Our code puts them back afterwards.",
+      "left": "What you see",
+      "right": "What was sent to the AI",
+      "loading": "Loading privacy record…",
+      "unavailable": "No privacy record is available for this item yet.",
+      "noCalls": "Nothing was sent to the AI for this item.",
+      "tokenOf": "replaced by {token}"
+    },
+    "counter": {
+      "label": "Privacy counter",
+      "protected": "Identifiers protected this session: {n}",
+      "leaked": "Leaked: {n}",
+      "unavailable": "Privacy counter unavailable"
+    },
+    "pg": {
+      "title": "Privacy Gateway playground",
+      "intro": "Paste a message or document text. Setu finds identifiers, swaps them for tokens before the AI sees anything, and restores them afterwards with plain code.",
+      "note": "Simulated · nothing is stored",
+      "input": "Text to protect",
+      "maskAmounts": "Mask amounts",
+      "showObf": "Show obfuscation handling",
+      "obfIntro": "Try hiding a number: Setu still finds it.",
+      "obfSpaced": "Spaced digits",
+      "obfBangla": "Bangla digits",
+      "obfZwj": "Zero-width character",
+      "live": "Live detection",
+      "checking": "Checking…",
+      "found": {
+        "one": "1 identifier found",
+        "other": "{n} identifiers found",
+        "none": "No identifiers found"
+      },
+      "send": "Send to AI (dry run)",
+      "sending": "Sending…",
+      "paneMasked": "Masked payload — what the AI sees",
+      "paneAnswer": "AI answer, still masked",
+      "paneRestored": "Answer with values restored by code",
+      "results": "Dry-run result",
+      "detections": "Detections",
+      "col": {
+        "type": "Type",
+        "token": "Token",
+        "confidence": "Confidence",
+        "handling": "Handling"
+      },
+      "obfHandled": "Obfuscation handled",
+      "direct": "Plain",
+      "error": "The dry run failed. Please try again."
+    },
+    "admin": {
+      "title": "Privacy Gateway",
+      "intro": "Every message to the AI is masked first. This page shows the proof: what was protected, what leaked (it should stay at zero) and what the AI actually received.",
+      "playground": "Open the privacy playground",
+      "protected": "Identifiers protected",
+      "leaked": "Leaked",
+      "calls": "AI calls",
+      "leakedHint": "Should always stay at 0",
+      "byType": "Protected by type",
+      "noData": "Nothing recorded yet.",
+      "chart": "Identifiers protected per day (last 14 days)",
+      "chartShow": "Show as table",
+      "chartHide": "Hide table",
+      "day": "Day",
+      "recent": "Latest transparency records",
+      "recentEmpty": "No transparency records yet.",
+      "expand": "Show masked payload",
+      "collapse": "Hide masked payload",
+      "payloadOnly": "Only the masked payload is shown here — never the real values.",
+      "node": "Step",
+      "source": "Source",
+      "sent": "Sent to the AI",
+      "notSent": "Prepared, not sent",
+      "configOn": "Masking is on",
+      "configOff": "Masking is off",
+      "amountsOn": "Amounts are masked",
+      "amountsOff": "Amounts are not masked",
+      "prove": {
+        "title": "Prove it",
+        "explain": "Open the LangSmith run and check that only tokens such as ⟦ACCT_1⟧ appear — no raw values.",
+        "link": "Open the LangSmith run",
+        "off": "Tracing is off in this environment, so there is no run to open here.",
+        "hint": "Turn on LangSmith tracing to see the exact payloads the AI received."
+      }
+    },
+    "land": {
+      "title": "The AI never sees the real value",
+      "line": "Reversible masking: the AI never sees the real value — our code puts it back.",
+      "before": "Before",
+      "after": "What the AI sees",
+      "link": "Try it in the privacy playground"
+    }
+  },
+  "sec": {
+    "hl": {
+      "start": "Matched rule {rule}:",
+      "end": "(end of match)"
+    },
+    "pipe": {
+      "label": "Defence pipeline",
+      "ok": "Handled safely",
+      "fail": "Not stopped here",
+      "layer": "Layer {n}",
+      "status": {
+        "done": "done",
+        "caught": "caught",
+        "clear": "clear",
+        "off": "off",
+        "missed": "missed",
+        "idle": "not needed"
+      }
+    },
+    "chip": {
+      "title": "Security check",
+      "checked": "Checked: {list}",
+      "checkedNone": "Nothing from documents or other sources needed checking.",
+      "off": "Defences were switched off for this answer.",
+      "blocked": "Blocked: {name}",
+      "guard": "Answer guard removed: {list}",
+      "flagged": "Deal flagged for extra verification (Tier 3)",
+      "tool": {
+        "docs": "documents",
+        "kb": "knowledge base",
+        "party": "party checks",
+        "registry": "registry",
+        "other": "other tool results"
+      },
+      "ignored": {
+        "hidden_text": "Ignored a hidden instruction in a document",
+        "visible_text": "Ignored an instruction written in a document",
+        "metadata": "Ignored an instruction in document metadata",
+        "email": "Ignored an instruction in an email",
+        "kb": "Ignored an instruction in a knowledge-base passage",
+        "tool_result": "Ignored an instruction in a tool result",
+        "other": "Ignored an instruction in untrusted content"
+      }
+    },
+    "sb": {
+      "title": "Attack success rate",
+      "off": "Defences OFF",
+      "on": "Defences ON",
+      "noDetector": "ON without detector (layers 4+5 only)",
+      "running": "Running the suite…",
+      "rerun": "Re-run suite",
+      "run": "Run the suite",
+      "empty": "No results yet. Run the attack suite to fill the scoreboard (takes about 15 seconds).",
+      "meta": "{n} attacks · {split} split · generated {at}",
+      "asr": "Attack success rate (lower is better)",
+      "moneyNote": "Money moved in every mode: never. Only simulated side effects are counted.",
+      "detection": "Detector quality",
+      "recall": "Detection recall",
+      "fpr": "False-positive rate",
+      "clean": "{n} clean documents, {fp} falsely flagged.",
+      "split": "Dev split. Test-split numbers are reported separately.",
+      "col": {
+        "mode": "Mode",
+        "n": "Cases"
+      }
+    },
+    "source": {
+      "hidden_text": "Hidden white text",
+      "visible_text": "Visible text",
+      "metadata": "Metadata",
+      "email": "Email"
+    },
+    "console": {
+      "title": "Prompt-injection attack console",
+      "intro": "Pick an attack or write your own, then watch each defence layer handle it. Everything here is simulated; money can never move from document text.",
+      "gallery": "Attack gallery",
+      "own": "Your attack text",
+      "text": "Attack text",
+      "placement": "Placement",
+      "defences": "Defences",
+      "on": "ON",
+      "off": "OFF",
+      "run": "Run attack",
+      "running": "Running…",
+      "offBanner": "Only the detector, tool gating and output guard are off. Money safety (propose-only tools, the risk engine, Tier 3 on document instructions) stays ON — money can never move from document text.",
+      "pipeline": "What each layer did",
+      "detection": "Submitted text and detection",
+      "score": "Detector score",
+      "injection": "Injection detected",
+      "clean": "No injection detected",
+      "noDetection": "The detector did not run (defences off).",
+      "result": "Result",
+      "outcome": {
+        "blocked": "Attack blocked",
+        "stopped_by_risk_engine": "Stopped by the risk engine",
+        "no_effect": "No effect",
+        "attack_succeeded": "Attack succeeded"
+      },
+      "stoppedRisk": "The model tried to call {tool} — stopped by the risk engine (money never moved).",
+      "moneyNever": "Money moved: never (simulated sandbox).",
+      "attempts": "Tool-call attempts",
+      "noAttempts": "The model tried no tool calls.",
+      "attempt": {
+        "dropped": "dropped by the gate (layer 4)",
+        "reached": "reached the service, then the risk engine: Tier {tier}, {decision} (money never moved)",
+        "executed": "executed"
+      },
+      "answer": "Final answer (shown as plain text)",
+      "noAnswer": "(no answer)"
+    },
+    "admin": {
+      "title": "Prompt-injection security",
+      "intro": "Measured attack results and every injection attempt the system has seen, each linked to its signed audit entry.",
+      "console": "Open the live attack console",
+      "events": "Injection events",
+      "filterStyle": "Attack style",
+      "filterSource": "Source",
+      "all": "All",
+      "empty": "No injection events match.",
+      "col": {
+        "time": "Time",
+        "source": "Source",
+        "rules": "Rules",
+        "deal": "Deal",
+        "tool": "Tool",
+        "action": "Action taken",
+        "layer": "Layer",
+        "origin": "Origin",
+        "audit": "Audit",
+        "resolve": "Resolve"
+      },
+      "tier3": "Tier 3 flag",
+      "audit": "Audit #{seq}",
+      "auditHint": "Signed, hash-chained audit entry (no separate audit page yet)",
+      "resolve": "Resolve",
+      "resolved": "Resolved"
+    },
+    "doc": {
+      "detected": "Injection detected — rules matched: {rules}",
+      "where": "Found in: {source} · score {score}"
+    },
+    "land": {
+      "line": "Prompt-injection defence in five layers",
+      "link": "Try the live attack console",
+      "separate": {
+        "name": "Separate",
+        "desc": "Untrusted text goes in marked blocks"
+      },
+      "detect": {
+        "name": "Detect",
+        "desc": "English, বাংলা and 中文 rules"
+      },
+      "contain": {
+        "name": "Contain",
+        "desc": "The agent can only propose; Tier 3 for document instructions"
+      },
+      "gate": {
+        "name": "Gate",
+        "desc": "Tool calls are checked against your request"
+      },
+      "guard": {
+        "name": "Guard",
+        "desc": "The answer is checked before you see it"
+      }
+    }
+  },
+  "audit": {
+    "title": "Signed audit log",
+    "intro": "Every action is written to a hash-chained log and signed with Ed25519. Change one character and the chain breaks. All money here is simulated.",
+    "copy": "Copy",
+    "copied": "Copied",
+    "copyField": "Copy {field}",
+    "land": {
+      "line": "Every action is signed and chained — verify it yourself"
+    },
+    "reason": {
+      "hash_mismatch": "entry contents no longer match the hash",
+      "bad_signature": "signature does not match the key",
+      "missing_seq": "an entry is missing",
+      "reordered": "entries are out of order",
+      "broken_link": "the link to the previous entry is broken",
+      "malformed": "the entry is malformed",
+      "unknown": "unknown problem"
+    },
+    "explain": {
+      "hash_mismatch": "Someone changed the contents of this entry after it was written, so its fingerprint (hash) no longer matches what was signed.",
+      "bad_signature": "The hashes are consistent, but the digital signature was not made by this public key. The entry was not signed by Setu, or you chose a different key.",
+      "missing_seq": "A numbered entry that should sit here is gone. A deleted record leaves a gap that the sequence numbers reveal.",
+      "reordered": "Entries appear in a different order than they were written.",
+      "broken_link": "This entry does not point at the entry before it, so it was inserted or rewritten after the fact.",
+      "malformed": "A line is not a complete signed entry (a field is missing or has the wrong shape).",
+      "unknown": "The log did not pass verification."
+    },
+    "result": {
+      "ok": "Verified ✓ {n} entries, seq {a}..{b}",
+      "broken": "Broken at seq {seq}: {reason}"
+    },
+    "chain": {
+      "title": "Live chain",
+      "help": "Each block is one audit entry; the line is the hash link to the one before it. New entries appear on the right. Select a block for details.",
+      "label": "Audit chain, scroll horizontally",
+      "empty": "No audit entries yet.",
+      "refresh": "Refresh now",
+      "blockLabel": "Entry {seq}, {action}. Open details",
+      "missing": "seq {seq} is missing",
+      "broken": "Broken",
+      "intact": "Intact"
+    },
+    "drawer": {
+      "title": "Audit entry #{seq}",
+      "verified": "Verified ✓",
+      "notVerified": "Not verified",
+      "canonical": "Canonical payload (the exact bytes hashed)",
+      "payloadHash": "payload_hash",
+      "prevHash": "prev_hash",
+      "entryHash": "entry_hash",
+      "signature": "signature (Ed25519)"
+    },
+    "evidence": {
+      "title": "Evidence",
+      "total": "Entries in the log",
+      "head": "Head: seq {seq}",
+      "byTier": "Entries by tier",
+      "byAction": "Entries by action",
+      "lastVerify": "Last verification",
+      "never": "Not verified yet.",
+      "ok": "Verified ✓ {n} entries",
+      "broken": "Broken at seq {seq}",
+      "verifyNow": "Verify now",
+      "verifying": "Verifying…",
+      "fingerprint": "Public key fingerprint",
+      "copyFingerprint": "Copy public key fingerprint",
+      "export": "Export operation log",
+      "verifyLink": "Open the public verifier"
+    },
+    "tamper": {
+      "title": "Tamper and see",
+      "intro": "Change, delete or swap an entry in a copy of the log and watch verification catch it. The real log is never touched.",
+      "entry": "Entry",
+      "modeLabel": "Change",
+      "field": "Field",
+      "value": "New value",
+      "was": "Currently: {value}",
+      "mode": {
+        "edit": "Edit a value",
+        "delete": "Delete the entry",
+        "reorder": "Swap with the next entry"
+      },
+      "deleteHelp": "The entry is removed from the copy.",
+      "reorderHelp": "The entry swaps places with the one after it.",
+      "run": "Tamper with the copy",
+      "running": "Checking…",
+      "noEntries": "Waiting for audit entries.",
+      "banner": "This is a copy — the real log was not changed.",
+      "stillOk": "Still verifies. Nothing was changed that the log can detect.",
+      "chainLabel": "Tampered copy of the chain",
+      "restore": "Restore the live chain"
+    },
+    "receipt": {
+      "button": "Receipt",
+      "title": "Signed receipt",
+      "deal": "Deal",
+      "amount": "Amount",
+      "tier": "Permission tier",
+      "approver": "Approved by",
+      "time": "Time",
+      "seq": "Audit entry",
+      "hash": "Entry hash",
+      "signature": "Signature",
+      "qrAlt": "QR code that opens the public verifier for this receipt",
+      "qrHelp": "Scan to check this receipt in the public verifier. It carries only the signed entry, no secrets.",
+      "png": "Download PNG",
+      "pdf": "Print / save as PDF",
+      "open": "Open verifier link",
+      "copyHash": "Copy entry hash",
+      "copySig": "Copy signature"
+    },
+    "verify": {
+      "title": "Verify the Setu operation log",
+      "intro": "Check an exported log yourself: every hash, every signature and the chain order, with the published public key.",
+      "privacy": "Your file is read in this browser only. Nothing is uploaded or sent anywhere.",
+      "uploadTitle": "Check a log file",
+      "logLabel": "Operation log (.jsonl)",
+      "dropHint": "Choose a file, or drop it on this box.",
+      "keyDefault": "Using the published Setu audit public key. Fingerprint:",
+      "keyCustom": "Using your key: {name}",
+      "advanced": "Advanced: use another public key (PEM)",
+      "keyLabel": "Public key file (.pem)",
+      "resultTitle": "Result",
+      "waiting": "No file checked yet.",
+      "checkedWith": "Checked {file} with key {fp}…",
+      "noKey": "The public key could not be loaded.",
+      "badKey": "That is not a valid PEM public key.",
+      "empty": "The file has no audit entries.",
+      "parseError": "Cannot read the file: {detail}.",
+      "readError": "The file could not be read.",
+      "partial": "Partial export: {n} seq numbers are absent. Every entry present is genuine, but a partial export cannot prove that nothing was left out.",
+      "notAnchored": "The log does not start at seq 1, so its start is not tied to the genesis hash.",
+      "receiptTitle": "Receipt check",
+      "checking": "Checking the receipt…",
+      "receiptOk": "Receipt valid ✓ entry #{seq} is signed by Setu",
+      "singleNote": "A single entry proves its own contents and signature. It cannot prove that no entries around it were removed; upload the full log for that.",
+      "hashDiffers": "The entry hash does not match the one on the receipt",
+      "receiptInstructions": "This receipt refers to audit entry #{seq}. Upload the exported log below to find and check it.",
+      "highlightFound": "Entry #{seq} is in your log and its hash matches the receipt.",
+      "highlightMissing": "Entry #{seq} is not in this log."
+    }
+  },
+  "auth": {
+    "signIn": {
+      "title": "Sign in",
+      "lead": "Use the email and password of your Setu sign-in.",
+      "email": "Email",
+      "password": "Password",
+      "submit": "Sign in",
+      "submitting": "Signing in...",
+      "forgot": "Forgot your password?",
+      "noAccount": "New to Setu?",
+      "register": "Create a sign-in",
+      "verifiedNote": "Email verified. Please sign in."
+    },
+    "register": {
+      "title": "Create your sign-in",
+      "lead": "This creates your personal sign-in only. Your company profile is reviewed next, and until then you cannot use trade features.",
+      "name": "Full name",
+      "email": "Email",
+      "password": "Password",
+      "submit": "Create sign-in",
+      "submitting": "Creating...",
+      "haveAccount": "Already have a sign-in?",
+      "signIn": "Sign in",
+      "required": "required"
+    },
+    "strength": {
+      "label": "Password strength: {level}",
+      "weak": "weak",
+      "fair": "fair",
+      "strong": "strong",
+      "hint": "Use at least 8 characters; mix letters, numbers and symbols."
+    },
+    "verify": {
+      "title": "Verify your email",
+      "lead": "We sent a 6-digit code to {email}. Enter it below.",
+      "noEmail": "Enter the email you registered with.",
+      "email": "Email",
+      "code": "Verification code",
+      "submit": "Verify email",
+      "submitting": "Verifying...",
+      "resend": "Send a new code",
+      "resent": "A new code was sent.",
+      "back": "Back to sign in"
+    },
+    "forgot": {
+      "title": "Reset your password",
+      "lead": "Enter your email and we will send you a link to choose a new password.",
+      "email": "Email",
+      "submit": "Send reset link",
+      "submitting": "Sending...",
+      "sent": "If an account exists for that email, a reset link is on its way.",
+      "back": "Back to sign in"
+    },
+    "reset": {
+      "title": "Choose a new password",
+      "lead": "Pick a new password for your Setu sign-in.",
+      "password": "New password",
+      "confirm": "Confirm new password",
+      "submit": "Save password",
+      "submitting": "Saving...",
+      "mismatch": "The two passwords do not match.",
+      "done": "Your password was changed. You can sign in now.",
+      "missingToken": "This reset link is incomplete or has expired. Request a new one.",
+      "requestNew": "Request a new link",
+      "signIn": "Go to sign in"
+    },
+    "status": {
+      "title": "Your sign-in is not active yet",
+      "notOnboarded": {
+        "title": "No Setu account yet",
+        "body": "Your sign-in works, but it has no Setu account yet. Finish setting up your account so we can verify your business."
+      },
+      "pending": {
+        "title": "Awaiting verification",
+        "body": "Your company profile is waiting to be verified. We will let you in once the review is complete."
+      },
+      "suspended": {
+        "title": "Account suspended",
+        "body": "This account is suspended. Please contact Setu support."
+      },
+      "signOut": "Sign out",
+      "signingOut": "Signing out..."
+    },
+    "unavailable": {
+      "body": "This page is only used when real sign-in is enabled. This deployment uses demo accounts.",
+      "toLogin": "Go to the demo login"
+    },
+    "err": {
+      "generic": "Something went wrong. Please try again.",
+      "invalid": "The email or password is not correct.",
+      "unverified": "Your email is not verified yet.",
+      "exists": "A sign-in with this email already exists. Try signing in instead.",
+      "passwordLength": "The password length is not allowed. Use 8 to 128 characters.",
+      "otp": "That code is wrong or has expired. Request a new one.",
+      "tooMany": "Too many attempts. Wait a few minutes and try again.",
+      "resetToken": "This reset link is invalid or has expired.",
+      "session": "Your session could not be confirmed. Please sign in again."
+    },
+    "configError": "Could not load the sign-in settings."
+  }
+}

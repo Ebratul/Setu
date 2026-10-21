@@ -1,0 +1,64 @@
+{
+  "key": "3a34ee152ca2c54d4f35b491d4b9f13a16ddb4e265b8d49ae6eb01bedb5b43b9",
+  "kind": "chat",
+  "model": "claude-haiku-5-5",
+  "tools": [
+    "get_dashboard_snapshot",
+    "get_deal_summary",
+    "explain_how_setu_works",
+    "analyze_order",
+    "landed_cost_what_if",
+    "forecast_cashflow",
+    "compare_fx_route",
+    "get_monthly_summary",
+    "get_supplier_scorecard",
+    "search_knowledge",
+    "verify_party"
+  ],
+  "source": "real",
+  "recorded_at": "2026-10-20T05:00:17+00:00",
+  "request": {
+    "system": "You are Setu (সেতু), an AI SME finance copilot for Bangladeshi importers who buy from Chinese suppliers. All data in Setu is simulated demo data, and every paym",
+    "last_user": "আমার নতুন ফেব্রিক অর্ডারের (SETU-2026-0001) মোট ল্যান্ডেড খরচ কত ডলার এবং গ্রস মার্জিন কত?"
+  },
+  "response": {
+    "content": [
+      {
+        "id": "toolu_01D6S3Vo1W7LDejgmXhKzBR1",
+        "caller": {
+          "type": "direct"
+        },
+        "input": {
+          "deal_id": "SETU-2026-0001"
+        },
+        "name": "analyze_order",
+        "type": "tool_use",
+        "toolset_name": null
+      }
+    ],
+    "tool_calls": [
+      {
+        "name": "analyze_order",
+        "args": {
+          "deal_id": "SETU-2026-0001"
+        },
+        "id": "toolu_01D6S3Vo1W7LDejgmXhKzBR1"
+      }
+    ],
+    "usage": {
+      "input_tokens": 4984,
+      "output_tokens": 60,
+      "total_tokens": 5044,
+      "input_token_details": {
+        "cache_read": 0,
+        "cache_creation": 0,
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_token_details": {
+        "reasoning": 0
+      }
+    },
+    "seconds": 1.11
+  }
+}

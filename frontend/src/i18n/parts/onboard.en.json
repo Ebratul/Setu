@@ -1,0 +1,229 @@
+{
+  "onb": {
+    "title": "Set up your company account",
+    "lead": "Tell us about your business. A person at Setu reviews every company before the account is activated.",
+    "notice": "All money movement in Setu is Simulated: no real funds are moved. A person reviews every company before activation, so this can take some time.",
+    "steps": "Onboarding steps",
+    "optional": "optional",
+    "choose": "Choose...",
+    "next": "Next",
+    "back": "Back",
+    "submit": "Submit for review",
+    "submitting": "Submitting...",
+    "toStatus": "See your review status",
+    "reviewNote": "Check your details. After you submit, a person reviews your company. You can sign in again at any time to see the status.",
+    "step": {
+      "type": "Account type and your name",
+      "company": "Company",
+      "bank": "Bank account",
+      "review": "Review and submit"
+    },
+    "type": {
+      "BUYER": "Buyer (I import from suppliers)",
+      "SUPPLIER": "Supplier (I sell to buyers)"
+    },
+    "bankType": {
+      "CORPORATE": "Corporate (company account)",
+      "PERSONAL": "Personal"
+    },
+    "country": {
+      "BD": "Bangladesh",
+      "CN": "China"
+    },
+    "lang": {
+      "en": "English",
+      "bn": "বাংলা",
+      "zh": "中文"
+    },
+    "f": {
+      "accountType": "I am a",
+      "displayName": "Your name",
+      "legalName": "Company legal name",
+      "licenseName": "Name on the trade licence",
+      "licenseNo": "Trade licence number",
+      "taxId": "TIN / BIN (tax ID)",
+      "city": "City",
+      "country": "Country",
+      "language": "Language",
+      "bankName": "Bank name",
+      "bankCountry": "Bank country (2-letter code)",
+      "accountNumber": "Account number",
+      "holderName": "Account holder name",
+      "currency": "Currency",
+      "bankAccountType": "Account type"
+    },
+    "h": {
+      "displayName": "The person who will use this account.",
+      "licenseName": "Only if it differs from the legal name.",
+      "taxId": "A Bangladesh buyer needs a TIN of 9 to 13 digits.",
+      "bankCountry": "For example BD or CN.",
+      "accountNumber": "8 to 34 letters or digits, no spaces.",
+      "holderName": "Must match the company's legal name. A mismatch sends your application to a closer review."
+    },
+    "v": {
+      "required": "This field is required.",
+      "length": "Use {min} to {max} characters.",
+      "tin": "A Bangladesh buyer's TIN must be 9 to 13 digits.",
+      "iso2": "Use a 2-letter country code, for example BD.",
+      "account": "Use 8 to 34 letters or digits, no spaces.",
+      "simAccount": "Demo (SIM-) account numbers cannot be used for a real account.",
+      "server": "The server did not accept this value. Please check it."
+    },
+    "err": {
+      "ONBOARDING_EXISTS": "You have already submitted this application.",
+      "EMAIL_IN_USE": "This email already belongs to another Setu account.",
+      "COUNTRY_NOT_SUPPORTED": "Setu does not support companies in that country yet.",
+      "LICENSE_EXISTS": "A company with this licence number is already registered."
+    },
+    "checkStatus": {
+      "PASS": "Passed",
+      "WARN": "Needs attention",
+      "FAIL": "Failed"
+    },
+    "check": {
+      "TAX_ID_FORMAT": "Tax ID format",
+      "HOLDER_NAME_MATCH": "Account holder matches company name",
+      "ACCOUNT_TYPE": "Bank account type",
+      "LICENSE_NAME_MATCH": "Licence name matches company name",
+      "COUNTRY_ALLOWED": "Company country supported",
+      "BANK_COUNTRY": "Bank country",
+      "SANCTIONS_SCREEN": "Sanctions screening"
+    },
+    "st": {
+      "title": "Your application",
+      "loadFailed": "We could not load your status. Please try again.",
+      "pending": {
+        "title": "Waiting for review",
+        "body": "A person at Setu is reviewing your company. You can leave this page; it checks for updates by itself and takes you into the app once you are approved."
+      },
+      "approved": {
+        "title": "Approved",
+        "body": "Your company is approved. Taking you into Setu..."
+      },
+      "activateFailed": "You are approved, but we could not open your session. Please try again.",
+      "company": "Company",
+      "checks": "Automatic checks",
+      "polling": "This page refreshes about every 20 seconds while it is open."
+    }
+  },
+  "auth": {
+    "status": {
+      "rejected": {
+        "title": "Application not approved",
+        "noReason": "No reason was recorded. Please contact support."
+      }
+    }
+  },
+  "adm": {
+    "onb": {
+      "title": "Company onboarding review",
+      "intro": "Review new companies before they can use Setu. A decision is final.",
+      "filter": "Filter by status",
+      "tab": {
+        "PENDING": "Pending",
+        "APPROVED": "Approved",
+        "REJECTED": "Rejected",
+        "ALL": "All"
+      },
+      "status": {
+        "PENDING": "Pending",
+        "APPROVED": "Approved",
+        "REJECTED": "Rejected"
+      },
+      "empty": "No applications here.",
+      "adminOnly": "Only an administrator can review company applications.",
+      "col": {
+        "company": "Company",
+        "applicant": "Applicant",
+        "recommendation": "Automatic result",
+        "status": "Status",
+        "submitted": "Submitted",
+        "action": "Action"
+      },
+      "open": "Review",
+      "rec": {
+        "AUTO_CLEAR": "Clear",
+        "NEEDS_REVIEW": "Needs review",
+        "BLOCK": "Blocked"
+      },
+      "applicant": "Applicant",
+      "score": "Risk score",
+      "bank": "Bank account (masked)",
+      "noBank": "No bank account on file.",
+      "approve": "Approve",
+      "reject": "Reject",
+      "approveTitle": "Approve this company?",
+      "approveBody": "{name} will be activated and its bank account enabled. This cannot be undone.",
+      "rejectTitle": "Reject this company?",
+      "rejectBody": "{name} will be suspended and shown your reason. This cannot be undone.",
+      "reason": "Reason",
+      "reasonHint": "At least {min} characters. The applicant can read it.",
+      "done": {
+        "approve": "{name} was approved.",
+        "reject": "{name} was rejected."
+      },
+      "err": {
+        "ONBOARDING_DECIDED": "This application was already decided. The list has been refreshed.",
+        "SELF_DECISION": "You cannot decide your own application."
+      }
+    }
+  },
+  "team": {
+    "title": "Team",
+    "intro": "People who can sign in for your company. Owners manage the team.",
+    "members": "Members",
+    "invite": "Invite a member",
+    "noEmail": "No email is sent. Ask the person to register with this exact email address; their account links the first time they sign in with it verified.",
+    "inviteSubmit": "Add member",
+    "inviting": "Adding...",
+    "invited": "{email} was added. They can now register with this address.",
+    "removed": "{email} was removed.",
+    "remove": "Remove",
+    "removeLabel": "Remove {name}",
+    "removeTitle": "Remove this member?",
+    "removeBody": "{name} ({email}) will lose access to your company's account.",
+    "noParty": "This account is not linked to a company, so it has no team.",
+    "signedIn": "Signed in",
+    "notSignedIn": "Not signed in yet",
+    "col": {
+      "person": "Member",
+      "role": "Role",
+      "signedIn": "Signed in once",
+      "action": "Action"
+    },
+    "f": {
+      "email": "Email address",
+      "name": "Name",
+      "role": "Role"
+    },
+    "role": {
+      "OWNER": "Owner",
+      "FINANCE": "Finance",
+      "VIEWER": "Viewer"
+    },
+    "roleHelp": {
+      "OWNER": "Can manage the team and everything else.",
+      "FINANCE": "Can work with deals and payments.",
+      "VIEWER": "Can only look; cannot change anything."
+    },
+    "v": {
+      "email": "Enter a valid email address."
+    },
+    "err": {
+      "EMAIL_IN_USE": "This email already belongs to a Setu account.",
+      "PARTY_NOT_VERIFIED": "Your company must be approved before you can add members.",
+      "LAST_OWNER": "A company needs at least one owner. Make someone else an owner first."
+    }
+  },
+  "nav": {
+    "team": "Team",
+    "onboarding": "Company review"
+  },
+  "dealErr": {
+    "VIEWER_READ_ONLY": "Your role is read-only, so you cannot make changes. Ask a company owner.",
+    "ACCOUNT_NOT_ONBOARDED": "Finish setting up your company account first.",
+    "ACCOUNT_PENDING": "Your account is still waiting for review.",
+    "ACCOUNT_SUSPENDED": "Your account is suspended.",
+    "EMAIL_NOT_VERIFIED": "Verify your email address first."
+  }
+}

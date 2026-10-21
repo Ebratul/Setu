@@ -1,7 +1,7 @@
 # Setu data model
 
-Single owner: SQLAlchemy 2 models in `services/agent/app/db/models/` + Alembic
-(`services/agent/alembic/versions/`). The web app never touches the DB; it uses the generated API types.
+Single owner: SQLAlchemy 2 models in `backend/app/db/models/` + Alembic
+(`backend/alembic/versions/`). The web app never touches the DB; it uses the generated API types.
 All 26 tables were created up front in migration `60340801e54e_initial_schema`. Phase P07 (FR-1) added
 `financing_applications` in `70bf00166094`. A phase that needs a schema change is the only phase allowed
 to add a migration at that time, and it records that in PROGRESS.md.
@@ -56,4 +56,4 @@ to add a migration at that time, and it records that in PROGRESS.md.
   prev_hash}) + prev_hash)`, `signature = Ed25519(bytes.fromhex(entry_hash))` (`app/security/audit.py`).
   The genesis `prev_hash` is 64 zeros.
 - Landed cost = `goods_value` + Σ `deal_costs.amount`.
-- Projected balance and shortfall: see `services/agent/seed/cashflow.py` and `data/demo/README.md`.
+- Projected balance and shortfall: see `backend/seed/cashflow.py` and `data/demo/README.md`.

@@ -7,28 +7,30 @@ and order-level analysis, and pays suppliers through milestone escrow with risk-
 Deadline: 20 Oct 2026 21:59 Dhaka (23:59 Beijing). Working version by 19 Oct.
 
 ## Stack
-- `apps/web` — Next.js (App Router) + TypeScript + Tailwind v4, pnpm. Talks **only** to the FastAPI service.
-- `services/agent` — Python 3.13, FastAPI, LangGraph, LangChain (`langchain-anthropic`), LangSmith, SQLAlchemy 2 + Alembic, uv.
+- `frontend/` — Next.js (App Router) + TypeScript + Tailwind v4, pnpm. Talks **only** to the FastAPI service.
+- `backend/` — Python 3.13, FastAPI, SQLAlchemy 2 + Alembic, uv. Domain money logic, security, forensics, API, seed.
+- `rag_agent/` — the RAG + agent code: LangGraph agent (`app/agent`), knowledge-base retrieval (`app/rag`), `kb/` sources.
+  Imported as `app.agent` / `app.rag` (`backend/app/__init__.py` adds `rag_agent/app` to the package path); runs inside the backend process.
 - PostgreSQL + pgvector (local: docker-compose; prod: Neon). Hosting: Vercel (web + FastAPI via Vercel Services).
 - Models (env): `SETU_MODEL_FAST=claude-haiku-5-5` (chat/routing/explanations), `SETU_MODEL_REASONING=claude-sonnet-5-5` (document forensics). No model training.
+- Env files: `frontend/.env.local`, `backend/.env`, `rag_agent/.env` (each git-ignored; see the `.env.example` beside it). The backend reads root `.env`, then `rag_agent/.env`, then `backend/.env`.
 
 ## Repo map
 ```
-apps/web/                 Next.js app (src/app routes, src/components, src/lib/api/schema.gen.ts, src/i18n/{en,bn,zh}.json)
-services/agent/
+frontend/                 Next.js app (src/app routes, src/components, src/lib/api/schema.gen.ts, src/i18n/{en,bn,zh}.json)
+backend/
   app/main.py             FastAPI entry; routers in app/api/
   app/domain/             deterministic money logic: landed_cost, financing, cashflow, fx, escrow, kyb  (NO LLM here)
   app/forensics/          pdf extraction, hidden-text detector, cross-checks, hash registry
   app/security/           tiers.py, approvals.py, privacy_gateway.py, injection.py, audit.py
   app/llm/                client.py (the ONLY place models are called), cache.py
-  app/tools/              LangChain tools (@setu_tool(tier=...))
-  app/graph/              LangGraph nodes + graph
   app/db/                 SQLAlchemy models, session; alembic/ migrations
-  kb/                     RAG markdown sources
-  seed/                   seed JSON + loaders
-  synth/                  synthetic trade-document generator
-  eval/                   evaluation harness + results/
-  tests/                  pytest
+  seed/ synthetic/ eval/  seed JSON + loaders, synthetic trade-document generator, evaluation harness + results/
+  tests/                  pytest (the whole suite, including agent/ and rag/)
+rag_agent/
+  app/agent/              LangGraph nodes + graph, LangChain tools (@setu_tool(tier=...)), prompts, registry
+  app/rag/                chunker, embeddings, ingest, hybrid retrieval (pgvector + full-text)
+  kb/sources/             RAG markdown sources
 docs/                     PLAN.md, PROGRESS.md, REQUIREMENTS.md, claude-setup.md, submission docs
 .claude/                  rules/, agents/, skills/, hooks/, settings.json
 ```
@@ -42,10 +44,10 @@ make seed          # load demo data
 make dev           # agent on :8000 + web on :3000
 make test          # pytest + vitest
 make lint          # ruff + eslint + tsc
-make types         # regenerate apps/web/src/lib/api/schema.gen.ts from FastAPI OpenAPI
-make eval          # run evaluation harness -> services/agent/eval/results/
+make types         # regenerate frontend/src/lib/api/schema.gen.ts from FastAPI OpenAPI
+make eval          # run evaluation harness -> backend/eval/results/
 ```
-Single-side: `uv run --directory services/agent pytest -q`, `pnpm --dir apps/web test`.
+Single-side: `uv run --directory backend pytest -q`, `pnpm --dir frontend test`.
 
 ## Non-negotiable rules
 1. **LLM explains, code executes.** Every number (cost, margin, gap, FX, fraud score, tier) comes from deterministic
@@ -62,7 +64,7 @@ Single-side: `uv run --directory services/agent pytest -q`, `pnpm --dir apps/web
 9. **Always update `docs/PROGRESS.md` at the end of a phase** (use the `phase-handoff` skill).
 
 ## Rule files (auto-loaded by path; read the relevant one before editing)
-- `.claude/rules/frontend.md` — apps/web conventions, design tokens, accessibility
+- `.claude/rules/frontend.md` — frontend conventions, design tokens, accessibility
 - `.claude/rules/agent-python.md` — FastAPI/LangGraph/LangChain conventions, tool pattern, tracing
 - `.claude/rules/security.md` — tiers, injection, Privacy Gateway, audit log, secrets
 - `.claude/rules/money-logic.md` — Decimal, currency, FX, rounding
@@ -73,7 +75,7 @@ Single-side: `uv run --directory services/agent pytest -q`, `pnpm --dir apps/web
 - One phase per fresh session. Start by reading this file, `docs/PROGRESS.md`, and the phase's "Read first" list in
   `docs/PLAN.md` — nothing else unless needed. Routine: `docs/claude-setup.md`.
 - Use targeted search (Grep/Glob) instead of reading whole directories. Never read generated data
-  (`services/agent/eval/data/**`, `synth/out/**`, `*.gen.ts`, lockfiles) into context.
+  (`backend/eval/data/**`, `synth/out/**`, `*.gen.ts`, lockfiles) into context.
 - Delegate to subagents in `.claude/agents/` (frontend-builder, agent-engineer, security-reviewer, test-writer,
   eval-runner, docs-writer). Run `security-reviewer` on any diff touching `app/security`, `app/tools`, `app/graph`,
   `app/llm`, escrow or approvals.

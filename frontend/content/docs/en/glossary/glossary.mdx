@@ -1,0 +1,52 @@
+---
+title: Glossary
+summary: Plain-language meanings of the trade, finance and security terms used in Setu.
+section: glossary
+order: 10
+roles: [buyer, supplier, admin, judge]
+routes: []
+related: [buyer/approvals, buyer/documents, admin/audit-log, security/permission-tiers]
+updated: 2026-10-20
+---
+
+## What it is \{#what-it-is}
+
+Short definitions of terms you will meet in Setu. Where a guide page exists, the term links to it.
+
+## Trade and finance terms \{#trade}
+
+| Term | Meaning |
+|---|---|
+| **LC (letter of credit)** | A bank promise to pay a seller if they present the right documents. Setu's milestone escrow offers a similar protection without a bank. |
+| **Escrow** | Money held by a neutral party until conditions are met. In Setu it is a simulated ledger. See [What is simulated](/docs/en/security/what-is-simulated). |
+| **Milestone** | A stage of a deal that triggers a payment slice, such as production start, shipment or arrival. A common split is 30/60/10. |
+| **Landed cost** | The full cost of imported goods delivered to you: price plus freight, duty, tax and clearing. |
+| **B/L (bill of lading)** | The carrier's document that proves goods were shipped. Setu uses it as shipment evidence. See [Documents](/docs/en/buyer/documents). |
+| **Bill of entry** | The customs declaration filed when goods arrive in Bangladesh. Setu uses it as arrival evidence. |
+| **Incoterms** | International rules saying who pays for what and who carries risk. **FOB** (free on board): the seller delivers to the ship, then you pay freight. **CIF** (cost, insurance, freight): the seller pays freight and insurance to your port. **EXW** (ex works): you collect from the seller's factory and carry everything. |
+| **Proforma invoice** | A preliminary invoice that sets price and terms before production. It is the evidence for the first tranche. |
+| **Packing list** | A list of what is in each package, with weights and counts. Used with the B/L. |
+| **HS code** | A number that classifies a product for customs duty and tax. |
+| **Beneficiary** | The bank account, and its owner, that receives a payment. |
+| **KYB (know your business)** | Checks on a company: licence, name match, account, sanctions. The result is Verified, Warning or Blocked. |
+| **KYB badge** | The label next to a supplier showing its check status and score out of 100. |
+| **Registry** | Setu's duplicate-financing registry. It stores document fingerprints so one invoice cannot back two deals or two lenders. See [Documents](/docs/en/buyer/documents). |
+
+{/* REVIEW: The glossary links only to guide pages named in the brief (buyer/approvals, buyer/documents, admin/audit-log). Other guide pages (deals, escrow, KYB, registry) may exist and could be linked once confirmed. */}
+
+## Security terms \{#security}
+
+| Term | Meaning |
+|---|---|
+| **Tiers** | Four levels of control for actions: 0 automatic, 1 automatic with notice, 2 one tap, 3 code plus pause. See [Permission tiers](/docs/en/security/permission-tiers). |
+| **OTP (one-time password)** | A 6-digit code used once. Tier 3 needs it. Here it is simulated. |
+| **Cooling-off** | A forced 10-minute pause before a Tier 3 action can run. You can cancel during it. |
+| **Audit chain** | The log where each entry includes the previous entry's hash, so edits are detectable. See [Signed audit log](/docs/en/security/signed-audit-log) and [Audit log](/docs/en/admin/audit-log). |
+| **Hash** | A fingerprint of data. Any change gives a different fingerprint. |
+| **Privacy masking** | Replacing sensitive values with tokens before text reaches an AI model. See [Privacy masking](/docs/en/security/privacy-masking). |
+| **Prompt injection** | Hidden or disguised instructions in a document or email aimed at steering an AI. See [Documents and emails are data](/docs/en/security/injection-defence). |
+
+## Related pages \{#related}
+
+- [Security and trust explained](/docs/en/security/why-code-decides)
+- [FAQ](/docs/en/faq/faq)

@@ -1,0 +1,79 @@
+---
+title: Change your payout account
+summary: Ask to receive payments in a new bank account. Your buyer must verify it first.
+section: supplier
+order: 50
+roles: [supplier]
+routes: ["/supplier/[id]"]
+tryIt: "/supplier"
+related: [supplier/payments-received, security/permission-tiers, faq/faq]
+updated: 2026-10-20
+---
+
+## What it is \{#what-it-is}
+
+The **Change payout account** form asks Setu to pay a new bank account for one order. Changing where money goes is a Tier 3 action, the highest level of care. Your buyer must approve it with a one-time code (OTP) and wait through a 10 minute cooling-off pause.
+
+## Who uses it \{#who}
+
+<RoleBadge role="supplier" /> <TierBadge tier={3} /> You send the request. The buyer approves it. You have no code to enter.
+
+## When to use it \{#when}
+
+Only when your company really changes bank. Use this form only. Never send new bank details by email, chat or inside a document.
+
+## Step by step \{#how-to}
+
+<Steps>
+<Step title="Open the form">
+On the order page, scroll to **Change payout account**. Choose the **Order** it applies to.
+<Screenshot name="supplier/payout-form" route="/supplier/SETU-2026-0001" as="supplier" alt="Change payout account form with order, bank name, country, account number, holder, type and currency" caption="The change form." />
+</Step>
+<Step title="Fill in the account">
+Enter **Bank name**, **Bank country (2 letters)**, **Account number**, **Account holder name**, **Account type** (Corporate or Personal) and **Currency** (USD, CNY or BDT). Use the exact company name on your licence.
+<Screenshot name="supplier/payout-filled" route="/supplier/SETU-2026-0001" as="supplier" alt="Payout account form filled with sample bank details" caption="Check every field twice." />
+</Step>
+<Step title="Submit">
+Press **Submit change request**. You see "Request sent to your buyer."
+<Screenshot name="supplier/payout-sent" route="/supplier/SETU-2026-0001" as="supplier" alt="Success message after sending the change request" caption="The request is sent." />
+</Step>
+<Step title="Follow the status">
+**Account change status** shows four steps and refreshes every 5 seconds: Request submitted, Supplier check, Buyer verification, New account active.
+<Screenshot name="supplier/payout-tracker" route="/supplier/SETU-2026-0001" as="supplier" alt="Four-step account change tracker with the buyer verification step in progress" caption="The tracker." wait="[data-testid='change-tracker']" />
+</Step>
+</Steps>
+
+## What the results mean \{#results}
+
+| Stage | Meaning |
+|---|---|
+| Waiting for buyer verification - Tier 3 | Buyer has not approved yet. |
+| Approved: the new account is active | Future payments for this order go to the new account. |
+| Rejected by the buyer | The old account stays. |
+| Expired, Cancelled, Locked | The request ended. Nothing changed. Send a new one if needed. |
+
+Until approval, **payments keep going to your current account**. The new account is never used before that.
+
+## Tips and common mistakes \{#tips}
+
+- The change applies to one order only.
+- Bank country is two letters, for example CN. The account number needs at least 6 characters.
+- You may see a message that payment is paused while a change is pending.
+- Setu's demo prefixes new account numbers with SIM-.
+
+## Related security notes \{#security}
+
+<Callout type="security" title="Why the buyer must approve">
+Fraudsters often pretend to be a supplier and ask a buyer to pay a new account. So a payout change can never start from an email. It can only start here, inside your signed-in portal, and a person on the buyer side must approve it with OTP and a cooling-off pause. Requests in an email asking to pay another account are blocked and alerted. See [permission tiers](/docs/en/security/permission-tiers).
+</Callout>
+
+{/* REVIEW: docs/approvals.md says the Supplier check (KYB) runs on the new account; I did not verify what outcome blocks the request. */}
+
+## Try it \{#try-it}
+
+<TryItButton href="/supplier" />
+
+## Related pages \{#related}
+
+- [Payments received](/docs/en/supplier/payments-received)
+- [FAQ](/docs/en/faq/faq)

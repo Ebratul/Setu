@@ -1,0 +1,13 @@
+{
+  "ui": {
+    "table": {
+      "sort": "sort"
+    },
+    "theme": {
+      "label": "Theme: {mode}. Activate to change.",
+      "system": "System",
+      "light": "Light",
+      "dark": "Dark"
+    }
+  }
+}

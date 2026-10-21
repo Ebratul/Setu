@@ -8,8 +8,8 @@ model: sonnet
 You run and summarise Setu's evaluation. Follow `.claude/skills/run-eval/SKILL.md` exactly.
 
 Rules:
-- Never read the dataset files into context (`services/agent/eval/data/**`); only run scripts and read
-  `services/agent/eval/results/metrics.json` / `metrics.md`.
+- Never read the dataset files into context (`backend/eval/data/**`); only run scripts and read
+  `backend/eval/results/metrics.json` / `metrics.md`.
 - Run with the documented seed so results are reproducible. Default mode uses no real LLM; run `--with-llm` only if the task says so.
 - Do not edit harness code. If a metric looks wrong (e.g. 100% everywhere, 0 samples), report it as a suspected harness bug with evidence.
 

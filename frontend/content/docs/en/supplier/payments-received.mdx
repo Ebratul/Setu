@@ -1,0 +1,73 @@
+---
+title: Payments received
+summary: See how much is secured in escrow and which milestone payments have been paid to you.
+section: supplier
+order: 40
+roles: [supplier]
+routes: ["/supplier/[id]"]
+tryIt: "/supplier"
+related: [supplier/confirm-milestones, supplier/payout-account, glossary/glossary]
+updated: 2026-10-20
+---
+
+## What it is \{#what-it-is}
+
+Two blocks on the order page show your money: the green **Funds secured in escrow** box and the **Payments received** table. Everything is simulated. No real money moves.
+
+## Who uses it \{#who}
+
+<RoleBadge role="supplier" /> Read-only. Only your buyer can fund escrow and release payments.
+
+## When to use it \{#when}
+
+To check that your buyer has funded the order, and to see what was paid after each milestone.
+
+## Step by step \{#how-to}
+
+<Steps>
+<Step title="Check the escrow box">
+At the top of the order, the green box shows the amount held for you. The note says money is released milestone by milestone when the evidence is verified.
+<Screenshot name="supplier/escrow-box" route="/supplier/SETU-2026-0001" as="supplier" alt="Green box saying funds secured in escrow with an amount" caption="Funds secured in escrow." />
+</Step>
+<Step title="Watch the milestones">
+Each milestone shows a status. **Released** means paid. **Ready to release** means evidence is verified and the buyer can pay.
+<Screenshot name="supplier/milestone-status" route="/supplier/SETU-2026-0001" as="supplier" alt="Milestone cards with status badges" caption="Milestone statuses." wait="[data-testid='milestone']" />
+</Step>
+<Step title="Read Payments received">
+Each row is one paid milestone: **Milestone**, **Amount**, **FX payout** and **Posted**. FX payout shows the rate when the payment was converted to your currency, for example an amount at a rate.
+<Screenshot name="supplier/payments-table" route="/supplier/SETU-2026-0001" as="supplier" alt="Payments received table with milestone, amount, FX payout and posted date" caption="Payments received." wait="[data-testid='payments']" />
+</Step>
+</Steps>
+
+## What the results mean \{#results}
+
+| Item | Meaning |
+|---|---|
+| Milestone | The step number that was paid. |
+| Amount | Amount credited to you. |
+| FX payout | The converted amount and the exchange rate used. A dash means no conversion. |
+| Posted | Date of the payment. |
+| No payments received yet | No milestone has been released. |
+
+## Tips and common mistakes \{#tips}
+
+- A milestone can be **Waiting for approval** or **Frozen**. The buyer's side is checking it. This is a safety step, not a rejection.
+- Missing or flagged evidence delays release. Fix documents first.
+- Payments go to your active payout account only. See [payout account](/docs/en/supplier/payout-account).
+
+## Related security notes \{#security}
+
+<Callout type="security">
+Large or unusual releases need a human approval by the buyer (Tier 2 one-tap, Tier 3 with OTP and a 10 minute cooling-off). You are never asked for a code. See [permission tiers](/docs/en/security/permission-tiers).
+</Callout>
+
+{/* REVIEW: on the supplier order page, the "Waiting for approval" note links to the buyer's /app/approvals page. A supplier cannot open it. */}
+
+## Try it \{#try-it}
+
+<TryItButton href="/supplier" />
+
+## Related pages \{#related}
+
+- [Confirm milestones](/docs/en/supplier/confirm-milestones)
+- [Change payout account](/docs/en/supplier/payout-account)

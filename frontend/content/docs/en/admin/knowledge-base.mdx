@@ -1,0 +1,64 @@
+---
+title: Knowledge base re-index
+summary: How the AI knowledge base is refreshed. It is a command-line task, not a web page.
+section: admin
+order: 80
+roles: [admin]
+routes: []
+related: [admin/overview, admin/evaluation]
+updated: 2026-10-20
+---
+
+## What it is \{#what-it-is}
+
+The knowledge base (KB) holds the short guides the chat assistant searches: for example Incoterms, financing terms and trade document fields. Indexing splits the guides into chunks and stores their embeddings (numeric fingerprints of meaning) in the database for search.
+
+{/* REVIEW: There is no admin web page or HTTP endpoint for re-indexing. This page documents the command-line tools in rag_agent/app/rag/cli.py only. */}
+
+## Who uses it \{#who}
+
+<RoleBadge role="admin" /> Whoever runs the server. You need command-line access to the project.
+
+## When to use it \{#when}
+
+- After you edit a file in `rag_agent/kb/sources/`.
+- After the financing catalogue changes and you want the KB to reflect it.
+
+## Step by step \{#how-to}
+
+<Steps>
+<Step title="Sync the financing catalogue">
+Run `pnpm kb:sync` (or `make kb-sync`). It writes the current financing catalogue as a generated source file under `rag_agent/kb/sources/generated`, or reports "unchanged".
+<Screenshot name="admin/kb-sync" route="/app/admin/audit" as="admin" alt="The admin area of the web app. Knowledge base sync has no screen here and runs in the terminal." caption="No web screen exists for this task." />
+</Step>
+<Step title="Index the sources">
+Run `pnpm kb:index` (or `make kb-index`). The command prints a summary such as sources, chunks, and how many were embedded, unchanged or removed.
+<Screenshot name="admin/kb-index" route="/app/admin/audit" as="admin" alt="The admin area of the web app. The index command has no screen here and prints its summary in the terminal." caption="The summary is printed in the terminal." />
+</Step>
+</Steps>
+
+## What the results mean \{#results}
+
+| Output | Meaning |
+|---|---|
+| +N embedded | New or changed chunks were embedded. |
+| N unchanged | Chunks that did not change were kept. |
+| -N removed | Chunks whose source text is gone were deleted. |
+
+Indexing is idempotent: running it twice gives the same result.
+
+## Tips and common mistakes \{#tips}
+
+- If the embedding model is not available, the command stops with "embedding model unavailable; cannot index".
+- The knowledge base is data. Instructions inside KB text are never obeyed by the assistant.
+- Chat answers cite numbers from code tools, not from the KB.
+
+## Related security notes \{#security}
+
+<Callout type="security">
+KB passages are wrapped as untrusted content before the model sees them. See [Security events](/docs/en/admin/security-events).
+</Callout>
+
+## Related pages \{#related}
+
+- [Admin console overview](/docs/en/admin/overview)

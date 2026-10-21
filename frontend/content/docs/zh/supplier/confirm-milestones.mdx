@@ -1,0 +1,80 @@
+---
+title: 确认付款里程碑
+summary: 同意买方提出的付款计划，买方才能向托管注资。
+section: supplier
+order: 20
+roles: [supplier]
+routes: ["/supplier/[id]"]
+tryIt: "/supplier"
+related: [supplier/overview, supplier/upload-documents, security/permission-tiers]
+updated: 2026-10-20
+---
+
+## 这是什么 \{#what-it-is}
+
+买方会提出一份付款计划：分成几个里程碑，例如 **开始生产**、**发运**、**到货**，每个里程碑有金额和所需单据。双方都确认后，买方才能把钱存入托管。
+
+## 谁使用 \{#who}
+
+<RoleBadge role="supplier" /> 供应商确认自己这一方，买方单独确认。
+
+## 何时使用 \{#when}
+
+订单状态为 **已提议**，并且您同意金额、日期和所需单据时。
+
+## 操作步骤 \{#how-to}
+
+<Steps>
+<Step title="打开订单">
+进入 **订单**，点击订单编号。
+<Screenshot name="supplier/orders-list" route="/supplier" as="supplier" alt="供应商订单列表" caption="选择订单。" />
+</Step>
+<Step title="查看里程碑">
+在 **付款里程碑** 下，每张卡片显示里程碑、金额及百分比、到期日，以及需要您提供的 **证明材料** 清单。
+<Screenshot name="supplier/milestones" route="/supplier/SETU-2026-0001" as="supplier" alt="付款里程碑，含金额、到期日和证明材料清单" caption="同意之前先核对金额、日期和证明材料。" wait="[data-testid='milestone']" />
+</Step>
+<Step title="点击确认付款计划">
+点击 **确认付款计划**。弹窗询问“确认付款计划？”，并说明您同意所示的里程碑、金额和证明材料。再次点击确认，会提示“付款计划已确认。”
+<Screenshot name="supplier/confirm-dialog" route="/supplier/SETU-2026-0001" as="supplier" click="[data-testid='action-confirm']" alt="确认付款计划的弹窗" caption="确认弹窗。" />
+</Step>
+<Step title="查看确认情况">
+列表会显示买方和供应商，状态为 **已确认** 或 **尚未确认**。双方都确认后，订单变为 **已确认**。
+<Screenshot name="supplier/confirmations" route="/supplier/SETU-2026-0001" as="supplier" alt="显示买方和供应商确认状态的列表" caption="双方都要确认。" />
+</Step>
+</Steps>
+
+## 结果说明 \{#results}
+
+| 状态 | 含义 |
+|---|---|
+| 已提议 | 等待确认。 |
+| 已锁定 | 计划已同意，等待注资和证明材料。 |
+| 可放款 | 证明材料已验证，买方可以放款。 |
+| 等待批准 | 买方放款前需要人工批准。 |
+| 已放款 | 已付给您（模拟）。 |
+| 已冻结 | 为安全起见暂停。 |
+
+证明材料状态：缺失、待审、已验证、存疑、已拒绝。
+
+## 提示与常见错误 \{#tips}
+
+- 如果您已确认过，或当前没有已提议的计划，按钮会变灰，原因显示在按钮下方。
+- 金额不对时请不要确认，请买方重新提议。重新提议会清除之前的确认。
+- 您不能自己修改金额。
+
+## 相关安全说明 \{#security}
+
+<Callout type="security">
+您的确认会记入签名审计日志。只有买方注资且规则允许时，资金才会放出。见[权限等级](/docs/zh/security/permission-tiers)。
+</Callout>
+
+{/* REVIEW: not verified whether a supplier confirmation can ever need extra approval (the code runs a risk gate). Page does not mention it. */}
+
+## 试一试 \{#try-it}
+
+<TryItButton href="/supplier" />
+
+## 相关页面 \{#related}
+
+- [门户概览](/docs/zh/supplier/overview)
+- [上传单据](/docs/zh/supplier/upload-documents)

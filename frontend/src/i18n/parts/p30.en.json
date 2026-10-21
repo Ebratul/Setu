@@ -1,0 +1,546 @@
+{
+  "nav": {
+    "verifications": "Verifications"
+  },
+  "dealErr": {
+    "ACCOUNT_NOT_VERIFIED": "Your account is not verified yet, so this money action is locked. Finish verification and try again.",
+    "ACCOUNT_REJECTED": "This account was not approved.",
+    "ACCOUNT_SUSPENDED": "This account is suspended.",
+    "STEPUP_REQUIRED": "Please confirm with a fresh security code first.",
+    "STEPUP_TOTP_REQUIRED": "Confirm with your authenticator app first.",
+    "MFA_REQUIRED": "Two-factor authentication is required for this action. Set it up first."
+  },
+  "auth": {
+    "status": {
+      "rejected": {
+        "body": "Your application was reviewed and not approved. The reviewer's reason is shown below when one was given."
+      }
+    }
+  },
+  "lg": {
+    "google": "Continue with Google",
+    "googleBusy": "Opening Google...",
+    "googleNote": "Google confirms your email. Setu never sees your Google password.",
+    "googleFailed": "We could not start Google sign-in. Please try again or use your email and password.",
+    "finishing": "Signing you in...",
+    "orEmail": "Or sign in with email and password",
+    "email": "Sign in with email and password",
+    "demoTitle": "Demo accounts",
+    "demoHint": "Just exploring? Use a demo account (admin, supplier, judge or buyer): no e-mail verification needed.",
+    "demoGo": "Open demo accounts",
+    "nothing": "No sign-in method is available right now.",
+    "legalNav": "Legal and help",
+    "why": "Why we ask for business documents",
+    "terms": "Terms",
+    "privacy": "Privacy"
+  },
+  "lgl": {
+    "version": "Version {version}",
+    "sandbox": "Setu is a sandbox. All money movement is simulated: no real funds are held, moved or released. These pages describe the demo service.",
+    "terms": {
+      "title": "Terms of use (sandbox)",
+      "h1": "What Setu is",
+      "c1": "Setu helps SMEs plan imports, financing and supplier payments. In this sandbox every payment, escrow balance and loan is simulated.",
+      "h2": "Your account",
+      "c2": "You are responsible for the accuracy of the details you give and for keeping your sign-in and security codes private.",
+      "h3": "Verification",
+      "c3": "Money actions stay locked until your business is verified by a reviewer. We may ask for more documents or decline an application.",
+      "h4": "Acceptable use",
+      "c4": "Do not upload documents you are not entitled to share, or try to bypass checks. Instructions hidden inside documents are treated as data, never as commands.",
+      "h5": "No financial advice",
+      "c5": "Figures are estimates produced by fixed rules. They are not an offer of credit or a guarantee.",
+      "h6": "Changes and ending",
+      "c6": "We may update these terms; the version you accepted is recorded. You can request deletion of your account at any time."
+    },
+    "privacy": {
+      "title": "Privacy notice (sandbox)",
+      "h1": "What we collect",
+      "c1": "Your name, work email, mobile number, business details and the documents you upload so we can verify your business.",
+      "h2": "How it is protected",
+      "c2": "Sensitive values such as licence numbers, tax numbers and bank accounts are stored encrypted and shown masked. Reviewers must give a written reason to see a full value, and that is logged.",
+      "h3": "AI and your data",
+      "c3": "Personal and business identifiers are masked before any text reaches an AI model. Numbers are computed by code, not by the model.",
+      "h4": "Who sees it",
+      "c4": "Only authorised reviewers and you. We do not sell data.",
+      "h5": "Your choices",
+      "c5": "You can download your data and request deletion from Account settings.",
+      "h6": "Retention",
+      "c6": "Verification records are kept for the audit trail while the account exists. Deleted accounts are suspended and then removed."
+    }
+  },
+  "ob": {
+    "title": "Set up your account",
+    "lead": "A few steps so we can verify your business. You can stop and come back: your progress is saved.",
+    "steps": "Account setup steps",
+    "stepOf": "Step {n} of {total}: {name}",
+    "optional": "optional",
+    "choose": "Choose...",
+    "next": "Next",
+    "back": "Back",
+    "edit": "Edit",
+    "continueSetup": "Continue account setup",
+    "saveContinue": "Save and continue",
+    "submit": "Submit for verification",
+    "submitting": "Submitting...",
+    "fixErrors": "Please fix {n} highlighted field(s) before continuing.",
+    "changesBanner": "A reviewer asked for {n} change(s). Update the marked items and submit again.",
+    "savedMasked": "Saved: {value}. Leave blank to keep it, or type a new value to replace it.",
+    "step": {
+      "role": "Your role",
+      "contact": "Contact and phone",
+      "business": "Business",
+      "documents": "Documents",
+      "security": "Security and consent",
+      "review": "Review and submit"
+    },
+    "role": {
+      "lead": "Choose how you will use Setu. This cannot be changed after you continue.",
+      "legend": "I am a",
+      "invite": "Invite code",
+      "inviteHint": "Judges receive a code from the organisers.",
+      "BUYER": "Buyer (Bangladeshi importer)",
+      "BUYER.desc": "Plan imports, compare financing and pay Chinese suppliers through simulated escrow.",
+      "SUPPLIER": "Supplier (Chinese exporter)",
+      "SUPPLIER.desc": "Confirm milestones, upload documents and receive simulated payments.",
+      "JUDGE": "Judge",
+      "JUDGE.desc": "Read-only access with an invite code from the organisers.",
+      "ADMIN": "Administrator",
+      "ADMIN.desc": "For pre-approved staff emails only. Needs two-factor authentication."
+    },
+    "contact": {
+      "edit": "Edit details",
+      "save": "Save and verify phone"
+    },
+    "mobile": {
+      "hint": "Bangladesh mobile number, for example +8801712345678 or 01712345678.",
+      "hintIntl": "Mobile number with country code, for example +8613812345678."
+    },
+    "phone": {
+      "title": "Verify your phone",
+      "lead": "We will send a 6-digit code to {phone}.",
+      "send": "Send code",
+      "resend": "Send a new code",
+      "resendIn": "Send again in {s}s",
+      "sent": "Code sent. It expires in 5 minutes. Sends left: {left}.",
+      "code": "6-digit code",
+      "verify": "Verify phone",
+      "verified": "Phone number verified.",
+      "verifiedShort": "verified",
+      "needed": "Verify your phone to continue.",
+      "demoTitle": "Demo mode",
+      "demoBody": "No SMS is sent in the demo. Your code is"
+    },
+    "group": {
+      "BUYER": {
+        "company": "Company",
+        "address": "Business address",
+        "trade": "Import profile"
+      },
+      "SUPPLIER": {
+        "company": "Company",
+        "address": "Registered address",
+        "bank": "Bank account"
+      }
+    },
+    "biz": {
+      "leadBuyer": "Use the details on your trade licence. Licence, IRC and TIN numbers are stored encrypted.",
+      "leadSupplier": "Use the details on your business licence. The company name must match your bank account holder."
+    },
+    "f": {
+      "full_name": "Full name",
+      "designation": "Job title",
+      "mobile": "Mobile number",
+      "language": "Language",
+      "legal_name": "Legal company name",
+      "trade_name": "Trade name",
+      "trade_license_no": "Trade licence number",
+      "license_authority": "Issuing authority",
+      "license_expiry": "Licence expiry date",
+      "irc_no": "Import Registration Certificate (IRC) number",
+      "tin": "TIN",
+      "address_division": "Division",
+      "address_district": "District",
+      "address_upazila": "Upazila",
+      "address_street": "Street address",
+      "business_type": "Business type",
+      "main_import_goods": "Main goods you import",
+      "monthly_import_volume": "Monthly import volume (BDT)",
+      "legal_name_en": "Company name (English)",
+      "legal_name_zh": "Company name (Chinese)",
+      "uscc": "Unified Social Credit Code (USCC)",
+      "address_province": "Province",
+      "address_city": "City",
+      "business_scope": "Business scope",
+      "export_experience_years": "Years of export experience",
+      "wechat_id": "WeChat ID",
+      "contact_phone": "Contact phone",
+      "bank_bank_name": "Bank name",
+      "bank_holder_name": "Account holder name",
+      "bank_account_no": "Account number",
+      "bank_currency": "Account currency",
+      "bank_swift": "SWIFT/BIC code"
+    },
+    "h": {
+      "trade_license_no": "As printed on the licence, for example TRAD/DNCC/012345/2024.",
+      "irc_no": "Letters, digits, slash or hyphen.",
+      "tin": "Digits only (9 to 13).",
+      "license_expiry": "Must be a future date.",
+      "uscc": "18 characters. The last one is a check character.",
+      "bank_swift": "8 or 11 letters and digits, for example BKCHCNBJ.",
+      "bank_account_no": "Letters and digits only, 6 to 34 characters.",
+      "legal_name_zh": "Exactly as on your business licence.",
+      "contact_phone": "With country code, for example +8613812345678."
+    },
+    "o": {
+      "business_type": {
+        "MANUFACTURER": "Manufacturer",
+        "TRADER": "Trader"
+      },
+      "monthly_import_volume": {
+        "UNDER_500K_BDT": "Under 500,000 BDT",
+        "500K_2M_BDT": "500,000 to 2,000,000 BDT",
+        "2M_10M_BDT": "2,000,000 to 10,000,000 BDT",
+        "OVER_10M_BDT": "Over 10,000,000 BDT"
+      },
+      "bank_currency": {
+        "CNY": "CNY (yuan)",
+        "USD": "USD (dollar)"
+      }
+    },
+    "lang": {
+      "en": "English",
+      "bn": "Bangla",
+      "zh": "Chinese"
+    },
+    "docs": {
+      "lead": "Upload clear PDF, PNG or JPG files, up to {mb} MB each.",
+      "types": "PDF, PNG or JPG. Maximum 4 MB.",
+      "missing": "Not uploaded",
+      "remove": "Remove",
+      "uploading": "Uploading...",
+      "needed": "Upload every required document (marked *) to continue."
+    },
+    "doc": {
+      "TRADE_LICENSE": "Trade licence",
+      "IRC": "Import Registration Certificate (IRC)",
+      "TIN_CERT": "TIN certificate",
+      "BUSINESS_LICENSE": "Business licence",
+      "BANK_PROOF": "Bank account proof",
+      "OTHER": "Other supporting document"
+    },
+    "docStatus": {
+      "UPLOADED": "Uploaded",
+      "VERIFIED": "Verified",
+      "REJECTED": "Rejected"
+    },
+    "consent": {
+      "title": "Consent",
+      "version": "Terms version {version}",
+      "terms": "I accept the Terms of use.",
+      "privacy": "I accept the Privacy notice.",
+      "verify": "I agree that Setu may verify my business and documents, including automated checks and manual review."
+    },
+    "totp": {
+      "title": "Two-factor authentication (authenticator app)",
+      "optional": "Recommended. Adds a 6-digit code from an authenticator app when you approve sensitive actions.",
+      "setup": "Set up authenticator",
+      "on": "Two-factor authentication is on.",
+      "off": "Two-factor authentication is off.",
+      "adminRequired": "Administrators must turn on two-factor authentication before they can review accounts."
+    },
+    "review": {
+      "lead": "Check everything before you submit. Sensitive values are shown masked.",
+      "note": "After you submit, a reviewer checks your business. Money actions unlock once you are verified."
+    },
+    "v": {
+      "required": "This field is required.",
+      "length": "Use {min} to {max} characters.",
+      "mobile": "Enter a Bangladesh mobile number: +8801 followed by 3-9 and 8 digits.",
+      "mobileIntl": "Enter a number with country code, like +8613812345678.",
+      "license": "That does not look like a trade licence number.",
+      "irc": "That does not look like an IRC number.",
+      "tin": "TIN must be 9 to 13 digits.",
+      "date": "Use the format YYYY-MM-DD.",
+      "expired": "The licence must not be expired.",
+      "usccLength": "A USCC has exactly 18 characters.",
+      "usccCheck": "This USCC is not valid. Check each character against your licence.",
+      "years": "Enter whole years, 0 to 99.",
+      "account": "Use 6 to 34 letters or digits, no spaces.",
+      "swift": "SWIFT/BIC must be 8 or 11 characters, for example BKCHCNBJ.",
+      "currency": "Choose CNY or USD.",
+      "choose": "Please choose an option.",
+      "chooseRole": "Choose a role to continue.",
+      "inviteCode": "Enter your invite code.",
+      "code6": "Enter the 6-digit code.",
+      "consent": "Tick all three boxes to continue.",
+      "server": "Please check this field.",
+      "fileEmpty": "That file is empty.",
+      "fileSize": "That file is larger than 4 MB.",
+      "fileType": "Only PDF, PNG or JPG files are accepted.",
+      "needsChinese": "Enter the company name in Chinese characters."
+    },
+    "err": {
+      "ROLE_NOT_ALLOWED": "That role is not available for this email address.",
+      "INVALID_INVITE_CODE": "That invite code is not valid.",
+      "ROLE_LOCKED": "Your role is already set and cannot be changed.",
+      "OTP_RATE_LIMIT": "Too many codes requested. Please wait a few minutes.",
+      "OTP_LOCKED": "Too many wrong codes. Please request a new code later.",
+      "OTP_EXPIRED": "That code has expired. Send a new one.",
+      "OTP_INVALID": "That code is not correct.",
+      "EMAIL_IN_USE": "This email is already linked to another sign-in. Contact support.",
+      "DOCUMENT_REJECTED": "That file could not be accepted. Check the type and size.",
+      "ONBOARDING_INCOMPLETE": "Some earlier steps are not finished yet.",
+      "MOBILE_REQUIRED": "Save your mobile number first.",
+      "SMS_UNAVAILABLE": "We cannot send text messages right now. Please try again later.",
+      "OTP_NOT_SENT": "Request a code first.",
+      "UNSUPPORTED_FILE_TYPE": "Only PDF, PNG or JPG files are accepted.",
+      "FILE_TOO_LARGE": "That file is larger than 4 MB.",
+      "DOC_TYPE_NOT_ALLOWED": "That document type is not accepted for your account type.",
+      "TOO_MANY_DOCUMENTS": "You have uploaded too many documents. Remove one first.",
+      "PROFILE_LOCKED": "Your profile is under review and cannot be edited now.",
+      "TERMS_VERSION_MISMATCH": "The Terms were updated. Reload the page and accept the new version.",
+      "RATE_LIMITED": "Too many attempts. Please wait a few minutes.",
+      "STEP_INCOMPLETE": "Some steps are not finished yet. Complete them before submitting.",
+      "MFA_REQUIRED": "Turn on two-factor authentication first."
+    },
+    "srv": {
+      "required": "This field is required.",
+      "too_short": "This is too short.",
+      "invalid_format": "This is not in the expected format.",
+      "not_allowed": "This field is not accepted.",
+      "invalid_choice": "Please choose one of the listed options.",
+      "invalid_date": "Use the format YYYY-MM-DD.",
+      "INVALID_BD_MOBILE": "Enter a valid Bangladesh mobile number (+8801 then 3-9 and 8 digits).",
+      "INVALID_TRADE_LICENSE": "That does not look like a trade licence number.",
+      "INVALID_IRC": "That does not look like an IRC number.",
+      "INVALID_TIN": "TIN must be 9 to 13 digits.",
+      "LICENSE_EXPIRED": "The licence must not be expired.",
+      "INVALID_USCC_LENGTH": "A USCC has exactly 18 characters.",
+      "INVALID_USCC_CHECKSUM": "This USCC is not valid. Check each character against your licence.",
+      "NEEDS_CHINESE_NAME": "Enter the company name in Chinese characters.",
+      "INVALID_SWIFT": "SWIFT/BIC must be 8 or 11 characters, for example BKCHCNBJ.",
+      "INVALID_ACCOUNT_NO": "Use 6 to 34 letters or digits, no spaces."
+    }
+  },
+  "ost": {
+    "title": "Verification status",
+    "loadFailed": "We could not load your status. Please try again.",
+    "pending": {
+      "title": "Verification in progress",
+      "body": "A reviewer is checking your business. This usually takes a short while. You can read your workspace, but money actions stay locked until you are verified."
+    },
+    "changes": {
+      "title": "Changes requested",
+      "body": "A reviewer needs a few corrections before approving your account.",
+      "list": "What to fix"
+    },
+    "fix": "Fix this",
+    "resubmit": "Go to review and resubmit",
+    "checklist": "Your checklist",
+    "done": "Done",
+    "todo": "To do",
+    "inProgress": "In progress",
+    "humanReview": "Review by a Setu reviewer"
+  },
+  "vb": {
+    "toast": "Your account is not verified yet, so that action is locked. Finish verification to continue.",
+    "open": "You can still browse your workspace and read your data.",
+    "locked": {
+      "title": "Locked until you are verified",
+      "reason": "Locked until your account is verified.",
+      "orders": "Creating real orders",
+      "escrow": "Funding escrow, releasing milestones and financing",
+      "fx": "Locking FX rates and changing payout accounts",
+      "team": "Inviting or removing team members"
+    },
+    "profile": {
+      "title": "Finish setting up your account",
+      "body": "Your profile is not complete, so your account is not verified yet.",
+      "cta": "Continue setup"
+    },
+    "review": {
+      "title": "Verification in progress",
+      "body": "A reviewer is checking your business.",
+      "cta": "View status"
+    },
+    "blocked": {
+      "title": "Account not active",
+      "body": "This account cannot use money actions.",
+      "cta": "View status"
+    },
+    "admin": {
+      "title": "Set up two-factor authentication",
+      "body": "Administrator accounts need two-factor authentication before they can review accounts.",
+      "cta": "Set up now"
+    }
+  },
+  "wt": {
+    "progress": "Tour step {n} of {total}",
+    "skip": "Skip tour",
+    "finish": "Create my first order",
+    "finish.supplier": "Go to my portal",
+    "welcome": {
+      "title": "Welcome to Setu, {name}",
+      "body": "Your account is verified. Everything here is a sandbox: payments and escrow are simulated, so you can explore safely.",
+      "body.supplier": "Your account is verified. Everything here is a sandbox: payments are simulated, so you can explore safely."
+    },
+    "order": {
+      "title": "Start with an order",
+      "body": "Create an order from a supplier quote. Setu computes the landed cost and margin with fixed rules so you can decide with real numbers.",
+      "body.supplier": "Buyers will send you orders. You confirm the payment milestones and upload documents for each stage."
+    },
+    "escrow": {
+      "title": "Pay through milestone escrow",
+      "body": "Propose milestones, fund the escrow and release each payment when evidence is verified. Bigger actions need your approval.",
+      "body.supplier": "When evidence is verified, the buyer releases each milestone payment to you. You can follow every step."
+    }
+  },
+  "vq": {
+    "title": "Account verifications",
+    "intro": "Review new buyers and suppliers. Sensitive values are masked until you reveal one with a written reason.",
+    "roleFilter": "Account type",
+    "role": {
+      "ALL": "All types"
+    },
+    "tab": {
+      "PENDING": "Pending",
+      "CHANGES_REQUESTED": "Changes requested",
+      "APPROVED": "Approved",
+      "REJECTED": "Rejected",
+      "SUSPENDED": "Suspended",
+      "ALL": "All"
+    },
+    "status": {
+      "PENDING": "Pending",
+      "CHANGES_REQUESTED": "Changes requested",
+      "APPROVED": "Approved",
+      "REJECTED": "Rejected",
+      "SUSPENDED": "Suspended"
+    },
+    "fields": "Submitted details",
+    "reveal": "Reveal",
+    "hide": "Hide",
+    "revealTitle": "Reveal a sensitive value",
+    "revealBody": "Write why you need to see this value. The reason and your name are recorded in the audit log. The value hides again after 30 seconds.",
+    "reason": "Reason",
+    "reasonHint": "At least {min} characters.",
+    "docs": "Documents",
+    "docs.none": "No documents uploaded.",
+    "doc": {
+      "view": "View",
+      "openTab": "Open in a new tab"
+    },
+    "notes": "Reviewer notes",
+    "self": "You cannot decide your own account.",
+    "changes": {
+      "action": "Request changes",
+      "title": "Request changes",
+      "body": "Choose the fields and documents the applicant must fix and say what is wrong.",
+      "note": "Note for",
+      "send": "Send request",
+      "open": "Open change requests"
+    },
+    "suspend": "Suspend",
+    "suspendTitle": "Suspend this account?",
+    "suspendBody": "{name} will lose access to money actions. The applicant sees your reason.",
+    "approveBody": "{name} will be activated and money actions unlock. This is recorded in the audit log.",
+    "rejectBody": "{name} will be rejected and shown your reason.",
+    "autoApprove": "Auto-approve (demo)",
+    "autoBody": "Demo mode only: approves this application without a manual review.",
+    "demoOnly": "Demo only",
+    "done": {
+      "approve": "{name} was approved.",
+      "changes": "Changes were requested from {name}.",
+      "reject": "{name} was rejected.",
+      "suspend": "{name} was suspended."
+    },
+    "stepup": {
+      "title": "Confirm with a security code",
+      "body": "Enter the current 6-digit code from your authenticator app, or a recovery code.",
+      "code": "Authenticator or recovery code",
+      "confirm": "Confirm"
+    },
+    "err": {
+      "ONBOARDING_DECIDED": "This application was already decided. The list has been refreshed.",
+      "SELF_DECISION": "You cannot decide your own application.",
+      "MFA_REQUIRED": "Turn on two-factor authentication to review accounts.",
+      "STEPUP_INVALID": "That code is not correct or has expired.",
+      "SANCTIONS_BLOCK": "This applicant matched a screening list and cannot be approved.",
+      "DUPLICATE_COMPANY_APPROVED": "A company with the same registration is already approved. Request changes or reject instead.",
+      "ROLE_NOT_REVIEWABLE": "Only buyer and supplier accounts can be reviewed here.",
+      "MFA_INVALID_CODE": "That code is not correct or has expired.",
+      "RATE_LIMITED": "Too many attempts. Please wait a few minutes.",
+      "STEPUP_TOTP_REQUIRED": "Confirm with your authenticator app first."
+    }
+  },
+  "tp": {
+    "lead": "Use an authenticator app such as Google Authenticator, Microsoft Authenticator or Authy.",
+    "start": "Start setup",
+    "step1": "Open your authenticator app and add an account.",
+    "step2": "Scan the QR code, or type the secret key below.",
+    "step3": "Enter the 6-digit code the app shows.",
+    "qrAlt": "QR code for your authenticator app",
+    "secretLabel": "Secret key",
+    "secretOnce": "This key is shown once. Keep it private.",
+    "uri": "Show the setup link",
+    "code": "6-digit code",
+    "enable": "Turn on two-factor authentication",
+    "codes": {
+      "title": "Your recovery codes",
+      "body": "Each code works once if you lose your phone. They are shown only now. Save them somewhere safe.",
+      "copy": "Copy codes",
+      "copied": "Copied",
+      "download": "Download as text",
+      "confirm": "I have saved these recovery codes.",
+      "done": "Done"
+    },
+    "err": {
+      "TOTP_INVALID": "That code is not correct. Check the time on your phone and try again.",
+      "TOTP_ALREADY_ENABLED": "Two-factor authentication is already on.",
+      "TOTP_NOT_ENABLED": "Two-factor authentication is not on.",
+      "MFA_ADMIN_REQUIRED": "Administrators cannot turn off two-factor authentication.",
+      "MFA_INVALID_CODE": "That code is not correct. Check the time on your phone and try again.",
+      "MFA_NOT_STARTED": "Start the setup again to get a new key.",
+      "MFA_ALREADY_ENABLED": "Two-factor authentication is already on.",
+      "MFA_REQUIRED": "Administrators cannot turn off two-factor authentication.",
+      "RATE_LIMITED": "Too many attempts. Please wait a few minutes."
+    }
+  },
+  "as": {
+    "menu": "Account",
+    "title": "Account settings",
+    "lead": "Your profile, security and data.",
+    "saved": "Saved.",
+    "profile": "Profile",
+    "role": "Role",
+    "linked": "Sign-in method",
+    "linked.google": "Google account",
+    "linked.email": "Email and password",
+    "terms": "Terms accepted",
+    "2fa": "Two-factor authentication",
+    "2fa.regenerate": "Regenerate recovery codes",
+    "2fa.regenerate.title": "Regenerate recovery codes",
+    "2fa.regenerate.body": "Enter a 6-digit code from your authenticator app. Your old recovery codes stop working.",
+    "2fa.regenerate.confirm": "Regenerate",
+    "2fa.disable": "Turn off two-factor authentication",
+    "2fa.disable.title": "Turn off two-factor authentication?",
+    "2fa.disable.body": "Enter a 6-digit code from your authenticator app to confirm. Your account will be less protected.",
+    "2fa.disable.confirm": "Turn off",
+    "2fa.disabled": "Two-factor authentication is off.",
+    "2fa.adminLocked": "Administrators cannot turn off two-factor authentication.",
+    "sessions": "Active sessions",
+    "sessions.failed": "We could not load or change your sessions. Please try again.",
+    "sessions.unknownDevice": "Unknown device",
+    "sessions.current": "This device",
+    "sessions.signOut": "Sign out",
+    "sessions.others": "Sign out other devices",
+    "sessions.all": "Sign out everywhere",
+    "data": "Your data",
+    "data.body": "Download a copy of the data we hold about you, or ask us to delete your account.",
+    "export": "Download my data",
+    "delete": "Request account deletion",
+    "delete.title": "Delete your account?",
+    "delete.body": "Your account will be suspended and scheduled for deletion. Your audit trail entries are kept. You will be signed out.",
+    "delete.confirm": "Request deletion"
+  }
+}

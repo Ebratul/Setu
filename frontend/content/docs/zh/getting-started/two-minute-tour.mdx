@@ -1,0 +1,76 @@
+---
+title: 两分钟导览
+summary: 按买方遇到的顺序，从落地页到审计日志，快速浏览 Setu 的主要页面。
+section: getting-started
+order: 40
+roles: [buyer, supplier, admin, judge]
+routes: ["/"]
+tryIt: "/demo"
+related: [getting-started/what-is-setu, getting-started/simulated-sandbox, getting-started/roles-and-login]
+updated: 2026-10-20
+---
+
+## 简介 \{#what-it-is}
+
+快速走一遍 Setu：先是公开落地页，然后是买方处理一笔订单用到的页面，最后是供应商和管理员视图。每一站都链接到真实页面。资金均为模拟。
+
+## 适用对象 \{#who}
+
+<RoleBadge role="buyer" /> <RoleBadge role="supplier" /> <RoleBadge role="admin" /> <RoleBadge role="judge" />
+
+## 操作步骤 \{#how-to}
+
+<Steps>
+<Step title="落地页（约 20 秒）">
+首页有标题，以及“运行引导式演示”“开始我自己的沙盒”和“评委模式”按钮。下面依次是工作原理、功能、安全、演示和评估结果。
+<Screenshot name="getting-started/landing" route="/" as="judge" alt="Setu 落地页，含主标题以及运行引导式演示、开始我自己的沙盒和评委模式按钮。" caption="公开落地页。" />
+</Step>
+<Step title="聊天（/app/chat）">
+用孟加拉语或英语询问订单。回答中的卡片由代码计算的数字生成。
+<Screenshot name="getting-started/chat" route="/app/chat" as="buyer" alt="聊天页面，含关于到岸成本的提问和带结果卡片的回答。" caption="带解释的聊天。" />
+</Step>
+<Step title="分析、现金流和融资">
+[分析](/app/analysis)显示到岸成本和毛利。[现金流](/app/cashflow)显示带提醒的 90 天日历。[融资](/app/financing)按总成本比较方案。
+<Screenshot name="getting-started/cashflow" route="/app/cashflow" as="buyer" alt="现金流页面，含 90 天日历和资金缺口提醒。" caption="带缺口提醒的现金流。" />
+</Step>
+<Step title="供应商与订单">
+[供应商](/app/suppliers)显示 KYB 检查。[订单](/app/deals)显示里程碑计划和托管卡片，分期款在这里释放。
+<Screenshot name="getting-started/deals" route="/app/deals" as="buyer" alt="订单列表，显示每笔订单的模拟托管状态。" caption="订单与托管。" />
+</Step>
+<Step title="单据与邮件核查">
+[单据](/app/deals)会检查不一致和隐藏文字。[邮件核查](/app/inbox/email-check)识别要求改付款账户的邮件。
+</Step>
+<Step title="审批">
+[审批](/app/approvals)列出需要真人处理的请求：Tier 2 一键批准，Tier 3 需要 OTP 和冷静期。
+<Screenshot name="getting-started/approvals" route="/app/approvals" as="buyer" alt="审批页面，列出待处理请求及其权限级别。" caption="按级别的审批。" />
+</Step>
+<Step title="供应商门户（/supplier）">
+供应商确认里程碑计划并查看订单。界面可以使用中文。
+</Step>
+<Step title="管理员与审计">
+管理员使用 `/app/admin` 下的登记库、风险、隐私和审计页面。任何人都可以在 [/verify](/docs/zh/judge/verify) 验证导出的日志。
+</Step>
+</Steps>
+
+{/* REVIEW: 买方/供应商/管理员文档页面的 id 在撰写时未知，因此未添加指向它们的链接。页面就绪后请补充。 */}
+
+## 提示与常见错误 \{#tips}
+
+- 最快的方式是引导式演示：12 个带讲解的步骤。
+- `/app` 链接需要已登录的会话。演示模式下请先使用登录页。
+
+## 相关安全说明 \{#security}
+
+<Callout type="security">
+Tier 0 和 1 自动执行，Tier 2 一键批准，Tier 3 需要 OTP 和 10 分钟冷静期。级别由代码判定。
+</Callout>
+
+## 试一试 \{#try-it}
+
+<TryItButton href="/demo" />
+
+## 相关页面 \{#related}
+
+- [什么是 Setu](/docs/zh/getting-started/what-is-setu)
+- [模拟沙盒](/docs/zh/getting-started/simulated-sandbox)
+- [角色与登录](/docs/zh/getting-started/roles-and-login)

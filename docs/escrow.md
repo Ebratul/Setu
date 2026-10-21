@@ -1,7 +1,7 @@
 # Milestone escrow and deals (FR-5, Phase P13)
 
 Simulated only: no payment rails. Every response says `simulated: true` and the UI labels it "Simulated".
-Pure rules: `services/agent/app/domain/escrow.py`. Orchestration: `app/services/escrow.py` (money) and
+Pure rules: `backend/app/domain/escrow.py`. Orchestration: `app/services/escrow.py` (money) and
 `app/services/deals.py` (create, schedule, read models). API: `app/api/deals.py`. Schemas: `app/schemas/deals.py`.
 Risk-engine plug point: `app/security/risk_hook.py`. Migration: `4822f40a71c9`.
 

@@ -2,17 +2,17 @@
 
 All companies, people, vessels, accounts and numbers are **fictional**. Every PDF carries the footer
 "SIMULATED – FOR TESTING"; photos say "SIMULATED - FOR TESTING". Account numbers start with `SIM-`.
-Generator code: `services/agent/synthetic/`. Output: `data/generated/` (git-ignored). Committed demo
+Generator code: `backend/synthetic/`. Output: `data/generated/` (git-ignored). Committed demo
 files: `data/demo/SETU-2026-0001/`.
 
 ## Regenerate
 
-Run from the repo root (the module lives in `services/agent`):
+Run from the repo root (the module lives in `backend`):
 
 ```bash
-uv run --directory services/agent python -m synthetic.generator --clean 100 --tampered 100 --seed 42
-uv run --directory services/agent python -m synthetic.generator --demo        # only data/demo/
-uv run --directory services/agent pytest -q tests/synthetic                   # 29 tests
+uv run --directory backend python -m synthetic.generator --clean 100 --tampered 100 --seed 42
+uv run --directory backend python -m synthetic.generator --demo        # only data/demo/
+uv run --directory backend pytest -q tests/synthetic                   # 29 tests
 ```
 
 Options: `--out DIR` (default `data/generated`), `--no-attacks`. The same `--seed` and counts give
@@ -141,3 +141,5 @@ the PI equals the sha256 of `prefinanced_invoice.pdf`, and a test fails if eithe
 - The model-based validator is the ground truth; P14 works from the PDFs, so extraction errors count against P14.
 - Dates assume the default `DEMO_TODAY = 2026-10-20` for the demo files; generated packs use their own 2026 timeline.
 - `%d/%m/%Y` is day-first. Date formats vary per pack (ISO, `05-Nov-2026`, `05/11/2026`, `November 05, 2026`).
+
+> Values to type into every form, with matching PDF/picture files: [demo-form-data.md](demo-form-data.md).

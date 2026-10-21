@@ -1,0 +1,78 @@
+---
+title: "Admin: reviewing verifications"
+summary: Review new buyers and suppliers, reveal masked values with a reason, request changes, approve, reject or suspend.
+section: admin
+order: 75
+roles: [admin]
+routes: ["/app/admin/verifications", "/app/admin/onboarding"]
+tryIt: "/app/admin/verifications"
+related: [security/permission-tiers, admin/overview, security/why-we-ask]
+updated: 2026-10-21
+---
+
+## What it is \{#what-it-is}
+
+The **Account verifications** page lists new buyers and suppliers with an automatic result, so an admin can decide. The old address `/app/admin/onboarding` now redirects here. Sensitive values are masked until you reveal one with a written reason.
+
+## Who uses it \{#who}
+
+<RoleBadge role="admin" /> Only administrators with two-factor authentication turned on. Other roles get a "no access" message. You cannot decide your own account.
+
+## When to use it \{#when}
+
+When a buyer or supplier has submitted for verification and cannot use money actions yet.
+
+## Step by step \{#how-to}
+
+<Steps>
+<Step title="Open Verifications">
+Choose **Verifications** in the sidebar. Use the tabs (Pending, Changes requested, Approved, Rejected, All) and the **Account type** filter.
+<Screenshot name="admin/verifications-queue" route="/app/admin/verifications" as="admin" alt="The verification queue with status tabs, an account type filter and a table." caption="The queue." />
+</Step>
+<Step title="Open an application">
+Press **Review** on a row. The panel shows submitted details, documents and each automatic check as Pass, Needs attention or Failed.
+<Screenshot name="admin/verifications-detail" route="/app/admin/verifications" as="admin" alt="An application panel with masked fields, documents and checks." caption="Application detail." />
+</Step>
+<Step title="Reveal a masked value if you must">
+Press **Reveal** next to a field, write a reason of at least 10 characters and confirm. The value shows for 30 seconds. The reason is audited.
+<Screenshot name="admin/verifications-reveal" route="/app/admin/verifications" as="admin" alt="The Reveal a sensitive value dialog with a Reason box." caption="Reveal needs a reason." />
+</Step>
+<Step title="View documents">
+Press **View** on a document to open it through a short-lived signed link. Use **Open in a new tab** if the preview does not load.
+</Step>
+<Step title="Decide">
+**Approve**, **Request changes** (tick the fields or documents and say what is wrong), **Reject** or **Suspend** (both need a reason). The applicant sees your reason and gets a notification. You are asked for a fresh authenticator code before the decision is saved.
+<Screenshot name="admin/verifications-decide" route="/app/admin/verifications" as="admin" alt="The Request changes dialog listing fields and documents with note boxes." caption="Request changes." />
+</Step>
+</Steps>
+
+## What the results mean \{#results}
+
+| Automatic result | Meaning |
+|---|---|
+| Clear | All checks passed. |
+| Needs review | At least one check needs attention, for example a possible duplicate company. |
+| Blocked | The sanctions screening found a hit. It is hidden from the applicant. |
+
+A duplicate company is flagged for you, never merged automatically. In demo mode only, an **Auto-approve (demo)** button appears.
+
+## Tips and common mistakes \{#tips}
+
+- Prefer **Request changes** over **Reject** when a document is simply unclear.
+- Every decision is final for that review round and is written to the signed audit log.
+- If someone else already decided, the list refreshes and shows a message.
+
+## Related security notes \{#security}
+
+<Callout type="security">
+Revealing a value, and every decision, is audited with your name and reason. Decisions need a fresh two-factor code. See [Permission tiers](/docs/en/security/permission-tiers).
+</Callout>
+
+## Try it \{#try-it}
+
+<TryItButton href="/app/admin/verifications" />
+
+## Related pages \{#related}
+
+- [Admin console overview](/docs/en/admin/overview)
+- [Why Setu asks for these details](/docs/en/security/why-we-ask)

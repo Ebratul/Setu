@@ -1,0 +1,92 @@
+---
+title: Permission tiers 0 to 3
+summary: How Setu decides whether an action runs automatically, needs one tap, or needs a one-time code and a 10-minute pause.
+section: security
+order: 20
+roles: [buyer, supplier, admin, judge]
+routes: []
+tryIt: "/app/approvals"
+related: [buyer/approvals, buyer/documents, admin/audit-log, security/why-code-decides]
+updated: 2026-10-20
+---
+
+## What it is \{#what-it-is}
+
+Every action that touches money gets a **tier** from 0 to 3. The tier says how much human control is needed. The tier engine is plain code that reads facts from the database. When several rules fire, the highest tier wins. Some facts block the action completely.
+
+All payments in Setu are simulated. The tiers still work exactly as they would for real money.
+
+## The four tiers \{#tiers}
+
+| Tier | Badge | What happens | Typical triggers |
+|---|---|---|---|
+| 0 | <TierBadge tier={0} /> | Runs by itself. Read-only. | Analysis, checks, calculations, knowledge-base answers. |
+| 1 | <TierBadge tier={1} /> | Runs by itself and you get a notice. | A tranche release where everything is verified and unchanged, and the amount is at most USD 20,000. |
+| 2 | <TierBadge tier={2} /> | One tap from a person. | First deal with a supplier, a document warning, FX rate not locked, confirming or proposing a milestone schedule, anything the AI proposes. |
+| 3 | <TierBadge tier={3} /> | 6-digit code plus a 10-minute cooling-off. | Amount above USD 20,000, new or changed beneficiary, fraud score above 60, duplicate document, an instruction hidden in a document. |
+
+A **tranche** is one payment slice of a milestone schedule. A **beneficiary** is the bank account that receives the money.
+
+## Exact thresholds \{#thresholds}
+
+These values are read from one config file. They are strict comparisons.
+
+- **USD 20,000 limit.** USD 20,000.00 is Tier 1. USD 20,000.01 is Tier 3.
+- **Fraud score.** The score runs from 0 to 100. 60 is not Tier 3. 61 is.
+- **New account.** A receiving account first seen less than 30 days ago is Tier 3.
+- **Cooling-off.** 10 minutes. The server refuses to run the action before that time.
+
+Other Tier 3 triggers: a beneficiary change request, a duplicate document hash, a supplier business-check (KYB) warning about the receiving account.
+
+**Blocked** (no approval can fix it): a sanctions hit, a blocked KYB status, a blocked beneficiary, or a failed document on that milestone.
+
+In demo mode the pause can be shorter (the docs mention 30 seconds for demos). In production the server never allows less than 10 minutes.
+
+{/* REVIEW: Which cooling-off value the hosted demo uses was not verified. */}
+
+## What a Tier 2 approval looks like \{#tier2}
+
+Open the approvals inbox, review the facts under "Why Setu asked you", then tap **Approve**. Before anything moves, Setu checks the facts again. If things got worse since the request was made, nothing runs. Setu opens a stricter request instead.
+
+<Screenshot name="security/approvals-dialog" route="/app/approvals" as="buyer" alt="The approvals inbox showing a pending request with the reasons Setu asked, an evidence snapshot, and Approve and Reject buttons." caption="The approvals inbox. Only the deal's buyer or an admin can decide." />
+
+## What a Tier 3 approval looks like \{#tier3}
+
+1. Setu freezes the escrow of that buyer's deals while the request is open.
+2. A **cooling-off timer** runs for 10 minutes. The Approve button stays locked. You can cancel during this time.
+3. A 6-digit **OTP** (one-time password) is sent to you. In demo mode it appears in the "Demo phone" panel as a "Simulated SMS". With real sign-in, the code is emailed to the buyer company's Owner and Finance members.
+4. Enter the code after the pause. The code lives 5 minutes. Three wrong codes lock the request. You can ask for a new code up to 5 times.
+5. Approve. Setu rechecks the facts and runs the action.
+
+Open requests expire after 24 hours.
+
+<Callout type="security" title="Why the pause?">
+Payment-redirection scams rely on rush. The pause gives a person time to phone the supplier before the money goes anywhere.
+</Callout>
+
+## What the AI can and cannot do \{#ai}
+
+- **Can:** read data, run analysis tools, explain results, and queue an approval request.
+- **Cannot:** approve, release, fund escrow, change a beneficiary or lock an FX rate. Those run only from a person's click on a web endpoint.
+- **Cannot:** change a tier. A request body that tries to set a tier or "approved" flag is ignored.
+
+Approvals are bound to a hash of the exact parameters. If anything changes after you approve, the server rejects it.
+
+## Who can approve \{#who}
+
+The buyer who owns the deal, or an admin. Suppliers and judges get a "forbidden" answer. Judges can read but not decide. With real sign-in, company members with the Viewer role can read the inbox but not decide.
+
+Two extra safeguards apply with real sign-in:
+
+- **Four-eyes.** The person who created a request cannot approve it if another Owner or Finance member could. A one-person company is allowed, and the audit entry records that the rule was waived.
+- **Step-up.** Approving a Tier 2 request needs a fresh code emailed to the signed-in user. This stops a stolen session from approving money. Tier 3 already has its own OTP.
+
+{/* REVIEW: Four-eyes and step-up are described from docs/auth.md (neon mode, off in demo mode); the UI flow for the step-up prompt was not checked. */}
+
+## Related pages \{#related}
+
+- [Approvals (buyer guide)](/docs/en/buyer/approvals)
+- [Documents (buyer guide)](/docs/en/buyer/documents)
+- [Audit log (admin guide)](/docs/en/admin/audit-log)
+- [Signed audit log](/docs/en/security/signed-audit-log)
+- [Documents and emails are data](/docs/en/security/injection-defence)

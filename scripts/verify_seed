@@ -3,4 +3,4 @@
 # that running the seed twice leaves the data unchanged. Pass --no-reseed to skip the double seed.
 set -euo pipefail
 root="$(cd "$(dirname "$0")/.." && pwd)"
-exec uv run --directory "$root/services/agent" python -m seed.verify "$@"
+exec uv run --directory "$root/backend" python -m seed.verify "$@"

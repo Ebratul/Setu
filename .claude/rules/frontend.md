@@ -1,9 +1,9 @@
 ---
 paths:
-  - "apps/web/**"
+  - "frontend/**"
 ---
 
-# Frontend rules (apps/web)
+# Frontend rules (frontend)
 
 ## Stack & structure
 - Next.js App Router, TypeScript `strict`, Tailwind v4 (CSS-first `@theme` tokens in `src/app/globals.css`), pnpm.
@@ -30,7 +30,7 @@ paths:
 - Use tokens only (`bg-brand-600`, `text-ink`), never raw hex in components.
 - Tier colours: Tier 0 neutral, Tier 1 info, Tier 2 warning, Tier 3 danger — always paired with an icon + text label.
 - Every money action / ledger view shows the `<SimulatedBadge />`.
-- Images: generated SVG illustrations or royalty-free (record source + licence in `apps/web/public/CREDITS.md`).
+- Images: generated SVG illustrations or royalty-free (record source + licence in `frontend/public/CREDITS.md`).
 
 ## Accessibility checklist (every page)
 - Semantic landmarks: one `<h1>`, `<header> <nav> <main> <footer>`; headings in order.
@@ -48,4 +48,4 @@ paths:
 - Numbers: `Intl.NumberFormat(locale)`; BDT shown as `৳`, USD `$`, CNY `¥` with ISO code on hover/aria-label.
 
 ## Commands
-`pnpm --dir apps/web dev | build | lint | typecheck | test`; regenerate API types with `make types`.
+`pnpm --dir frontend dev | build | lint | typecheck | test`; regenerate API types with `make types`.
