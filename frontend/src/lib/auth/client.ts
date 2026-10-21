@@ -20,7 +20,8 @@ let client: NeonClient | null = null;
 
 /** Browser-only, created lazily. */
 export function getAuthClient(): NeonClient {
-  if (typeof window === "undefined") throw new Error("auth client is browser-only");
+  if (typeof window === "undefined")
+    throw new Error("auth client is browser-only");
   client ??= buildClient();
   return client;
 }
@@ -86,9 +87,23 @@ function fresh(c: CachedToken | null): c is CachedToken {
   return c !== null && c.expMs - REFRESH_MARGIN_MS > Date.now();
 }
 
+const SESSION_VERIFIER_PARAM = "neon_auth_session_verifier";
+
+/** After a Google redirect Neon appends a one-time verifier; only getSession() trades it for the session cookie. */
+async function exchangeSessionVerifier(): Promise<void> {
+  if (!new URLSearchParams(window.location.search).has(SESSION_VERIFIER_PARAM))
+    return;
+  try {
+    await getAuthClient().getSession();
+  } catch {
+    /* a failed exchange leaves no session; the token call below reports it */
+  }
+}
+
 async function fetchToken(): Promise<string | null> {
   let token: string | null = null;
   try {
+    await exchangeSessionVerifier();
     token = (await getAuthClient().token()).data?.token ?? null;
   } catch {
     /* not signed in: the SDK throws a 401 */
@@ -99,7 +114,9 @@ async function fetchToken(): Promise<string | null> {
 }
 
 /** Bearer JWT for the API; reused until ~60 s before expiry, concurrent refreshes share one request. */
-export function getAccessToken(opts: { force?: boolean } = {}): Promise<string | null> {
+export function getAccessToken(
+  opts: { force?: boolean } = {},
+): Promise<string | null> {
   if (!opts.force && fresh(cached)) return Promise.resolve(cached.token);
   inflight ??= fetchToken().finally(() => {
     inflight = null;

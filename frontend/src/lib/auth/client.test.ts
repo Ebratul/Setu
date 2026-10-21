@@ -2,8 +2,9 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 vi.unmock("@/lib/auth/client");
 const token = vi.fn();
+const getSession = vi.fn();
 vi.mock("@neondatabase/auth", () => ({
-  createAuthClient: () => ({ token, signOut: vi.fn() }),
+  createAuthClient: () => ({ token, getSession, signOut: vi.fn() }),
 }));
 vi.mock("@neondatabase/auth/react/adapters", () => ({ BetterAuthReactAdapter: () => ({}) }));
 
@@ -79,5 +80,23 @@ describe("getAuthMode", () => {
     await expect(getAuthMode()).rejects.toThrow();
     expect(await getAuthMode()).toBe("demo");
     vi.unstubAllGlobals();
+  });
+
+  it("trades a Google session verifier for the cookie before asking for a token", async () => {
+    const order: string[] = [];
+    getSession.mockReset().mockImplementation(async () => void order.push("getSession"));
+    token.mockImplementation(async () => {
+      order.push("token");
+      return { data: { token: jwt(nowSec() + 900) } };
+    });
+    window.history.replaceState(null, "", "/login?oauth=1&neon_auth_session_verifier=abc");
+    await getAccessToken();
+    expect(order).toEqual(["getSession", "token"]);
+
+    resetAuthStateForTests();
+    order.length = 0;
+    window.history.replaceState(null, "", "/login?oauth=1");
+    await getAccessToken();
+    expect(order).toEqual(["token"]);
   });
 });
