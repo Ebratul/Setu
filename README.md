@@ -5,6 +5,10 @@ It answers the questions an importer faces before and during every order: *Can I
 Will my cash run out before the goods arrive? Are this supplier and these documents genuine? Is this "new bank account" email a scam?*
 Then it pays the supplier through **milestone escrow** with **risk-tiered human approval**.
 
+![Next.js](https://img.shields.io/badge/Next.js-16-black) ![FastAPI](https://img.shields.io/badge/FastAPI-Python%203.13-009688)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-pgvector-336791) ![Auth](https://img.shields.io/badge/Auth-Neon%20Auth%20%2B%20Google-00e599)
+![Sandbox](https://img.shields.io/badge/money-simulated%20sandbox-orange)
+
 Built for **FinTechathon 2026, International Track, Topic E**.
 
 > **All money movement is a simulated sandbox. No real payment rails, no real lenders, no real people.
@@ -14,7 +18,7 @@ Built for **FinTechathon 2026, International Track, Topic E**.
 
 | | |
 |---|---|
-| **Live demo** | https://setu-rouge-omega.vercel.app (demo mode; the deployment is behind Vercel Authentication, so access is on request) |
+| **Live demo** | https://setu-rouge-omega.vercel.app (Google / email sign-in **and** one-click demo accounts; the deployment is behind Vercel Authentication, so access is on request) |
 | **Judge page** | `/judges` on the live demo |
 | **Demo video (≤ 5 min)** | [TO FILL: video URL] |
 | **Status page** | [TO FILL: status URL] |
@@ -22,9 +26,10 @@ Built for **FinTechathon 2026, International Track, Topic E**.
 | **Team** | [TO FILL: team name, members, universities] |
 
 ## Contents
-[The problem](#the-problem) · [What it does](#what-it-does) · [Who uses it](#who-uses-it) · [Accounts, onboarding and verification](#accounts-onboarding-and-verification) ·
+[The problem](#the-problem) · [What it does](#what-it-does) · [Who uses it](#who-uses-it) · [Demo accounts](#demo-accounts-no-password) ·
+[Accounts, onboarding and verification](#accounts-onboarding-and-verification) ·
 [Security model](#security-model-summary) · [Architecture](#architecture) · [Measured results](#measured-results) · [Run locally](#run-locally) ·
-[Configuration](#configuration) · [Deployment](#deployment) · [Documentation](#documentation) · [Tests](#tests-and-evaluation) ·
+[Configuration](#configuration) · [Document storage](#document-storage) · [Deployment](#deployment) · [Documentation](#documentation) · [Tests](#tests-and-evaluation) ·
 [Project structure](#project-structure) · [Limitations](#limitations-and-known-risks) · [Licences](#third-party-licences)
 
 ## The problem
@@ -75,6 +80,26 @@ Not built or partly built: see [Limitations](#limitations-and-known-risks).
 | **Supplier** | A Chinese exporter | See their deals, propose or confirm milestones, upload evidence, request a payout-account change (always a Tier 3 approval) |
 | **Admin** | Setu staff | Review company verifications (approve, request changes, reject, suspend), KYB, registry, audit log. Needs authenticator-app (TOTP) 2FA |
 | **Judge** | A competition judge | Read-only tour with their own sandbox data; cannot move money or reach admin decisions |
+
+## Demo accounts (no password)
+
+The login page lists pre-made sandbox accounts under **Demo accounts**. One click signs in; there is no password, Google step or OTP.
+They are seeded fictional users, not real people.
+
+| Role | Name | Email (identifier only) |
+|---|---|---|
+| Admin | Setu Admin | `admin@demo.setu` |
+| Buyer | Karim Hossain (Dhaka Stitch Works) | `karim@demo.setu` |
+| Buyer | Rahima Akter (Rahima Knitwear) | `rahima@demo.setu` |
+| Supplier | Wang Lei (Shaoxing Huaxin Textile Co., Ltd.) | `huaxin@demo.setu` |
+| Judge | Demo Judge | `judge@demo.setu` |
+
+Rules that keep this safe:
+- The demo screen exists only when `DEMO_MODE=true` and `APP_ENV` is not `prod`; with `AUTH_MODE=neon` it also needs `DEMO_COOKIE_IN_NEON` (on by default).
+- A real administrator always needs authenticator-app (TOTP) 2FA. The **seeded demo admin** is exempt from that only when
+  `DEMO_ADMIN_WITHOUT_MFA=true` (default `false`, ignored in prod, never applies to real accounts), so the judge deployment can show the admin screens.
+  Even then, deciding on a company verification still needs a TOTP step-up, so approvals are done by a real admin.
+- Demo sessions and Neon sessions are separate: sign out of one before using the other.
 
 ## Accounts, onboarding and verification
 
@@ -267,15 +292,19 @@ appear in our env files. Design and API: [`docs/p30-design.md`](docs/p30-design.
 1. Google Cloud Console: create a project, then **APIs & Services > OAuth consent screen**. User type External, app name,
    support email, authorised domain (your production domain). Scopes: only `openid`, `email`, `profile`. While the status is
    *Testing*, add every tester under **Test users**; set it to *In production* to let anyone sign in.
-2. **Credentials > Create credentials > OAuth client ID**, type *Web application*. Authorised redirect URIs: copy the exact
-   callback URL shown in the Neon console (Neon Auth > Configuration > OAuth providers > Google). Authorised JavaScript origins:
-   `http://localhost:3000` and your production origin.
-3. Neon console: enable Google, paste the client id and secret, add `http://localhost:3000` and the production origin to the
-   trusted origins, and keep account linking off for unverified providers.
+2. **Credentials > Create credentials > OAuth client ID**, type *Web application*. Authorised redirect URI, exactly:
+   `<NEON_AUTH_BASE_URL>/callback/google` (for example `https://ep-xxxx.neonauth.<region>.aws.neon.tech/neondb/auth/callback/google`).
+   Using only your website URL gives `Error 400: redirect_uri_mismatch`. Authorised JavaScript origins: `http://localhost:3000` and your production origin.
+3. Neon console (or the Neon API): switch Google from the shared development credentials to **your own client id and secret**, and add
+   `http://localhost:3000` and the production origin to the **trusted domains**. Keep account linking off for unverified providers.
 4. Set (names only; see the `.env.example` files): `NEON_AUTH_BASE_URL`, `NEON_AUTH_COOKIE_SECRET` (frontend);
    `AUTH_MODE=neon`, `NEON_AUTH_BASE_URL`, `FIELD_ENCRYPTION_KEY`, `ADMIN_EMAIL_ALLOWLIST`, `JUDGE_INVITE_CODES`,
    `DEMO_MODE=false` (backend).
 5. First admin: put the admin's Google email in `ADMIN_EMAIL_ALLOWLIST`; they must enable TOTP before any admin access.
+   The role is fixed when a person picks it at onboarding, so use an email that has not started onboarding as a buyer or supplier.
+6. How the browser finishes a Google sign-in: Neon returns to `/login?oauth=1&neon_auth_session_verifier=...`. The app calls `getSession()`
+   once to trade that verifier for the session cookie and takes the API bearer token from the session JWT (falling back to
+   `GET /neon-auth/token`). The API verifies it with Neon's JWKS (EdDSA), so **no JWT secret lives in our env files**.
 
 ## Configuration
 
@@ -287,8 +316,24 @@ Names only. See the `.env.example` files (repo root, `backend/`, `frontend/`, `r
 | Models | `OPENROUTER_API_KEY`, `ANTHROPIC_API_KEY`, `XAI_API_KEY` (none set = offline mock model), `SETU_MODEL_FAST`, `SETU_MODEL_REASONING` |
 | Auth | `AUTH_MODE` (`demo` or `neon`), `DEMO_MODE`, `NEON_AUTH_BASE_URL`, `NEON_AUTH_COOKIE_SECRET` (web), `DEMO_COOKIE_IN_NEON` (staging only) |
 | Onboarding | `FIELD_ENCRYPTION_KEY`, `ADMIN_EMAIL_ALLOWLIST`, `JUDGE_INVITE_CODES` (16+ characters each), `TERMS_VERSION`, `SMS_PROVIDER`, `SMS_WEBHOOK_URL`, `SMS_WEBHOOK_TOKEN` |
+| Demo | `DEMO_ADMIN_WITHOUT_MFA` (judge deployment only, default `false`) |
+| Document storage | `STORAGE_BACKEND` (`local` or `cloudinary`), `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET` |
 | Secrets | `AUDIT_SIGNING_KEY`, `DEMO_SESSION_SECRET`, `DOCUMENT_URL_SECRET`, `OTP_SECRET_SEED`, `CRON_SECRET` |
 | Safety rails | With `APP_ENV=prod` the agent refuses to start unless `AUTH_MODE=neon`, `DEMO_MODE=false`, strong secrets, an https webhook SMS provider and `FIELD_ENCRYPTION_KEY` are all set |
+
+## Document storage
+
+Uploaded verification documents (trade licence, IRC, TIN, supporting files; PDF, PNG or JPG, up to 4 MB, checked by magic bytes) are stored
+under names derived from their SHA-256, never from the user's file name.
+
+| `STORAGE_BACKEND` | Where files go | Use it for |
+|---|---|---|
+| `local` (default) | `backend/storage/` (git-ignored). On Vercel, where the bundle is read-only, it falls back to `/tmp/setu-storage`, which is **per instance and not durable** | local development |
+| `cloudinary` | Private `raw` assets of type `authenticated`; reads go through signed URLs built with the API secret, so a bare URL never serves a file | the hosted deployment |
+
+Set the three `CLOUDINARY_*` variables on the host (never in git). If your Cloudinary plan blocks PDF delivery by default, enable it under
+Settings > Security > Restricted media types. Database rows keep only metadata (name, type, hash, path); a storage outage returns
+`STORAGE_UNAVAILABLE`. Seeded demo documents under `data/demo/` are always read from disk.
 
 ## Deployment
 
@@ -306,9 +351,14 @@ Facts to know:
   (`GET /api/audit/public-key` reports `matches_committed_key`).
 - Never commit `.env*` files. Use `.env.example` for placeholders.
 - Smoke test of a running deployment: `BASE_URL=https://... scripts/smoke_prod`.
-- **Current production deployment (Vercel, demo mode):** `scripts/deploy_vercel.sh` stages a bundle (the agent root is `backend/`, so
+- **Current production deployment (Vercel):** `scripts/deploy_vercel.sh` stages a bundle (the agent root is `backend/`, so
   `rag_agent/`, `data/demo` and the audit public key are copied inside it; `.env*`, keys, tests and uploaded files are excluded) and runs
-  `vercel deploy --prod`. Google sign-in is not active on that deployment until the Neon Auth variables are set.
+  `vercel deploy --prod`. It runs `AUTH_MODE=neon` with the demo login kept on (`DEMO_MODE=true`, `APP_ENV=dev`), so Google / email accounts and the
+  one-click demo accounts work side by side. With `AUTH_MODE=neon` the agent will not start without `FIELD_ENCRYPTION_KEY` (a Fernet key; keep a copy,
+  encrypted phone, licence, TIN and bank values cannot be read without it).
+- **Vercel environment variables take effect on the next deployment.** After `vercel env add ...`, redeploy. Never paste a placeholder such as
+  `<value>` literally, and never put a secret in the variable name position.
+- Neon Auth: add the production origin to the trusted domains, and register `<NEON_AUTH_BASE_URL>/callback/google` in the Google client.
 - Database migrations are never run by a deploy. Run `alembic upgrade head` deliberately, against the right database, after taking a
   Neon snapshot or branch.
 
@@ -393,6 +443,10 @@ The full list with sources is in `docs/submission/SECURITY_SELF_ASSESSMENT.md`. 
 the judge deployment uses demo login (Google and email sign-in through Neon Auth exist; the P30 code had two internal security-review passes and no external audit), no real payment rails and no live SMS provider (a generic webhook provider exists but is not connected to a service), synthetic-only evaluation (test split run once), the injection test uses a mock model,
 Bangla and Chinese text not reviewed by native speakers, `/app` Lighthouse mobile performance about 77 (target was 85),
 no on-chain registry anchor, audit-table owner can truncate the table (use a non-owner DB role in production).
+Also: the judge deployment keeps one-click demo accounts next to real sign-in, and the seeded demo admin can skip TOTP when `DEMO_ADMIN_WITHOUT_MFA=true` (it can read
+all workspaces; turn it off for a real launch); Cloudinary storage was wired and unit-tested with mocks, and has not been exercised against a live account in this repo's
+recorded runs; the demo database holds a Tranche M1 release posted before a data reset, so re-running that approval answers `409 RELEASE_ALREADY_POSTED` (use Reject and release
+Tranche M2 instead); the browser flows of Google sign-in and onboarding were tested with a mock Neon server in Playwright and tried by hand on the live deployment; the admin approval step was not re-checked there.
 
 ## Third-party licences
 
