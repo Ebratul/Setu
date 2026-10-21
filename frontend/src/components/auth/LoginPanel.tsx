@@ -26,6 +26,9 @@ export function LoginPanel() {
     try {
       const user = await demoLogin(email);
       router.replace(safeNext(params.get("next"), user.role));
+      // Next keeps a left route's state alive (cacheComponents): without this, coming back to /login
+      // after a logout would show the old "Loading..." with every button disabled.
+      window.setTimeout(() => setPending(null), 5000);
     } catch {
       setFailed(true);
       setPending(null);
