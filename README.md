@@ -7,7 +7,7 @@ Then it pays the supplier through **milestone escrow** with **risk-tiered human 
 
 ![Next.js](https://img.shields.io/badge/Next.js-16-black) ![FastAPI](https://img.shields.io/badge/FastAPI-Python%203.13-009688)
 ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-pgvector-336791) ![Auth](https://img.shields.io/badge/Auth-Neon%20Auth%20%2B%20Google-00e599)
-![Sandbox](https://img.shields.io/badge/money-simulated%20sandbox-orange)
+![Sandbox](https://img.shields.io/badge/money-simulated%20sandbox-orange) ![License](https://img.shields.io/badge/license-MIT-blue)
 
 Built for **FinTechathon 2026, International Track, Topic E**.
 
@@ -478,7 +478,7 @@ build machine, except where marked.
 
 **Infrastructure:** PostgreSQL 16 and the `pgvector` extension (docker image `pgvector/pgvector:pg16`) — [TO FILL: confirm licence text for the final submission if required].
 
-Project licence of Setu itself: [TO FILL: choose and add a LICENSE file; none exists in the repo].
+Project licence of Setu itself: [MIT](LICENSE), copyright 2026 Ebratul Shaharier (TrustWeave). The third-party components above keep their own licences.
 
 ## Team
 
