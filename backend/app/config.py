@@ -114,7 +114,12 @@ class Settings(BaseSettings):
 
     # Document forensics (app/services/documents, app/forensics). Weights: docs/forensics.md.
     storage_dir: Path = DEFAULT_STORAGE_DIR  # git-ignored; never under a public folder
-    storage_backend: Literal["local", "s3"] = "local"
+    storage_backend: Literal["local", "cloudinary"] = "local"
+    # Cloudinary: files are uploaded as private ("authenticated") raw assets and read back through
+    # signed URLs; nothing is ever publicly deliverable.
+    cloudinary_cloud_name: str | None = None
+    cloudinary_api_key: SecretStr | None = None
+    cloudinary_api_secret: SecretStr | None = None
     # <= 4 MB: Vercel functions reject request bodies over 4.5 MB (multipart framing included).
     document_max_bytes: int = Field(4 * 1024 * 1024, gt=0)
     document_url_ttl_seconds: int = Field(300, gt=0, le=3600)
