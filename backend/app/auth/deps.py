@@ -11,6 +11,7 @@ from dataclasses import dataclass
 from datetime import UTC, datetime, timedelta
 from typing import Annotated
 
+import structlog
 from fastapi import Depends, Request
 from sqlalchemy import func, select
 from sqlalchemy.exc import IntegrityError
@@ -25,6 +26,8 @@ from app.db.enums import KybStatus, MemberRole, Role, UserStatus
 from app.db.models import AuditLog, Party, PartyMember, User
 from app.db.session import get_db
 from app.errors import DomainError, Forbidden, ServiceUnavailable, Unauthorized
+
+log = structlog.get_logger("setu.auth")
 
 READ_ALL_ROLES = frozenset({Role.ADMIN, Role.JUDGE})
 
@@ -132,10 +135,12 @@ def verified_identity(request: Request) -> neon.NeonIdentity:
     """The caller's Neon Auth identity from the bearer JWT (no local account needed yet)."""
     token = _bearer(request)
     if token is None:
+        log.warning("auth.no_bearer", path=request.url.path)
         raise Unauthorized("sign in first", code="UNAUTHENTICATED")
     try:
         identity = neon.verify_token(token)
     except neon.TokenError as exc:
+        log.warning("auth.token_rejected", reason=str(exc), path=request.url.path)
         raise Unauthorized("your session is invalid or has expired", code="TOKEN_INVALID") from exc
     except neon.AuthUnavailable as exc:
         raise ServiceUnavailable("sign-in is temporarily unavailable") from exc

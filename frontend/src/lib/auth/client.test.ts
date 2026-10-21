@@ -27,8 +27,21 @@ describe("access token cache", () => {
   beforeEach(() => {
     resetAuthStateForTests();
     token.mockReset();
+    getSession.mockReset();
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => {
+        const t = (await token())?.data?.token;
+        return t
+          ? Response.json({ token: t })
+          : new Response("{}", { status: 401 });
+      }),
+    );
   });
-  afterEach(() => vi.useRealTimers());
+  afterEach(() => {
+    vi.useRealTimers();
+    vi.unstubAllGlobals();
+  });
 
   it("reuses a fresh token", async () => {
     token.mockResolvedValue({ data: { token: jwt(nowSec() + 900) } });
@@ -70,6 +83,30 @@ describe("access token cache", () => {
     token.mockResolvedValue({ data: null, error: { status: 401 } });
     expect(await getAccessToken()).toBeNull();
   });
+
+  it("takes the JWT the SDK puts on the session, without calling the token endpoint", async () => {
+    getSession
+      .mockReset()
+      .mockResolvedValue({
+        data: { session: { token: jwt(nowSec() + 900) } },
+      });
+    token.mockReset();
+    expect(await getAccessToken()).toMatch(/^h\./);
+    expect(token).not.toHaveBeenCalled();
+  });
+
+  it("falls back to the token endpoint when the session carries no JWT", async () => {
+    getSession
+      .mockReset()
+      .mockResolvedValue({
+        data: { session: { token: "opaque-session-id" } },
+      });
+    token
+      .mockReset()
+      .mockResolvedValue({ data: { token: jwt(nowSec() + 900) } });
+    expect(await getAccessToken()).toMatch(/^h\./);
+    expect(token).toHaveBeenCalledTimes(1);
+  });
 });
 
 describe("getAuthMode", () => {
@@ -93,25 +130,5 @@ describe("getAuthMode", () => {
     await expect(getAuthMode()).rejects.toThrow();
     expect(await getAuthMode()).toBe("demo");
     vi.unstubAllGlobals();
-  });
-
-  it("takes the JWT the SDK puts on the session, without calling token()", async () => {
-    getSession
-      .mockReset()
-      .mockResolvedValue({ data: { session: { token: jwt(nowSec() + 900) } } });
-    token.mockReset();
-    expect(await getAccessToken()).toMatch(/^h\./);
-    expect(token).not.toHaveBeenCalled();
-  });
-
-  it("falls back to token() when the session carries no JWT", async () => {
-    getSession
-      .mockReset()
-      .mockResolvedValue({ data: { session: { token: "opaque-session-id" } } });
-    token
-      .mockReset()
-      .mockResolvedValue({ data: { token: jwt(nowSec() + 900) } });
-    expect(await getAccessToken()).toMatch(/^h\./);
-    expect(token).toHaveBeenCalledTimes(1);
   });
 });

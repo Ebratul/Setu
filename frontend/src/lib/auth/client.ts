@@ -105,15 +105,24 @@ async function tokenFromSession(): Promise<string | null> {
   }
 }
 
-async function fetchToken(): Promise<string | null> {
-  let token = await tokenFromSession();
-  if (!token) {
-    try {
-      token = (await getAuthClient().token()).data?.token ?? null;
-    } catch {
-      /* not signed in: the SDK throws a 401 */
-    }
+/** The SDK's token() is answered from its session cache (no `token` field), so ask the endpoint directly. */
+async function tokenFromEndpoint(): Promise<string | null> {
+  try {
+    const res = await fetch(`${AUTH_PROXY_PATH}/token`, {
+      credentials: "same-origin",
+      headers: { Accept: "application/json" },
+      cache: "no-store",
+    });
+    if (!res.ok) return null;
+    const { token } = (await res.json()) as { token?: unknown };
+    return looksLikeJwt(token) ? token : null;
+  } catch {
+    return null;
   }
+}
+
+async function fetchToken(): Promise<string | null> {
+  const token = (await tokenFromSession()) ?? (await tokenFromEndpoint());
   if (!token) return null;
   cached = { token, expMs: readExpMs(token) };
   return token;
