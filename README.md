@@ -23,7 +23,7 @@ Built for **FinTechathon 2026, International Track, Topic E**.
 | **Demo video (≤ 5 min)** | [TO FILL: video URL] |
 | **Status page** | [TO FILL: status URL] |
 | **Source** | https://github.com/Ebratul/Setu |
-| **Team** | [TO FILL: team name, members, universities] |
+| **Team** | **TrustWeave**: Ebratul Shaharier [TO FILL: other members, universities] |
 
 ## Contents
 [The problem](#the-problem) · [What it does](#what-it-does) · [Who uses it](#who-uses-it) · [Demo accounts](#demo-accounts-no-password) ·
@@ -482,6 +482,7 @@ Project licence of Setu itself: [TO FILL: choose and add a LICENSE file; none ex
 
 ## Team
 
-- Team name: [TO FILL]
-- Members and universities: [TO FILL]
+- Team name: **TrustWeave**
+- Author: **Ebratul Shaharier** ([@Ebratul](https://github.com/Ebratul))
+- Other members and universities: [TO FILL]
 - Contact: [TO FILL]
