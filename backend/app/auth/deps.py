@@ -53,13 +53,15 @@ class CurrentUser:
     @property
     def privileged(self) -> bool:
         """May use admin powers: ACTIVE with TOTP on. Only the seeded demo admins of the demo
-        deployment (AUTH_MODE=demo) are exempt; never with AUTH_MODE=neon."""
+        deployment are exempt (AUTH_MODE=demo, or neon with DEMO_ADMIN_WITHOUT_MFA=true)."""
         if self.role != Role.ADMIN:
             return True
         if self.account_status == UserStatus.ACTIVE and self.mfa_enabled:
             return True
         s = get_settings()
-        return self.is_demo and s.auth_mode == "demo" and s.demo_mode and s.app_env != "prod"
+        if not (self.is_demo and s.demo_mode and s.app_env != "prod"):
+            return False
+        return s.auth_mode == "demo" or s.demo_admin_without_mfa
 
     @property
     def reads_all(self) -> bool:

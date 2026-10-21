@@ -243,6 +243,8 @@ class Settings(BaseSettings):
 
     # Opt-in to keep the seeded demo login/cookie next to Neon sign-in (staging only; never prod).
     demo_cookie_in_neon: bool = True
+    # Judge deployment with Neon sign-in: the seeded demo admin works without TOTP. Never in prod.
+    demo_admin_without_mfa: bool = False
 
     @property
     def demo_login_enabled(self) -> bool:
