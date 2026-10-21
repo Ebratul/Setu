@@ -87,26 +87,32 @@ function fresh(c: CachedToken | null): c is CachedToken {
   return c !== null && c.expMs - REFRESH_MARGIN_MS > Date.now();
 }
 
-const SESSION_VERIFIER_PARAM = "neon_auth_session_verifier";
+function looksLikeJwt(value: unknown): value is string {
+  return typeof value === "string" && value.split(".").length === 3;
+}
 
-/** After a Google redirect Neon appends a one-time verifier; only getSession() trades it for the session cookie. */
-async function exchangeSessionVerifier(): Promise<void> {
-  if (!new URLSearchParams(window.location.search).has(SESSION_VERIFIER_PARAM))
-    return;
+/**
+ * The SDK copies the set-auth-jwt header onto session.token, and getSession() also trades the one-time
+ * verifier Neon appends after a Google redirect for the session cookie. token() cannot be used first:
+ * once a session is cached the SDK answers it with the session object, which has no `token` field.
+ */
+async function tokenFromSession(): Promise<string | null> {
   try {
-    await getAuthClient().getSession();
+    const token = (await getAuthClient().getSession())?.data?.session?.token;
+    return looksLikeJwt(token) ? token : null;
   } catch {
-    /* a failed exchange leaves no session; the token call below reports it */
+    return null;
   }
 }
 
 async function fetchToken(): Promise<string | null> {
-  let token: string | null = null;
-  try {
-    await exchangeSessionVerifier();
-    token = (await getAuthClient().token()).data?.token ?? null;
-  } catch {
-    /* not signed in: the SDK throws a 401 */
+  let token = await tokenFromSession();
+  if (!token) {
+    try {
+      token = (await getAuthClient().token()).data?.token ?? null;
+    } catch {
+      /* not signed in: the SDK throws a 401 */
+    }
   }
   if (!token) return null;
   cached = { token, expMs: readExpMs(token) };

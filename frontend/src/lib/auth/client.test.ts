@@ -6,9 +6,16 @@ const getSession = vi.fn();
 vi.mock("@neondatabase/auth", () => ({
   createAuthClient: () => ({ token, getSession, signOut: vi.fn() }),
 }));
-vi.mock("@neondatabase/auth/react/adapters", () => ({ BetterAuthReactAdapter: () => ({}) }));
+vi.mock("@neondatabase/auth/react/adapters", () => ({
+  BetterAuthReactAdapter: () => ({}),
+}));
 
-import { clearAccessToken, getAccessToken, getAuthMode, resetAuthStateForTests } from "./client";
+import {
+  clearAccessToken,
+  getAccessToken,
+  getAuthMode,
+  resetAuthStateForTests,
+} from "./client";
 
 function jwt(expSec: number) {
   const body = btoa(JSON.stringify({ exp: expSec })).replace(/=+$/, "");
@@ -41,7 +48,11 @@ describe("access token cache", () => {
 
   it("shares one request between concurrent callers", async () => {
     token.mockResolvedValue({ data: { token: jwt(nowSec() + 900) } });
-    await Promise.all([getAccessToken(), getAccessToken(), getAccessToken({ force: true })]);
+    await Promise.all([
+      getAccessToken(),
+      getAccessToken(),
+      getAccessToken({ force: true }),
+    ]);
     expect(token).toHaveBeenCalledTimes(1);
   });
 
@@ -64,7 +75,9 @@ describe("access token cache", () => {
 describe("getAuthMode", () => {
   beforeEach(() => resetAuthStateForTests());
   it("fetches once and caches", async () => {
-    const f = vi.fn().mockResolvedValue(new Response(JSON.stringify({ mode: "neon" })));
+    const f = vi
+      .fn()
+      .mockResolvedValue(new Response(JSON.stringify({ mode: "neon" })));
     vi.stubGlobal("fetch", f);
     expect(await getAuthMode()).toBe("neon");
     expect(await getAuthMode()).toBe("neon");
@@ -82,21 +95,23 @@ describe("getAuthMode", () => {
     vi.unstubAllGlobals();
   });
 
-  it("trades a Google session verifier for the cookie before asking for a token", async () => {
-    const order: string[] = [];
-    getSession.mockReset().mockImplementation(async () => void order.push("getSession"));
-    token.mockImplementation(async () => {
-      order.push("token");
-      return { data: { token: jwt(nowSec() + 900) } };
-    });
-    window.history.replaceState(null, "", "/login?oauth=1&neon_auth_session_verifier=abc");
-    await getAccessToken();
-    expect(order).toEqual(["getSession", "token"]);
+  it("takes the JWT the SDK puts on the session, without calling token()", async () => {
+    getSession
+      .mockReset()
+      .mockResolvedValue({ data: { session: { token: jwt(nowSec() + 900) } } });
+    token.mockReset();
+    expect(await getAccessToken()).toMatch(/^h\./);
+    expect(token).not.toHaveBeenCalled();
+  });
 
-    resetAuthStateForTests();
-    order.length = 0;
-    window.history.replaceState(null, "", "/login?oauth=1");
-    await getAccessToken();
-    expect(order).toEqual(["token"]);
+  it("falls back to token() when the session carries no JWT", async () => {
+    getSession
+      .mockReset()
+      .mockResolvedValue({ data: { session: { token: "opaque-session-id" } } });
+    token
+      .mockReset()
+      .mockResolvedValue({ data: { token: jwt(nowSec() + 900) } });
+    expect(await getAccessToken()).toMatch(/^h\./);
+    expect(token).toHaveBeenCalledTimes(1);
   });
 });
