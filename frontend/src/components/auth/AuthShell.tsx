@@ -18,6 +18,8 @@ type Props = {
   lead?: string;
   /** Pages that only make sense with real sign-in show an info screen in demo mode. */
   neonOnly?: boolean;
+  /** Where the Back button goes; the sign-in side pages return to /login. */
+  backHref?: string;
   children: ReactNode;
 };
 
@@ -25,7 +27,7 @@ const linkClass =
   "inline-flex min-h-11 items-center rounded-md px-1 font-semibold text-brand-text underline focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2 focus-visible:outline-none";
 export { linkClass as authLinkClass };
 
-export function AuthShell({ title, lead, neonOnly = false, children }: Props) {
+export function AuthShell({ title, lead, neonOnly = false, backHref = "/", children }: Props) {
   const t = useT();
   const { mode, failed, retry } = useAuthMode();
   let body: ReactNode;
@@ -69,7 +71,7 @@ export function AuthShell({ title, lead, neonOnly = false, children }: Props) {
         </div>
       </header>
       <main id="main" className="mx-auto w-full max-w-2xl flex-1 px-4 py-10">
-        <BackButton href="/" className="mb-4 -ml-2" />
+        <BackButton href={backHref} className="mb-4 -ml-2" />
         <h1 className="text-2xl font-bold text-ink">{title}</h1>
         {lead && mode === "neon" ? (
           <p className="mt-2 text-sm text-muted">{lead}</p>

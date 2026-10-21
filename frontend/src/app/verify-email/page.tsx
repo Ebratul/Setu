@@ -9,7 +9,7 @@ import { useT } from "@/i18n";
 export default function VerifyPage() {
   const t = useT();
   return (
-    <AuthShell title={t("auth.verify.title")} neonOnly>
+    <AuthShell title={t("auth.verify.title")} neonOnly backHref="/login">
       <Suspense>
         <VerifyEmailForm />
       </Suspense>

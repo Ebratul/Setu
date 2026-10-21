@@ -9,7 +9,7 @@ import { useT } from "@/i18n";
 export default function ForgotPage() {
   const t = useT();
   return (
-    <AuthShell title={t("auth.forgot.title")} lead={t("auth.forgot.lead")} neonOnly>
+    <AuthShell title={t("auth.forgot.title")} lead={t("auth.forgot.lead")} neonOnly backHref="/login">
       <Suspense>
         <ForgotPasswordForm />
       </Suspense>

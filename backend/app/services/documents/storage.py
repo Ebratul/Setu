@@ -15,11 +15,13 @@ import cloudinary
 import cloudinary.exceptions
 import cloudinary.uploader
 import cloudinary.utils
+import structlog
 
 from app.config import REPO_ROOT, Settings, get_settings
 from app.errors import NotFound, ServiceUnavailable
 
 DEMO_PREFIX = "data/demo/"
+log = structlog.get_logger("setu.storage")
 FETCH_TIMEOUT_SECONDS = 15
 
 
@@ -84,9 +86,9 @@ class CloudinaryStorage:
         if not (settings.cloudinary_cloud_name and key and secret):
             raise ServiceUnavailable("object storage is not configured", "STORAGE_UNAVAILABLE")
         self.creds = {
-            "cloud_name": settings.cloudinary_cloud_name,
-            "api_key": key.get_secret_value(),
-            "api_secret": secret.get_secret_value(),
+            "cloud_name": settings.cloudinary_cloud_name.strip(),
+            "api_key": key.get_secret_value().strip(),
+            "api_secret": secret.get_secret_value().strip(),
             "secure": True,
         }
         self._demo = LocalStorage(demo_root)
@@ -104,6 +106,7 @@ class CloudinaryStorage:
                 **self.RAW, **self.creds,
             )  # fmt: skip
         except cloudinary.exceptions.Error as exc:
+            log.warning("storage_put_failed", error=type(exc).__name__, reason=str(exc)[:200])
             raise self._unavailable() from exc
         return key
 

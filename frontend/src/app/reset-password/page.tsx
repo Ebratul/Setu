@@ -9,7 +9,7 @@ import { useT } from "@/i18n";
 export default function ResetPage() {
   const t = useT();
   return (
-    <AuthShell title={t("auth.reset.title")} lead={t("auth.reset.lead")} neonOnly>
+    <AuthShell title={t("auth.reset.title")} lead={t("auth.reset.lead")} neonOnly backHref="/login">
       <Suspense>
         <ResetPasswordForm />
       </Suspense>

@@ -26,6 +26,8 @@
     "orEmail": "Or sign in with email and password",
     "email": "Sign in with email and password",
     "demoTitle": "Demo accounts",
+    "demoHint": "Just exploring? Use a demo account (admin, supplier, judge or buyer): no e-mail verification needed.",
+    "demoGo": "Open demo accounts",
     "nothing": "No sign-in method is available right now.",
     "legalNav": "Legal and help",
     "why": "Why we ask for business documents",

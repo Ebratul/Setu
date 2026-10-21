@@ -91,6 +91,12 @@ export function RegisterForm() {
           {t("auth.register.signIn")}
         </Link>
       </p>
+      <p className="text-sm text-muted">
+        {t("lg.demoHint")}{" "}
+        <Link href="/login#lg-demo-h" className={authLinkClass}>
+          {t("lg.demoGo")}
+        </Link>
+      </p>
     </form>
   );
 }
