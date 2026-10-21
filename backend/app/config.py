@@ -229,7 +229,7 @@ class Settings(BaseSettings):
         return [c.strip() for c in raw.split(",") if c.strip()]
 
     # Opt-in to keep the seeded demo login/cookie next to Neon sign-in (staging only; never prod).
-    demo_cookie_in_neon: bool = False
+    demo_cookie_in_neon: bool = True
 
     @property
     def demo_login_enabled(self) -> bool:

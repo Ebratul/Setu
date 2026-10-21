@@ -52,7 +52,7 @@ function agent(key: AgentKey, extra: Record<string, string>) {
       ADMIN_EMAIL_ALLOWLIST: ADMIN_EMAIL,
       JUDGE_INVITE_CODES: JUDGE_CODE,
       DEMO_SESSION_SECRET: "e2e-only-demo-session-secret-0000000000",
-      DEMO_COOKIE_IN_NEON: "false",
+      DEMO_COOKIE_IN_NEON: "True",
       RATE_LIMIT_ENABLED: "false",
       SMS_PROVIDER: "console",
       MAIL_PROVIDER: "console",
