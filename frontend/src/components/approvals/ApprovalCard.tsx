@@ -10,8 +10,10 @@ import { Card } from "@/components/ui/Card";
 import { QueryError } from "@/components/ui/QueryError";
 import { SimulatedBadge } from "@/components/ui/SimulatedBadge";
 import { Skeleton } from "@/components/ui/Skeleton";
+import { useToast } from "@/components/ui/Toast";
 import { useLang, useT } from "@/i18n";
-import { getApproval, type Approval } from "@/lib/api/approvals";
+import { approve, getApproval, notifyApprovalsChanged, type Approval } from "@/lib/api/approvals";
+import { dealErrorText } from "@/lib/api/dealErrors";
 import { formatMoney, type Currency } from "@/lib/format";
 import { useApi } from "@/lib/useApi";
 
@@ -37,6 +39,35 @@ export function EvidenceLoader({ id }: { id: string }) {
   if (ev.error) return <QueryError error={ev.error} onRetry={ev.reload} />;
   if (!ev.data) return <Skeleton className="h-24" />;
   return ev.data.value.evidence ? <EvidenceSnapshot evidence={ev.data.value.evidence} /> : null;
+}
+
+/** An approved request whose carrying-out did not finish: approving again only re-runs it. */
+function RunApprovedButton({ id }: { id: string }) {
+  const t = useT();
+  const { lang } = useLang();
+  const toast = useToast();
+  const [busy, setBusy] = useState(false);
+  async function run() {
+    setBusy(true);
+    try {
+      const res = await approve(id);
+      const msg = pickLang(lang, res.message_en, res.message_bn);
+      toast(
+        msg || t(res.outcome === "EXECUTED" ? "appr.executed" : "appr.approvedNotExecuted"),
+        res.outcome === "EXECUTED" ? "success" : "info",
+      );
+    } catch (e) {
+      toast(dealErrorText(e, t), "danger");
+    } finally {
+      notifyApprovalsChanged();
+      setBusy(false);
+    }
+  }
+  return (
+    <Button onClick={run} disabled={busy} data-testid="run-approved-btn">
+      {busy ? t("common.loading") : t("appr.run")}
+    </Button>
+  );
 }
 
 export function ApprovalCard({ approval: a, fetchedAt, now, onReview }: Props) {
@@ -148,7 +179,8 @@ export function ApprovalCard({ approval: a, fetchedAt, now, onReview }: Props) {
         </div>
 
         {a.status === "APPROVED" || a.status === "EXECUTED" ? (
-          <div className="flex justify-end">
+          <div className="flex flex-wrap justify-end gap-2">
+            {a.status === "APPROVED" ? <RunApprovedButton id={a.id} /> : null}
             <ApprovalReceipt approval={a} />
           </div>
         ) : null}

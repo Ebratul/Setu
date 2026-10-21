@@ -1470,6 +1470,7 @@
     "expiresIn": "Expires in {time}",
     "expired": "Expired",
     "review": "Review",
+    "run": "Run the approved release",
     "reasons": "Why Setu asked you",
     "emailOnly": "Came by email. Setu never changes accounts from email. Reject this request.",
     "emailOnlyTitle": "Came by email",
