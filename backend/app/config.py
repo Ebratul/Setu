@@ -1,3 +1,5 @@
+import os
+import tempfile
 from datetime import date
 from decimal import Decimal
 from functools import lru_cache
@@ -12,6 +14,12 @@ AGENT_DIR = Path(__file__).resolve().parent.parent  # the backend/ folder
 # In a staged bundle (Vercel) data/, docs/ and rag_agent/ sit inside backend/ itself.
 REPO_ROOT = AGENT_DIR if (AGENT_DIR / "rag_agent").is_dir() else AGENT_DIR.parent
 RAG_AGENT_DIR = REPO_ROOT / "rag_agent"
+# Vercel's bundle is read-only; only /tmp is writable (per instance, not durable).
+DEFAULT_STORAGE_DIR = (
+    Path(tempfile.gettempdir()) / "setu-storage"
+    if os.environ.get("VERCEL")
+    else AGENT_DIR / "storage"
+)
 
 
 class Settings(BaseSettings):
@@ -105,7 +113,7 @@ class Settings(BaseSettings):
     kyb_sanctions_path: Path = Path("data/demo/sanctions_mock.json")  # relative to REPO_ROOT
 
     # Document forensics (app/services/documents, app/forensics). Weights: docs/forensics.md.
-    storage_dir: Path = AGENT_DIR / "storage"  # git-ignored; never under a public folder
+    storage_dir: Path = DEFAULT_STORAGE_DIR  # git-ignored; never under a public folder
     storage_backend: Literal["local", "s3"] = "local"
     # <= 4 MB: Vercel functions reject request bodies over 4.5 MB (multipart framing included).
     document_max_bytes: int = Field(4 * 1024 * 1024, gt=0)
