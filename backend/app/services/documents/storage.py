@@ -74,6 +74,11 @@ class LocalStorage:
         self._resolve(path).unlink(missing_ok=True)
 
 
+def _clean(value: str) -> str:
+    """Env values pasted from a .env file often keep their quotes or a trailing newline."""
+    return value.strip().strip("\"'").strip()
+
+
 class CloudinaryStorage:
     """Cloudinary backend. Assets are `raw` + `authenticated`, so a bare URL never serves them:
     reads go through a signed delivery URL built with the API secret. Keys are the same
@@ -86,9 +91,9 @@ class CloudinaryStorage:
         if not (settings.cloudinary_cloud_name and key and secret):
             raise ServiceUnavailable("object storage is not configured", "STORAGE_UNAVAILABLE")
         self.creds = {
-            "cloud_name": settings.cloudinary_cloud_name.strip(),
-            "api_key": key.get_secret_value().strip(),
-            "api_secret": secret.get_secret_value().strip(),
+            "cloud_name": _clean(settings.cloudinary_cloud_name),
+            "api_key": _clean(key.get_secret_value()),
+            "api_secret": _clean(secret.get_secret_value()),
             "secure": True,
         }
         self._demo = LocalStorage(demo_root)
