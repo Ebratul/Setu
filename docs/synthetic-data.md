@@ -141,3 +141,5 @@ the PI equals the sha256 of `prefinanced_invoice.pdf`, and a test fails if eithe
 - The model-based validator is the ground truth; P14 works from the PDFs, so extraction errors count against P14.
 - Dates assume the default `DEMO_TODAY = 2026-10-20` for the demo files; generated packs use their own 2026 timeline.
 - `%d/%m/%Y` is day-first. Date formats vary per pack (ISO, `05-Nov-2026`, `05/11/2026`, `November 05, 2026`).
+
+> Values to type into every form, with matching PDF/picture files: [demo-form-data.md](demo-form-data.md).

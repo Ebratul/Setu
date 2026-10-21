@@ -998,3 +998,11 @@ Times are Dhaka (UTC+6). Deadline: 20 Oct 2026 21:59 Dhaka. Must-have cut line: 
 - Tests stay in `backend/tests` (incl. `agent/`, `rag/`); verified identical to before: 768 passed / 31 failed (Postgres not running) / 538 skipped; vitest 433 passed.
 - Env files: `frontend/.env.local`, `backend/.env`, `rag_agent/.env` (see the `.env.example` in each). Root `.env` is still read first.
 - Older entries in this file use the previous paths (`apps/web`, `services/agent`).
+
+## 2026-10-21 — Demo values for every form (5 sets each) + sample PDFs and pictures
+- **What:** `docs/demo-form-data.md` (generated) lists five working value sets for each of 40 forms (accounts, onboarding buyer/supplier, team, orders, escrow, payout account, e-mail check, analysis, financing, cash flow, chat, admin dialogs, judge playgrounds) and links 97 sample files in `frontend/public/demo-files/` (served at `/demo-files/index.html`): per-set onboarding PDFs plus a JPG/PNG scan, five order packs (proforma, 2 production photos, commercial invoice, packing list, B/L, certificate of origin, bill of entry), five e-mails and the files that must be rejected.
+- **Source:** `backend/synthetic/form_samples/` (`people.py`, `forms.py`, `files.py`, `build.py`). Regenerate: `uv run --directory backend python -m synthetic.form_samples.build`.
+- **Tests:** `backend/tests/synthetic/test_form_sample*.py` (237 passed together with the existing generator tests): every column through its request model; 10 onboarding journeys end to end with all automatic checks PASS; 5 orders created, every file uploaded with no FAIL/WARN, schedule confirmed and first tranche funded; e-mail verdicts, risk tiers, landed cost, monthly, financing, cash flow, payout account, privacy, attack console and audit tamper run against the API; the committed doc must equal the generated one.
+- **Not run end to end:** register/verify e-mail/password reset (real inbox), team invite (neon mode), chat (model), admin dialogs (TOTP step-up); checked against request models only.
+- Supersedes the untracked `document_for_test/form_test_data.md` (it cites orders and logins that do not exist in the seed).
+- Local runs need `AUTH_MODE=demo APP_ENV=test` and a local `*_test` Postgres; the machine's `backend/.env` is in neon mode.
